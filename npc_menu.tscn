@@ -35,7 +35,6 @@ theme_override_font_sizes/font_size = 20
 text = "Watch"
 
 [node name="UnWatchButton" type="Button" parent="."]
-visible = false
 layout_mode = 0
 offset_left = 86.0
 offset_top = 64.0

@@ -7,7 +7,8 @@ signal close_npc_menu_signal
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$UnWatchButton.hide()
+	pass
+	#$UnWatchButton.hide()
 
 func _process(delta: float) -> void:
 	if DISPLAYED_NPC != null:

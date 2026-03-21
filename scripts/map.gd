@@ -3,8 +3,6 @@ extends ColorRect
 class_name Map
 
 var MAP = []
-var X_RANGE
-var Y_RANGE
 var ROOM = "club"
 @export var tile_scene: PackedScene
 
@@ -59,7 +57,13 @@ func _ready() -> void:
 			tile.initialize()
 
 		
-
+func get_tile_list():
+	var tile_list = []
+	for i in len(MAP):
+		for j in len(MAP[0]):
+			var tile = MAP[i][j]
+			tile_list.append(tile)
+	return tile_list
 
 
 func hide_all_tiles():
@@ -70,17 +74,15 @@ func hide_all_tiles():
 
 func tick():
 	hide_all_tiles()
-	X_RANGE = [Global.PLAYER_LOCATION[0] - 7, Global.PLAYER_LOCATION[0] + 8]
-	Y_RANGE = [Global.PLAYER_LOCATION[1] - 5, Global.PLAYER_LOCATION[1] + 6]
 	var x_counter = Constants.MAIN_FRAME_POSITION[0]
 	var y_counter = 0
 
-	for x in range(X_RANGE[0], X_RANGE[1]):
+	for x in range(Global.X_RANGE[0], Global.X_RANGE[1]):
 		if x not in range(0, len(MAP)):
 			x_counter += Constants.TILE_SIZE
 			y_counter = 0
 			continue
-		for y in range(Y_RANGE[0], Y_RANGE[1]):
+		for y in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
 			if y not in range(0, len(MAP[0])):
 				y_counter += Constants.TILE_SIZE
 				continue
@@ -95,26 +97,40 @@ func tick():
 
 #region utility
 
-func free_tile(location: Array):
+func empty_tile(location: Array):
 	var tile = get_tile(location)
 	tile.OCCUPANT = null
+
+
+func free_tile(location: Array):
+	var tile = get_tile(location)
 	tile.RESERVED = null
 
-func reserve_tile(location, npc):
+func reserve_tile(npc, location):
 	var tile = get_tile(location)
 	tile.RESERVED = npc
 
-func occupy_tile(occupant):
-	var location = occupant.LOCATION
-	MAP[location[0]][location[1]].OCCUPANT = occupant
+func swap_tile(npc, location):
+	var new_tile = get_tile(location)
+	var old_occupant = new_tile.OCCUPANT
+	#old_occupant.LOCATION = [npc.LOCATION[0], npc.LOCATION[1]]
+	#npc.LOCATION = location
+	occupy_tile(old_occupant, npc.LOCATION)
+	occupy_tile(npc, location)
+
+func occupy_tile(npc, location):
+	npc.LOCATION = location
+	MAP[location[0]][location[1]].OCCUPANT = npc
 
 func get_tile(location: Array):
 	return MAP[location[0]][location[1]]
 
-func random_tile():
-	var x = randi_range(0, Constants.MAP_SIZE[0]-1)
-	var y = randi_range(0, Constants.MAP_SIZE[1]-1)
-	return MAP[x][y]
+func random_empty_tile():
+	while true:
+		var location = [randi_range(0, Constants.MAP_SIZE[0]-1), randi_range(0, Constants.MAP_SIZE[1]-1)]
+		var tile = get_tile(location)
+		if !tile.is_reserved_or_occupied():
+			return tile
 
 func get_all_actions_on_map():
 	var all_actions = []

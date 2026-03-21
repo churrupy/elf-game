@@ -7,6 +7,7 @@ signal sprite_pressed_signal
 
 var NAME
 var ID
+var COLOR
 var LOCATION = [0,0]
 var GENDER
 var ACTION
@@ -32,8 +33,15 @@ func initialize(ID_COUNTER):
 	
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
+	$DefaultSprite.modulate = COLOR
+	$GlowSprite.modulate = COLOR
+	$HoverNameLabel.text = NAME
+	#$HoverNameLabel.modulate = COLOR
+	#$HoverNameLabel.add_theme_color_override("font_outline_color",Color.BLACK)
 	hide()
 	$GlowSprite.hide()
+	$HoverNameLabel.hide()
 	SignalBus.npc_hover.connect(on_hover)
 	SignalBus.npc_hover_off.connect(off_hover)
 	
@@ -41,12 +49,14 @@ func on_hover(npc):
 	if npc == self:
 		$DefaultSprite.hide()
 		$GlowSprite.show()
+		$HoverNameLabel.show()
 		#print("hovering!")
 		
 func off_hover(npc):
 	if npc == self:
 		$GlowSprite.hide()
 		$DefaultSprite.show()
+		$HoverNameLabel.hide()
 	
 #endregion
 	

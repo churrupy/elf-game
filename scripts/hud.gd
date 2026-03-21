@@ -4,8 +4,7 @@ signal auto_tick_signal
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	#$CloseButton.hide()
-	$NpcListMenu.hide()
+	pass
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -15,16 +14,14 @@ func _process(delta: float) -> void:
 
 func tick():
 	$DefaultMenu.tick()
-	$NpcListMenu.tick()
 
 
 func open_npc_list() -> void:
 	$DefaultMenu.hide()
-	$NpcListMenu.show()
 
 func close_npc_list() -> void:
-	$NpcListMenu.hide()
-	$DefaultMenu.show()
+	#$NpcListMenu.hide()
+	pass
 
 
 func auto_tick_button() -> void:
