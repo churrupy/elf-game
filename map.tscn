@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://drm6eb25ugdmi"]
+
+[ext_resource type="Script" uid="uid://d0xooc6sqvvww" path="res://scripts/map.gd" id="1_c7s6e"]
+[ext_resource type="PackedScene" uid="uid://w8sryyemorsu" path="res://tile.tscn" id="2_e0an3"]
+
+[node name="Map" type="ColorRect"]
+color = Color(1, 1, 1, 0)
+script = ExtResource("1_c7s6e")
+tile_scene = ExtResource("2_e0an3")

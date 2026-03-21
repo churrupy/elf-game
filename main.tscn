@@ -1,0 +1,21 @@
+[gd_scene load_steps=6 format=3 uid="uid://p30gae8jaqvk"]
+
+[ext_resource type="Script" uid="uid://bvte16k71lpps" path="res://scripts/main.gd" id="1_7mycd"]
+[ext_resource type="PackedScene" uid="uid://k1uuc7whn4yg" path="res://player.tscn" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://cxvennsy2mglw" path="res://menus/hud.tscn" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://b3nfuqwhtvmbc" path="res://npc.tscn" id="5_lquwl"]
+[ext_resource type="PackedScene" uid="uid://drm6eb25ugdmi" path="res://map.tscn" id="7_272bh"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_7mycd")
+npc_scene = ExtResource("5_lquwl")
+
+[node name="HUD" parent="." instance=ExtResource("4_1bvp3")]
+
+[node name="Map" parent="." instance=ExtResource("7_272bh")]
+
+[node name="Player" parent="." instance=ExtResource("2_0xm2m")]
+
+[connection signal="auto_tick_signal" from="HUD" to="." method="auto_tick"]
+[connection signal="move_without_tick_signal" from="Player" to="." method="_on_move_without_tick"]
+[connection signal="tick" from="Player" to="." method="_on_tick"]

@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://dqcrueypgqflp"]
+
+[ext_resource type="Script" uid="uid://bitvffmb6yovr" path="res://scripts/npc_button.gd" id="1_ba5ta"]
+
+[node name="NpcButton" type="Button"]
+offset_right = 8.0
+offset_bottom = 8.0
+theme_override_font_sizes/font_size = 20
+text = "NPC Name"
+script = ExtResource("1_ba5ta")
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exit"]
+[connection signal="pressed" from="." to="." method="_on_pressed"]
