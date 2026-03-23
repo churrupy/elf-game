@@ -7,8 +7,7 @@ signal close_npc_menu_signal
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass
-	#$UnWatchButton.hide()
+	$UnWatchButton.hide()
 
 func _process(delta: float) -> void:
 	if DISPLAYED_NPC != null:
@@ -39,7 +38,7 @@ func initialize(npc):
 
 
 func close_menu() -> void:
-	close_npc_menu_signal.emit()
+	SignalBus.close_npc_menu.emit()
 	SignalBus.npc_hover_off.emit(DISPLAYED_NPC)
 
 

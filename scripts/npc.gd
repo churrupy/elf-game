@@ -140,10 +140,7 @@ func _to_string():
 
 
 func sprite_clicked() -> void:
-	# i don't know if i need this
-	sprite_pressed_signal.emit()
-	pass # Replace with function body.
-
+	SignalBus.npc_click.emit(self)
 
 func _on_mouse_entered() -> void:
 	SignalBus.npc_hover.emit(self)

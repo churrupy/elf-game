@@ -29,13 +29,6 @@ func create_npc():
 	ID_COUNTER += 1
 	add_child(npc)
 	Global.NPCS[npc.ID] = npc
-	npc.get_node("NpcMenuButton").connect("pressed", Callable(self, "open_sprite_pressed_menu").bind(npc))
-
-func open_sprite_pressed_menu(npc):
-	# i don't need no signal bus!!!!
-	$HUD.get_node("DefaultMenu").hide()
-	$HUD.get_node("NpcListMenu").show()
-	$HUD.get_node("NpcListMenu").open_npc_menu_via_sprite(npc)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

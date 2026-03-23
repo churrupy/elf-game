@@ -15,6 +15,8 @@ func _ready() -> void:
 func initialize():
 	$TypeInitialLabel.text = TYPE.substr(0,6)
 	$LocationLabel.text = str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))
+	var tile_data = Constants.TILE_TEMPLATES[TYPE]
+	texture = load("res://models/" + tile_data["png"])
 	
 
 func _process(delta: float) -> void:

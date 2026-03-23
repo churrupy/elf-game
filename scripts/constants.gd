@@ -95,7 +95,7 @@ const ACTION_TEMPLATES = {
 		"other_req": false,
         "do_off_tile": true
     },
-    "use bathroom": {
+    "use toilet": {
         "need": "bladder",
         "duration": 5,
         "followers": [0,0],
@@ -128,26 +128,41 @@ const ACTION_TEMPLATES = {
 
 #region tiles
 const TILE_TEMPLATES = {
+    "empty": {
+        "actions": [],
+        "impassable": false,
+        "png": "tile.png"
+    },
 	"social_empty": {
 		"actions": ["converse"],
-		"impassable": false
+		"impassable": false,
+        "png": "tile.png"
 	},
     "dance_floor": {
 		"actions": ["dance"],
-		"impassable": false
+		"impassable": false,
+        "png": "tile.png"
 	},
-    "bathroom":  {
-		"actions": ["use bathroom", "converse", "encounter"],
-		"impassable": false
+    "toilet":  {
+		"actions": ["use toilet", "converse", "encounter"],
+		"impassable": false,
+        "png": "tile.png"
 	},
     "bar": {
 		"actions": ["converse", "snack"],
-		"impassable": true
+		"impassable": true,
+        "png": "tile.png"
 	},
-	"standing_table": {
+	"table": {
 		"actions": ["converse"],
-		"impassable": true
-	}
+		"impassable": true,
+        "png": "tile.png"
+	},
+    "wall": {
+        "actions": [],
+        "impassable": true,
+        "png": "wall.png"
+    }
 
 }
 

@@ -5,8 +5,7 @@ extends Control
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$NpcMenu.hide()
-	#$NpcListButton.hide()
+
 	pass
 
 
@@ -38,19 +37,3 @@ func clear_buttons():
 		if child is NPC_BUTTON:
 			child.queue_free()
 	
-
-func open_npc_menu(npc):
-	$TickLabel.hide()
-	$PCLocationLabel.hide()
-	$NpcMenu.initialize(npc)
-	$NpcMenu.show()
-
-func open_npc_menu_via_sprite(npc):
-	open_npc_menu(npc)
-
-func close_npc_menu():
-	$NpcMenu.hide()
-	$NpcMenu.WATCH = false
-	$TickLabel.show()
-	$PCLocationLabel.show()
-	SignalBus.npc_hover_off.emit($NpcMenu.DISPLAYED_NPC)
