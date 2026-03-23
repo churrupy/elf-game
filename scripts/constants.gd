@@ -141,22 +141,22 @@ const TILE_TEMPLATES = {
     "dance_floor": {
 		"actions": ["dance"],
 		"impassable": false,
-        "png": "tile.png"
+        "png": "dance_floor.png"
 	},
     "toilet":  {
 		"actions": ["use toilet", "converse", "encounter"],
 		"impassable": false,
-        "png": "tile.png"
+        "png": "toilet.png"
 	},
     "bar": {
 		"actions": ["converse", "snack"],
 		"impassable": true,
-        "png": "tile.png"
+        "png": "bar.png"
 	},
 	"table": {
 		"actions": ["converse"],
 		"impassable": true,
-        "png": "tile.png"
+        "png": "table.png"
 	},
     "wall": {
         "actions": [],

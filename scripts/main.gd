@@ -196,16 +196,29 @@ func determine_action(npc):
 			return action
 
 		var is_reserved = is_location_reserved(action.TARGET.LOCATION)
+		var tile = $Map.get_tile(action.TARGET.LOCATION)
+		var is_travelable = tile.is_travelable()
 
-		if is_reserved:
+		if is_reserved or !is_travelable:
 			if !action.can_do_off_tile(): continue
 			# find adjacent tile
 			var neighbors = get_neighbors(action.TARGET.LOCATION)
+			var new_action_list = []
 			for n in neighbors:
-				is_reserved = is_location_reserved(n)
-				if !is_reserved:
-					action.LOCATION = n
-					return action
+				var new_tile = $Map.get_tile(n)
+				var new_action = ACTIONS.new()
+				new_action.ID = action.ID
+				new_action.TARGET = new_tile
+				new_action.LOCATION = n
+				new_action.NEED = action.NEED
+				new_action = npc.score_action(new_action)
+				new_action_list.append(new_action)
+			new_action_list.sort_custom(func(a,b): return b.SCORE < a.SCORE)
+			for second_action in new_action_list:
+				is_reserved = is_location_reserved(second_action.LOCATION)
+				is_travelable = second_action.TARGET.is_travelable()
+				if !is_reserved and is_travelable:
+					return second_action
 		else:
 			return action
 	push_error("action not found for", npc.NAME)

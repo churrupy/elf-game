@@ -39,17 +39,6 @@ func is_travelable():
 		return false
 	return true
 
-func is_reserved_or_occupied():
-	if RESERVED != null:
-		return true
-	if OCCUPANT != null:
-		return true
-	var tile_data = Constants.TILE_TEMPLATES[TYPE]
-	if tile_data["impassable"]: return true
-	return false
-
-	
-	
 func _to_string():
 	var _str = TYPE + " at " + str(LOCATION)
 	if OCCUPANT != null:

@@ -151,8 +151,9 @@ func random_empty_tile():
 	while true:
 		var location = [randi_range(0, Constants.MAP_SIZE[0]-1), randi_range(0, Constants.MAP_SIZE[1]-1)]
 		var tile = get_tile(location)
-		if !tile.is_reserved_or_occupied() and tile.is_travelable():
-			return tile
+		if !tile.is_travelable(): continue
+		return tile
+		
 
 func get_all_actions_on_map():
 	var all_actions = []
