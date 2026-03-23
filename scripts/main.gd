@@ -14,6 +14,7 @@ var ID_COUNTER = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	SignalBus.player_move_request.connect(process_player_move)
 	for i in Constants.NUM_NPCS:
 		create_npc()
 	_on_tick()
@@ -37,6 +38,14 @@ func _process(delta: float) -> void:
 		_on_tick()
 	
 #region ticks
+
+func process_player_move(location):
+	var tile = $Map.get_tile(location)
+	if tile.is_travelable():
+		Global.PLAYER_LOCATION = location
+	else:
+		print("tile not accessible")
+	_on_tick()
 
 func auto_tick() -> void:
 	_on_tick()
@@ -266,9 +275,13 @@ func get_neighbors(location):
 			continue
 		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]:
 			continue
-		valid_neighbors.append(n)
 		var tile = $Map.get_tile(n)
 		if !tile.is_travelable(): continue
+		valid_neighbors.append(n)
+		
+		
+	#print("valid neighbors!")
+	#print(valid_neighbors)
 	return valid_neighbors
 
 func get_next_step(parent_dict, start, end):

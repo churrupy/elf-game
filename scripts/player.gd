@@ -40,6 +40,10 @@ func _process(delta:float) -> void:
 		return
 	#var old_location = [Global.PLAYER_LOCATION[0], Global.PLAYER_LOCATION[1]]
 	var old_location = [Global.PLAYER_LOCATION[0] + Global.PLAYER_LOCATION[1]]
+	var new_location = [Global.PLAYER_LOCATION[0] + delta_direction[0], Global.PLAYER_LOCATION[1] + delta_direction[1]]
+
+	SignalBus.player_move_request.emit(new_location)
+	return
 	Global.PLAYER_LOCATION[0] += delta_direction[0]
 	Global.PLAYER_LOCATION[0] = clamp(Global.PLAYER_LOCATION[0], 0, Constants.MAP_SIZE[0]-1)
 	Global.PLAYER_LOCATION[1] += delta_direction[1]

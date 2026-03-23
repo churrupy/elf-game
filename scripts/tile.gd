@@ -35,7 +35,8 @@ func is_reservable():
 
 func is_travelable():
 	var tile_data = Constants.TILE_TEMPLATES[TYPE]
-	if tile_data["impassable"]: return false
+	if tile_data["impassable"]:
+		return false
 	return true
 
 func is_reserved_or_occupied():
