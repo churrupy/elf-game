@@ -10,9 +10,9 @@
 script = ExtResource("1_7mycd")
 npc_scene = ExtResource("5_lquwl")
 
-[node name="HUD" parent="." instance=ExtResource("4_1bvp3")]
-
 [node name="Map" parent="." instance=ExtResource("7_272bh")]
+
+[node name="HUD" parent="." instance=ExtResource("4_1bvp3")]
 
 [node name="Player" parent="." instance=ExtResource("2_0xm2m")]
 

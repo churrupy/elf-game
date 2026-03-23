@@ -5,8 +5,11 @@ signal auto_tick_signal
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	$NpcMenu.hide()
+	$TalkMenu.hide()
 	SignalBus.npc_click.connect(open_npc_menu)
 	SignalBus.close_npc_menu.connect(close_npc_menu)
+	SignalBus.talk_to_npc.connect(open_talk_menu)
+	SignalBus.close_talk_menu.connect(close_talk_menu)
 	#$NpcListButton.hide()
 
 	
@@ -29,6 +32,13 @@ func close_npc_list() -> void:
 
 func auto_tick_button() -> void:
 	auto_tick_signal.emit()
+	
+func open_talk_menu(npc):
+	$TalkMenu.initialize(npc)
+	$TalkMenu.show()
+
+func close_talk_menu():
+	$TalkMenu.hide()
 
 func open_npc_menu(npc):
 	print("showing menu")
@@ -42,5 +52,7 @@ func close_npc_menu():
 	$NpcMenu.hide()
 	$NpcMenu.WATCH = false
 	SignalBus.npc_hover_off.emit($NpcMenu.DISPLAYED_NPC)
+	$TalkMenu.hide()
 	$DefaultMenu.show()
+	
 	

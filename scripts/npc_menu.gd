@@ -37,7 +37,7 @@ func initialize(npc):
 	SignalBus.npc_hover.emit(DISPLAYED_NPC)
 
 
-func close_menu() -> void:
+func close_npc_menu() -> void:
 	SignalBus.close_npc_menu.emit()
 	SignalBus.npc_hover_off.emit(DISPLAYED_NPC)
 
@@ -53,3 +53,7 @@ func unwatch_npc() -> void:
 	WATCH = false
 	$UnWatchButton.hide()
 	$WatchButton.show()
+
+
+func talk_pressed() -> void:
+	SignalBus.talk_to_npc.emit(DISPLAYED_NPC)

@@ -27,3 +27,7 @@ func _on_mouse_entered() -> void:
 
 func _on_mouse_exit() -> void:
 	SignalBus.npc_hover_off.emit(DISPLAYED_NPC)
+
+
+func _on_pressed() -> void:
+	SignalBus.npc_click.emit(DISPLAYED_NPC)
