@@ -20,10 +20,13 @@ func _ready() -> void:
 	SignalBus.npc_click.connect(open_npc_menu)
 	SignalBus.close_npc_menu.connect(close_npc_menu)
 
+	SignalBus.talk_to_npc.connect(open_talk_menu)
+	SignalBus.close_talk_menu.connect(close_talk_menu)
 
 	for i in Constants.NUM_NPCS:
 		create_npc()
 	$NpcMenu.hide()
+	$TalkMenu.hide()
 	_on_tick()
 
 
@@ -326,6 +329,15 @@ func open_npc_menu(npc):
 func close_npc_menu():
 	$NpcMenu.hide()
 	$DefaultMenu.show()
+
+
+func open_talk_menu(npc):
+	open_npc_menu(npc)
+	$TalkMenu.initialize(npc)
+	$TalkMenu.show()
+
+func close_talk_menu():
+	$TalkMenu.hide()
 
 
 
