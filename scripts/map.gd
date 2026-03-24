@@ -129,13 +129,22 @@ func tick():
 			if y not in range(0, len(MAP[0])):
 				y_counter += Constants.TILE_SIZE
 				continue
+			var location = [x, y]
+			var tile_type = get_tile(location)
 			var tile = tile_scene.instantiate()
+			tile.initialize(tile_type, location)
 			add_child(tile)
 			tile.global_position = Vector2(x_counter, y_counter)
 			tile.show()
 			y_counter += Constants.TILE_SIZE
 		x_counter += Constants.TILE_SIZE
 		y_counter = 0
+
+func is_travelable(location):
+	var tile = get_tile(location)
+	var tile_data = Constants.TILE_TEMPLATES[tile]
+	if tile_data["impassable"] == true: return false
+	return true
 
 
 func tick_old():
@@ -163,30 +172,6 @@ func tick_old():
 
 #region utility
 
-func empty_tile(location: Array):
-	var tile = get_tile(location)
-	tile.OCCUPANT = null
-
-
-func free_tile(location: Array):
-	var tile = get_tile(location)
-	tile.RESERVED = null
-
-func reserve_tile(npc, location):
-	var tile = get_tile(location)
-	tile.RESERVED = npc
-
-func swap_tile(npc, location):
-	var new_tile = get_tile(location)
-	var old_occupant = new_tile.OCCUPANT
-	#old_occupant.LOCATION = [npc.LOCATION[0], npc.LOCATION[1]]
-	#npc.LOCATION = location
-	occupy_tile(old_occupant, npc.LOCATION)
-	occupy_tile(npc, location)
-
-func occupy_tile(npc, location):
-	npc.LOCATION = location
-	MAP[location[0]][location[1]].OCCUPANT = npc
 
 func get_tile(location: Array):
 	return MAP[location[0]][location[1]]
@@ -206,9 +191,28 @@ func random_empty_tile_old():
 		var tile = get_tile(location)
 		if !tile.is_travelable(): continue
 		return tile
-		
+
 
 func get_all_actions_on_map():
+	var all_actions = []
+	for i in len(MAP):
+		for j in len(MAP[0]):
+			var tile = MAP[i][j]
+			var tile_data = Constants.TILE_TEMPLATES[tile]
+			#var tile_actions = Constants.TILE_TEMPLATES[tile]["actions"]
+			for action in tile_data["actions"]:
+				var new_action = ACTIONS.new()
+				new_action.ID = action
+				new_action.TARGET = [i,j] # where the npc wants to pathfind to
+				new_action.LOCATION = [i,j] # where the npc ends up (if adjacent to target)
+				var action_data = Constants.ACTION_TEMPLATES[action]
+				new_action.NEED = action_data["need"]
+				all_actions.append(new_action)
+	return all_actions
+
+		
+
+func get_all_actions_on_map_old():
 	var all_actions = []
 	for i in len(MAP):
 		for j in len(MAP[0]):

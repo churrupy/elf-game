@@ -1,8 +1,8 @@
 class_name ACTIONS
 
 
-var TARGET # tile, other npc
-var LOCATION # when you need to be at something, not neccessarily on it
+var TARGET # location of target
+var LOCATION # adjacent to target, if necessary (if not necessary, then will be the same as location)
 var ID: String
 var NEED: String
 var STATUS = "moving" # idk that enum thing again

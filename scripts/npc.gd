@@ -115,8 +115,8 @@ func score_action(action):
 		action.SCORE += get_opinion(action.FOLLOWING)
 
 	# score based on distance
-	var total_x = abs(LOCATION[0]- action.TARGET.LOCATION[0])
-	var total_y = abs(LOCATION[1] - action.TARGET.LOCATION[1])
+	var total_x = abs(LOCATION[0]- action.TARGET[0])
+	var total_y = abs(LOCATION[1] - action.TARGET[1])
 	action.SCORE -= total_x #distance is penalty
 	action.SCORE -= total_y
 

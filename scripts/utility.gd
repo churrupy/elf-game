@@ -15,16 +15,16 @@ func get_npc_from_location(location: Array):
 
 func get_all_group_actions():
 	var all_actions = []
-	for child in get_children():
-		if child is not NPC: continue
-		if child.ACTION == null: continue
-		if not child.ACTION.is_joinable(): continue
+	for npc_id in Global.NPCS.keys():
+		var npc = Global.NPCS[npc_id]
+		if npc.ACTION == null: continue
+		if not npc.ACTION.is_joinable(): continue
 		var new_action = ACTIONS.new()
-		new_action.ID = child.ACTION.ID
-		new_action.TARGET = child.ACTION.TARGET
-		new_action.LOCATION = child.ACTION.LOCATION
-		new_action.NEED = child.ACTION.NEED
-		new_action.FOLLOWING = child
+		new_action.ID = npc.ACTION.ID
+		new_action.TARGET = npc.ACTION.TARGET
+		new_action.LOCATION = npc.ACTION.LOCATION
+		new_action.NEED = npc.ACTION.NEED
+		new_action.FOLLOWING = npc
 		all_actions.append(new_action)
 	return all_actions
 

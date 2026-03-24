@@ -25,8 +25,8 @@ func _ready() -> void:
 func create_npc():
 	var npc = npc_scene.instantiate()
 	var tile = $Map.random_empty_tile()
+	npc.LOCATION = tile
 	#npc.LOCATION = tile.LOCATION
-	$Map.occupy_tile(npc, tile.LOCATION)
 	npc.initialize(ID_COUNTER)
 	ID_COUNTER += 1
 	add_child(npc)
@@ -41,8 +41,7 @@ func _process(delta: float) -> void:
 #region ticks
 
 func process_player_move(location):
-	var tile = $Map.get_tile(location)
-	if tile.is_travelable():
+	if $Map.is_travelable(location):
 		Global.PLAYER_LOCATION = location
 	else:
 		print("tile not accessible")
@@ -75,9 +74,9 @@ func _on_tick() -> void:
 	get_current_npcs()
 	var npc_list = get_npc_list()
 	Utility.display_list_on_screen(npc_list, Constants.TILE_SIZE/2)
-	var tile_list = $Map.get_tile_list()
-	Utility.display_list_on_screen(tile_list)
-	#$Map.tick()
+	#var tile_list = $Map.get_tile_list()
+	#Utility.display_list_on_screen(tile_list)
+	$Map.tick()
 	$HUD.tick()
 	
 
@@ -147,6 +146,23 @@ func update_current_npcs():
 
 
 
+func get_all_group_actions():
+	var all_actions = []
+	for child in get_children():
+		if child is not NPC: continue
+		if child.ACTION == null: continue
+		if not child.ACTION.is_joinable(): continue
+		var new_action = ACTIONS.new()
+		new_action.ID = child.ACTION.ID
+		new_action.TARGET = child.ACTION.TARGET
+		new_action.LOCATION = child.ACTION.LOCATION
+		new_action.NEED = child.ACTION.NEED
+		new_action.FOLLOWING = child
+		all_actions.append(new_action)
+	return all_actions
+
+
+
 
 
 func determine_action(npc):
@@ -157,23 +173,21 @@ func determine_action(npc):
 
 	all_actions.sort_custom(func(a, b): return b.SCORE < a.SCORE)
 	for action in all_actions:
-		if npc.LOCATION == action.TARGET.LOCATION:
+		if npc.LOCATION == action.TARGET:
 			return action
 
-		var is_reserved = Utility.is_location_reserved(action.TARGET.LOCATION)
-		var tile = $Map.get_tile(action.TARGET.LOCATION)
-		var is_travelable = tile.is_travelable()
+		var is_reserved = Utility.is_location_reserved(action.TARGET)
+		var is_travelable = $Map.is_travelable(action.TARGET)
 
+		# find adjacent tile if possible
 		if is_reserved or !is_travelable:
 			if !action.can_do_off_tile(): continue
-			# find adjacent tile
-			var neighbors = get_neighbors(action.TARGET.LOCATION)
+			var neighbors = get_neighbors(action.TARGET)
 			var new_action_list = []
 			for n in neighbors:
-				var new_tile = $Map.get_tile(n)
 				var new_action = ACTIONS.new()
 				new_action.ID = action.ID
-				new_action.TARGET = new_tile
+				new_action.TARGET = action.TARGET
 				new_action.LOCATION = n
 				new_action.NEED = action.NEED
 				new_action = npc.score_action(new_action)
@@ -181,9 +195,8 @@ func determine_action(npc):
 			new_action_list.sort_custom(func(a,b): return b.SCORE < a.SCORE)
 			for second_action in new_action_list:
 				is_reserved = Utility.is_location_reserved(second_action.LOCATION)
-				is_travelable = second_action.TARGET.is_travelable()
-				if !is_reserved and is_travelable:
-					return second_action
+				#is_travelable = second_action.TARGET.is_travelable() # get_neighbors always returns only travelable tiles
+				if !is_reserved: return second_action
 		else:
 			return action
 	push_error("action not found for", npc.NAME)
@@ -240,8 +253,7 @@ func get_neighbors(location):
 			continue
 		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]:
 			continue
-		var tile = $Map.get_tile(n)
-		if !tile.is_travelable(): continue
+		if !$Map.is_travelable(n): continue
 		valid_neighbors.append(n)
 		
 	return valid_neighbors
