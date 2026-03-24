@@ -31,40 +31,15 @@ func initialize(ID_COUNTER):
 	GENDER = ["male", "female"].pick_random()
 	NAME = NAMES[GENDER].pick_random()
 	ID = NAME + str(ID_COUNTER)
+	COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
 	var topics = Dialogue.CONVERSATION_NODES.keys()
 	for topic in topics:
 		OPINIONS[topic] = randi_range(0,100)
+
 	
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
-	$DefaultSprite.modulate = COLOR
-	$GlowSprite.modulate = COLOR
-	$HoverNameLabel.text = NAME
-	#$HoverNameLabel.modulate = COLOR
-	#$HoverNameLabel.add_theme_color_override("font_outline_color",Color.BLACK)
-	hide()
-	$GlowSprite.hide()
-	$HoverNameLabel.hide()
-	SignalBus.npc_hover.connect(on_hover)
-	SignalBus.npc_hover_off.connect(off_hover)
+func _init() -> void:
 	SignalBus.say_topic.connect(hear_topic)
 
-func _process(delta:float):
-	print(RECENT_TOPIC)
-	
-func on_hover(npc):
-	if npc == self:
-		$DefaultSprite.hide()
-		$GlowSprite.show()
-		$HoverNameLabel.show()
-		#print("hovering!")
-		
-func off_hover(npc):
-	if npc == self:
-		$GlowSprite.hide()
-		$DefaultSprite.show()
-		$HoverNameLabel.hide()
 	
 #endregion
 	
@@ -79,18 +54,6 @@ func clamp_needs():
 	for need in NEEDS:
 		NEEDS[need] = clamp(NEEDS[need], 0, 100)
 		
-
-func move_random():
-	#print("npc called")
-	var direction_options = [
-		Vector2(Constants.TILE_SIZE, 0),
-		Vector2(-Constants.TILE_SIZE, 0),
-		Vector2(0, Constants.TILE_SIZE),
-		Vector2(0, -Constants.TILE_SIZE)
-	]
-	var direction = direction_options.pick_random()
-	position += direction
-	position = position.clamp(Vector2.ZERO, Constants.SCREEN_SIZE)
 
 
 #endregion
@@ -122,28 +85,7 @@ func score_action(action):
 
 	return action
 
-func hear_topic(speaker_id, topic, opinion, location):
-	if speaker_id == ID:
-		return
-	print("signal delivered")
-	print(location)
-	print(LOCATION)
-	if LOCATION[0] in range(location[0]-1, location[0]+2):
-		if LOCATION[1] in range(location[1] -1, location[1]+2):
-			if speaker_id not in RELATIONSHIPS:
-				RELATIONSHIPS[speaker_id] = 0
-			RECENT_TOPIC = topic
-			var this_opinion = OPINIONS[topic]
-			var diff = abs(this_opinion - opinion)
-			if diff > 50:
-				RELATIONSHIPS[speaker_id] -= 1
-			elif diff > 25:
-				pass
-			else:
-				RELATIONSHIPS[speaker_id] += 1
-			print(NAME)
-			print("topic heard")
-			print(RECENT_TOPIC)
+
 	
 #endregion
 
@@ -169,12 +111,25 @@ func _to_string():
 #endregion
 
 
-func sprite_clicked() -> void:
-	SignalBus.npc_click.emit(self)
-
-func _on_mouse_entered() -> void:
-	SignalBus.npc_hover.emit(self)
-
-
-func _on_mouse_exit() -> void:
-	SignalBus.npc_hover_off.emit(self)
+func hear_topic(speaker_id, topic, opinion, location):
+	if speaker_id == ID:
+		return
+	print("signal delivered")
+	print(location)
+	print(LOCATION)
+	if LOCATION[0] in range(location[0]-1, location[0]+2):
+		if LOCATION[1] in range(location[1] -1, location[1]+2):
+			if speaker_id not in RELATIONSHIPS:
+				RELATIONSHIPS[speaker_id] = 0
+			RECENT_TOPIC = topic
+			var this_opinion = OPINIONS[topic]
+			var diff = abs(this_opinion - opinion)
+			if diff > 50:
+				RELATIONSHIPS[speaker_id] -= 1
+			elif diff > 25:
+				pass
+			else:
+				RELATIONSHIPS[speaker_id] += 1
+			print(NAME)
+			print("topic heard")
+			print(RECENT_TOPIC)

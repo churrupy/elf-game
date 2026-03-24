@@ -1,11 +1,11 @@
 [gd_scene load_steps=4 format=3 uid="uid://b3nfuqwhtvmbc"]
 
 [ext_resource type="Texture2D" uid="uid://cqheqrc4fcmlk" path="res://models/npc.png" id="1_ideak"]
-[ext_resource type="Script" uid="uid://cy07847yk6mq4" path="res://scripts/npc.gd" id="1_xxcha"]
+[ext_resource type="Script" uid="uid://d20ufj3dq8263" path="res://scripts/displayed_npc.gd" id="1_kh24r"]
 [ext_resource type="Texture2D" uid="uid://bp3jjl8sqjadm" path="res://models/npc_glow.png" id="3_kh24r"]
 
-[node name="NPC" type="Area2D"]
-script = ExtResource("1_xxcha")
+[node name="DisplayedNpc" type="Area2D"]
+script = ExtResource("1_kh24r")
 
 [node name="DefaultSprite" type="Sprite2D" parent="."]
 z_index = 1

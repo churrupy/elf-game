@@ -10,11 +10,10 @@ func _ready() -> void:
 	$UnWatchButton.hide()
 
 func _process(delta: float) -> void:
-	if DISPLAYED_NPC != null:
-		initialize(DISPLAYED_NPC)
+	pass
 
 	
-func initialize(npc):
+func initialize(npc, history):
 	DISPLAYED_NPC = npc
 	$NameLabel.text = npc.NAME
 	var display_string = []
@@ -32,6 +31,10 @@ func initialize(npc):
 	for need in npc.NEEDS:
 		_str = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
 		display_string.append(_str)
+
+	# get last five moves
+	var last_five = history.slice(-5,-1)
+	display_string += last_five
 		
 	var display = "\n".join(display_string)
 	$NpcDescription.text = display

@@ -14,14 +14,16 @@ offset_bottom = 660.0
 size_flags_horizontal = 3
 script = ExtResource("1_ubb6d")
 
-[node name="TalkButton" type="Button" parent="."]
-layout_mode = 0
-offset_left = 205.0
-offset_top = 63.0
-offset_right = 299.0
-offset_bottom = 99.0
+[node name="CloseButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -30.0
+offset_bottom = 36.0
+grow_horizontal = 0
 theme_override_font_sizes/font_size = 20
-text = "Talk"
+text = "X"
 
 [node name="NameLabel" type="Label" parent="."]
 layout_mode = 1
@@ -36,6 +38,22 @@ grow_horizontal = 2
 theme_override_font_sizes/font_size = 20
 text = "Name"
 horizontal_alignment = 1
+
+[node name="Portrait" parent="." instance=ExtResource("2_pcope")]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 11.0
+offset_right = 49.0
+offset_bottom = 51.0
+
+[node name="TalkButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 205.0
+offset_top = 63.0
+offset_right = 299.0
+offset_bottom = 99.0
+theme_override_font_sizes/font_size = 20
+text = "Talk"
 
 [node name="WatchButton" type="Button" parent="."]
 layout_mode = 0
@@ -60,31 +78,13 @@ icon = ExtResource("3_h4d1c")
 layout_mode = 0
 offset_left = 10.0
 offset_top = 185.0
-offset_right = 378.0
-offset_bottom = 575.0
+offset_right = 326.0
+offset_bottom = 644.0
 text = "Npc Description"
 autowrap_mode = 3
 text_overrun_behavior = 2
 
-[node name="CloseButton" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -30.0
-offset_bottom = 36.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 20
-text = "X"
-
-[node name="Portrait" parent="." instance=ExtResource("2_pcope")]
-layout_mode = 0
-offset_left = 9.0
-offset_top = 11.0
-offset_right = 49.0
-offset_bottom = 51.0
-
+[connection signal="pressed" from="CloseButton" to="." method="close_npc_menu"]
 [connection signal="pressed" from="TalkButton" to="." method="talk_pressed"]
 [connection signal="pressed" from="WatchButton" to="." method="watch_npc"]
 [connection signal="pressed" from="UnWatchButton" to="." method="unwatch_npc"]
-[connection signal="pressed" from="CloseButton" to="." method="close_npc_menu"]

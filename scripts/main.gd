@@ -4,7 +4,7 @@ class_name ENGINE
 #var X_RANGE
 #var Y_RANGE
 @export var npc_scene: PackedScene
-@export var action_scene: PackedScene
+var History = HISTORY_CLASS.new()
 
 
 
@@ -16,21 +16,27 @@ var ID_COUNTER = 0
 func _ready() -> void:
 	SignalBus.tick_signal.connect(_on_tick)
 	SignalBus.player_move_request.connect(process_player_move)
+	
+	SignalBus.npc_click.connect(open_npc_menu)
+	SignalBus.close_npc_menu.connect(close_npc_menu)
+
+
 	for i in Constants.NUM_NPCS:
 		create_npc()
+	$NpcMenu.hide()
 	_on_tick()
 
 
 
 func create_npc():
-	var npc = npc_scene.instantiate()
+	var npc = NPC.new()
 	var tile = $Map.random_empty_tile()
 	npc.LOCATION = tile
-	#npc.LOCATION = tile.LOCATION
 	npc.initialize(ID_COUNTER)
 	ID_COUNTER += 1
-	add_child(npc)
+	#add_child(npc)
 	Global.NPCS[npc.ID] = npc
+	History.add_entry(npc.ID, "created")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -45,6 +51,7 @@ func process_player_move(location):
 		Global.PLAYER_LOCATION = location
 	else:
 		print("tile not accessible")
+	History.add_entry("player", "moved to", location)
 	_on_tick()
 
 func auto_tick() -> void:
@@ -54,7 +61,30 @@ func auto_tick() -> void:
 func _on_move_without_tick() -> void:
 	$Map.tick()
 	get_current_npcs()
-	update_current_npcs()
+	#update_current_npcs()
+
+
+func display_npcs():
+	for child in get_children():
+		if child is DISPLAYED_NPC:
+			child.queue_free()
+	
+	for npc_id in Global.NPCS.keys():
+		var npc = Global.NPCS[npc_id]
+
+		var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(npc.LOCATION[0])
+		if x_index < 0:
+			continue
+		var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(npc.LOCATION[1])
+		if y_index < 0:
+			continue
+
+		var displayed_npc = npc_scene.instantiate()
+		displayed_npc.initialize(npc)
+		add_child(displayed_npc)
+		displayed_npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0] + Constants.TILE_SIZE/2
+		displayed_npc.global_position[1] = y_index * Constants.TILE_SIZE + Constants.TILE_SIZE/2
+		
 
 
 
@@ -70,14 +100,23 @@ func _on_tick() -> void:
 	Global.TICKS += 1
 	print("Ticks: ", Global.TICKS)
 	print("player location:", Global.PLAYER_LOCATION)
-	update_current_npcs()
+	tick_npcs()
 	get_current_npcs()
-	var npc_list = get_npc_list()
-	Utility.display_list_on_screen(npc_list, Constants.TILE_SIZE/2)
+	display_npcs()
+	#var npc_list = get_npc_list()
+	#Utility.display_list_on_screen(npc_list, Constants.TILE_SIZE/2)
 	#var tile_list = $Map.get_tile_list()
 	#Utility.display_list_on_screen(tile_list)
 	$Map.tick()
-	$HUD.tick()
+	var player_history = History.filter_by_npc("player")
+	var player_history_list = History.display_history(player_history)
+	$DefaultMenu.update_history_and_tick(player_history_list)
+	#$DefaultMenu.tick()
+
+	if $NpcMenu.visible:
+		# re-initialize/update visible history
+		open_npc_menu($NpcMenu.DISPLAYED_NPC)
+	#$HUD.tick()
 	
 
 #endregion
@@ -97,7 +136,7 @@ func get_current_npcs():
 			Global.CURRENT_NPCS.append(npc)
 
 
-func update_current_npcs():
+func tick_npcs():
 	Global.CURRENT_NPCS = []
 	for npc_id in Global.NPCS.keys():
 		var npc = Global.NPCS[npc_id]
@@ -111,6 +150,7 @@ func update_current_npcs():
 		if (npc.ACTION.LOCATION == npc.LOCATION):
 			npc.ACTION.STATUS = "filling"
 			npc.ACTION.do(npc)
+			History.add_entry(npc.ID, npc.ACTION.ID)
 		else:
 			var next_step = step_towards_location(npc.LOCATION, npc.ACTION.LOCATION)
 			if next_step == null:
@@ -118,6 +158,7 @@ func update_current_npcs():
 				print("teleporting...")
 				print(npc.LOCATION, npc.ACTION.LOCATION)
 				npc.LOCATION = npc.ACTION.LOCATION
+				History.add_entry(npc.ID, "teleported to", npc.ACTION.LOCATION)
 				continue
 			print(next_step)
 			var current_occupant = Utility.get_npc_from_location(next_step)
@@ -135,9 +176,11 @@ func update_current_npcs():
 				var new_location = valid_neighbors.pick_random()
 
 				current_occupant.LOCATION = new_location
+			History.add_entry(npc.ID, "teleported to", npc.ACTION.LOCATION)
 			npc.LOCATION = next_step
 		
 		if npc.ACTION.STATUS == "finish":
+			History.add_entry(npc.ID, "finished", npc.ACTION.ID)
 			npc.ACTION = null
 
 		npc.decay_needs()
@@ -148,16 +191,16 @@ func update_current_npcs():
 
 func get_all_group_actions():
 	var all_actions = []
-	for child in get_children():
-		if child is not NPC: continue
-		if child.ACTION == null: continue
-		if not child.ACTION.is_joinable(): continue
+	for npc_id in Global.NPCS.keys():
+		var npc = Global.NPCS[npc_id]
+		if npc.ACTION == null: continue
+		if not npc.ACTION.is_joinable(): continue
 		var new_action = ACTIONS.new()
-		new_action.ID = child.ACTION.ID
-		new_action.TARGET = child.ACTION.TARGET
-		new_action.LOCATION = child.ACTION.LOCATION
-		new_action.NEED = child.ACTION.NEED
-		new_action.FOLLOWING = child
+		new_action.ID = npc.ACTION.ID
+		new_action.TARGET = npc.ACTION.TARGET
+		new_action.LOCATION = npc.ACTION.LOCATION
+		new_action.NEED = npc.ACTION.NEED
+		new_action.FOLLOWING = npc
 		all_actions.append(new_action)
 	return all_actions
 
@@ -269,6 +312,24 @@ func get_next_step(parent_dict, start, end):
 
 #endregion
 	
+
+
+#region menus
+func open_npc_menu(npc):
+	print("showing menu")
+	$DefaultMenu.hide()
+	var history = History.filter_by_npc(npc.ID)
+	var history_list = History.display_history(history)
+	$NpcMenu.initialize(npc, history_list)
+	$NpcMenu.show()
+
+func close_npc_menu():
+	$NpcMenu.hide()
+	$DefaultMenu.show()
+
+
+
+#endregion
 
 
 #region debug

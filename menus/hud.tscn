@@ -1,9 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cxvennsy2mglw"]
+[gd_scene load_steps=5 format=3 uid="uid://cxvennsy2mglw"]
 
 [ext_resource type="Script" uid="uid://b80dkj2mcwkjw" path="res://scripts/hud.gd" id="1_633jc"]
-[ext_resource type="Script" uid="uid://gb2s720l8jt6" path="res://scripts/default_menu.gd" id="2_rglhv"]
+[ext_resource type="PackedScene" uid="uid://c8ald5ikbggg7" path="res://default_menu.tscn" id="2_pua1y"]
 [ext_resource type="PackedScene" uid="uid://buetf41yyhdos" path="res://npc_menu.tscn" id="3_d51vb"]
-[ext_resource type="PackedScene" uid="uid://dqcrueypgqflp" path="res://npc_button.tscn" id="4_pua1y"]
 [ext_resource type="PackedScene" uid="uid://jusdqdsrm4go" path="res://talk_menu.tscn" id="5_d51vb"]
 
 [node name="HUD" type="Control"]
@@ -17,50 +16,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_633jc")
 
-[node name="DefaultMenu" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-script = ExtResource("2_rglhv")
-npc_buttons = ExtResource("4_pua1y")
-
-[node name="TickLabel" type="Label" parent="DefaultMenu"]
-z_index = 3
-layout_mode = 0
-offset_right = 113.0
-offset_bottom = 45.0
-theme_override_font_sizes/font_size = 32
-text = "Ticks: 0"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="PCLocationLabel" type="Label" parent="DefaultMenu"]
-layout_mode = 0
-offset_left = -1.0
-offset_top = 80.0
-offset_right = 215.0
-offset_bottom = 125.0
-theme_override_font_sizes/font_size = 32
-text = "Location: [0,0]"
-
-[node name="CurrentNpcsLabel" type="Label" parent="DefaultMenu/PCLocationLabel"]
-z_index = 3
-layout_mode = 0
-offset_left = 1.0
-offset_top = -36.0
-offset_right = 119.0
-offset_bottom = 9.0
-theme_override_font_sizes/font_size = 32
-text = "NPCS: 0"
-
-[node name="AutoTickButton" type="Button" parent="DefaultMenu"]
-layout_mode = 0
-offset_top = 124.0
-offset_right = 169.0
-offset_bottom = 182.0
-theme_override_font_sizes/font_size = 36
-text = "Auto Tick"
+[node name="DefaultMenu" parent="." instance=ExtResource("2_pua1y")]
 
 [node name="NpcMenu" parent="." instance=ExtResource("3_d51vb")]
 
@@ -68,5 +24,3 @@ text = "Auto Tick"
 layout_mode = 0
 offset_left = 300.0
 offset_right = 900.0
-
-[connection signal="pressed" from="DefaultMenu/AutoTickButton" to="." method="auto_tick_button"]
