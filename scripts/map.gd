@@ -55,7 +55,7 @@ var MAP_TEMPLATES = {
 
 
 # Called when the node enters the scene tree for the first time.
-func _ready() -> void:
+func _ready_old() -> void:
 	#$Grid.hide()			
 	size = Constants.MAIN_FRAME_SIZE
 	position = Constants.MAIN_FRAME_POSITION
@@ -78,6 +78,22 @@ func _ready() -> void:
 				tile.TYPE = type
 			tile.initialize()
 
+
+func _ready() -> void:
+	#$Grid.hide()			
+	size = Constants.MAIN_FRAME_SIZE
+	position = Constants.MAIN_FRAME_POSITION
+	var room_data = MAP_TEMPLATES[ROOM]
+	var special_tiles = room_data["special"]
+	for i in Constants.MAP_SIZE[0]:
+		MAP.append([])
+		for j in Constants.MAP_SIZE[1]:
+			var location = [i, j]
+			var type = room_data["default"]
+			if location in special_tiles.keys():
+				type = special_tiles[location]
+			MAP[i].append(type)
+
 		
 func get_tile_list():
 	var tile_list = []
@@ -93,8 +109,36 @@ func hide_all_tiles():
 		if child is Tile:
 			child.hide()
 
+func clear_tiles():
+	for child in get_children():
+		if child is Tile:
+			child.queue_free()
 
 func tick():
+	clear_tiles()
+
+	var x_counter = Constants.MAIN_FRAME_POSITION[0]
+	var y_counter = 0
+
+	for x in range(Global.X_RANGE[0], Global.X_RANGE[1]):
+		if x not in range(0, len(MAP)):
+			x_counter += Constants.TILE_SIZE
+			y_counter = 0
+			continue
+		for y in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
+			if y not in range(0, len(MAP[0])):
+				y_counter += Constants.TILE_SIZE
+				continue
+			var tile = tile_scene.instantiate()
+			add_child(tile)
+			tile.global_position = Vector2(x_counter, y_counter)
+			tile.show()
+			y_counter += Constants.TILE_SIZE
+		x_counter += Constants.TILE_SIZE
+		y_counter = 0
+
+
+func tick_old():
 	hide_all_tiles()
 	var x_counter = Constants.MAIN_FRAME_POSITION[0]
 	var y_counter = 0
@@ -148,6 +192,15 @@ func get_tile(location: Array):
 	return MAP[location[0]][location[1]]
 
 func random_empty_tile():
+	while true:
+		var x = randi_range(0, Constants.MAP_SIZE[0]-1) 
+		var y = randi_range(0, Constants.MAP_SIZE[1]-1)
+		var tile = MAP[x][y]
+		var tile_data = Constants.TILE_TEMPLATES[tile]
+		if tile_data["impassable"] == false:
+			return [x,y]
+
+func random_empty_tile_old():
 	while true:
 		var location = [randi_range(0, Constants.MAP_SIZE[0]-1), randi_range(0, Constants.MAP_SIZE[1]-1)]
 		var tile = get_tile(location)

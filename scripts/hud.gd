@@ -20,6 +20,8 @@ func _process(delta: float) -> void:
 
 func tick():
 	$DefaultMenu.tick()
+	if $TalkMenu.visible:
+		$TalkMenu.tick()
 
 
 func open_npc_list() -> void:

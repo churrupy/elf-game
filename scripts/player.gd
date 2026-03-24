@@ -5,6 +5,8 @@ class_name Player
 signal tick
 signal move_without_tick_signal
 
+var ID = "player"
+
 # doubletap vars
 const DOUBLETAP_DELAY = .25
 var doubletap_time = DOUBLETAP_DELAY

@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://wqx311ixn3i1"]
+
+[ext_resource type="Texture2D" uid="uid://bino6wt2x8rc7" path="res://models/portait_background.png" id="1_fj88p"]
+[ext_resource type="Texture2D" uid="uid://caayah62rk68i" path="res://models/portait.png" id="2_n3ove"]
+
+[node name="Portrait" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 120.0
+offset_bottom = 165.0
+
+[node name="Splash" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 120.0
+offset_bottom = 165.0
+
+[node name="PortraitBackground" type="TextureRect" parent="."]
+layout_mode = 1
+offset_right = 120.0
+offset_bottom = 165.0
+texture = ExtResource("1_fj88p")
+
+[node name="Portrait" type="TextureRect" parent="."]
+layout_mode = 1
+offset_right = 120.0
+offset_bottom = 165.0
+texture = ExtResource("2_n3ove")

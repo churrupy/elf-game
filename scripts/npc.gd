@@ -2,8 +2,6 @@ extends Node2D
 
 class_name NPC
 
-signal sprite_pressed_signal
-
 
 var NAME
 var ID
@@ -11,6 +9,9 @@ var COLOR
 var LOCATION = [0,0]
 var GENDER
 var ACTION
+var RECENT_TOPIC
+var OPINIONS = {}
+var RELATIONSHIPS = {}
 var NEEDS = {
 	"hunger": 50,
 	"energy": 50,
@@ -30,6 +31,9 @@ func initialize(ID_COUNTER):
 	GENDER = ["male", "female"].pick_random()
 	NAME = NAMES[GENDER].pick_random()
 	ID = NAME + str(ID_COUNTER)
+	var topics = Dialogue.CONVERSATION_NODES.keys()
+	for topic in topics:
+		OPINIONS[topic] = randi_range(0,100)
 	
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -44,6 +48,10 @@ func _ready() -> void:
 	$HoverNameLabel.hide()
 	SignalBus.npc_hover.connect(on_hover)
 	SignalBus.npc_hover_off.connect(off_hover)
+	SignalBus.say_topic.connect(hear_topic)
+
+func _process(delta:float):
+	print(RECENT_TOPIC)
 	
 func on_hover(npc):
 	if npc == self:
@@ -61,10 +69,6 @@ func off_hover(npc):
 #endregion
 	
 #region tick
-func tick():
-	#move_random()
-	decay_needs()
-	clamp_needs()
 	
 func decay_needs():
 	for need in NEEDS:
@@ -94,7 +98,11 @@ func move_random():
 #region AI
 func get_opinion(other_npc):
 	# dummy function
-	return randi_range(-5, 5)
+	var id = other_npc.ID
+	if other_npc in RELATIONSHIPS:
+		return RELATIONSHIPS[id]
+	else:
+		return 0
 
 func score_action(action):
 	# score based on need
@@ -114,6 +122,28 @@ func score_action(action):
 
 	return action
 
+func hear_topic(speaker_id, topic, opinion, location):
+	if speaker_id == ID:
+		return
+	print("signal delivered")
+	print(location)
+	print(LOCATION)
+	if LOCATION[0] in range(location[0]-1, location[0]+2):
+		if LOCATION[1] in range(location[1] -1, location[1]+2):
+			if speaker_id not in RELATIONSHIPS:
+				RELATIONSHIPS[speaker_id] = 0
+			RECENT_TOPIC = topic
+			var this_opinion = OPINIONS[topic]
+			var diff = abs(this_opinion - opinion)
+			if diff > 50:
+				RELATIONSHIPS[speaker_id] -= 1
+			elif diff > 25:
+				pass
+			else:
+				RELATIONSHIPS[speaker_id] += 1
+			print(NAME)
+			print("topic heard")
+			print(RECENT_TOPIC)
 	
 #endregion
 

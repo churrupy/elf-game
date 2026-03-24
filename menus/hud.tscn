@@ -12,6 +12,7 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -300.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_633jc")
@@ -64,13 +65,8 @@ text = "Auto Tick"
 [node name="NpcMenu" parent="." instance=ExtResource("3_d51vb")]
 
 [node name="TalkMenu" parent="." instance=ExtResource("5_d51vb")]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -900.0
-offset_right = 0.0
-offset_bottom = 662.0
-grow_horizontal = 0
+layout_mode = 0
+offset_left = 300.0
+offset_right = 900.0
 
 [connection signal="pressed" from="DefaultMenu/AutoTickButton" to="." method="auto_tick_button"]

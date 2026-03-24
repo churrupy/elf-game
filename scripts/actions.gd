@@ -18,11 +18,25 @@ func set_countdown():
 func do(npc):
 	COUNTDOWN -= 1
 	print("in actions", STATUS)
+	if ID == "converse":
+		process_conversation(npc)
 	var refresh_rate = Constants.NEED_REFRESH_RATES[NEED]
 	npc.NEEDS[NEED] += refresh_rate
 	if COUNTDOWN < 0:
 		STATUS = "finish"
 	print("after actions", npc.NAME,_to_string())
+
+
+#region special
+func process_conversation(npc):
+	npc.RECENT_TOPIC = Dialogue.get_next_topic(npc.RECENT_TOPIC)
+
+#endregion
+
+
+
+
+#region utility
 
 func is_joinable():
 	var action_dict = Constants.ACTION_TEMPLATES[ID]
@@ -43,3 +57,5 @@ func _to_string():
 		_str += " with " + FOLLOWING.NAME
 	_str += " Score: " + str(SCORE)
 	return _str
+
+#endregion

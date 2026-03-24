@@ -26,6 +26,8 @@ func initialize(npc):
 	display_string.append(_str)
 	_str = "Current Action: " + str(npc.ACTION)
 	display_string.append(_str)
+	_str = "Current Topic: " + str(npc.RECENT_TOPIC)
+	display_string.append(_str)
 	
 	for need in npc.NEEDS:
 		_str = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
@@ -33,6 +35,8 @@ func initialize(npc):
 		
 	var display = "\n".join(display_string)
 	$NpcDescription.text = display
+
+	$Portrait.get_node("Splash").modulate = npc.COLOR
 
 	SignalBus.npc_hover.emit(DISPLAYED_NPC)
 
