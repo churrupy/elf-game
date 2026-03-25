@@ -39,7 +39,7 @@ func create_npc():
 	ID_COUNTER += 1
 	#add_child(npc)
 	Global.NPCS[npc.ID] = npc
-	History.add_entry(npc.ID, "created")
+	History.add_entry(npc.ID, "created", npc.LOCATION)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -51,10 +51,12 @@ func _process(delta: float) -> void:
 
 func process_player_move(location):
 	if $Map.is_travelable(location):
+		var old_location = Global.PLAYER_LOCATION.duplicate()
 		Global.PLAYER_LOCATION = location
+		History.add_entry("player", "moved to", old_location, {"location": location})
 	else:
 		print("tile not accessible")
-	History.add_entry("player", "moved to", location)
+	
 	_on_tick()
 
 func auto_tick() -> void:
@@ -106,20 +108,15 @@ func _on_tick() -> void:
 	tick_npcs()
 	get_current_npcs()
 	display_npcs()
-	#var npc_list = get_npc_list()
-	#Utility.display_list_on_screen(npc_list, Constants.TILE_SIZE/2)
-	#var tile_list = $Map.get_tile_list()
-	#Utility.display_list_on_screen(tile_list)
 	$Map.tick()
 	var player_history = History.filter_by_npc("player")
 	var player_history_list = History.display_history(player_history)
 	$DefaultMenu.update_history_and_tick(player_history_list)
-	#$DefaultMenu.tick()
-
 	if $NpcMenu.visible:
 		# re-initialize/update visible history
 		open_npc_menu($NpcMenu.DISPLAYED_NPC)
-	#$HUD.tick()
+	if $TalkMenu.visible:
+		open_npc_menu($TalkMenu.DISPLAYED_NPC)
 	
 
 #endregion
@@ -134,10 +131,7 @@ func get_npc_list():
 func get_current_npcs():
 	var adjacent_locations = get_neighbors(Global.PLAYER_LOCATION)
 	for l in adjacent_locations:
-		var npc = Utility.get_npc_from_location(l)
-		if npc != null:
-			Global.CURRENT_NPCS.append(npc)
-
+		Global.CURRENT_NPCS += Utility.get_npc_from_location(l)
 
 func tick_npcs():
 	Global.CURRENT_NPCS = []
@@ -152,18 +146,22 @@ func tick_npcs():
 			npc.ACTION = chosen_action
 		if (npc.ACTION.LOCATION == npc.LOCATION):
 			npc.ACTION.STATUS = "filling"
-			npc.ACTION.do(npc)
-			History.add_entry(npc.ID, npc.ACTION.ID)
+			do_action(npc)
+			#npc.ACTION.do(npc)
+			#History.add_entry(npc.ID, npc.ACTION.ID)
 		else:
 			var next_step = step_towards_location(npc.LOCATION, npc.ACTION.LOCATION)
 			if next_step == null:
 				push_error("pathfinding: no valid path found, teleporting ", npc, " to target location")
 				print("teleporting...")
 				print(npc.LOCATION, npc.ACTION.LOCATION)
+				var old_location = npc.LOCATION.duplicate()
 				npc.LOCATION = npc.ACTION.LOCATION
-				History.add_entry(npc.ID, "teleported to", npc.ACTION.LOCATION)
+				History.add_entry(npc.ID, "teleported to", old_location, {"location": npc.ACTION.LOCATION})
 				continue
 			print(next_step)
+			var old_location = npc.LOCATION.duplicate()
+			'''
 			var current_occupant = Utility.get_npc_from_location(next_step)
 			if current_occupant != null:
 				# swap locations
@@ -179,19 +177,83 @@ func tick_npcs():
 				var new_location = valid_neighbors.pick_random()
 
 				current_occupant.LOCATION = new_location
-			History.add_entry(npc.ID, "teleported to", npc.ACTION.LOCATION)
+			'''
+			History.add_entry(npc.ID, "moved to", old_location, {"location": npc.ACTION.LOCATION})
 			npc.LOCATION = next_step
 		
 		if npc.ACTION.STATUS == "finish":
-			History.add_entry(npc.ID, "finished", npc.ACTION.ID)
+			History.add_entry(npc.ID, "finished", npc.LOCATION, {"action": npc.ACTION.ID})
 			npc.ACTION = null
 
 		npc.decay_needs()
 		npc.clamp_needs()
 		#display_on_screen(npc, Constants.TILE_SIZE/2)
 
+#endregion
+
+#region npc actions
+
+func do_action(npc):
+	#npc must be at location for this function
+	var action = npc.ACTION
+	var witnesses = get_npcs_in_range(action.TARGET) # same goal/location
+	if len(witnesses) == 0:
+		witnesses = get_npcs_in_range(npc.LOCATION) # people just "around" who can overhear
+
+	#if action.ID == "converse":
+	if len(witnesses) > 0:
+		if action.is_conversable():
+			converse(npc, witnesses, npc.ACTION.TARGET) # everyone will chit-chat if they're close to someone else
 
 
+
+
+	npc.ACTION.do(npc) # still handles need refresh, etc
+
+
+func converse(npc, witnesses, location):
+	var history_params = {
+		"witnesses": witnesses
+	}
+	var new_topic = Dialogue.get_next_topic(npc.RECENT_TOPIC)
+	npc.RECENT_TOPIC = new_topic
+	var opinion = npc.OPINIONS[new_topic]
+	var op_str = new_topic.capitalize() + " are "
+	if opinion > 75:
+		op_str+= "great!"
+	elif opinion > 50:
+		op_str += "okay."
+	elif opinion > 25:
+		op_str += "lame."
+	else:
+		op_str += "terrible!"
+	var _str = npc.NAME + ": " + op_str
+	for g in witnesses:
+		var g_npc = Global.NPCS[g]
+		g_npc.hear_topic(npc.ID, new_topic, opinion)
+	history_params["dialogue"] = _str
+	History.add_entry(npc, "converse", location, history_params)
+
+
+
+
+
+func get_npcs_in_range(location):
+	# gets all npcs with the same target who are nearby
+	print("get group")
+	var close_npcs = []
+	var target_neighbors = get_neighbors(location)
+	for n in target_neighbors:
+		close_npcs += Utility.get_npc_from_location(n)
+	print(close_npcs)
+	return close_npcs
+	
+
+
+#endregion
+
+
+#region npc ai
 func get_all_group_actions():
 	var all_actions = []
 	for npc_id in Global.NPCS.keys():
@@ -247,6 +309,8 @@ func determine_action(npc):
 			return action
 	push_error("action not found for", npc.NAME)
 
+#endregion
+
 
 
 #region pathfinding
@@ -283,6 +347,8 @@ func step_towards_location(end, start): #trying this out, pathfinding from targe
 
 func get_neighbors(location):
 	var neighbors = [
+		[location[0], location[1]],
+		# adjacent
 		[location[0] + 1, location[1]],
 		[location[0] - 1, location[1]],
 		[location[0], location[1] + 1],
@@ -333,7 +399,15 @@ func close_npc_menu():
 
 func open_talk_menu(npc):
 	open_npc_menu(npc)
-	$TalkMenu.initialize(npc)
+	print(npc)
+	print(npc.ACTION)
+	var dialogue_list = []
+	var history = History.filter_by_npc(npc)
+	for h in history:
+		if h["action"] == "converse":
+			dialogue_list.append(h["arg"]["dialogue"])
+	#var history_list = History.display_history(history)
+	$TalkMenu.initialize(npc, dialogue_list)
 	$TalkMenu.show()
 
 func close_talk_menu():

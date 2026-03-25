@@ -13,9 +13,16 @@ func _process(delta: float) -> void:
 	pass
 
 func update_history_and_tick(history_list):
-	var trunc_history = history_list.slice(-5, -1)
-	var history_string = "\n".join(trunc_history)
-	$PlayerHistory.text = history_string
+	var trunc_history = history_list.slice(-10, -1)
+	# clear container
+	for child in $PlayerHistoryContainer.get_node("VBoxContainer").get_children():
+		child.queue_free()
+	trunc_history.reverse()
+	for item in trunc_history:
+		var new_label = Label.new()
+		new_label.text = item
+		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		$PlayerHistoryContainer.get_node("VBoxContainer").add_child(new_label)
 	tick()
 
 
@@ -27,9 +34,11 @@ func tick():
 	clear_buttons()
 	var button_x = 30
 	var button_y = 200
-	for npc in Global.CURRENT_NPCS:
+	for npc_id in Global.CURRENT_NPCS:
+		var npc = Global.NPCS[npc_id]
 		var npc_button = buttons.instantiate()
 		add_child(npc_button)
+		print(npc)
 		npc_button.initialize(npc)
 		npc_button.position = Vector2(button_x, button_y)
 		npc_button.connect("pressed", Callable(self, "open_npc_menu").bind(npc))

@@ -5,7 +5,7 @@ const TILE_SIZE = 60
 const SCREEN_SIZE = Vector2(1200, 660)
 const MAP_SIZE = [10,10] # num tiles across
 const BOTTOM_RIGHT = Vector2(MAP_SIZE[0]-1, MAP_SIZE[1]-1)
-const NUM_NPCS = 1
+const NUM_NPCS = 5
 const SIDEBAR_SIZE = Vector2(300, SCREEN_SIZE[1])
 const MAIN_FRAME_SIZE = Vector2(SCREEN_SIZE[0] - SIDEBAR_SIZE[0], SCREEN_SIZE[1])
 const MAIN_FRAME_POSITION = Vector2(SIDEBAR_SIZE[0], 0)
@@ -74,7 +74,8 @@ const ACTION_TEMPLATES = {
         "pose": "standing",
 		"joinable": true,
 		"other_req": true,
-        "do_off_tile": true
+        "do_off_tile": true,
+        "conversable": false
     },
     #region furniture
     "dance" : {
@@ -84,7 +85,8 @@ const ACTION_TEMPLATES = {
         "pose": "standing",
 		"joinable": true,
 		"other_req": false,
-        "do_off_tile": false
+        "do_off_tile": false,
+        "conversable": false
     },
     "drink": {
         "need": "fun",
@@ -102,7 +104,8 @@ const ACTION_TEMPLATES = {
         "pose": "standing",
 		"joinable": false,
 		"other_req": false,
-        "do_off_tile": false
+        "do_off_tile": false,
+        "conversable": false
     },
     "snack": {
         "need": "hunger",

@@ -110,8 +110,27 @@ func _to_string():
 
 #endregion
 
+func hear_topic(speaker_id, topic, opinion):
+	print("hear topic")
+	if speaker_id == ID:
+		return
+	print(speaker_id)
+	print(ID)
+	if speaker_id not in RELATIONSHIPS:
+		RELATIONSHIPS[speaker_id] = 0
+	RECENT_TOPIC = topic
+	var this_opinion = OPINIONS[topic]
+	var diff = abs(this_opinion - opinion)
+	if diff > 50:
+		RELATIONSHIPS[speaker_id] -= 1
+	elif diff > 25:
+		pass
+	else:
+		RELATIONSHIPS[speaker_id] += 1
+	
 
-func hear_topic(speaker_id, topic, opinion, location):
+
+func hear_topic_old(speaker_id, topic, opinion, location):
 	if speaker_id == ID:
 		return
 	print("signal delivered")

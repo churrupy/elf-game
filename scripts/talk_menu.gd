@@ -1,5 +1,6 @@
 extends Label
 
+var LOCATION # "center" of conversation,  might not actually be the npc themselves (eg gathering around a table, etc)
 var DISPLAYED_NPC
 var DIALOGUE_LIST = []
 
@@ -10,11 +11,21 @@ func _ready() -> void:
 	pass # Replace with function body.
 
 
-func initialize(npc):
+func initialize(npc, history_list):
+	#LOCATION = npc.ACTION.TARGET
 	DISPLAYED_NPC = npc
 	$NameLabel.text = DISPLAYED_NPC.NAME
-	$ConversationLabel.text = ""
-	DIALOGUE_LIST = []
+	for child in $DialogueContainer.get_node("VBoxContainer").get_children():
+		child.queue_free()
+	
+	for item in history_list:
+		var new_label = Label.new()
+		new_label.text = item
+		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		$DialogueContainer.get_node("VBoxContainer").add_child(new_label)
+
+	#$ConversationLabel.text = ""
+	#DIALOGUE_LIST = []
 	tick()
 	#$ConversationLabel.text = DISPLAYED_NPC.NAME + ": "
 	#$ConversationLabel.text += Dialogue.DIALOGUE_STRINGS[DISPLAYED_NPC.RECENT_TOPIC]
@@ -22,7 +33,8 @@ func initialize(npc):
 
 func tick():
 	# npc says something
-	clear_children()
+	
+	'''
 	print("ticking talk menu")
 	print("old topic", DISPLAYED_NPC.RECENT_TOPIC)
 	var new_topic = Dialogue.get_next_topic(DISPLAYED_NPC.RECENT_TOPIC)
@@ -41,6 +53,8 @@ func tick():
 	SignalBus.say_topic.emit(DISPLAYED_NPC.ID, new_topic, opinion, DISPLAYED_NPC.LOCATION)
 	var _str = DISPLAYED_NPC.NAME + ": " + op_str
 	DIALOGUE_LIST.append(_str)
+
+	
 
 	# process pc replying
 	
@@ -62,6 +76,8 @@ func tick():
 
 	$ConversationLabel.text = "\n".join(DIALOGUE_LIST)
 
+	'''
+
 
 func do_dialogue_choice(topic):
 	# what PC does
@@ -77,6 +93,7 @@ func do_dialogue_choice(topic):
 
 func clear_children():
 	for child in get_children():
+
 		if child is ConversationButton:
 			child.queue_free()
 

@@ -33,11 +33,24 @@ func initialize(npc, history):
 		display_string.append(_str)
 
 	# get last five moves
-	var last_five = history.slice(-5,-1)
+	var last_five = history.slice(-10,-1)
+	last_five.reverse()
 	display_string += last_five
+	
+	# clear container
+	for child in $NpcHistoryContainer.get_node("VBoxContainer").get_children():
+		child.queue_free()
+	
+	for item in display_string:
+		var new_label = Label.new()
+		new_label.text = item
+		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		$NpcHistoryContainer.get_node("VBoxContainer").add_child(new_label)
 		
-	var display = "\n".join(display_string)
-	$NpcDescription.text = display
+	#var display = "\n".join(display_string)
+	#$ScrollContainer.get_node("VBoxContainer").get_node("NpcDescription").text = display
+	#print($ScrollContainer.get_node("VBoxContainer").get_node("NpcDescription").text)
+	#$NpcDescription.text = display
 
 	$Portrait.get_node("Splash").modulate = npc.COLOR
 

@@ -6,11 +6,12 @@ extends Node
 
 
 func get_npc_from_location(location: Array):
+	var npcs = []
 	for npc_id in Global.NPCS:
 		var npc = Global.NPCS[npc_id]
 		if npc.LOCATION == location:
-			return npc
-	return null
+			npcs.append(npc_id)
+	return npcs
 
 
 func get_all_group_actions():

@@ -18,20 +18,11 @@ func set_countdown():
 func do(npc):
 	COUNTDOWN -= 1
 	print("in actions", STATUS)
-	if ID == "converse":
-		process_conversation(npc)
 	var refresh_rate = Constants.NEED_REFRESH_RATES[NEED]
 	npc.NEEDS[NEED] += refresh_rate
 	if COUNTDOWN < 0:
 		STATUS = "finish"
 	print("after actions", npc.NAME,_to_string())
-
-
-#region special
-func process_conversation(npc):
-	npc.RECENT_TOPIC = Dialogue.get_next_topic(npc.RECENT_TOPIC)
-
-#endregion
 
 
 
@@ -46,6 +37,12 @@ func can_do_off_tile():
 	# eg can only go to the bathroom on the bathroom tile, but can drink without sitting on top of the bar
 	var action_dict = Constants.ACTION_TEMPLATES[ID]
 	return action_dict["do_off_tile"]
+
+func is_conversable():
+	var action_data = Constants.ACTION_TEMPLATES[ID]
+	if "conversable" in action_data: # default is true
+		return false
+	return true
 
 func _to_string():
 	var _str = STATUS
