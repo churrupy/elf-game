@@ -26,8 +26,19 @@ func add_entry(npc, action, location, arg={}):
 	}
 	HISTORY.append(history_dict)
 
+func filter_by_doer(npc):
+	# actions npc does
+	if npc is NPC:
+		npc = npc.ID
+	var filtered_history = []
+	for h in HISTORY:
+		if h["npc"] == npc:
+			filtered_history.append(h)
+	return filtered_history
+
 
 func filter_by_npc(npc):
+	# actions npc is either doer or target
 	if npc is NPC:
 		npc = npc.ID
 	var filtered_history = []
@@ -49,7 +60,7 @@ func filter_by_location(location):
 			filtered_history.append(h)
 	return filtered_history
 
-func display_history(history_list = []):
+func history_to_string(history_list = []):
 	if history_list == []:
 		history_list = HISTORY
 	var display_list = []

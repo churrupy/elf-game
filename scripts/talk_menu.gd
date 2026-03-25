@@ -1,5 +1,6 @@
 extends Label
 
+var ENGINE
 var LOCATION # "center" of conversation,  might not actually be the npc themselves (eg gathering around a table, etc)
 var DISPLAYED_NPC
 var DIALOGUE_LIST = []
@@ -11,25 +12,24 @@ func _ready() -> void:
 	pass # Replace with function body.
 
 
-func initialize(npc, history_list):
+func initialize(npc):
+	var history = ENGINE.History.filter_by_npc(npc)
+	#var history_list = ENGINE.History.history_to_string(history)
 	#LOCATION = npc.ACTION.TARGET
 	DISPLAYED_NPC = npc
 	$NameLabel.text = DISPLAYED_NPC.NAME
 	for child in $DialogueContainer.get_node("VBoxContainer").get_children():
 		child.queue_free()
 	
-	for item in history_list:
+	for item in history:
 		var new_label = Label.new()
-		new_label.text = item
-		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		$DialogueContainer.get_node("VBoxContainer").add_child(new_label)
+		if "dialogue" in item["arg"]:
+			new_label.text = item["arg"]["dialogue"]
+			new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			$DialogueContainer.get_node("VBoxContainer").add_child(new_label)
 
-	#$ConversationLabel.text = ""
-	#DIALOGUE_LIST = []
 	tick()
-	#$ConversationLabel.text = DISPLAYED_NPC.NAME + ": "
-	#$ConversationLabel.text += Dialogue.DIALOGUE_STRINGS[DISPLAYED_NPC.RECENT_TOPIC]
-
+	
 
 func tick():
 	# npc says something

@@ -146,7 +146,6 @@ func get_all_actions_on_map():
 			var tile = MAP[i][j]
 			var tile_data = Constants.TILE_TEMPLATES[tile]
 			var engine = get_parent()
-			#var tile_actions = Constants.TILE_TEMPLATES[tile]["actions"]
 			for action in tile_data["actions"]:
 				var action_data = Constants.ACTION_TEMPLATES[action]
 				var action_class_id = action_data["class"]
@@ -154,29 +153,9 @@ func get_all_actions_on_map():
 				var new_action  = action_class.new(engine, action)
 				new_action.TARGET = [i,j] # where the npc wants to pathfind to
 				new_action.LOCATION = [i,j] # where the npc ends up (if adjacent to target)
-				#var action_data = Constants.ACTION_TEMPLATES[action]
-				#new_action.NEED = action_data["need"]
-				#new_action.ON_TILE = is_travelable(new_action.TARGET)
 				all_actions.append(new_action)
 	return all_actions
 
 		
-
-func get_all_actions_on_map_old():
-	var all_actions = []
-	for i in len(MAP):
-		for j in len(MAP[0]):
-			var tile = MAP[i][j]
-			var type_actions = Constants.TILE_TEMPLATES[tile.TYPE]["actions"]
-			for action in type_actions:
-				var new_action = ACTIONS.new()
-				new_action.ID = action
-				new_action.TARGET = tile
-				new_action.LOCATION = tile.LOCATION
-				var action_data = Constants.ACTION_TEMPLATES[action]
-				new_action.NEED = action_data["need"]
-				all_actions.append(new_action)
-	return all_actions
-
 
 #endregion

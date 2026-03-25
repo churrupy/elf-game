@@ -15,7 +15,7 @@ func _process(delta: float) -> void:
 
 func tick():
 	var player_history = ENGINE.History.filter_by_npc("player")
-	var player_history_list = ENGINE.History.display_history(player_history)
+	var player_history_list = ENGINE.History.history_to_string(player_history)
 	var trunc_history = player_history_list.slice(-10, -1)
 	trunc_history.reverse()
 	# clear container

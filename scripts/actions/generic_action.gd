@@ -3,10 +3,10 @@ extends RefCounted
 class_name GenericAction
 
 var ENGINE
+var ID
 var OWNER
 var TARGET
 var LOCATION
-var ID
 var COUNTDOWN
 var SCORE = 0
 var STATUS
@@ -46,7 +46,7 @@ func score():
 	else:
 		total_x = abs(LOCATION[0] - TARGET.LOCATION[0])
 		total_y = abs(LOCATION[1] - TARGET.LOCATION[1])
-	SCORE -= total_x + total_y
+	SCORE -= (total_x + total_y)
 
 func get_opinion():
 	# dummy function
@@ -97,6 +97,18 @@ func can_do_action():
 		else:
 			return true
 
+func step_towards_target():
+	var old_location = OWNER.LOCATION.duplicate()
+	var next_step = ENGINE.step_towards_location(OWNER.LOCATION, LOCATION)
+	if next_step == null:
+		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
+		print("teleporting...")
+		OWNER.LOCATION = LOCATION
+		ENGINE.History.add_entry(OWNER.ID, "teleported to", old_location, {"location": LOCATION})
+	else:
+		OWNER.LOCATION = next_step
+		ENGINE.History.add_entry(OWNER.ID, "moved to", old_location, {"location": next_step})
+
 
 
 func tick():
@@ -104,62 +116,37 @@ func tick():
 		do_action()
 		
 	else:
-		# stepping towards actions
-		var old_location = OWNER.LOCATION.duplicate()
-		var next_step = ENGINE.step_towards_location(OWNER.LOCATION, LOCATION)
-		if next_step == null:
-			push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
-			print("teleporting...")
-			OWNER.LOCATION = LOCATION
-			ENGINE.History.add_entry(OWNER.ID, "teleported to", old_location, {"location": LOCATION})
-		else:
-			OWNER.LOCATION = next_step
-			ENGINE.History.add_entry(OWNER.ID, "moved to", old_location, {"location": next_step})
+		step_towards_target()
+		
 
 	OWNER.decay_needs()
 	OWNER.clamp_needs()
 
 
 func do_action():
-	# this will eventually be rolled into tick once I break other actions out into their own classes
-	# and when i'm no longer feeling so braindead
-
 	COUNTDOWN -= 1
 	var action_need = Constants.ACTION_TEMPLATES[ID]["need"]
 	var refresh_rate = Constants.NEED_REFRESH_RATES[action_need]
 	OWNER.NEEDS[action_need] += refresh_rate
 
-
 	if is_conversable():
 		converse()
 
-	
-
-	if ID == "flirt":
-		var dialogue_string = OWNER.NAME + " flirted with " + TARGET.NAME
-		var history_params = {
-			"witnesses": [TARGET.ID],
-			"dialogue": dialogue_string
-		}
-		ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
-		var impression = TARGET.hear_flirt(OWNER.ID)
-		dialogue_string = TARGET.NAME + " was " + impression + " about being flirted with."
-		history_params = {
-			"witnesses": [OWNER.ID],
-			"dialogue": dialogue_string
-		}
-		ENGINE.History.add_entry(TARGET, "converse", TARGET.LOCATION, history_params)
-
-	elif ID == "something else":
-		pass
 
 func converse():
 	var center_of_conversation = LOCATION
 	var witnesses = ENGINE.get_npcs_in_range(center_of_conversation)
 
-	if len(witnesses) == 0:
+	if len(witnesses) < 2:
+		# owner is also in witness list
 		center_of_conversation = OWNER.LOCATION
 		witnesses = ENGINE.get_npcs_in_range(center_of_conversation)
+
+	if len(witnesses) < 2:
+		# don't talk to self
+		return
+
+	witnesses.erase(OWNER)
 
 	var new_topic = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
 	OWNER.RECENT_TOPIC = new_topic

@@ -1,5 +1,6 @@
 extends Control
 
+var ENGINE
 var DISPLAYED_NPC
 var WATCH = false
 
@@ -13,7 +14,7 @@ func _process(delta: float) -> void:
 	pass
 
 	
-func initialize(npc, history):
+func initialize(npc):
 	DISPLAYED_NPC = npc
 	$NameLabel.text = npc.NAME
 	var display_string = []
@@ -31,15 +32,17 @@ func initialize(npc, history):
 	for need in npc.NEEDS:
 		_str = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
 		display_string.append(_str)
-
-	# get last five moves
-	var last_five = history.slice(-10,-1)
-	last_five.reverse()
-	display_string += last_five
 	
 	# clear container
 	for child in $NpcHistoryContainer.get_node("VBoxContainer").get_children():
 		child.queue_free()
+
+	# get last five moves
+	var history = ENGINE.History.filter_by_doer(npc)
+	var history_list = ENGINE.History.history_to_string(history)
+	var last_five = history_list.slice(-10,-1)
+	last_five.reverse()
+	display_string += last_five
 	
 	for item in display_string:
 		var new_label = Label.new()

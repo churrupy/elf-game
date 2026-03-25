@@ -169,9 +169,9 @@ func get_all_npc_actions():
 		var npc = Global.NPCS[npc_id]
 		for npc_a in npc_actions:
 			var action_data = Constants.ACTION_TEMPLATES[npc_a]
-			var action_class_id = action_data["class"]
-			var action_class = Constants.CLASS_TEMPLATES[action_class_id]
-			var new_action = action_class.new(self, npc_a)
+			#var action_class_id= action_data["class"]
+			#var action_class = Constants.CLASS_TEMPLATES[action_class_id]
+			var new_action = SocialAction.new(self, npc_a)
 			#var new_action = action_data["type"].new(self, npc_a)
 			new_action.TARGET = npc
 			new_action.LOCATION = npc.LOCATION
@@ -199,6 +199,7 @@ func get_npcs_in_range(location):
 func determine_action(npc):
 	var all_actions = $Map.get_all_actions_on_map()
 	all_actions += get_all_npc_actions()
+	#var all_actions = get_all_npc_actions()
 	for action in all_actions:
 		action.OWNER = npc
 		action.score()
@@ -282,16 +283,10 @@ func get_next_step(parent_dict, start, end):
 #region menus
 func open_npc_menu(npc):
 	$DefaultMenu.hide()
-	var history = History.filter_by_npc(npc.ID)
-	var history_list = History.display_history(history)
-	$NpcMenu.initialize(npc, history_list)
+	$NpcMenu.initialize(npc)
 	var dialogue_list = []
-	history = History.filter_by_npc(npc)
-	for h in history:
-		if h["action"] == "converse":
-			dialogue_list.append(h["arg"]["dialogue"])
-	#var history_list = History.display_history(history)
-	$TalkMenu.initialize(npc, dialogue_list)
+	#var history_list = History.history_to_string(history)
+	$TalkMenu.initialize(npc)
 	$NpcMenu.show()
 
 func close_npc_menu():

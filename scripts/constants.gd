@@ -54,13 +54,15 @@ const NEED_REFRESH_RATES = {
 #endregions
 
 var CLASS_TEMPLATES = {
-	"GenericAction": GenericAction
+	"GenericAction": GenericAction,
+	"TileAction": TileAction,
+	"SocialAction": SocialAction
 }
 
 
 #region action templates
 const ACTION_TEMPLATES = {
-	#region npc actions
+	#region SocialAction
 	"converse": {
 		"need": "social",
 		#"relationship": "friendship",
@@ -70,7 +72,7 @@ const ACTION_TEMPLATES = {
 		"joinable": true,
 		"other_req": true,
 		"do_off_tile": true,
-		"class": "GenericAction"
+		"class": "SocialAction"
 	},
 	"encounter": {
 		"need": "release",
@@ -92,9 +94,17 @@ const ACTION_TEMPLATES = {
 		"other_req": true,
 		"do_off_tile": true,
 		"conversable": false,
-		"class": "GenericAction"
+		"class": "SocialAction"
 	},
-	#region furniture
+	#region TileAction
+	"loiter": {
+		"need": "social",
+		"duration": 10,
+		"joinable": true,
+		"other_req": false,
+		"do_off_tile": true,
+		"class": "TileAction"
+	},
 	"dance" : {
 		"need": "fun",
 		"duration": 10,
@@ -104,7 +114,7 @@ const ACTION_TEMPLATES = {
 		"other_req": false,
 		"do_off_tile": false,
 		"conversable": false,
-		"class": "GenericAction"
+		"class": "TileAction"
 	},
 	"drink": {
 		"need": "fun",
@@ -114,7 +124,7 @@ const ACTION_TEMPLATES = {
 		"joinable": false,
 		"other_req": false,
 		"do_off_tile": true,
-		"class": "GenericAction"
+		"class": "TileAction"
 	},
 	"use toilet": {
 		"need": "bladder",
@@ -125,7 +135,7 @@ const ACTION_TEMPLATES = {
 		"other_req": false,
 		"do_off_tile": false,
 		"conversable": false,
-		"class": "GenericAction"
+		"class": "TileAction"
 	},
 	"snack": {
 		"need": "hunger",
@@ -135,7 +145,7 @@ const ACTION_TEMPLATES = {
 		"joinable": false,
 		"other_req": false,
 		"do_off_tile": true,
-		"class": "GenericAction"
+		"class": "TileAction"
 	},
 	"follow": {
 		"need": "none",
@@ -154,12 +164,12 @@ const ACTION_TEMPLATES = {
 #region tiles
 const TILE_TEMPLATES = {
 	"empty": {
-		"actions": [],
+		"actions": ["loiter"],
 		"impassable": false,
 		"png": "tile.png"
 	},
 	"social_empty": {
-		"actions": ["converse"],
+		"actions": ["loiter"],
 		"impassable": false,
 		"png": "tile.png"
 	},
@@ -169,17 +179,17 @@ const TILE_TEMPLATES = {
 		"png": "dance_floor.png"
 	},
 	"toilet":  {
-		"actions": ["use toilet", "converse", "encounter"],
+		"actions": ["use toilet", "loiter", "encounter"],
 		"impassable": false,
 		"png": "toilet.png"
 	},
 	"bar": {
-		"actions": ["converse", "snack"],
+		"actions": ["loiter", "snack"],
 		"impassable": true,
 		"png": "bar.png"
 	},
 	"table": {
-		"actions": ["converse"],
+		"actions": ["loiter"],
 		"impassable": true,
 		"png": "table.png"
 	},

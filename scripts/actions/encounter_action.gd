@@ -1,12 +1,10 @@
 extends RefCounted
 
-class_name EncounterAction
+class_name EncounterAction extends GenericAction
 
 var ENGINE
 var NPC_OWNER
 
-
-func _init(engine, npc, target_npc):
-    ENGINE = engine
-    NPC_OWNER = npc
-    TARGET_NPC = target_npc
+func tick():
+    if OWNER.LOCATION == LOCATION:
+        do_action()
