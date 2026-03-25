@@ -92,6 +92,6 @@ size_flags_vertical = 3
 theme = SubResource("Theme_h4d1c")
 
 [connection signal="pressed" from="CloseButton" to="." method="close_npc_menu"]
-[connection signal="pressed" from="TalkButton" to="." method="talk_pressed"]
+[connection signal="pressed" from="TalkButton" to="." method="open_talk_menu"]
 [connection signal="pressed" from="WatchButton" to="." method="watch_npc"]
 [connection signal="pressed" from="UnWatchButton" to="." method="unwatch_npc"]

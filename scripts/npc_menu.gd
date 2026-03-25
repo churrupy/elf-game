@@ -1,7 +1,7 @@
 extends Control
 
 var ENGINE
-var DISPLAYED_NPC
+var MENU_NPC
 var WATCH = false
 
 signal close_npc_menu_signal
@@ -14,23 +14,22 @@ func _process(delta: float) -> void:
 	pass
 
 	
-func initialize(npc):
-	DISPLAYED_NPC = npc
-	$NameLabel.text = npc.NAME
+func tick():
+	$NameLabel.text = MENU_NPC.NAME
 	var display_string = []
-	var _str = "Id: " + npc.ID
+	var _str = "Id: " + MENU_NPC.ID
 	display_string.append(_str)
-	_str = "Gender: " + npc.GENDER
+	_str = "Gender: " + MENU_NPC.GENDER
 	display_string.append(_str)
-	_str = "Current Location: " + str(npc.LOCATION)
+	_str = "Current Location: " + str(MENU_NPC.LOCATION)
 	display_string.append(_str)
-	_str = "Current Action: " + str(npc.ACTION)
+	_str = "Current Action: " + str(MENU_NPC.ACTION)
 	display_string.append(_str)
-	_str = "Current Topic: " + str(npc.RECENT_TOPIC)
+	_str = "Current Topic: " + str(MENU_NPC.RECENT_TOPIC)
 	display_string.append(_str)
 	
-	for need in npc.NEEDS:
-		_str = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
+	for need in MENU_NPC.NEEDS:
+		_str = need.capitalize() + ": " + str(int(MENU_NPC.NEEDS[need]))
 		display_string.append(_str)
 	
 	# clear container
@@ -38,7 +37,7 @@ func initialize(npc):
 		child.queue_free()
 
 	# get last five moves
-	var history = ENGINE.History.filter_by_doer(npc)
+	var history = ENGINE.History.filter_by_doer(MENU_NPC)
 	var history_list = ENGINE.History.history_to_string(history)
 	var last_five = history_list.slice(-10,-1)
 	last_five.reverse()
@@ -50,14 +49,14 @@ func initialize(npc):
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$NpcHistoryContainer.get_node("VBoxContainer").add_child(new_label)
 
-	$Portrait.get_node("Splash").modulate = npc.COLOR
+	$Portrait.get_node("Splash").modulate = MENU_NPC.COLOR
 
-	SignalBus.npc_hover.emit(DISPLAYED_NPC)
+	SignalBus.npc_hover.emit(MENU_NPC)
 
 
 func close_npc_menu() -> void:
 	SignalBus.close_npc_menu.emit()
-	SignalBus.npc_hover_off.emit(DISPLAYED_NPC)
+	SignalBus.npc_hover_off.emit(MENU_NPC)
 
 
 func watch_npc() -> void:
@@ -73,5 +72,5 @@ func unwatch_npc() -> void:
 	$WatchButton.show()
 
 
-func talk_pressed() -> void:
-	SignalBus.talk_to_npc.emit(DISPLAYED_NPC)
+func open_talk_menu() -> void:
+	SignalBus.open_talk_menu.emit(MENU_NPC)

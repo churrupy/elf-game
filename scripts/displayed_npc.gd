@@ -41,7 +41,7 @@ func off_hover(npc):
 
 
 func sprite_clicked() -> void:
-	SignalBus.npc_click.emit(NPC_OBJECT)
+	SignalBus.open_npc_menu.emit(NPC_OBJECT)
 
 func _on_mouse_entered() -> void:
 	$DefaultSprite.hide()

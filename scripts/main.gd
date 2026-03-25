@@ -22,10 +22,10 @@ func _ready() -> void:
 	SignalBus.tick_signal.connect(_on_tick)
 	SignalBus.player_move_request.connect(process_player_move)
 	
-	SignalBus.npc_click.connect(open_npc_menu)
+	SignalBus.open_npc_menu.connect(open_npc_menu)
 	SignalBus.close_npc_menu.connect(close_npc_menu)
 
-	SignalBus.talk_to_npc.connect(open_talk_menu)
+	SignalBus.open_talk_menu.connect(open_talk_menu)
 	SignalBus.close_talk_menu.connect(close_talk_menu)
 
 	for i in Constants.NUM_NPCS:
@@ -120,9 +120,11 @@ func _on_tick() -> void:
 	$DefaultMenu.tick()
 	if $NpcMenu.visible:
 		# re-initialize/update visible history
-		open_npc_menu($NpcMenu.DISPLAYED_NPC)
+		$NpcMenu.tick()
+		#open_npc_menu($NpcMenu.MENU_NPC)
 	if $TalkMenu.visible:
-		open_npc_menu($TalkMenu.DISPLAYED_NPC)
+		$TalkMenu.tick()
+		#open_npc_menu($TalkMenu.MENU_NPC)
 
 	
 
@@ -283,11 +285,10 @@ func get_next_step(parent_dict, start, end):
 #region menus
 func open_npc_menu(npc):
 	$DefaultMenu.hide()
-	$NpcMenu.initialize(npc)
-	var dialogue_list = []
-	#var history_list = History.history_to_string(history)
-	$TalkMenu.initialize(npc)
+	$NpcMenu.MENU_NPC = npc
+	$NpcMenu.tick()
 	$NpcMenu.show()
+	$TalkMenu.MENU_NPC = npc
 
 func close_npc_menu():
 	$TalkMenu.hide()
@@ -296,7 +297,11 @@ func close_npc_menu():
 
 
 func open_talk_menu(npc):
-	open_npc_menu(npc)
+	$NpcMenu.MENU_NPC = npc
+	$NpcMenu.tick()
+	$NpcMenu.show()
+	$TalkMenu.MENU_NPC = npc
+	$TalkMenu.tick()
 	$TalkMenu.show()
 
 func close_talk_menu():
