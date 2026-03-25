@@ -207,6 +207,7 @@ func get_all_actions_on_map():
 				new_action.LOCATION = [i,j] # where the npc ends up (if adjacent to target)
 				var action_data = Constants.ACTION_TEMPLATES[action]
 				new_action.NEED = action_data["need"]
+				new_action.ON_TILE = is_travelable(new_action.TARGET)
 				all_actions.append(new_action)
 	return all_actions
 

@@ -77,6 +77,16 @@ const ACTION_TEMPLATES = {
         "do_off_tile": true,
         "conversable": false
     },
+    "flirt": {
+        "need": "social",
+        "duration": 5,
+        "followers": [1,1],
+        "pose": "standing",
+        "joinable": false,
+        "other_req": true,
+        "do_off_tile": true,
+        "conversable": false
+    },
     #region furniture
     "dance" : {
         "need": "fun",

@@ -144,11 +144,10 @@ func tick_npcs():
 			var chosen_action = determine_action(npc)
 			chosen_action.set_countdown()
 			npc.ACTION = chosen_action
-		if (npc.ACTION.LOCATION == npc.LOCATION):
+		npc.ACTION.update_location()
+		if npc.ACTION.is_at_location(npc.LOCATION):
 			npc.ACTION.STATUS = "filling"
 			do_action(npc)
-			#npc.ACTION.do(npc)
-			#History.add_entry(npc.ID, npc.ACTION.ID)
 		else:
 			var next_step = step_towards_location(npc.LOCATION, npc.ACTION.LOCATION)
 			if next_step == null:
@@ -196,15 +195,29 @@ func tick_npcs():
 func do_action(npc):
 	#npc must be at location for this function
 	var action = npc.ACTION
-	var witnesses = get_npcs_in_range(action.TARGET) # same goal/location
+	var witnesses = get_npcs_in_range(action.LOCATION) # same goal/location
 	if len(witnesses) == 0:
 		witnesses = get_npcs_in_range(npc.LOCATION) # people just "around" who can overhear
 
 	#if action.ID == "converse":
-	if len(witnesses) > 0:
-		if action.is_conversable():
+	if action.is_conversable():
+		if len(witnesses) > 1: # self is also in witnesses
 			converse(npc, witnesses, npc.ACTION.TARGET) # everyone will chit-chat if they're close to someone else
 
+	elif action.ID == "flirt":
+		var dialogue_string = npc.NAME + " flirted with " + action.TARGET.NAME
+		var history_params = {
+			"witnesses": [action.TARGET.ID],
+			"dialogue": dialogue_string
+		}
+		History.add_entry(npc, "converse", npc.LOCATION, history_params)
+		var impression = action.TARGET.hear_flirt(npc.ID)
+		dialogue_string = action.TARGET.NAME + " was " + impression + " about being flirted with."
+		history_params = {
+			"witnesses": [npc.ID],
+			"dialogue": dialogue_string
+		}
+		History.add_entry(action.TARGET, "converse", action.TARGET.LOCATION, history_params)
 
 
 
@@ -227,12 +240,26 @@ func converse(npc, witnesses, location):
 		op_str += "lame."
 	else:
 		op_str += "terrible!"
-	var _str = npc.NAME + ": " + op_str
-	for g in witnesses:
-		var g_npc = Global.NPCS[g]
-		g_npc.hear_topic(npc.ID, new_topic, opinion)
+	var _str = npc.NAME + ': "' + op_str + '"'
 	history_params["dialogue"] = _str
 	History.add_entry(npc, "converse", location, history_params)
+	for g in witnesses:
+		if g == npc.ID:
+			continue
+		var g_npc = Global.NPCS[g]
+		var impression = g_npc.hear_topic(npc.ID, new_topic, opinion)
+		print(g_npc.NAME)
+		print(impression)
+		_str = g_npc.NAME + " was " + impression + " with that statement."
+		print(g_npc.NAME)
+		print(impression)
+		history_params = {
+			"witnesses": [npc.ID],
+			"dialogue": _str
+
+		}
+		History.add_entry(g, "converse", location, history_params)
+	
 
 
 
@@ -254,59 +281,52 @@ func get_npcs_in_range(location):
 
 
 #region npc ai
-func get_all_group_actions():
-	var all_actions = []
-	for npc_id in Global.NPCS.keys():
-		var npc = Global.NPCS[npc_id]
-		if npc.ACTION == null: continue
-		if not npc.ACTION.is_joinable(): continue
-		var new_action = ACTIONS.new()
-		new_action.ID = npc.ACTION.ID
-		new_action.TARGET = npc.ACTION.TARGET
-		new_action.LOCATION = npc.ACTION.LOCATION
-		new_action.NEED = npc.ACTION.NEED
-		new_action.FOLLOWING = npc
-		all_actions.append(new_action)
-	return all_actions
-
 
 
 
 
 func determine_action(npc):
 	var all_actions = $Map.get_all_actions_on_map()
-	all_actions += Utility.get_all_group_actions()
+	all_actions += Utility.get_all_npc_actions()
 	for action in all_actions:
 		action = npc.score_action(action)
 
 	all_actions.sort_custom(func(a, b): return b.SCORE < a.SCORE)
 	for action in all_actions:
-		if npc.LOCATION == action.TARGET:
+		if action.TARGET is NPC:
+			# npc target
+			if action.TARGET.ACTION != null:
+				if !action.TARGET.ACTION.is_joinable(): continue # cursed
+				if !action.TARGET.ACTION.is_conversable(): continue
 			return action
-
-		var is_reserved = Utility.is_location_reserved(action.TARGET)
-		var is_travelable = $Map.is_travelable(action.TARGET)
-
-		# find adjacent tile if possible
-		if is_reserved or !is_travelable:
-			if !action.can_do_off_tile(): continue
-			var neighbors = get_neighbors(action.TARGET)
-			var new_action_list = []
-			for n in neighbors:
-				var new_action = ACTIONS.new()
-				new_action.ID = action.ID
-				new_action.TARGET = action.TARGET
-				new_action.LOCATION = n
-				new_action.NEED = action.NEED
-				new_action = npc.score_action(new_action)
-				new_action_list.append(new_action)
-			new_action_list.sort_custom(func(a,b): return b.SCORE < a.SCORE)
-			for second_action in new_action_list:
-				is_reserved = Utility.is_location_reserved(second_action.LOCATION)
-				#is_travelable = second_action.TARGET.is_travelable() # get_neighbors always returns only travelable tiles
-				if !is_reserved: return second_action
 		else:
-			return action
+			# tile target
+			if npc.LOCATION == action.TARGET:
+				return action
+
+			var is_reserved = Utility.is_location_reserved(action.TARGET)
+			var is_travelable = $Map.is_travelable(action.TARGET)
+
+			# find adjacent tile if possible
+			if is_reserved or !is_travelable:
+				if !action.can_do_off_tile(): continue
+				var neighbors = get_neighbors(action.TARGET)
+				var new_action_list = []
+				for n in neighbors:
+					var new_action = ACTIONS.new()
+					new_action.ID = action.ID
+					new_action.TARGET = action.TARGET
+					new_action.LOCATION = n
+					new_action.NEED = action.NEED
+					new_action = npc.score_action(new_action)
+					new_action_list.append(new_action)
+				new_action_list.sort_custom(func(a,b): return b.SCORE < a.SCORE)
+				for second_action in new_action_list:
+					is_reserved = Utility.is_location_reserved(second_action.LOCATION)
+					#is_travelable = second_action.TARGET.is_travelable() # get_neighbors always returns only travelable tiles
+					if !is_reserved: return second_action
+			else:
+				return action
 	push_error("action not found for", npc.NAME)
 
 #endregion
@@ -390,24 +410,23 @@ func open_npc_menu(npc):
 	var history = History.filter_by_npc(npc.ID)
 	var history_list = History.display_history(history)
 	$NpcMenu.initialize(npc, history_list)
+	var dialogue_list = []
+	history = History.filter_by_npc(npc)
+	for h in history:
+		if h["action"] == "converse":
+			dialogue_list.append(h["arg"]["dialogue"])
+	#var history_list = History.display_history(history)
+	$TalkMenu.initialize(npc, dialogue_list)
 	$NpcMenu.show()
 
 func close_npc_menu():
+	$TalkMenu.hide()
 	$NpcMenu.hide()
 	$DefaultMenu.show()
 
 
 func open_talk_menu(npc):
 	open_npc_menu(npc)
-	print(npc)
-	print(npc.ACTION)
-	var dialogue_list = []
-	var history = History.filter_by_npc(npc)
-	for h in history:
-		if h["action"] == "converse":
-			dialogue_list.append(h["arg"]["dialogue"])
-	#var history_list = History.display_history(history)
-	$TalkMenu.initialize(npc, dialogue_list)
 	$TalkMenu.show()
 
 func close_talk_menu():

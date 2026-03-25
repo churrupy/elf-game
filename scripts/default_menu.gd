@@ -38,7 +38,6 @@ func tick():
 		var npc = Global.NPCS[npc_id]
 		var npc_button = buttons.instantiate()
 		add_child(npc_button)
-		print(npc)
 		npc_button.initialize(npc)
 		npc_button.position = Vector2(button_x, button_y)
 		npc_button.connect("pressed", Callable(self, "open_npc_menu").bind(npc))

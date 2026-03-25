@@ -32,7 +32,6 @@ func on_hover(npc):
 		$DefaultSprite.hide()
 		$GlowSprite.show()
 		$HoverNameLabel.show()
-		#print("hovering!")
 		
 func off_hover(npc):
 	if npc.ID == NPC_OBJECT.ID:

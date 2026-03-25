@@ -10,6 +10,7 @@ var LOCATION = [0,0]
 var GENDER
 var ACTION
 var RECENT_TOPIC
+var STYLE
 var OPINIONS = {}
 var RELATIONSHIPS = {}
 var NEEDS = {
@@ -21,6 +22,8 @@ var NEEDS = {
 	"bladder": 50
 }
 
+var STYLES = ["goth", "punk", "prep", "country", "athletic", "queer"]
+
 var NAMES = {
 	"male": ["Gerald", "Harry", "Irving", "Jackson", "Kyle", "Leon", "Michael", "Christopher", "Matthew", "Joshua", "David", "James", "Daniel", "Robert", "John", "Joseph", "Andrew", "Justin", "Ryan", "Brandon", "Jason", "William", "Jonathan", "Brian", "Kevin", "Eric", "Nicholas", "Timothy", "Adam", "Anthony", "Thomas", "Steven", "Benjamin", "Mark", "Scott", "Paul"],
 	"female": ["Agatha", "Bridget", "Cassidy", "Daniella", "Eve", "Jennifer", "Jessica", "Amanda", "Sarah", "Ashley", "Stephanie", "Emily", "Nicole", "Elizabeth", "Heather", "Melissa", "Michelle", "Kimberly", "Amy", "Angela", "Tiffany", "Rebecca", "Rachel", "Laura", "Courtney", "Amber", "Christina", "Samantha", "Hannah", "Erin", "Katherine", "Megan", "Danielle", "Brittany", "Lauren"]
@@ -31,10 +34,13 @@ func initialize(ID_COUNTER):
 	GENDER = ["male", "female"].pick_random()
 	NAME = NAMES[GENDER].pick_random()
 	ID = NAME + str(ID_COUNTER)
+	STYLE = STYLES.pick_random()
 	COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
 	var topics = Dialogue.CONVERSATION_NODES.keys()
 	for topic in topics:
 		OPINIONS[topic] = randi_range(0,100)
+	for style in STYLES:
+		OPINIONS[style] = randi_range(-5,5)
 
 	
 func _init() -> void:
@@ -67,6 +73,10 @@ func get_opinion(other_npc):
 	else:
 		return 0
 
+func get_attraction(other_npc):
+	var other_style = other_npc.STYLE
+	return OPINIONS[other_style]
+
 func score_action(action):
 	# score based on need
 	action.SCORE += 100-NEEDS[action.NEED]
@@ -74,14 +84,26 @@ func score_action(action):
 		action.SCORE += 10 # bonus for urgent needs
 
 	# score based on preference
-	if action.FOLLOWING != null:
-		action.SCORE += get_opinion(action.FOLLOWING)
+	if action.TARGET is NPC:
+		if action.TARGET == self:
+			action.SCORE = -100
+			return action
+		action.SCORE += get_opinion(action.TARGET)
+		if action.ID == "flirt":
+			action.SCORE += get_attraction(action.TARGET)
 
 	# score based on distance
-	var total_x = abs(LOCATION[0]- action.TARGET[0])
-	var total_y = abs(LOCATION[1] - action.TARGET[1])
-	action.SCORE -= total_x #distance is penalty
-	action.SCORE -= total_y
+	var total_x
+	var total_y
+	if action.TARGET is Array:
+		total_x = abs(LOCATION[0]- action.TARGET[0])
+		total_y = abs(LOCATION[1] - action.TARGET[1])
+	else:
+		print(action)
+		total_x = abs(LOCATION[0] - action.TARGET.LOCATION[0])
+		total_y = abs(LOCATION[1] - action.TARGET.LOCATION[1])
+	action.SCORE -= total_x + total_y
+	
 
 	return action
 
@@ -110,23 +132,48 @@ func _to_string():
 
 #endregion
 
+func update_relationship(other_npc_id, change):
+	if other_npc_id not in RELATIONSHIPS.keys():
+		RELATIONSHIPS[other_npc_id] = 0
+	RELATIONSHIPS[other_npc_id] += change
+
 func hear_topic(speaker_id, topic, opinion):
 	print("hear topic")
 	if speaker_id == ID:
 		return
-	print(speaker_id)
-	print(ID)
 	if speaker_id not in RELATIONSHIPS:
 		RELATIONSHIPS[speaker_id] = 0
 	RECENT_TOPIC = topic
 	var this_opinion = OPINIONS[topic]
 	var diff = abs(this_opinion - opinion)
+	var impression
 	if diff > 50:
-		RELATIONSHIPS[speaker_id] -= 1
+		update_relationship(speaker_id, 1)
+		impression = "pleased"
 	elif diff > 25:
-		pass
+		impression = "unimpressed"
 	else:
-		RELATIONSHIPS[speaker_id] += 1
+		update_relationship(speaker_id, -1)
+		impression = "annoyed"
+	return impression
+
+
+func hear_flirt(speaker_id):
+	var npc = Global.NPCS[speaker_id]
+	var attraction = get_attraction(npc)
+	var impression
+	if attraction >= 3:
+		update_relationship(speaker_id, 1)
+		impression = "pleased"
+	elif attraction >=-3:
+		impression = "unimpressed"
+	else:
+		update_relationship(speaker_id, -1)
+		impression = "annoyed"
+	return impression
+
+	
+
 	
 
 

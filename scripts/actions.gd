@@ -9,6 +9,8 @@ var STATUS = "moving" # idk that enum thing again
 var SCORE: int
 var COUNTDOWN: int
 var FOLLOWING # node
+var MOVING = false # triggers whether location is rechecked every turn
+var ON_TILE = true # whether npc needs to be on tile to do action
 
 
 func set_countdown():
@@ -17,13 +19,27 @@ func set_countdown():
 
 func do(npc):
 	COUNTDOWN -= 1
-	print("in actions", STATUS)
 	var refresh_rate = Constants.NEED_REFRESH_RATES[NEED]
 	npc.NEEDS[NEED] += refresh_rate
 	if COUNTDOWN < 0:
 		STATUS = "finish"
-	print("after actions", npc.NAME,_to_string())
 
+
+func update_location():
+	if MOVING:
+		LOCATION = TARGET.LOCATION.duplicate()
+
+
+func is_at_location(npc_location):
+	if ON_TILE:
+		if npc_location == LOCATION:
+			return true
+	else:
+		var x_diff = abs(npc_location[0] - LOCATION[0])
+		var y_diff = abs(npc_location[1] - LOCATION[1])
+		if (x_diff + y_diff <=2):
+			return true
+		return false
 
 
 

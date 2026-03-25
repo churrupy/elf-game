@@ -14,19 +14,20 @@ func get_npc_from_location(location: Array):
 	return npcs
 
 
-func get_all_group_actions():
+func get_all_npc_actions():
+	var npc_actions = ["converse", "flirt"]
 	var all_actions = []
 	for npc_id in Global.NPCS.keys():
 		var npc = Global.NPCS[npc_id]
-		if npc.ACTION == null: continue
-		if not npc.ACTION.is_joinable(): continue
-		var new_action = ACTIONS.new()
-		new_action.ID = npc.ACTION.ID
-		new_action.TARGET = npc.ACTION.TARGET
-		new_action.LOCATION = npc.ACTION.LOCATION
-		new_action.NEED = npc.ACTION.NEED
-		new_action.FOLLOWING = npc
-		all_actions.append(new_action)
+		for npc_a in npc_actions:
+			var new_action = ACTIONS.new()
+			new_action.ID = npc_a
+			new_action.TARGET = npc
+			new_action.LOCATION = npc.LOCATION
+			new_action.NEED = "social"
+			new_action.MOVING = true
+			new_action.ON_TILE = false
+			all_actions.append(new_action)
 	return all_actions
 
 

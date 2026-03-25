@@ -69,10 +69,10 @@ icon = ExtResource("2_prfe1")
 [node name="UnWatchButton" type="Button" parent="."]
 visible = false
 layout_mode = 0
-offset_left = 186.0
-offset_top = 115.0
-offset_right = 234.0
-offset_bottom = 163.0
+offset_left = 143.0
+offset_top = 53.0
+offset_right = 191.0
+offset_bottom = 101.0
 theme_override_font_sizes/font_size = 20
 icon = ExtResource("3_h4d1c")
 
