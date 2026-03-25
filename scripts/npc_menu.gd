@@ -46,11 +46,6 @@ func initialize(npc, history):
 		new_label.text = item
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$NpcHistoryContainer.get_node("VBoxContainer").add_child(new_label)
-		
-	#var display = "\n".join(display_string)
-	#$ScrollContainer.get_node("VBoxContainer").get_node("NpcDescription").text = display
-	#print($ScrollContainer.get_node("VBoxContainer").get_node("NpcDescription").text)
-	#$NpcDescription.text = display
 
 	$Portrait.get_node("Splash").modulate = npc.COLOR
 

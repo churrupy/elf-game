@@ -79,6 +79,8 @@ func _ready_old() -> void:
 			tile.initialize()
 
 
+
+
 func _ready() -> void:
 	#$Grid.hide()			
 	size = Constants.MAIN_FRAME_SIZE
@@ -162,7 +164,6 @@ func tick_old():
 				y_counter += Constants.TILE_SIZE
 				continue
 			var tile = MAP[x][y]
-			#print("showing", x, y)
 			tile.global_position = Vector2(x_counter, y_counter)
 			tile.show()
 			y_counter += Constants.TILE_SIZE
@@ -199,15 +200,18 @@ func get_all_actions_on_map():
 		for j in len(MAP[0]):
 			var tile = MAP[i][j]
 			var tile_data = Constants.TILE_TEMPLATES[tile]
+			var engine = get_parent()
 			#var tile_actions = Constants.TILE_TEMPLATES[tile]["actions"]
 			for action in tile_data["actions"]:
-				var new_action = ACTIONS.new()
-				new_action.ID = action
+				var action_data = Constants.ACTION_TEMPLATES[action]
+				var action_class_id = action_data["class"]
+				var action_class = Constants.CLASS_TEMPLATES[action_class_id]
+				var new_action  = action_class.new(engine, action)
 				new_action.TARGET = [i,j] # where the npc wants to pathfind to
 				new_action.LOCATION = [i,j] # where the npc ends up (if adjacent to target)
-				var action_data = Constants.ACTION_TEMPLATES[action]
-				new_action.NEED = action_data["need"]
-				new_action.ON_TILE = is_travelable(new_action.TARGET)
+				#var action_data = Constants.ACTION_TEMPLATES[action]
+				#new_action.NEED = action_data["need"]
+				#new_action.ON_TILE = is_travelable(new_action.TARGET)
 				all_actions.append(new_action)
 	return all_actions
 

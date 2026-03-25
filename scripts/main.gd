@@ -8,12 +8,17 @@ var History = HISTORY_CLASS.new()
 
 
 
-
 var ID_COUNTER = 0
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	# set engine in children
+	for child in get_children():
+		if "ENGINE" in child:
+			child.ENGINE = self
+
+
 	SignalBus.tick_signal.connect(_on_tick)
 	SignalBus.player_move_request.connect(process_player_move)
 	
@@ -84,12 +89,15 @@ func display_npcs():
 		if y_index < 0:
 			continue
 
+		#add_child(npc)
+
+
 		var displayed_npc = npc_scene.instantiate()
 		displayed_npc.initialize(npc)
 		add_child(displayed_npc)
 		displayed_npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0] + Constants.TILE_SIZE/2
 		displayed_npc.global_position[1] = y_index * Constants.TILE_SIZE + Constants.TILE_SIZE/2
-		
+		displayed_npc.show()
 
 
 
@@ -109,14 +117,13 @@ func _on_tick() -> void:
 	get_current_npcs()
 	display_npcs()
 	$Map.tick()
-	var player_history = History.filter_by_npc("player")
-	var player_history_list = History.display_history(player_history)
-	$DefaultMenu.update_history_and_tick(player_history_list)
+	$DefaultMenu.tick()
 	if $NpcMenu.visible:
 		# re-initialize/update visible history
 		open_npc_menu($NpcMenu.DISPLAYED_NPC)
 	if $TalkMenu.visible:
 		open_npc_menu($TalkMenu.DISPLAYED_NPC)
+
 	
 
 #endregion
@@ -129,12 +136,27 @@ func get_npc_list():
 	return npc_list
 
 func get_current_npcs():
+	Global.NEARBY_NPCS = []
 	var adjacent_locations = get_neighbors(Global.PLAYER_LOCATION)
 	for l in adjacent_locations:
-		Global.CURRENT_NPCS += Utility.get_npc_from_location(l)
+		Global.NEARBY_NPCS += Utility.get_npc_from_location(l)
 
 func tick_npcs():
-	Global.CURRENT_NPCS = []
+	for npc_id in Global.NPCS.keys():
+		print("ticking ", npc_id)
+		var npc: NPC = Global.NPCS[npc_id]
+		if npc.ACTION == null:
+			npc.ACTION = determine_action(npc)
+		elif npc.ACTION.STATUS == "finish":
+			History.add_entry(npc.ID, "finished", npc.LOCATION, {"action": npc.ACTION.ID})
+			npc.ACTION = null
+		else:
+			npc.ACTION.tick()
+		if npc.ACTION.COUNTDOWN < 0:
+			npc.ACTION = null
+	print("")
+
+func tick_npcs_old():
 	for npc_id in Global.NPCS.keys():
 		var npc = Global.NPCS[npc_id]
 		print("")
@@ -160,23 +182,6 @@ func tick_npcs():
 				continue
 			print(next_step)
 			var old_location = npc.LOCATION.duplicate()
-			'''
-			var current_occupant = Utility.get_npc_from_location(next_step)
-			if current_occupant != null:
-				# swap locations
-				# occupant should NOT be the one to reserve it because the code should check by now
-				print("pushing " + current_occupant.NAME + " out of the way")
-				var neighbors = get_neighbors(current_occupant.LOCATION)
-				var valid_neighbors = []
-				for n in neighbors:
-					# makes sure that there's an empty spot (no chain pushing, that's wude)
-					var neighbor_occupant = Utility.get_npc_from_location(n)
-					if neighbor_occupant == null:
-						valid_neighbors.append(n)
-				var new_location = valid_neighbors.pick_random()
-
-				current_occupant.LOCATION = new_location
-			'''
 			History.add_entry(npc.ID, "moved to", old_location, {"location": npc.ACTION.LOCATION})
 			npc.LOCATION = next_step
 		
@@ -261,18 +266,31 @@ func converse(npc, witnesses, location):
 		History.add_entry(g, "converse", location, history_params)
 	
 
+func get_all_npc_actions():
+	var npc_actions = ["converse", "flirt"]
+	var all_actions = []
+	for npc_id in Global.NPCS.keys():
+		var npc = Global.NPCS[npc_id]
+		for npc_a in npc_actions:
+			var action_data = Constants.ACTION_TEMPLATES[npc_a]
+			var action_class_id = action_data["class"]
+			var action_class = Constants.CLASS_TEMPLATES[action_class_id]
+			var new_action = action_class.new(self, npc_a)
+			#var new_action = action_data["type"].new(self, npc_a)
+			new_action.TARGET = npc
+			new_action.LOCATION = npc.LOCATION
+			all_actions.append(new_action)
+	return all_actions
 
 
 
 
 func get_npcs_in_range(location):
 	# gets all npcs with the same target who are nearby
-	print("get group")
 	var close_npcs = []
 	var target_neighbors = get_neighbors(location)
 	for n in target_neighbors:
 		close_npcs += Utility.get_npc_from_location(n)
-	print(close_npcs)
 	return close_npcs
 	
 
@@ -282,12 +300,27 @@ func get_npcs_in_range(location):
 
 #region npc ai
 
-
-
-
 func determine_action(npc):
 	var all_actions = $Map.get_all_actions_on_map()
-	all_actions += Utility.get_all_npc_actions()
+	all_actions += get_all_npc_actions()
+	for action in all_actions:
+		action.OWNER = npc
+		action.score()
+
+	all_actions.sort_custom(func(a,b): return b.SCORE < a.SCORE)
+	for action in all_actions:
+		print(action, action.SCORE)
+		if action.can_do_action():
+			#print("can do:", action)
+			return action
+		#print("can't do:", action)
+	push_error("action not found for", npc.NAME)
+
+
+
+func determine_action_old(npc):
+	var all_actions = $Map.get_all_actions_on_map()
+	all_actions += get_all_npc_actions()
 	for action in all_actions:
 		action = npc.score_action(action)
 
@@ -349,15 +382,11 @@ func step_towards_location(end, start): #trying this out, pathfinding from targe
 	var current
 
 	while len(queue) > 0:
-		#var current = queue.pop_front()
 		current = queue.pop_front()
-		#print(current)
 		if current == end:
-			#print("found end")
 			return parent_dict[end]
-			#return get_next_step(parent_dict, start, end)
 		for neighbor in get_neighbors(current):
-			if Utility.is_location_reserved_by_occupant(neighbor): continue
+			#if Utility.is_location_reserved_by_occupant(neighbor): continue
 			if neighbor in visited:
 				continue
 			visited.append(neighbor)
@@ -391,7 +420,6 @@ func get_neighbors(location):
 	return valid_neighbors
 
 func get_next_step(parent_dict, start, end):
-	#print("parent_dict", str(parent_dict))
 	var node = end
 	while true:
 		var parent = parent_dict[node] #not sure if i can use a list as a key in godot 
@@ -405,7 +433,6 @@ func get_next_step(parent_dict, start, end):
 
 #region menus
 func open_npc_menu(npc):
-	print("showing menu")
 	$DefaultMenu.hide()
 	var history = History.filter_by_npc(npc.ID)
 	var history_list = History.display_history(history)

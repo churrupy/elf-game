@@ -47,6 +47,18 @@ offset_bottom = 182.0
 theme_override_font_sizes/font_size = 36
 text = "Auto Tick"
 
+[node name="NearbyNpcsContainer" type="ScrollContainer" parent="."]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 194.0
+offset_right = 306.0
+offset_bottom = 362.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="NearbyNpcsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
 [node name="PlayerHistoryContainer" type="ScrollContainer" parent="."]
 layout_mode = 0
 offset_left = 4.0

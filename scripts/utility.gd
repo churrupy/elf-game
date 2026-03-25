@@ -20,6 +20,23 @@ func get_all_npc_actions():
 	for npc_id in Global.NPCS.keys():
 		var npc = Global.NPCS[npc_id]
 		for npc_a in npc_actions:
+			var action_data = Constants.ACTION_TEMPLATES[npc_a]
+			var action_class_id = action_data["class"]
+			var action_class = Constants.CLASS_TEMPLATES[action_class_id]
+			var new_action = action_class.new(self, npc_a)
+			#var new_action = action_data["type"].new(self, npc_a)
+			new_action.TARGET = npc
+			new_action.LOCATION = npc.LOCATION
+			all_actions.append(new_action)
+	return all_actions
+
+
+func get_all_npc_actions_old():
+	var npc_actions = ["converse", "flirt"]
+	var all_actions = []
+	for npc_id in Global.NPCS.keys():
+		var npc = Global.NPCS[npc_id]
+		for npc_a in npc_actions:
 			var new_action = ACTIONS.new()
 			new_action.ID = npc_a
 			new_action.TARGET = npc
@@ -61,7 +78,6 @@ func display_list_on_screen(list, offset=0):
 		
 
 func display_on_screen(item, offset=0):
-	#print(item)
 	var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(item.LOCATION[0])
 	if x_index == -1:
 		item.hide()

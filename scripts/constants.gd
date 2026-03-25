@@ -41,141 +41,153 @@ const NEED_DECAY_RATES= {
 }
 
 const NEED_REFRESH_RATES = {
-    "hunger" : SET_RATES["HOUR_1"],
-    "energy" : SET_RATES["HOUR_8"],
-    "social" : SET_RATES["HOUR_1"],
-    "release" : SET_RATES["HOUR_HALF"], # not sure if i can make the encounter simulation run believably for an hour lol
-    "work" : SET_RATES["HOUR_8"],
-    "leisure" : SET_RATES["HOUR_1"],
-    "shopping" : SET_RATES["HOUR_1"],
+	"hunger" : SET_RATES["HOUR_1"],
+	"energy" : SET_RATES["HOUR_8"],
+	"social" : SET_RATES["HOUR_1"],
+	"release" : SET_RATES["HOUR_HALF"], # not sure if i can make the encounter simulation run believably for an hour lol
+	"work" : SET_RATES["HOUR_8"],
+	"leisure" : SET_RATES["HOUR_1"],
+	"shopping" : SET_RATES["HOUR_1"],
 	"bladder": SET_RATES["MINUTE_5"],
 	"fun": SET_RATES["HOUR_1"]
 }
 #endregions
 
+var CLASS_TEMPLATES = {
+	"GenericAction": GenericAction
+}
+
 
 #region action templates
 const ACTION_TEMPLATES = {
-    #region npc actions
-    "converse": {
-        "need": "social",
-        #"relationship": "friendship",
-        "duration": 10,
-        "followers": [1,4],
-        "pose": "standing",
+	#region npc actions
+	"converse": {
+		"need": "social",
+		#"relationship": "friendship",
+		"duration": 10,
+		"followers": [1,4],
+		"pose": "standing",
 		"joinable": true,
 		"other_req": true,
-        "do_off_tile": true
-    },
-    "encounter": {
-        "need": "release",
-        "duration": 30,
-        "followers": [1,1],
-        "pose": "standing",
+		"do_off_tile": true,
+		"class": "GenericAction"
+	},
+	"encounter": {
+		"need": "release",
+		"duration": 30,
+		"followers": [1,1],
+		"pose": "standing",
 		"joinable": true,
 		"other_req": true,
-        "do_off_tile": true,
-        "conversable": false
-    },
-    "flirt": {
-        "need": "social",
-        "duration": 5,
-        "followers": [1,1],
-        "pose": "standing",
-        "joinable": false,
-        "other_req": true,
-        "do_off_tile": true,
-        "conversable": false
-    },
-    #region furniture
-    "dance" : {
-        "need": "fun",
-        "duration": 10,
-        "followers": [0,3],
-        "pose": "standing",
+		"do_off_tile": true,
+		"conversable": false,
+		"class": "GenericAction"
+	},
+	"flirt": {
+		"need": "social",
+		"duration": 5,
+		"followers": [1,1],
+		"pose": "standing",
+		"joinable": false,
+		"other_req": true,
+		"do_off_tile": true,
+		"conversable": false,
+		"class": "GenericAction"
+	},
+	#region furniture
+	"dance" : {
+		"need": "fun",
+		"duration": 10,
+		"followers": [0,3],
+		"pose": "standing",
 		"joinable": true,
 		"other_req": false,
-        "do_off_tile": false,
-        "conversable": false
-    },
-    "drink": {
-        "need": "fun",
-        "duration": 5,
-        "followers": [0,0],
-        "pose": "standing",
+		"do_off_tile": false,
+		"conversable": false,
+		"class": "GenericAction"
+	},
+	"drink": {
+		"need": "fun",
+		"duration": 5,
+		"followers": [0,0],
+		"pose": "standing",
 		"joinable": false,
 		"other_req": false,
-        "do_off_tile": true
-    },
-    "use toilet": {
-        "need": "bladder",
-        "duration": 5,
-        "followers": [0,0],
-        "pose": "standing",
+		"do_off_tile": true,
+		"class": "GenericAction"
+	},
+	"use toilet": {
+		"need": "bladder",
+		"duration": 5,
+		"followers": [0,0],
+		"pose": "standing",
 		"joinable": false,
 		"other_req": false,
-        "do_off_tile": false,
-        "conversable": false
-    },
-    "snack": {
-        "need": "hunger",
-        "duration": 5,
-        "followers": [0,0],
-        "pose": "standing",
+		"do_off_tile": false,
+		"conversable": false,
+		"class": "GenericAction"
+	},
+	"snack": {
+		"need": "hunger",
+		"duration": 5,
+		"followers": [0,0],
+		"pose": "standing",
 		"joinable": false,
 		"other_req": false,
-        "do_off_tile": true
-    },
-    "follow": {
-        "need": "none",
-        "duration": 0,
-        "followers": [0,0],
-        "pose": "standing",
+		"do_off_tile": true,
+		"class": "GenericAction"
+	},
+	"follow": {
+		"need": "none",
+		"duration": 0,
+		"followers": [0,0],
+		"pose": "standing",
 		"joinable": true,
 		"other_req": true,
-        "do_off_tile": true
-    }
+		"do_off_tile": true,
+		"class": "GenericAction"
+	}
 }
 
 #endregion
 
 #region tiles
 const TILE_TEMPLATES = {
-    "empty": {
-        "actions": [],
-        "impassable": false,
-        "png": "tile.png"
-    },
+	"empty": {
+		"actions": [],
+		"impassable": false,
+		"png": "tile.png"
+	},
 	"social_empty": {
 		"actions": ["converse"],
 		"impassable": false,
-        "png": "tile.png"
+		"png": "tile.png"
 	},
-    "dance_floor": {
+	"dance_floor": {
 		"actions": ["dance"],
 		"impassable": false,
-        "png": "dance_floor.png"
+		"png": "dance_floor.png"
 	},
-    "toilet":  {
+	"toilet":  {
 		"actions": ["use toilet", "converse", "encounter"],
 		"impassable": false,
-        "png": "toilet.png"
+		"png": "toilet.png"
 	},
-    "bar": {
+	"bar": {
 		"actions": ["converse", "snack"],
 		"impassable": true,
-        "png": "bar.png"
+		"png": "bar.png"
 	},
 	"table": {
 		"actions": ["converse"],
 		"impassable": true,
-        "png": "table.png"
+		"png": "table.png"
 	},
-    "wall": {
-        "actions": [],
-        "impassable": true,
-        "png": "wall.png"
-    }
+	"wall": {
+		"actions": [],
+		"impassable": true,
+		"png": "wall.png"
+	}
 
 }
 

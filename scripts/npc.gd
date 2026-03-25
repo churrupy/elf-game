@@ -38,7 +38,7 @@ func initialize(ID_COUNTER):
 	COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
 	var topics = Dialogue.CONVERSATION_NODES.keys()
 	for topic in topics:
-		OPINIONS[topic] = randi_range(0,100)
+		OPINIONS[topic] = randi_range(-5,5)
 	for style in STYLES:
 		OPINIONS[style] = randi_range(-5,5)
 
@@ -99,7 +99,6 @@ func score_action(action):
 		total_x = abs(LOCATION[0]- action.TARGET[0])
 		total_y = abs(LOCATION[1] - action.TARGET[1])
 	else:
-		print(action)
 		total_x = abs(LOCATION[0] - action.TARGET.LOCATION[0])
 		total_y = abs(LOCATION[1] - action.TARGET.LOCATION[1])
 	action.SCORE -= total_x + total_y
@@ -138,7 +137,6 @@ func update_relationship(other_npc_id, change):
 	RELATIONSHIPS[other_npc_id] += change
 
 func hear_topic(speaker_id, topic, opinion):
-	print("hear topic")
 	if speaker_id == ID:
 		return
 	if speaker_id not in RELATIONSHIPS:
@@ -147,10 +145,10 @@ func hear_topic(speaker_id, topic, opinion):
 	var this_opinion = OPINIONS[topic]
 	var diff = abs(this_opinion - opinion)
 	var impression
-	if diff > 50:
+	if diff < 2:
 		update_relationship(speaker_id, 1)
 		impression = "pleased"
-	elif diff > 25:
+	elif diff < 4:
 		impression = "unimpressed"
 	else:
 		update_relationship(speaker_id, -1)
@@ -199,3 +197,42 @@ func hear_topic_old(speaker_id, topic, opinion, location):
 			print(NAME)
 			print("topic heard")
 			print(RECENT_TOPIC)
+
+
+#region sprite
+func on_hover(npc):
+	if npc.ID == ID:
+		_on_mouse_entered()
+		$DefaultSprite.hide()
+		$GlowSprite.show()
+		$HoverNameLabel.show()
+		
+func off_hover(npc):
+	if npc.ID == ID:
+		$GlowSprite.hide()
+		$DefaultSprite.show()
+		$HoverNameLabel.hide()
+
+
+func sprite_clicked() -> void:
+	SignalBus.npc_click.emit(self)
+
+func _on_mouse_entered() -> void:
+	$DefaultSprite.hide()
+	$GlowSprite.show()
+	$HoverNameLabel.show()
+	#SignalBus.npc_hover.emit(NPC_HOBE)
+
+
+func _on_mouse_exit() -> void:
+	$GlowSprite.hide()
+	$DefaultSprite.show()
+	$HoverNameLabel.hide()
+	#SignalBus.npc_hover_off.emit(self)
+
+
+
+
+
+
+#endregion

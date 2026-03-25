@@ -11,7 +11,6 @@ func _ready() -> void:
 	
 func on_hover(npc):
 	if npc == DISPLAYED_NPC:
-		#print("hovering!")
 		pass
 	
 func initialize(npc):

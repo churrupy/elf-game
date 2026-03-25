@@ -61,8 +61,10 @@ func display_history(history_list = []):
 		if "witnesses" in h["arg"]:
 			var group_str = " with " + ",".join(h["arg"]["witnesses"]) + "."
 			_str += group_str
+		'''
 		if "dialogue" in h["arg"]:
 			var dialogue_str = h["arg"]["dialogue"]
 			_str += dialogue_str
+		'''
 		display_list.append(_str)
 	return display_list

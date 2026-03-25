@@ -1,7 +1,7 @@
 extends Node
 
 var NPCS = {}
-var CURRENT_NPCS = []
+var NEARBY_NPCS = []
 var FOCUS_NPCS = []
 var TICKS = 0
 
