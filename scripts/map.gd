@@ -54,33 +54,6 @@ var MAP_TEMPLATES = {
 }
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready_old() -> void:
-	#$Grid.hide()			
-	size = Constants.MAIN_FRAME_SIZE
-	position = Constants.MAIN_FRAME_POSITION
-	var room_data = MAP_TEMPLATES[ROOM]
-	var special_tiles = room_data["special"]
-	for i in Constants.MAP_SIZE[0]:
-		MAP.append([])
-		for j in Constants.MAP_SIZE[1]:
-			var tile = tile_scene.instantiate()
-			tile.hide()
-			MAP[i].append(tile)
-			add_child(tile)
-			var location = [i,j]
-			tile.LOCATION = location
-			if location in special_tiles.keys():
-				var type = special_tiles[location]
-				tile.TYPE = type
-			else:
-				var type = room_data["default"]
-				tile.TYPE = type
-			tile.initialize()
-
-
-
-
 func _ready() -> void:
 	#$Grid.hide()			
 	size = Constants.MAIN_FRAME_SIZE
@@ -149,28 +122,6 @@ func is_travelable(location):
 	return true
 
 
-func tick_old():
-	hide_all_tiles()
-	var x_counter = Constants.MAIN_FRAME_POSITION[0]
-	var y_counter = 0
-
-	for x in range(Global.X_RANGE[0], Global.X_RANGE[1]):
-		if x not in range(0, len(MAP)):
-			x_counter += Constants.TILE_SIZE
-			y_counter = 0
-			continue
-		for y in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
-			if y not in range(0, len(MAP[0])):
-				y_counter += Constants.TILE_SIZE
-				continue
-			var tile = MAP[x][y]
-			tile.global_position = Vector2(x_counter, y_counter)
-			tile.show()
-			y_counter += Constants.TILE_SIZE
-		x_counter += Constants.TILE_SIZE
-		y_counter = 0
-
-
 #region utility
 
 
@@ -186,12 +137,6 @@ func random_empty_tile():
 		if tile_data["impassable"] == false:
 			return [x,y]
 
-func random_empty_tile_old():
-	while true:
-		var location = [randi_range(0, Constants.MAP_SIZE[0]-1), randi_range(0, Constants.MAP_SIZE[1]-1)]
-		var tile = get_tile(location)
-		if !tile.is_travelable(): continue
-		return tile
 
 
 func get_all_actions_on_map():

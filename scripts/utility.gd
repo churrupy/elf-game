@@ -31,31 +31,7 @@ func get_all_npc_actions():
 	return all_actions
 
 
-func get_all_npc_actions_old():
-	var npc_actions = ["converse", "flirt"]
-	var all_actions = []
-	for npc_id in Global.NPCS.keys():
-		var npc = Global.NPCS[npc_id]
-		for npc_a in npc_actions:
-			var new_action = ACTIONS.new()
-			new_action.ID = npc_a
-			new_action.TARGET = npc
-			new_action.LOCATION = npc.LOCATION
-			new_action.NEED = "social"
-			new_action.MOVING = true
-			new_action.ON_TILE = false
-			all_actions.append(new_action)
-	return all_actions
 
-
-
-func is_location_reserved_by_occupant(location):
-	for npc_id in Global.NPCS:
-		var npc = Global.NPCS[npc_id]
-		if npc.ACTION == null: continue
-		if npc.LOCATION == location and npc.LOCATION == npc.ACTION.LOCATION:
-			return true
-	return false
 
 func is_location_reserved(location):
 	# checks if an npc already has this as a target location

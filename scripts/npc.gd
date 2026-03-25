@@ -170,35 +170,6 @@ func hear_flirt(speaker_id):
 		impression = "annoyed"
 	return impression
 
-	
-
-	
-
-
-func hear_topic_old(speaker_id, topic, opinion, location):
-	if speaker_id == ID:
-		return
-	print("signal delivered")
-	print(location)
-	print(LOCATION)
-	if LOCATION[0] in range(location[0]-1, location[0]+2):
-		if LOCATION[1] in range(location[1] -1, location[1]+2):
-			if speaker_id not in RELATIONSHIPS:
-				RELATIONSHIPS[speaker_id] = 0
-			RECENT_TOPIC = topic
-			var this_opinion = OPINIONS[topic]
-			var diff = abs(this_opinion - opinion)
-			if diff > 50:
-				RELATIONSHIPS[speaker_id] -= 1
-			elif diff > 25:
-				pass
-			else:
-				RELATIONSHIPS[speaker_id] += 1
-			print(NAME)
-			print("topic heard")
-			print(RECENT_TOPIC)
-
-
 #region sprite
 func on_hover(npc):
 	if npc.ID == ID:

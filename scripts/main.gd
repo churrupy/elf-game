@@ -156,115 +156,11 @@ func tick_npcs():
 			npc.ACTION = null
 	print("")
 
-func tick_npcs_old():
-	for npc_id in Global.NPCS.keys():
-		var npc = Global.NPCS[npc_id]
-		print("")
-		print("ticking", npc)
-		#npc.tick()
-		if npc.ACTION == null:
-			var chosen_action = determine_action(npc)
-			chosen_action.set_countdown()
-			npc.ACTION = chosen_action
-		npc.ACTION.update_location()
-		if npc.ACTION.is_at_location(npc.LOCATION):
-			npc.ACTION.STATUS = "filling"
-			do_action(npc)
-		else:
-			var next_step = step_towards_location(npc.LOCATION, npc.ACTION.LOCATION)
-			if next_step == null:
-				push_error("pathfinding: no valid path found, teleporting ", npc, " to target location")
-				print("teleporting...")
-				print(npc.LOCATION, npc.ACTION.LOCATION)
-				var old_location = npc.LOCATION.duplicate()
-				npc.LOCATION = npc.ACTION.LOCATION
-				History.add_entry(npc.ID, "teleported to", old_location, {"location": npc.ACTION.LOCATION})
-				continue
-			print(next_step)
-			var old_location = npc.LOCATION.duplicate()
-			History.add_entry(npc.ID, "moved to", old_location, {"location": npc.ACTION.LOCATION})
-			npc.LOCATION = next_step
-		
-		if npc.ACTION.STATUS == "finish":
-			History.add_entry(npc.ID, "finished", npc.LOCATION, {"action": npc.ACTION.ID})
-			npc.ACTION = null
-
-		npc.decay_needs()
-		npc.clamp_needs()
-		#display_on_screen(npc, Constants.TILE_SIZE/2)
 
 #endregion
 
 #region npc actions
 
-func do_action(npc):
-	#npc must be at location for this function
-	var action = npc.ACTION
-	var witnesses = get_npcs_in_range(action.LOCATION) # same goal/location
-	if len(witnesses) == 0:
-		witnesses = get_npcs_in_range(npc.LOCATION) # people just "around" who can overhear
-
-	#if action.ID == "converse":
-	if action.is_conversable():
-		if len(witnesses) > 1: # self is also in witnesses
-			converse(npc, witnesses, npc.ACTION.TARGET) # everyone will chit-chat if they're close to someone else
-
-	elif action.ID == "flirt":
-		var dialogue_string = npc.NAME + " flirted with " + action.TARGET.NAME
-		var history_params = {
-			"witnesses": [action.TARGET.ID],
-			"dialogue": dialogue_string
-		}
-		History.add_entry(npc, "converse", npc.LOCATION, history_params)
-		var impression = action.TARGET.hear_flirt(npc.ID)
-		dialogue_string = action.TARGET.NAME + " was " + impression + " about being flirted with."
-		history_params = {
-			"witnesses": [npc.ID],
-			"dialogue": dialogue_string
-		}
-		History.add_entry(action.TARGET, "converse", action.TARGET.LOCATION, history_params)
-
-
-
-	npc.ACTION.do(npc) # still handles need refresh, etc
-
-
-func converse(npc, witnesses, location):
-	var history_params = {
-		"witnesses": witnesses
-	}
-	var new_topic = Dialogue.get_next_topic(npc.RECENT_TOPIC)
-	npc.RECENT_TOPIC = new_topic
-	var opinion = npc.OPINIONS[new_topic]
-	var op_str = new_topic.capitalize() + " are "
-	if opinion > 75:
-		op_str+= "great!"
-	elif opinion > 50:
-		op_str += "okay."
-	elif opinion > 25:
-		op_str += "lame."
-	else:
-		op_str += "terrible!"
-	var _str = npc.NAME + ': "' + op_str + '"'
-	history_params["dialogue"] = _str
-	History.add_entry(npc, "converse", location, history_params)
-	for g in witnesses:
-		if g == npc.ID:
-			continue
-		var g_npc = Global.NPCS[g]
-		var impression = g_npc.hear_topic(npc.ID, new_topic, opinion)
-		print(g_npc.NAME)
-		print(impression)
-		_str = g_npc.NAME + " was " + impression + " with that statement."
-		print(g_npc.NAME)
-		print(impression)
-		history_params = {
-			"witnesses": [npc.ID],
-			"dialogue": _str
-
-		}
-		History.add_entry(g, "converse", location, history_params)
-	
 
 func get_all_npc_actions():
 	var npc_actions = ["converse", "flirt"]
@@ -309,58 +205,11 @@ func determine_action(npc):
 
 	all_actions.sort_custom(func(a,b): return b.SCORE < a.SCORE)
 	for action in all_actions:
-		print(action, action.SCORE)
 		if action.can_do_action():
-			#print("can do:", action)
 			return action
-		#print("can't do:", action)
 	push_error("action not found for", npc.NAME)
 
 
-
-func determine_action_old(npc):
-	var all_actions = $Map.get_all_actions_on_map()
-	all_actions += get_all_npc_actions()
-	for action in all_actions:
-		action = npc.score_action(action)
-
-	all_actions.sort_custom(func(a, b): return b.SCORE < a.SCORE)
-	for action in all_actions:
-		if action.TARGET is NPC:
-			# npc target
-			if action.TARGET.ACTION != null:
-				if !action.TARGET.ACTION.is_joinable(): continue # cursed
-				if !action.TARGET.ACTION.is_conversable(): continue
-			return action
-		else:
-			# tile target
-			if npc.LOCATION == action.TARGET:
-				return action
-
-			var is_reserved = Utility.is_location_reserved(action.TARGET)
-			var is_travelable = $Map.is_travelable(action.TARGET)
-
-			# find adjacent tile if possible
-			if is_reserved or !is_travelable:
-				if !action.can_do_off_tile(): continue
-				var neighbors = get_neighbors(action.TARGET)
-				var new_action_list = []
-				for n in neighbors:
-					var new_action = ACTIONS.new()
-					new_action.ID = action.ID
-					new_action.TARGET = action.TARGET
-					new_action.LOCATION = n
-					new_action.NEED = action.NEED
-					new_action = npc.score_action(new_action)
-					new_action_list.append(new_action)
-				new_action_list.sort_custom(func(a,b): return b.SCORE < a.SCORE)
-				for second_action in new_action_list:
-					is_reserved = Utility.is_location_reserved(second_action.LOCATION)
-					#is_travelable = second_action.TARGET.is_travelable() # get_neighbors always returns only travelable tiles
-					if !is_reserved: return second_action
-			else:
-				return action
-	push_error("action not found for", npc.NAME)
 
 #endregion
 
@@ -386,7 +235,6 @@ func step_towards_location(end, start): #trying this out, pathfinding from targe
 		if current == end:
 			return parent_dict[end]
 		for neighbor in get_neighbors(current):
-			#if Utility.is_location_reserved_by_occupant(neighbor): continue
 			if neighbor in visited:
 				continue
 			visited.append(neighbor)
