@@ -8,5 +8,5 @@ visibility_layer = 512
 z_index = 2
 script = ExtResource("1_onrkg")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="DefaultSprite" type="Sprite2D" parent="."]
 texture = ExtResource("2_onrkg")

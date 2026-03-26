@@ -13,7 +13,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-func tick():
+func update():
 	var player_history = ENGINE.History.filter_by_npc("player")
 	var player_history_list = ENGINE.History.history_to_string(player_history)
 	var trunc_history = player_history_list.slice(-10, -1)

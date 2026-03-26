@@ -1,4 +1,4 @@
-extends Node2D
+extends Container
 
 class_name NPC
 
@@ -23,6 +23,13 @@ var NEEDS = {
 	"arousal": 0.0
 }
 
+
+
+var SPRITE
+var GLOW_SPRITE
+var BUTTON
+var GLOW_BUTTON
+
 var STYLES = ["goth", "punk", "prep", "country", "athletic", "queer"]
 
 var NAMES = {
@@ -43,10 +50,33 @@ func initialize(ID_COUNTER):
 	for style in STYLES:
 		OPINIONS[style] = randi_range(-5,5)
 
-	
-func _init() -> void:
-	SignalBus.say_topic.connect(hear_topic)
 
+	
+
+	BUTTON = TextureButton.new()
+	add_child(BUTTON)
+	BUTTON.texture_normal = load("res://models/npc.png")
+	BUTTON.texture_hover = load("res://models/npc_glow.png")
+	BUTTON.modulate = COLOR
+
+	BUTTON.set_anchors_and_offsets_preset(Control.LayoutPreset.PRESET_CENTER, Control.LayoutPresetMode.PRESET_MODE_MINSIZE, 0)
+	#BUTTON.keep_offsets = true
+	#BUTTON.set_anchors_preset(Control.LayoutPreset.PRESET_CENTER)
+	'''
+	var button_size = BUTTON.get_size()
+	BUTTON.anchor_left = 0.5
+	BUTTON.anchor_right = 0.5
+	BUTTON.anchor_top = 0.5
+	BUTTON.anchor_bottom = 0.5
+
+	BUTTON.offset_left = -button_size.x / 2
+	BUTTON.offset_right = button_size.x / 2
+	BUTTON.offset_top = -button_size.y / 2
+	BUTTON.offset_bottom = button_size.y / 2
+	'''
+
+	BUTTON.pressed.connect(sprite_clicked)
+	
 	
 #endregion
 	
@@ -173,39 +203,9 @@ func hear_flirt(speaker_id):
 	return impression
 
 #region sprite
-func on_hover(npc):
-	if npc.ID == ID:
-		_on_mouse_entered()
-		$DefaultSprite.hide()
-		$GlowSprite.show()
-		$HoverNameLabel.show()
-		
-func off_hover(npc):
-	if npc.ID == ID:
-		$GlowSprite.hide()
-		$DefaultSprite.show()
-		$HoverNameLabel.hide()
-
 
 func sprite_clicked() -> void:
-	SignalBus.npc_click.emit(self)
-
-func _on_mouse_entered() -> void:
-	$DefaultSprite.hide()
-	$GlowSprite.show()
-	$HoverNameLabel.show()
-	#SignalBus.npc_hover.emit(NPC_HOBE)
-
-
-func _on_mouse_exit() -> void:
-	$GlowSprite.hide()
-	$DefaultSprite.show()
-	$HoverNameLabel.hide()
-	#SignalBus.npc_hover_off.emit(self)
-
-
-
-
+	SignalBus.open_npc_menu.emit(self)
 
 
 #endregion

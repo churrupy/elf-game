@@ -14,7 +14,7 @@ func _process(delta: float) -> void:
 	pass
 
 	
-func tick():
+func update():
 	$NameLabel.text = MENU_NPC.NAME
 	var display_string = []
 	var _str = "Id: " + MENU_NPC.ID
@@ -61,6 +61,7 @@ func close_npc_menu() -> void:
 
 func watch_npc() -> void:
 	WATCH = true
+	ENGINE.update_focus_target(MENU_NPC.ID)
 	$WatchButton.hide()
 	$UnWatchButton.show()
 	
@@ -68,6 +69,7 @@ func watch_npc() -> void:
 
 func unwatch_npc() -> void:
 	WATCH = false
+	ENGINE.update_focus_target("player")
 	$UnWatchButton.hide()
 	$WatchButton.show()
 

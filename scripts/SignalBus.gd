@@ -1,7 +1,5 @@
 extends Node
 
-signal tick_signal()
-
 #region npcs
 signal npc_hover(npc)
 signal npc_hover_off(npc)
@@ -16,7 +14,6 @@ signal say_topic(speaker, topic, opinion, location)
 #endregion
 
 #region player
-signal player_move_request(location)
 
 
 

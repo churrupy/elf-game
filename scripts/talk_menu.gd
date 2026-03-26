@@ -12,7 +12,7 @@ func _ready() -> void:
 	pass # Replace with function body.
 
 
-func tick():
+func update():
 	var history = ENGINE.History.filter_by_npc(MENU_NPC).slice(-20, -1)
 	#var history_list = ENGINE.History.history_to_string(history)
 	#LOCATION = npc.ACTION.TARGET
@@ -34,7 +34,7 @@ func do_dialogue_choice(topic):
 	#RECENT_TOPIC = topic
 	print("player chose:", topic)
 	# REMINDER: signal emits from location, if you're trying to talk to an npc far away, they won't hear the signal
-	SignalBus.say_topic.emit("player", topic, 100, Global.PLAYER_LOCATION)
+	SignalBus.say_topic.emit("player", topic, 100, Global.FOCUS_LOCATION)
 	var _str = "Player: " + Dialogue.DIALOGUE_STRINGS[topic]
 	DIALOGUE_LIST.append(_str)
 	SignalBus.tick_signal.emit()

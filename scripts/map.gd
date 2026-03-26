@@ -90,7 +90,32 @@ func clear_tiles():
 		if child is Tile:
 			child.queue_free()
 
-func tick():
+func update():
+	clear_tiles()
+	for x in range (Global.X_RANGE[0], Global.X_RANGE[1]):
+		if x not in range(0, len(MAP)):
+			continue
+		for y in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
+			if y not in range(0, len(MAP[0])):
+				continue
+			var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
+			if x_index < 0:
+				continue
+			var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
+			if y_index < 0:
+				continue
+			var location = [x, y]
+			print(location)
+			var tile_type = get_tile(location)
+			if tile_type == null: continue
+			var tile = tile_scene.instantiate()
+			tile.initialize(tile_type, location)
+			add_child(tile)
+			tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0]
+			tile.global_position[1] = y_index * Constants.TILE_SIZE
+			tile.show()
+
+func update_old():
 	clear_tiles()
 
 	var x_counter = Constants.MAIN_FRAME_POSITION[0]
@@ -127,6 +152,8 @@ func is_travelable(location):
 
 
 func get_tile(location: Array):
+	if location[0] not in range(len(MAP)): return null
+	if location[1] not in range(len(MAP[0])): return null
 	return MAP[location[0]][location[1]]
 
 func random_empty_tile():
