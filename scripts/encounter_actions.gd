@@ -7,7 +7,7 @@ const POSES = {
 		["penis", "hands"],
 		["vagina", "hands"]
 	],
-	["standing", "front", "kneeling"]: [
+	["standing", "front", "sitting"]: [
 		["penis", "mouth"],
 		["vagina", "mouth"]
 	]

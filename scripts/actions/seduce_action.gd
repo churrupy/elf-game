@@ -2,6 +2,18 @@ extends GenericAction
 
 class_name SeduceAction
 
+func can_do_action():
+	# also sets LOCATION
+	if TARGET.ACTION != null:
+		if !TARGET.ACTION.is_joinable(): return false
+		if !TARGET.ACTION.is_conversable(): return false
+	
+	var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+	if free_tile == null:
+		return false
+	LOCATION = free_tile
+	return true
+
 func score():
 	var action_data = Constants.ACTION_TEMPLATES[ID]
 	var need = action_data["need"]
@@ -16,31 +28,10 @@ func score():
 	SCORE += get_opinion()
 	SCORE += get_attraction()
 
-func get_attraction():
-	#for testing
-	return 100
-
-
-func can_do_action():
-	if TARGET.ACTION != null:
-		if !TARGET.ACTION.is_joinable(): return false
-		if !TARGET.ACTION.is_conversable(): return false
-	else:
-		# decide encounter locations on action, because npc needs to move to target first and encounter locations may end up reserving/unreserving in the meantime
-		return true
 
 func tick():
-	print("hello?")
-	LOCATION = TARGET.LOCATION.duplicate()
-
-	var neighbors = ENGINE.get_neighbors(LOCATION)
-	if OWNER.LOCATION in neighbors:
-		do_action()
-	else:
-		step_towards_target()
-
-	OWNER.decay_needs()
-	OWNER.clamp_needs()
+	update_moving_location()
+	super.tick()
 
 func do_action():
 	# target hears flirt
@@ -50,8 +41,7 @@ func do_action():
 		# flirt accepted, try to find location
 		var locations = ENGINE.get_node("Map").find_action_location("encounter")
 		if len(locations) > 0:
-			print("encounter location found")
-			var chosen_location = locations.pick_random()
+			# add action entry
 			var dialogue_string = OWNER.NAME + " tried to seduce " + TARGET.NAME
 			var history_params = {
 				"witnesses": [TARGET.ID],
@@ -66,17 +56,18 @@ func do_action():
 			ENGINE.History.add_entry(TARGET, "converse", LOCATION, history_params)
 
 			# create new actions for the both of them
-			
-			var new_action = EncounterActionNode.new(ENGINE, "encounter")
-			new_action.OWNER = OWNER
-			new_action.TARGET = TARGET
-			new_action.LOCATION = TARGET.LOCATION
-			OWNER.ACTION = new_action
-			new_action = EncounterActionAnchor.new(ENGINE, "encounter")
+			var chosen_location = locations.pick_random()
+			var new_action = EncounterActionAnchor.new(ENGINE, "encounter")
 			new_action.OWNER = TARGET
-			#new_action.TARGET = OWNER
 			new_action.LOCATION = chosen_location
 			TARGET.ACTION = new_action
+
+			new_action = EncounterActionNode.new(ENGINE, "encounter")
+			new_action.OWNER = OWNER
+			new_action.TARGET = TARGET
+			# location is set dynamically based on target's location
+			OWNER.ACTION = new_action
+			
 			return
 		else:
 			print("encounter location not found")
@@ -93,3 +84,9 @@ func do_action():
 	}
 	ENGINE.History.add_entry(TARGET, "converse", TARGET.LOCATION, history_params)
 	super.do_action()
+
+
+
+func get_attraction():
+	#for testing
+	return 100

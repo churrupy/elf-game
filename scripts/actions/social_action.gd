@@ -2,6 +2,18 @@ extends GenericAction
 # TARGET is always an object with .LOCATION
 class_name SocialAction
 
+func can_do_action():
+	# also sets LOCATION
+	if TARGET.ACTION != null:
+		if !TARGET.ACTION.is_joinable(): return false
+		if !TARGET.ACTION.is_conversable(): return false
+	
+	var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+	if free_tile == null:
+		return false
+	LOCATION = free_tile
+	return true
+
 func score():
 	# score based on need
 	var action_data = Constants.ACTION_TEMPLATES[ID]
@@ -21,26 +33,9 @@ func score():
 	# distance isn't taken into account just yet
 	# eventually npcs will prioritize people in the same room/building and not running off across the map to socialize
 
-func can_do_action():
-	if TARGET.ACTION != null:
-		if !TARGET.ACTION.is_joinable(): return false
-		if !TARGET.ACTION.is_conversable(): return false
-	else:
-		return true
-
 func tick():
-	# update target location
-	LOCATION = TARGET.LOCATION.duplicate()
-
-	# is next to target?
-	var neighbors = ENGINE.get_neighbors(LOCATION)
-	if OWNER.LOCATION in neighbors:
-		do_action()
-	else:
-		step_towards_target()
-
-	OWNER.decay_needs()
-	OWNER.clamp_needs()
+	update_moving_location()
+	super.tick()
 
 func do_action():
 

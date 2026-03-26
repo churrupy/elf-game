@@ -13,7 +13,7 @@ func _ready() -> void:
 
 
 func tick():
-	var history = ENGINE.History.filter_by_npc(MENU_NPC)
+	var history = ENGINE.History.filter_by_npc(MENU_NPC).slice(-20, -1)
 	#var history_list = ENGINE.History.history_to_string(history)
 	#LOCATION = npc.ACTION.TARGET
 	$NameLabel.text = MENU_NPC.NAME
@@ -53,11 +53,9 @@ func _process(delta: float) -> void:
 
 
 func close_talk_menu() -> void:
-	print("talk clicked")
 	MENU_NPC = null
 	SignalBus.close_talk_menu.emit()
 
 
 func close_hover() -> void:
-	print("hovering")
 	pass # Replace with function body.

@@ -1,9 +1,29 @@
 extends Node
 
 
+#region tile
+
+func calc_distance(loc1, loc2):
+	var x_diff = abs(loc1[0] - loc2[0]) * 1.0
+	var y_diff = abs(loc1[1] - loc2[1]) * 1.0
+	if x_diff == 0:
+		return y_diff
+	if y_diff == 0:
+		return x_diff
+	return y_diff/x_diff
+
+
+#endregion
+
+
 #region npcs
 
-
+func filter_reserved_tiles(tile_list):
+	var free_tiles = []
+	for tile in tile_list:
+		if is_location_reserved(tile): continue
+		free_tiles.append(tile)
+	return free_tiles
 
 func get_npc_from_location(location: Array):
 	var npcs = []

@@ -3,6 +3,7 @@ class_name EncounterActionNode extends GenericAction
 var POSE = "standing"
 var ORIENTATION = "front"
 var RECENT_ACTION
+var ORGASM_COUNT = 0
 
 const gender = {
 	"male": ["hands", "mouth", "penis"],
@@ -10,14 +11,17 @@ const gender = {
 }
 
 func tick():
-	LOCATION = TARGET.LOCATION.duplicate()
-
-	var neighbors = ENGINE.get_neighbors(LOCATION)
-	if OWNER.LOCATION in neighbors:
-		if TARGET.ACTION.AT_LOCATION:
+	var target_neighbors = ENGINE.get_neighbors(TARGET.LOCATION)
+	if TARGET.ACTION.AT_LOCATION:
+		if OWNER.LOCATION in target_neighbors:
+			LOCATION = OWNER.LOCATION.duplicate()
 			do_action()
-	else:
-		step_towards_target()
+			OWNER.decay_needs()
+			OWNER.clamp_needs()
+			return
+	if LOCATION not in target_neighbors:
+		LOCATION = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+	step_towards_location()
 
 	OWNER.decay_needs()
 	OWNER.clamp_needs()
@@ -25,8 +29,10 @@ func tick():
 func do_action():
 	# pick an action
 	# display it
-	var pose = [POSE, ORIENTATION, TARGET.ACTION.POSE]
-	RECENT_ACTION = determine_action(pose).pick_random()
+	var pose_options = ENGINE.get_node("Map").get_available_poses_for_tile(LOCATION)
+	POSE = pose_options.pick_random()
+	var pose_data = [POSE, ORIENTATION, TARGET.ACTION.POSE]
+	RECENT_ACTION = determine_action(pose_data).pick_random()
 	var dialogue_string = OWNER.NAME + " used their " + RECENT_ACTION[0] + " on " + TARGET.NAME + "'s " + RECENT_ACTION[1] + "."
 	var history_params = {
 		"witnesses": [TARGET.ID],
@@ -35,9 +41,23 @@ func do_action():
 	ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
 
 	COUNTDOWN -= 1
-	var action_need = "release"
-	var refresh_rate = Constants.NEED_REFRESH_RATES[action_need]
-	OWNER.NEEDS[action_need] += refresh_rate
+	var needs_refreshed = ["release", "arousal"]
+	for need in needs_refreshed:
+		var refresh_rate = Constants.NEED_REFRESH_RATES[need]
+		OWNER.NEEDS[need] += refresh_rate
+	
+	if OWNER.NEEDS["arousal"] >= 100:
+		dialogue_string = OWNER.NAME + " came!"
+		var witnesses = get_nodes()
+		witnesses.append(TARGET.ID)
+		history_params = {
+			"witnesses": witnesses,
+			"dialogue": dialogue_string
+		}
+		ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
+		ORGASM_COUNT += 1
+		OWNER.NEEDS["arousal"] = 50
+
 
 	if COUNTDOWN < 0:
 		STATUS = "finish"
@@ -45,8 +65,8 @@ func do_action():
 	# process arousal here
 
 
-func determine_action(pose):
-	var action_list = EncounterActions.POSES[pose]
+func determine_action(pose_data):
+	var action_list = EncounterActions.POSES[pose_data]
 	var valid_actions = []
 	for action in action_list:
 		var owner_gender = OWNER.GENDER
@@ -57,3 +77,28 @@ func determine_action(pose):
 		if action[1] not in target_body: continue
 		valid_actions.append(action)
 	return valid_actions
+
+func flag_nodes_finished():
+	var nodes = get_nodes()
+	for node in nodes:
+		node.ACTION.flag_nodes_finished()
+	STATUS = "finish"
+
+func have_all_nodes_orgasmed():
+	var nodes = get_nodes()
+	for node in nodes:
+		if node.have_all_nodes_orgasmed() == false:
+			return false
+	if ORGASM_COUNT == 0:
+		return false
+	return true
+
+
+func get_nodes():
+	var nodes = []
+	for npc_id in Global.NPCS.keys():
+		var npc = Global.NPCS[npc_id]
+		if npc.ACTION == null: continue
+		if npc.ACTION.TARGET == OWNER:
+			nodes.append(npc)
+	return nodes

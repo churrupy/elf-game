@@ -6,7 +6,7 @@ var ENGINE
 var ID
 var OWNER
 var TARGET
-var LOCATION
+var LOCATION # this tile gets reserved by owner
 var COUNTDOWN
 var SCORE = 0
 var STATUS
@@ -18,6 +18,33 @@ func _init(engine, action_id):
 	ID = action_id
 	var action_data = Constants.ACTION_TEMPLATES[ID]
 	COUNTDOWN = action_data["duration"]
+
+
+func can_do_action():
+	if TARGET is NPC:
+		if TARGET.ACTION != null:
+			if !TARGET.ACTION.is_joinable(): return false
+			if !TARGET.ACTION.is_conversable(): return false
+
+		var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+		if free_tile == null:
+			return false
+		LOCATION = free_tile
+		return true
+	else:
+		# target is a location
+		var is_reserved = Utility.is_location_reserved(TARGET)
+		var is_travelable = ENGINE.get_node("Map").is_travelable(TARGET)
+
+		if is_reserved or !is_travelable:
+			if !can_do_off_tile(): return false
+			var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET)
+			if free_tile == null:
+				return false
+			LOCATION = free_tile
+			return true
+		else:
+			return true
 
 
 func score():
@@ -48,57 +75,13 @@ func score():
 		total_y = abs(LOCATION[1] - TARGET.LOCATION[1])
 	SCORE -= (total_x + total_y)
 
-func get_opinion():
-	# dummy function
-	if TARGET in OWNER.RELATIONSHIPS:
-		return OWNER.RELATIONSHIPS[TARGET.ID]
-	else:
-		return 0
 
-func get_attraction():
-	var other_style = TARGET.STYLE
-	return OWNER.OPINIONS[other_style]
 
-func is_joinable():
-	var action_data = Constants.ACTION_TEMPLATES[ID]
-	return action_data["joinable"]
 
-func is_conversable():
-	var action_data = Constants.ACTION_TEMPLATES[ID]
-	if "conversable" in action_data: return false
-	return true
-
-func can_do_off_tile():
-	var action_data = Constants.ACTION_TEMPLATES[ID]
-	return action_data["do_off_tile"]
-
-func can_do_action():
-	if TARGET is NPC:
-		if TARGET.ACTION != null:
-			if !TARGET.ACTION.is_joinable(): return false
-			if !TARGET.ACTION.is_conversable(): return false
-		else:
-			return true
-	else:
-		# target is a location
-		var is_reserved = Utility.is_location_reserved(LOCATION)
-		var is_travelable = ENGINE.get_node("Map").is_travelable(LOCATION)
-
-		if is_reserved or !is_travelable:
-			if !can_do_off_tile(): return false
-			var neighbors = ENGINE.get_neighbors(LOCATION)
-			for n in neighbors:
-				is_reserved = Utility.is_location_reserved(n)
-				is_travelable = ENGINE.get_node("Map").is_travelable(n)
-				if !is_reserved and is_travelable:
-					LOCATION = n
-					return true
-			return false
-		else:
-			return true
-
-func step_towards_target():
+func step_towards_location():
 	var old_location = OWNER.LOCATION.duplicate()
+	print("step check")
+	print(OWNER.LOCATION, LOCATION)
 	var next_step = ENGINE.step_towards_location(OWNER.LOCATION, LOCATION)
 	if next_step == null:
 		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
@@ -111,16 +94,25 @@ func step_towards_target():
 
 
 
+
 func tick():
+	# target is a travelable tile (just a location array)
 	if OWNER.LOCATION == LOCATION:
 		do_action()
-		
 	else:
-		step_towards_target()
-		
-
+		step_towards_location()
 	OWNER.decay_needs()
 	OWNER.clamp_needs()
+	
+
+func update_moving_location():
+	var neighbors = ENGINE.get_neighbors(TARGET.LOCATION)
+	if LOCATION not in neighbors:
+		var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+		if free_tile == null:
+			STATUS = "finish"
+		else:
+			LOCATION = free_tile
 
 
 func do_action():
@@ -137,7 +129,10 @@ func do_action():
 
 
 func converse():
-	var center_of_conversation = LOCATION
+	var center_of_conversation = TARGET
+	if TARGET is not Array:
+		center_of_conversation = TARGET.LOCATION
+
 	var witnesses = ENGINE.get_npcs_in_range(center_of_conversation)
 
 	if len(witnesses) < 2:
@@ -186,3 +181,33 @@ func converse():
 
 func _to_string():
 	return ID + " " + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")"
+
+
+#region utility
+
+func get_opinion():
+	# dummy function
+	if TARGET in OWNER.RELATIONSHIPS:
+		return OWNER.RELATIONSHIPS[TARGET.ID]
+	else:
+		return 0
+
+func get_attraction():
+	var other_style = TARGET.STYLE
+	return OWNER.OPINIONS[other_style]
+
+func is_joinable():
+	var action_data = Constants.ACTION_TEMPLATES[ID]
+	return action_data["joinable"]
+
+func is_conversable():
+	var action_data = Constants.ACTION_TEMPLATES[ID]
+	if "conversable" in action_data: return false
+	return true
+
+func can_do_off_tile():
+	var action_data = Constants.ACTION_TEMPLATES[ID]
+	return action_data["do_off_tile"]
+
+
+#endregion

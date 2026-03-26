@@ -126,23 +126,6 @@ func _on_tick() -> void:
 		$TalkMenu.tick()
 		#open_npc_menu($TalkMenu.MENU_NPC)
 
-	
-
-#endregion
-
-func get_npc_list():
-	var npc_list = []
-	for npc_id in Global.NPCS.keys():
-		var npc = Global.NPCS[npc_id]
-		npc_list.append(npc)
-	return npc_list
-
-func get_current_npcs():
-	Global.NEARBY_NPCS = []
-	var adjacent_locations = get_neighbors(Global.PLAYER_LOCATION)
-	for l in adjacent_locations:
-		Global.NEARBY_NPCS += Utility.get_npc_from_location(l)
-
 func tick_npcs():
 	for npc_id in Global.NPCS.keys():
 		print("ticking ", npc_id)
@@ -155,9 +138,23 @@ func tick_npcs():
 		else:
 			npc.ACTION.tick()
 	print("")
-	
 
+
+func get_current_npcs():
+	Global.NEARBY_NPCS = []
+	var adjacent_locations = get_neighbors(Global.PLAYER_LOCATION)
+	for l in adjacent_locations:
+		Global.NEARBY_NPCS += Utility.get_npc_from_location(l)
 #endregion
+
+func get_npc_list():
+	var npc_list = []
+	for npc_id in Global.NPCS.keys():
+		var npc = Global.NPCS[npc_id]
+		npc_list.append(npc)
+	return npc_list
+
+
 
 #region npc actions
 
@@ -247,7 +244,7 @@ func step_towards_location(end, start): #trying this out, pathfinding from targe
 
 func get_neighbors(location):
 	var neighbors = [
-		[location[0], location[1]],
+		#[location[0], location[1]],
 		# adjacent
 		[location[0] + 1, location[1]],
 		[location[0] - 1, location[1]],
@@ -277,6 +274,28 @@ func get_next_step(parent_dict, start, end):
 		if parent == start:
 			return node
 		node = parent
+
+func get_closest_adjacent_tile(start_location, target_location):
+
+	var neighbors = get_neighbors(target_location)
+	if start_location in neighbors:
+		return start_location
+	var free_neighbors = Utility.filter_reserved_tiles(neighbors)
+
+	if len(free_neighbors) == 0:
+		print("no free adjacent tiles found")
+		return null
+	
+	var smallest_distance = 100
+	var closest_tile
+	for t in free_neighbors:
+		var distance = Utility.calc_distance(start_location, t)
+		if distance < smallest_distance:
+			smallest_distance = distance
+			closest_tile = t
+	return closest_tile
+
+
 
 #endregion
 	

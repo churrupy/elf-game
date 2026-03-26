@@ -22,19 +22,16 @@ func score():
 
 func can_do_action():
 	# target is a location
-	var is_reserved = Utility.is_location_reserved(LOCATION)
-	var is_travelable = ENGINE.get_node("Map").is_travelable(LOCATION)
+	var is_reserved = Utility.is_location_reserved(TARGET)
+	var is_travelable = ENGINE.get_node("Map").is_travelable(TARGET)
 
 	if is_reserved or !is_travelable:
 		if !can_do_off_tile(): return false
-		var neighbors = ENGINE.get_neighbors(LOCATION)
-		for n in neighbors:
-			is_reserved = Utility.is_location_reserved(n)
-			is_travelable = ENGINE.get_node("Map").is_travelable(n)
-			if !is_reserved and is_travelable:
-				LOCATION = n
-				return true
-		return false
+		var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET)
+		if free_tile == null:
+			return false
+		LOCATION = free_tile
+		return true
 	else:
 		return true
 

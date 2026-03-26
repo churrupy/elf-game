@@ -169,6 +169,12 @@ func get_all_actions_on_map():
 				all_actions.append(new_action)
 	return all_actions
 
+func get_available_poses_for_tile(location):
+	var tile = get_tile(location)
+	var pose_class = Constants.TILE_TEMPLATES[tile]["poses"]
+	return Constants.POSE_CLASS[pose_class]
+
+
 		
 
 #endregion

@@ -14,12 +14,13 @@ var STYLE
 var OPINIONS = {}
 var RELATIONSHIPS = {}
 var NEEDS = {
-	"hunger": 50,
-	"energy": 50,
-	"release": 50,
-	"social": 50,
-	"fun": 50,
-	"bladder": 50
+	"hunger": 50.0,
+	"energy": 50.0,
+	"release": 50.0,
+	"social": 50.0,
+	"fun": 50.0,
+	"bladder": 50.0,
+	"arousal": 0.0
 }
 
 var STYLES = ["goth", "punk", "prep", "country", "athletic", "queer"]
@@ -58,7 +59,7 @@ func decay_needs():
 
 func clamp_needs():
 	for need in NEEDS:
-		NEEDS[need] = clamp(NEEDS[need], 0, 100)
+		NEEDS[need] = clamp(NEEDS[need], 0.0, 100.0)
 		
 
 

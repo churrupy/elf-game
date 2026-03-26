@@ -38,6 +38,7 @@ const NEED_DECAY_RATES= {
 	"work": SET_RATES["DAY_1"],
 	"leisure": SET_RATES["DAY_1"],
 	"shopping": SET_RATES["DAY_1"],
+	"arousal": 0
 }
 
 const NEED_REFRESH_RATES = {
@@ -49,7 +50,8 @@ const NEED_REFRESH_RATES = {
 	"leisure" : SET_RATES["HOUR_1"],
 	"shopping" : SET_RATES["HOUR_1"],
 	"bladder": SET_RATES["MINUTE_5"],
-	"fun": SET_RATES["HOUR_1"]
+	"fun": SET_RATES["HOUR_1"],
+	"arousal": SET_RATES["HOUR_HALF"]
 }
 #endregions
 
@@ -174,41 +176,56 @@ const ACTION_TEMPLATES = {
 #endregion
 
 #region tiles
+
+const POSE_CLASS = {
+	#"EmptyPoses": ["standing", "kneeling", "laying"],
+	"EmptyPoses": ["standing"],
+	"ChairPoses": ["sitting"],
+	"HSurfacePoses": ["standing"],
+	"VSurfacePoses": ["standing"]
+}
 const TILE_TEMPLATES = {
 	"empty": {
 		"actions": ["loiter"],
 		"impassable": false,
-		"png": "tile.png"
+		"png": "tile.png",
+		"poses": "EmptyPoses"
 	},
 	"social_empty": {
 		"actions": ["loiter"],
 		"impassable": false,
-		"png": "tile.png"
+		"png": "tile.png",
+		"poses": "EmptyPoses"
 	},
 	"dance_floor": {
 		"actions": ["dance"],
 		"impassable": false,
-		"png": "dance_floor.png"
+		"png": "dance_floor.png",
+		"poses": "EmptyPoses"
 	},
 	"toilet":  {
 		"actions": ["use toilet", "loiter", "encounter"],
 		"impassable": false,
-		"png": "toilet.png"
+		"png": "toilet.png",
+		"poses": "ChairPoses"
 	},
 	"bar": {
 		"actions": ["loiter", "snack"],
 		"impassable": true,
-		"png": "bar.png"
+		"png": "bar.png",
+		"poses": "HSurfacePoses"
 	},
 	"table": {
 		"actions": ["loiter"],
 		"impassable": true,
-		"png": "table.png"
+		"png": "table.png",
+		"poses": "HSurfacePoses"
 	},
 	"wall": {
 		"actions": [],
 		"impassable": true,
-		"png": "wall.png"
+		"png": "wall.png",
+		"poses": "VSurfacePoses"
 	}
 
 }

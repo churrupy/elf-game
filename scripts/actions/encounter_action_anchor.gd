@@ -2,27 +2,24 @@ class_name EncounterActionAnchor extends GenericAction
 
 var AT_LOCATION = false
 var POSE = "standing"
+var ORGASM_COUNT = 0
 
 func tick():
 	if OWNER.LOCATION == LOCATION:
 		AT_LOCATION = true
 		do_action()
 	else:
-		step_towards_target()
+		step_towards_location()
 	
 	OWNER.decay_needs()
 	OWNER.clamp_needs()
-	if TARGET is NPC: #figure out a better way to do this later lol
-		LOCATION = TARGET.LOCATION.duplicate()
-
-		var neighbors = ENGINE.get_neighbors(LOCATION)
-		if OWNER.LOCATION in neighbors:
-			do_action()
 
 
 func do_action():
 	#wtf does the anchor do here lol
 	# get attached nodes
+	var pose_options = ENGINE.get_node("Map").get_available_poses_for_tile(LOCATION)
+	POSE = pose_options.pick_random()
 	var nodes = get_nodes()
 	if len(nodes) == 0:
 		STATUS = "finish"
@@ -37,12 +34,49 @@ func do_action():
 			ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
 
 
+	var needs_refreshed = ["release", "arousal"]
+	for need in needs_refreshed:
+		print(need)
+		var refresh_rate = Constants.NEED_REFRESH_RATES[need]
+		print(refresh_rate)
+		OWNER.NEEDS[need] += refresh_rate
+		print(OWNER.NEEDS[need])
+	
+	if OWNER.NEEDS["arousal"] >= 100:
+		var dialogue_string = OWNER.NAME + " came!"
+		var witnesses = nodes.duplicate()
+		var history_params = {
+			"witnesses": witnesses,
+			"dialogue": dialogue_string
+		}
+		ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
+		#STATUS = "finish"
+		ORGASM_COUNT += 1
+		OWNER.NEEDS["arousal"] = 50
 
+	if have_all_nodes_orgasmed():
+		flag_nodes_finished()
+		for node in nodes:
+			node.ACTION.flag_nodes_finished()
+		STATUS = "finish"
 
-	# no countdown because is dependent on nodes for completion
-	var action_need = "release"
-	var refresh_rate = Constants.NEED_REFRESH_RATES[action_need]
-	OWNER.NEEDS[action_need] += refresh_rate
+	
+
+func flag_nodes_finished():
+	var nodes = get_nodes()
+	for node in nodes:
+		node.ACTION.flag_nodes_finished()
+	STATUS = "finish"
+
+func have_all_nodes_orgasmed():
+	var nodes = get_nodes()
+	for node in nodes:
+		if node.ACTION.have_all_nodes_orgasmed() == false:
+			return false
+	if ORGASM_COUNT == 0:
+		return false
+	return true
+
 
 func get_nodes():
 	var nodes = []
