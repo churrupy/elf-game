@@ -11,13 +11,12 @@ func score():
 		SCORE += 10 # bonus for urgent needs
 
 	# score based on preference
-	if TARGET is NPC:
-		if OWNER == TARGET:
-			SCORE = -100
-			return
-		SCORE += get_opinion()
-		if ID == "flirt":
-			SCORE += get_attraction()
+	if OWNER == TARGET:
+		SCORE = -100
+		return
+	SCORE += get_opinion()
+	if ID == "flirt":
+		SCORE += get_attraction()
 
 	# distance isn't taken into account just yet
 	# eventually npcs will prioritize people in the same room/building and not running off across the map to socialize
@@ -31,10 +30,7 @@ func can_do_action():
 
 func tick():
 	# update target location
-	print("updating target location")
-	print(LOCATION)
 	LOCATION = TARGET.LOCATION.duplicate()
-	print(LOCATION)
 
 	# is next to target?
 	var neighbors = ENGINE.get_neighbors(LOCATION)

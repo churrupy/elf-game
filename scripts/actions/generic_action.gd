@@ -132,6 +132,9 @@ func do_action():
 	if is_conversable():
 		converse()
 
+	if COUNTDOWN < 0:
+		STATUS = "finish"
+
 
 func converse():
 	var center_of_conversation = LOCATION

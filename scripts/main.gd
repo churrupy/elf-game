@@ -154,26 +154,26 @@ func tick_npcs():
 			npc.ACTION = null
 		else:
 			npc.ACTION.tick()
-		if npc.ACTION.COUNTDOWN < 0:
-			npc.ACTION = null
 	print("")
-
+	
 
 #endregion
 
 #region npc actions
 
 
-func get_all_npc_actions():
-	var npc_actions = ["converse", "flirt"]
+func get_all_npc_actions(checked_npc):
+	#var npc_actions = ["converse", "flirt", "seduce"]
+	var npc_actions = ["seduce"]
 	var all_actions = []
 	for npc_id in Global.NPCS.keys():
+		if npc_id == checked_npc.ID: continue
 		var npc = Global.NPCS[npc_id]
 		for npc_a in npc_actions:
 			var action_data = Constants.ACTION_TEMPLATES[npc_a]
-			#var action_class_id= action_data["class"]
-			#var action_class = Constants.CLASS_TEMPLATES[action_class_id]
-			var new_action = SocialAction.new(self, npc_a)
+			var action_class_id= action_data["class"]
+			var action_class = Constants.CLASS_TEMPLATES[action_class_id]
+			var new_action = action_class.new(self, npc_a)
 			#var new_action = action_data["type"].new(self, npc_a)
 			new_action.TARGET = npc
 			new_action.LOCATION = npc.LOCATION
@@ -199,9 +199,9 @@ func get_npcs_in_range(location):
 #region npc ai
 
 func determine_action(npc):
-	var all_actions = $Map.get_all_actions_on_map()
-	all_actions += get_all_npc_actions()
-	#var all_actions = get_all_npc_actions()
+	#var all_actions = $Map.get_all_actions_on_map()
+	#all_actions += get_all_npc_actions()
+	var all_actions = get_all_npc_actions(npc)
 	for action in all_actions:
 		action.OWNER = npc
 		action.score()

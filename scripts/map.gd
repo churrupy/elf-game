@@ -2,6 +2,7 @@ extends ColorRect
 
 class_name Map
 
+var ENGINE
 var MAP = []
 var ROOM = "club"
 @export var tile_scene: PackedScene
@@ -137,6 +138,19 @@ func random_empty_tile():
 		if tile_data["impassable"] == false:
 			return [x,y]
 
+func find_action_location(action):
+	var filtered_locations = []
+	for i in len(MAP):
+		for j in len(MAP[0]):
+			var location = [i,j]
+			var tile = get_tile(location)
+			var tile_data = Constants.TILE_TEMPLATES[tile]
+			if action in tile_data["actions"]:
+				filtered_locations.append(location)
+
+	return filtered_locations
+
+
 
 
 func get_all_actions_on_map():
@@ -145,12 +159,11 @@ func get_all_actions_on_map():
 		for j in len(MAP[0]):
 			var tile = MAP[i][j]
 			var tile_data = Constants.TILE_TEMPLATES[tile]
-			var engine = get_parent()
 			for action in tile_data["actions"]:
 				var action_data = Constants.ACTION_TEMPLATES[action]
 				var action_class_id = action_data["class"]
 				var action_class = Constants.CLASS_TEMPLATES[action_class_id]
-				var new_action  = action_class.new(engine, action)
+				var new_action  = action_class.new(ENGINE, action)
 				new_action.TARGET = [i,j] # where the npc wants to pathfind to
 				new_action.LOCATION = [i,j] # where the npc ends up (if adjacent to target)
 				all_actions.append(new_action)

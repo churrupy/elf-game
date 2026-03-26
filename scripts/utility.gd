@@ -14,24 +14,6 @@ func get_npc_from_location(location: Array):
 	return npcs
 
 
-func get_all_npc_actions():
-	var npc_actions = ["converse", "flirt"]
-	var all_actions = []
-	for npc_id in Global.NPCS.keys():
-		var npc = Global.NPCS[npc_id]
-		for npc_a in npc_actions:
-			var action_data = Constants.ACTION_TEMPLATES[npc_a]
-			var action_class_id = action_data["class"]
-			var action_class = Constants.CLASS_TEMPLATES[action_class_id]
-			var new_action = action_class.new(self, npc_a)
-			#var new_action = action_data["type"].new(self, npc_a)
-			new_action.TARGET = npc
-			new_action.LOCATION = npc.LOCATION
-			all_actions.append(new_action)
-	return all_actions
-
-
-
 
 func is_location_reserved(location):
 	# checks if an npc already has this as a target location

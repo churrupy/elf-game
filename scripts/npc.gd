@@ -74,6 +74,7 @@ func get_opinion(other_npc):
 		return 0
 
 func get_attraction(other_npc):
+	return 100 #for testing
 	var other_style = other_npc.STYLE
 	return OPINIONS[other_style]
 

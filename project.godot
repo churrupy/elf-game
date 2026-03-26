@@ -22,6 +22,7 @@ Global="*res://scripts/global.gd"
 SignalBus="*res://scripts/SignalBus.gd"
 Utility="*res://scripts/utility.gd"
 Dialogue="*res://scripts/dialogue.gd"
+EncounterActions="*res://scripts/encounter_actions.gd"
 
 [display]
 

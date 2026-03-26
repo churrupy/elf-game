@@ -5,7 +5,7 @@ const TILE_SIZE = 60
 const SCREEN_SIZE = Vector2(1200, 660)
 const MAP_SIZE = [10,10] # num tiles across
 const BOTTOM_RIGHT = Vector2(MAP_SIZE[0]-1, MAP_SIZE[1]-1)
-const NUM_NPCS = 5
+const NUM_NPCS = 2
 const SIDEBAR_SIZE = Vector2(300, SCREEN_SIZE[1])
 const MAIN_FRAME_SIZE = Vector2(SCREEN_SIZE[0] - SIDEBAR_SIZE[0], SCREEN_SIZE[1])
 const MAIN_FRAME_POSITION = Vector2(SIDEBAR_SIZE[0], 0)
@@ -56,7 +56,8 @@ const NEED_REFRESH_RATES = {
 var CLASS_TEMPLATES = {
 	"GenericAction": GenericAction,
 	"TileAction": TileAction,
-	"SocialAction": SocialAction
+	"SocialAction": SocialAction,
+	"SeduceAction": SeduceAction
 }
 
 
@@ -79,7 +80,7 @@ const ACTION_TEMPLATES = {
 		"duration": 30,
 		"followers": [1,1],
 		"pose": "standing",
-		"joinable": true,
+		"joinable": false,
 		"other_req": true,
 		"do_off_tile": true,
 		"conversable": false,
@@ -95,6 +96,17 @@ const ACTION_TEMPLATES = {
 		"do_off_tile": true,
 		"conversable": false,
 		"class": "SocialAction"
+	},
+	"seduce": {
+		"need": "release",
+		"duration": 5,
+		"followers": [1,1],
+		"pose": "standing",
+		"joinable": false,
+		"other_req": true,
+		"do_off_tile": true,
+		"conversable": false,
+		"class": "SeduceAction"
 	},
 	#region TileAction
 	"loiter": {
