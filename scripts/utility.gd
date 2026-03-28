@@ -25,6 +25,7 @@ func filter_reserved_tiles(tile_list):
 		free_tiles.append(tile)
 	return free_tiles
 
+
 func get_npc_from_location(location: Array):
 	var npcs = []
 	for npc_id in Global.NPCS:

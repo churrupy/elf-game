@@ -30,17 +30,20 @@ func score():
 
 
 func tick():
+	if !recheck_can_do_action():
+		return
 	update_moving_location()
 	super.tick()
 
 func do_action():
 	# target hears flirt
-	print("doing flirt")
 	var impression = TARGET.hear_flirt(OWNER.ID)
 	if impression == "pleased":
 		# flirt accepted, try to find location
-		var locations = ENGINE.get_node("Map").find_action_location("encounter")
-		if len(locations) > 0:
+		var locations = ENGINE.get_node("Map").find_action_locations("encounter")
+		locations = Utility.filter_reserved_tiles(locations) # returns list
+		locations = ENGINE.match_tile_to_closest_adjacent(locations, OWNER.LOCATION) #returns dict lol
+		if len(locations.keys()) > 0:
 			# add action entry
 			var dialogue_string = OWNER.NAME + " tried to seduce " + TARGET.NAME
 			var history_params = {
@@ -56,7 +59,7 @@ func do_action():
 			ENGINE.History.add_entry(TARGET, "converse", LOCATION, history_params)
 
 			# create new actions for the both of them
-			var chosen_location = locations.pick_random()
+			var chosen_location = locations.keys().pick_random()
 			var new_action = EncounterActionAnchor.new(ENGINE, "encounter")
 			new_action.OWNER = TARGET
 			new_action.LOCATION = chosen_location
@@ -65,7 +68,7 @@ func do_action():
 			new_action = EncounterActionNode.new(ENGINE, "encounter")
 			new_action.OWNER = OWNER
 			new_action.TARGET = TARGET
-			# location is set dynamically based on target's location
+			new_action.LOCATION = locations[chosen_location]
 			OWNER.ACTION = new_action
 			
 			return
@@ -84,9 +87,3 @@ func do_action():
 	}
 	ENGINE.History.add_entry(TARGET, "converse", TARGET.LOCATION, history_params)
 	super.do_action()
-
-
-
-func get_attraction():
-	#for testing
-	return 100

@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://jusdqdsrm4go"]
+[gd_scene load_steps=4 format=3 uid="uid://jusdqdsrm4go"]
 
 [ext_resource type="Script" uid="uid://bfm0q2bdkf8pn" path="res://scripts/talk_menu.gd" id="1_etbpw"]
 [ext_resource type="PackedScene" uid="uid://c30mvsbqcy0aw" path="res://conversation_button.tscn" id="2_0u07r"]
+[ext_resource type="PackedScene" uid="uid://dqcrueypgqflp" path="res://npc_button.tscn" id="3_ako7f"]
 
 [node name="TalkMenu" type="Label"]
 z_index = 50
@@ -9,6 +10,7 @@ offset_right = 600.0
 offset_bottom = 660.0
 script = ExtResource("1_etbpw")
 conversation_button_scene = ExtResource("2_0u07r")
+buttons = ExtResource("3_ako7f")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 0
@@ -50,17 +52,36 @@ grow_horizontal = 0
 theme_override_font_sizes/font_size = 20
 text = "X"
 
-[node name="DialogueContainer" type="ScrollContainer" parent="."]
-layout_mode = 0
-offset_left = 6.0
-offset_top = 76.0
-offset_right = 297.0
-offset_bottom = 654.0
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+offset_left = 316.0
+offset_top = 75.0
+offset_right = 454.0
+offset_bottom = 103.0
+theme_override_font_sizes/font_size = 20
+text = "Involved NPCs"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DialogueContainer"]
+[node name="TalkDetails" type="HBoxContainer" parent="."]
+layout_mode = 2
+offset_left = 48.0
+offset_top = 109.0
+offset_right = 552.0
+offset_bottom = 658.0
+
+[node name="DialogueContainer" type="ScrollContainer" parent="TalkDetails"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TalkDetails/DialogueContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="DialogueDetails" type="HFlowContainer" parent="TalkDetails"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
 
 [connection signal="mouse_entered" from="CloseButton" to="." method="close_hover"]
 [connection signal="pressed" from="CloseButton" to="." method="close_talk_menu"]

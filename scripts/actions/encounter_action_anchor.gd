@@ -3,16 +3,16 @@ class_name EncounterActionAnchor extends GenericAction
 var AT_LOCATION = false
 var POSE = "standing"
 var ORGASM_COUNT = 0
+var NODE_LOCATION # reserves a tile for node
 
 func tick():
 	if OWNER.LOCATION == LOCATION:
-		AT_LOCATION = true
+		#AT_LOCATION = true
 		do_action()
 	else:
 		step_towards_location()
 	
 	OWNER.decay_needs()
-	OWNER.clamp_needs()
 
 
 func do_action():
@@ -36,11 +36,8 @@ func do_action():
 
 	var needs_refreshed = ["release", "arousal"]
 	for need in needs_refreshed:
-		print(need)
 		var refresh_rate = Constants.NEED_REFRESH_RATES[need]
-		print(refresh_rate)
 		OWNER.NEEDS[need] += refresh_rate
-		print(OWNER.NEEDS[need])
 	
 	if OWNER.NEEDS["arousal"] >= 100:
 		var dialogue_string = OWNER.NAME + " came!"
@@ -71,6 +68,7 @@ func flag_nodes_finished():
 func have_all_nodes_orgasmed():
 	var nodes = get_nodes()
 	for node in nodes:
+		if node.ACTION.ID != "encounter": continue
 		if node.ACTION.have_all_nodes_orgasmed() == false:
 			return false
 	if ORGASM_COUNT == 0:

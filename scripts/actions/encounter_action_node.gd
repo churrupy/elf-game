@@ -11,20 +11,29 @@ const gender = {
 }
 
 func tick():
-	var target_neighbors = ENGINE.get_neighbors(TARGET.LOCATION)
-	if TARGET.ACTION.AT_LOCATION:
-		if OWNER.LOCATION in target_neighbors:
-			LOCATION = OWNER.LOCATION.duplicate()
+	# set action location
+	if OWNER.LOCATION != LOCATION:
+		step_towards_location()
+	if TARGET.LOCATION == TARGET.ACTION.LOCATION:
+		do_action()
+	# if target not at location, just, like, vibe or something man
+	OWNER.decay_needs()
+	return
+
+
+	
+	var target_neighbors = ENGINE.get_neighbors(TARGET.ACTION.LOCATION)
+	if OWNER.LOCATION not in target_neighbors:
+		LOCATION = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+		if LOCATION == null:
+			STATUS = "finish"
+			return
+		step_towards_location()
+		OWNER.decay_needs()
+	else:
+		if TARGET.ACTION.AT_LOCATION:
 			do_action()
 			OWNER.decay_needs()
-			OWNER.clamp_needs()
-			return
-	if LOCATION not in target_neighbors:
-		LOCATION = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
-	step_towards_location()
-
-	OWNER.decay_needs()
-	OWNER.clamp_needs()
 
 func do_action():
 	# pick an action
@@ -87,7 +96,8 @@ func flag_nodes_finished():
 func have_all_nodes_orgasmed():
 	var nodes = get_nodes()
 	for node in nodes:
-		if node.have_all_nodes_orgasmed() == false:
+		if node.ACTION.ID != "encounter": continue
+		if node.ACTION.have_all_nodes_orgasmed() == false:
 			return false
 	if ORGASM_COUNT == 0:
 		return false

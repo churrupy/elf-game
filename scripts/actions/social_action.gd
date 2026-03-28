@@ -34,6 +34,8 @@ func score():
 	# eventually npcs will prioritize people in the same room/building and not running off across the map to socialize
 
 func tick():
+	if !recheck_can_do_action():
+		return
 	update_moving_location()
 	super.tick()
 

@@ -25,5 +25,25 @@ offset_right = 900.0
 
 [node name="Player" parent="." instance=ExtResource("2_0xm2m")]
 
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+visible = false
+offset_left = 318.0
+offset_top = 96.0
+offset_right = 600.0
+offset_bottom = 1393.0
+
+[node name="Button" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Name"
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "here's a test of a label with a lot of words in it"
+autowrap_mode = 3
+
 [connection signal="move_without_tick_signal" from="Player" to="." method="_on_move_without_tick"]
 [connection signal="tick" from="Player" to="." method="_on_tick"]

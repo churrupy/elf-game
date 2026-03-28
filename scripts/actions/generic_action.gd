@@ -23,8 +23,13 @@ func _init(engine, action_id):
 func can_do_action():
 	if TARGET is NPC:
 		if TARGET.ACTION != null:
+			var encounter_flag = false
+			if TARGET.ACTION.ID == "encounter":
+				encounter_flag = true
 			if !TARGET.ACTION.is_joinable(): return false
 			if !TARGET.ACTION.is_conversable(): return false
+			if encounter_flag:
+				push_error("ENCOUNTER PASSED CAN DO ACTION")
 
 		var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
 		if free_tile == null:
@@ -91,16 +96,24 @@ func step_towards_location():
 		ENGINE.History.add_entry(OWNER.ID, "moved to", old_location, {"location": next_step})
 
 
+func recheck_can_do_action():
+	# what an awful bandaid lol
+	if !can_do_action():
+		STATUS = "finish"
+		OWNER.decay_needs()
+		return false
+	return true
 
 
 func tick():
 	# target is a travelable tile (just a location array)
+	if !recheck_can_do_action():
+		return
 	if OWNER.LOCATION == LOCATION:
 		do_action()
 	else:
 		step_towards_location()
 	OWNER.decay_needs()
-	OWNER.clamp_needs()
 	
 
 func update_moving_location():

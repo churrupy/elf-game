@@ -6,6 +6,7 @@ var MENU_NPC
 var DIALOGUE_LIST = []
 
 @export var conversation_button_scene: PackedScene
+@export var buttons: PackedScene
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -17,15 +18,56 @@ func update():
 	#var history_list = ENGINE.History.history_to_string(history)
 	#LOCATION = npc.ACTION.TARGET
 	$NameLabel.text = MENU_NPC.NAME
-	for child in $DialogueContainer.get_node("VBoxContainer").get_children():
+	for child in $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_children():
+		child.queue_free()
+
+	for child in $TalkDetails.get_node("DialogueDetails").get_children():
 		child.queue_free()
 	
+	var involved_npcs = []
 	for item in history:
-		var new_label = Label.new()
 		if "dialogue" in item["arg"]:
-			new_label.text = item["arg"]["dialogue"]
-			new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			$DialogueContainer.get_node("VBoxContainer").add_child(new_label)
+
+			var label = Label.new()
+			label.text = item["arg"]["dialogue"]
+			$TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").add_child(label)
+
+			'''
+			var line_item = HBoxContainer.new()
+			line_item.size_flags_horizontal = SIZE_FILL
+
+			#button
+			var npc_id = item["npc"]
+			var npc = Global.NPCS[npc_id]
+			var name_button = buttons.instantiate()
+			name_button.initialize(npc)
+			line_item.add_child(name_button)
+
+			#dialogue
+			var container_size = $DialogueContainer.get_size()
+			var dialogue_label = Label.new()
+			line_item.add_child(dialogue_label)
+			dialogue_label.size_flags_horizontal = SIZE_FILL
+			dialogue_label.text = item["arg"]["dialogue"]
+			dialogue_label.custom_minimum_size = Vector2(container_size[0]*.75, 1)
+			dialogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			
+
+			$DialogueContainer.get_node("VBoxContainer").add_child(line_item)
+
+			'''
+			if item["npc"] == MENU_NPC.ID:
+				if "witnesses" in item["arg"]:
+					for w in item["arg"]["witnesses"]:
+						if w not in involved_npcs: involved_npcs.append(w)
+			else:
+				if item["npc"] not in involved_npcs: involved_npcs.append(item["npc"])
+		
+	for npc_id in involved_npcs:
+		var npc = Global.NPCS[npc_id]
+		var name_button = buttons.instantiate()
+		name_button.initialize(npc)
+		$TalkDetails.get_node("DialogueDetails").add_child(name_button)
 
 	
 
@@ -59,3 +101,7 @@ func close_talk_menu() -> void:
 
 func close_hover() -> void:
 	pass # Replace with function body.
+
+
+func sprite_clicked():
+	SignalBus.open_npc_menu.emit()

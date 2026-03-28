@@ -105,7 +105,6 @@ func update():
 			if y_index < 0:
 				continue
 			var location = [x, y]
-			print(location)
 			var tile_type = get_tile(location)
 			if tile_type == null: continue
 			var tile = tile_scene.instantiate()
@@ -165,7 +164,7 @@ func random_empty_tile():
 		if tile_data["impassable"] == false:
 			return [x,y]
 
-func find_action_location(action):
+func find_action_locations(action):
 	var filtered_locations = []
 	for i in len(MAP):
 		for j in len(MAP[0]):

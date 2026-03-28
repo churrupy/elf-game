@@ -29,4 +29,4 @@ func _on_mouse_exit() -> void:
 
 
 func _on_pressed() -> void:
-	SignalBus.npc_click.emit(DISPLAYED_NPC)
+	SignalBus.open_npc_menu.emit(DISPLAYED_NPC)

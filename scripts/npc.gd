@@ -85,75 +85,12 @@ func initialize(ID_COUNTER):
 func decay_needs():
 	for need in NEEDS:
 		var decay = Constants.NEED_DECAY_RATES[need]
-		NEEDS[need] -= decay
-
-func clamp_needs():
-	for need in NEEDS:
-		NEEDS[need] = clamp(NEEDS[need], 0.0, 100.0)
-		
+		NEEDS[need] = clamp((NEEDS[need] - decay), 0.0, 100.0)
 
 
 #endregion
 
-#region AI
-func get_opinion(other_npc):
-	# dummy function
-	var id = other_npc.ID
-	if other_npc in RELATIONSHIPS:
-		return RELATIONSHIPS[id]
-	else:
-		return 0
 
-func get_attraction(other_npc):
-	return 100 #for testing
-	var other_style = other_npc.STYLE
-	return OPINIONS[other_style]
-
-func score_action(action):
-	# score based on need
-	action.SCORE += 100-NEEDS[action.NEED]
-	if action.SCORE in ["hunger", "energy"]:
-		action.SCORE += 10 # bonus for urgent needs
-
-	# score based on preference
-	if action.TARGET is NPC:
-		if action.TARGET == self:
-			action.SCORE = -100
-			return action
-		action.SCORE += get_opinion(action.TARGET)
-		if action.ID == "flirt":
-			action.SCORE += get_attraction(action.TARGET)
-
-	# score based on distance
-	var total_x
-	var total_y
-	if action.TARGET is Array:
-		total_x = abs(LOCATION[0]- action.TARGET[0])
-		total_y = abs(LOCATION[1] - action.TARGET[1])
-	else:
-		total_x = abs(LOCATION[0] - action.TARGET.LOCATION[0])
-		total_y = abs(LOCATION[1] - action.TARGET.LOCATION[1])
-	action.SCORE -= total_x + total_y
-	
-
-	return action
-
-
-	
-#endregion
-
-
-
-#region NEEDS
-func has_urgent_needs():
-	if NEEDS["hunger"] < 50:
-		return true
-	if NEEDS["energy"] < 50:
-		return true
-	return false
-
-
-#endregion
 
 
 #region utility
@@ -162,6 +99,8 @@ func _to_string():
 
 
 #endregion
+
+#region relationships
 
 func update_relationship(other_npc_id, change):
 	if other_npc_id not in RELATIONSHIPS.keys():
@@ -187,6 +126,11 @@ func hear_topic(speaker_id, topic, opinion):
 		impression = "annoyed"
 	return impression
 
+func get_attraction(other_npc):
+	return 100 #for testing
+	var other_style = other_npc.STYLE
+	return OPINIONS[other_style]
+
 
 func hear_flirt(speaker_id):
 	var npc = Global.NPCS[speaker_id]
@@ -201,6 +145,8 @@ func hear_flirt(speaker_id):
 		update_relationship(speaker_id, -1)
 		impression = "annoyed"
 	return impression
+
+#endregion
 
 #region sprite
 

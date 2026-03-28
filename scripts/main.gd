@@ -47,14 +47,6 @@ func create_npc():
 #endregion
 
 
-
-
-
-
-
-
-
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("auto_tick"):
@@ -81,7 +73,7 @@ func _process(delta: float) -> void:
 	var new_location = [$Player.LOCATION[0] + delta_direction[0], $Player.LOCATION[1] + delta_direction[1]]
 	if $Map.is_travelable(new_location):
 		$Player.LOCATION = new_location
-		update_focus_target("player")
+		$NpcMenu.unwatch_npc()
 		tick()
 	else:
 		update_display()
@@ -383,6 +375,7 @@ func open_npc_menu(npc):
 	$NpcMenu.update()
 	$NpcMenu.show()
 	$TalkMenu.MENU_NPC = npc
+	$TalkMenu.update()
 
 func close_npc_menu():
 	$TalkMenu.hide()
@@ -401,6 +394,19 @@ func open_talk_menu(npc):
 func close_talk_menu():
 	$TalkMenu.hide()
 
+
+
+#endregion
+
+#region tiles
+func match_tile_to_closest_adjacent(tile_list, npc_location):
+	# returns {target_tile: closest_neighbor}
+	var filtered_tiles = {}
+	for tile in tile_list:
+		var tile_c = get_closest_adjacent_tile(npc_location, tile)
+		if tile_c == null: continue
+		filtered_tiles[tile] = tile_c
+	return filtered_tiles
 
 
 #endregion
