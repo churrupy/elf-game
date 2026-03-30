@@ -21,7 +21,7 @@ func tick():
 	return
 
 
-	
+
 	var target_neighbors = ENGINE.get_neighbors(TARGET.ACTION.LOCATION)
 	if OWNER.LOCATION not in target_neighbors:
 		LOCATION = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
@@ -109,6 +109,7 @@ func get_nodes():
 	for npc_id in Global.NPCS.keys():
 		var npc = Global.NPCS[npc_id]
 		if npc.ACTION == null: continue
+		if npc.ACTION.TARGET is Array: continue
 		if npc.ACTION.TARGET == OWNER:
 			nodes.append(npc)
 	return nodes

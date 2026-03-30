@@ -55,6 +55,52 @@ const NEED_REFRESH_RATES = {
 }
 #endregions
 
+var PORTRAIT_TEMPLATES = {
+	"hair": [
+		"res://models/portrait/hair/curly_long.png",
+		"res://models/portrait/hair/high_ponytail.png",
+		"res://models/portrait/hair/low_ponytail.png",
+		"res://models/portrait/hair/straight_long.png",
+		"res://models/portrait/hair/wavy_long.png",
+	],
+	"ears": [
+		"res://models/portrait/ears/bunny.png",
+		"res://models/portrait/ears/cat.png",
+		"res://models/portrait/ears/dog.png",
+		"res://models/portrait/ears/human.png",
+	],
+	"body": [
+		"res://models/portrait/body/round.png",
+		"res://models/portrait/body/round_square.png",
+		"res://models/portrait/body/square.png",
+	],
+	"eyes": [
+		"res://models/portrait/eyes/circle.png",
+		"res://models/portrait/eyes/generic.png",
+		"res://models/portrait/eyes/pointed.png",
+	],
+	
+	
+	"mouth": [
+		"res://models/portrait/mouth/open.png",
+		"res://models/portrait/mouth/smile.png",
+	],
+	"nose": [
+		"res://models/portrait/nose/button.png",
+		"res://models/portrait/nose/generic.png",
+		"res://models/portrait/nose/strong.png",
+	],
+	"bangs" : [
+		"res://models/portrait/bangs/curly.png",
+		"res://models/portrait/bangs/long_fringe.png",
+		"res://models/portrait/bangs/pulled_back.png",
+		"res://models/portrait/bangs/straight.png",
+		"res://models/portrait/bangs/wavy.png",
+	],
+	
+	
+}
+
 var CLASS_TEMPLATES = {
 	"GenericAction": GenericAction,
 	"TileAction": TileAction,

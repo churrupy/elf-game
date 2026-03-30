@@ -30,32 +30,11 @@ func update():
 
 			var label = Label.new()
 			label.text = item["arg"]["dialogue"]
+			var container_size = $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_size()
+			label.custom_minimum_size = Vector2(container_size[0]*.75, 1)
+			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			$TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").add_child(label)
 
-			'''
-			var line_item = HBoxContainer.new()
-			line_item.size_flags_horizontal = SIZE_FILL
-
-			#button
-			var npc_id = item["npc"]
-			var npc = Global.NPCS[npc_id]
-			var name_button = buttons.instantiate()
-			name_button.initialize(npc)
-			line_item.add_child(name_button)
-
-			#dialogue
-			var container_size = $DialogueContainer.get_size()
-			var dialogue_label = Label.new()
-			line_item.add_child(dialogue_label)
-			dialogue_label.size_flags_horizontal = SIZE_FILL
-			dialogue_label.text = item["arg"]["dialogue"]
-			dialogue_label.custom_minimum_size = Vector2(container_size[0]*.75, 1)
-			dialogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			
-
-			$DialogueContainer.get_node("VBoxContainer").add_child(line_item)
-
-			'''
 			if item["npc"] == MENU_NPC.ID:
 				if "witnesses" in item["arg"]:
 					for w in item["arg"]["witnesses"]:

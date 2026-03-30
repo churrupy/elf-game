@@ -4,7 +4,6 @@ var ENGINE
 var MENU_NPC
 var WATCH = false
 
-signal close_npc_menu_signal
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -49,9 +48,35 @@ func update():
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$NpcHistoryContainer.get_node("VBoxContainer").add_child(new_label)
 
-	$Portrait.get_node("Splash").modulate = MENU_NPC.COLOR
+	#$Portrait.get_node("Splash").modulate = MENU_NPC.HAIR_COLOR
+	clear_portrait()
+	var splash = TextureRect.new()
+	splash.modulate = MENU_NPC.EYE_COLOR
+	splash.scale = Vector2(1.2,1.2)
+	$Portrait.add_child(splash)
+	var background = Sprite2D.new()
+	background.texture = load("res://models/portrait/portrait_background.png")
+	background.scale = Vector2(1.2,1.2)
+	$Portrait.add_child(background)
+	for part in MENU_NPC.PORTRAIT.keys():
+		var sprite = Sprite2D.new()
+		var pathfile = MENU_NPC.PORTRAIT[part]
+		sprite.texture = load(pathfile)
+		if part == "eyes":
+			sprite.modulate = MENU_NPC.EYE_COLOR
+		elif part in ["bangs", "hair"]:
+			sprite.modulate = MENU_NPC.HAIR_COLOR
+		elif part in ["body", "ears"]:
+			sprite.modulate = MENU_NPC.SKIN_COLOR
+		sprite.scale = Vector2(1.2,1.2)
+		$Portrait.add_child(sprite)
+	$Portrait.global_position = Vector2(68,84)
 
 	SignalBus.npc_hover.emit(MENU_NPC)
+
+func clear_portrait():
+	for child in $Portrait.get_children():
+		child.queue_free()
 
 
 func close_npc_menu() -> void:
@@ -62,6 +87,7 @@ func close_npc_menu() -> void:
 func watch_npc() -> void:
 	WATCH = true
 	ENGINE.update_focus_target(MENU_NPC.ID)
+	#$WatchButton.icon = load("red://models/watch_glow.png")
 	$WatchButton.hide()
 	$UnWatchButton.show()
 	
@@ -70,9 +96,26 @@ func watch_npc() -> void:
 func unwatch_npc() -> void:
 	WATCH = false
 	ENGINE.update_focus_target("player")
+	#$WatchButton.icon = load("res://models/watch.png")
+
 	$UnWatchButton.hide()
 	$WatchButton.show()
+
+func toggle_watch_npc() -> void:
+	print("toggling")
+	var focus_target
+	if WATCH:
+		$WatchButton.icon = load("res://models/watch.png")
+		WATCH = false
+		focus_target = "player"
+	else:
+		$WatchButton.icon = load("red://models/watch_glow.png")
+		WATCH = true
+		focus_target = MENU_NPC.ID
 
 
 func open_talk_menu() -> void:
 	SignalBus.open_talk_menu.emit(MENU_NPC)
+
+func toggle_talk_menu() -> void:
+	SignalBus.toggle_talk_menu.emit(MENU_NPC)

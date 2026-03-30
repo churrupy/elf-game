@@ -23,6 +23,7 @@ func _ready() -> void:
 
 	SignalBus.open_talk_menu.connect(open_talk_menu)
 	SignalBus.close_talk_menu.connect(close_talk_menu)
+	SignalBus.toggle_talk_menu.connect(toggle_talk_menu)
 
 	
 	Global.FOCUS_TARGET = "player"
@@ -48,7 +49,7 @@ func create_npc():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("auto_tick"):
 		tick()
 		return
@@ -86,10 +87,6 @@ func _on_move_without_tick() -> void:
 	$Map.tick()
 	get_current_npcs()
 	#update_current_npcs()
-
-
-
-
 
 
 
@@ -227,8 +224,8 @@ func get_npc_list():
 
 
 func get_all_npc_actions(checked_npc):
-	#var npc_actions = ["converse", "flirt", "seduce"]
-	var npc_actions = ["seduce"]
+	var npc_actions = ["converse", "flirt", "seduce"]
+	#var npc_actions = ["seduce"]
 	var all_actions = []
 	for npc_id in Global.NPCS.keys():
 		if npc_id == checked_npc.ID: continue
@@ -263,9 +260,9 @@ func get_npcs_in_range(location):
 #region npc ai
 
 func determine_action(npc):
-	#var all_actions = $Map.get_all_actions_on_map()
-	#all_actions += get_all_npc_actions()
-	var all_actions = get_all_npc_actions(npc)
+	var all_actions = $Map.get_all_actions_on_map()
+	all_actions += get_all_npc_actions(npc)
+	#var all_actions = get_all_npc_actions(npc)
 	for action in all_actions:
 		action.OWNER = npc
 		action.score()
@@ -381,6 +378,13 @@ func close_npc_menu():
 	$TalkMenu.hide()
 	$NpcMenu.hide()
 	$DefaultMenu.show()
+
+
+func toggle_talk_menu(npc):
+	if $TalkMenu.visible:
+		close_talk_menu()
+	else:
+		open_talk_menu(npc)
 
 
 func open_talk_menu(npc):

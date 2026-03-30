@@ -107,8 +107,8 @@ func recheck_can_do_action():
 
 func tick():
 	# target is a travelable tile (just a location array)
-	if !recheck_can_do_action():
-		return
+	#if !recheck_can_do_action():
+	#	return
 	if OWNER.LOCATION == LOCATION:
 		do_action()
 	else:

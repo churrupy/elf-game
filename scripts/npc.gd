@@ -5,7 +5,13 @@ class_name NPC
 
 var NAME
 var ID
-var COLOR
+
+var SKIN_COLOR
+var HAIR_COLOR
+var EYE_COLOR
+
+var PORTRAIT = {}
+
 var LOCATION = [0,0]
 var GENDER
 var ACTION
@@ -43,7 +49,22 @@ func initialize(ID_COUNTER):
 	NAME = NAMES[GENDER].pick_random()
 	ID = NAME + str(ID_COUNTER)
 	STYLE = STYLES.pick_random()
-	COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
+	EYE_COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
+	HAIR_COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
+	#SKIN_COLOR = Color(randf_range(0,1), randf_range(0.25,0.50), randf_range(0.25,0.75)) # getting WILD in here
+	var red = randf_range(0.15, .90)
+	var green = red - randf_range(0.05, 0.20)
+	green = clamp(green, 0.5, 1.0)
+	var blue = green - randf_range(0.05, 0.20)
+	blue = clamp(blue, 0.5, 1.0)
+	#SKIN_COLOR = Color(randf_range(0.20,0.9), randf_range(0.10,0.75), randf_range(0.05,0.70)) 
+	SKIN_COLOR = Color(red, green, blue)
+
+	for part in Constants.PORTRAIT_TEMPLATES.keys():
+		var options = Constants.PORTRAIT_TEMPLATES[part]
+		PORTRAIT[part] = options.pick_random()
+
+
 	var topics = Dialogue.CONVERSATION_NODES.keys()
 	for topic in topics:
 		OPINIONS[topic] = randi_range(-5,5)
@@ -57,7 +78,7 @@ func initialize(ID_COUNTER):
 	add_child(BUTTON)
 	BUTTON.texture_normal = load("res://models/npc.png")
 	BUTTON.texture_hover = load("res://models/npc_glow.png")
-	BUTTON.modulate = COLOR
+	BUTTON.modulate = HAIR_COLOR
 
 	BUTTON.set_anchors_and_offsets_preset(Control.LayoutPreset.PRESET_CENTER, Control.LayoutPresetMode.PRESET_MODE_MINSIZE, 0)
 	#BUTTON.keep_offsets = true

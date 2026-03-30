@@ -81,6 +81,7 @@ func get_nodes():
 	for npc_id in Global.NPCS.keys():
 		var npc = Global.NPCS[npc_id]
 		if npc.ACTION == null: continue
+		if npc.ACTION.TARGET is Array: continue
 		if npc.ACTION.TARGET == OWNER:
 			nodes.append(npc)
 	return nodes
