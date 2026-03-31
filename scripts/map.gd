@@ -70,20 +70,9 @@ func _ready() -> void:
 				type = special_tiles[location]
 			MAP[i].append(type)
 
-		
-func get_tile_list():
-	var tile_list = []
-	for i in len(MAP):
-		for j in len(MAP[0]):
-			var tile = MAP[i][j]
-			tile_list.append(tile)
-	return tile_list
 
 
-func hide_all_tiles():
-	for child in get_children():
-		if child is Tile:
-			child.hide()
+#region update
 
 func clear_tiles():
 	for child in get_children():
@@ -114,40 +103,102 @@ func update():
 			tile.global_position[1] = y_index * Constants.TILE_SIZE
 			tile.show()
 
-func update_old():
-	clear_tiles()
+#endregion update
 
-	var x_counter = Constants.MAIN_FRAME_POSITION[0]
-	var y_counter = 0
+#region pathfinding
 
-	for x in range(Global.X_RANGE[0], Global.X_RANGE[1]):
-		if x not in range(0, len(MAP)):
-			x_counter += Constants.TILE_SIZE
-			y_counter = 0
-			continue
-		for y in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
-			if y not in range(0, len(MAP[0])):
-				y_counter += Constants.TILE_SIZE
+func step_towards_location(end, start): #trying this out, pathfinding from target instead
+	#pathfinding
+	if start == end:
+		push_error("Trying to pathfind to current location")
+		return start # shouldn't happen but who knows
+
+	var queue = [start]
+	var visited = [start]
+	var parent_dict = {}
+
+	var current
+
+	while len(queue) > 0:
+		current = queue.pop_front()
+		if current == end:
+			return parent_dict[end]
+		for neighbor in get_neighbors(current):
+			if neighbor in visited:
 				continue
-			var location = [x, y]
-			var tile_type = get_tile(location)
-			var tile = tile_scene.instantiate()
-			tile.initialize(tile_type, location)
-			add_child(tile)
-			tile.global_position = Vector2(x_counter, y_counter)
-			tile.show()
-			y_counter += Constants.TILE_SIZE
-		x_counter += Constants.TILE_SIZE
-		y_counter = 0
+			visited.append(neighbor)
+			queue.append(neighbor)
+			parent_dict[neighbor] = current
+	push_error("pathfind fail")
+
+
+
+
+func get_next_step(parent_dict, start, end):
+	var node = end
+	while true:
+		var parent = parent_dict[node] #not sure if i can use a list as a key in godot 
+		if parent == start:
+			return node
+		node = parent
+
+
+
+#endregion pathfinding
+
+
+#region utility
+
+func get_neighbors(location):
+	var neighbors = [
+		#[location[0], location[1]],
+		# adjacent
+		[location[0] + 1, location[1]],
+		[location[0] - 1, location[1]],
+		[location[0], location[1] + 1],
+		[location[0], location[1] - 1],
+		# diagonals
+		[location[0] + 1, location[1] + 1],
+		[location[0] + 1, location[1] - 1],
+		[location[0] - 1, location[1] + 1],
+		[location[0] - 1, location[1] - 1]
+	]
+	var valid_neighbors = []
+	for n in neighbors:
+		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]:
+			continue
+		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]:
+			continue
+		if !is_travelable(n): continue
+		valid_neighbors.append(n)
+		
+	return valid_neighbors
+
+func get_closest_adjacent_tile(start_location, target_location):
+	# gets tile adjacent to target that's closest to start location
+	var neighbors = get_neighbors(target_location)
+	if start_location in neighbors:
+		return start_location
+	var free_neighbors = Utility.filter_reserved_tiles(neighbors)
+
+	if len(free_neighbors) == 0:
+		print("no free adjacent tiles found")
+		return null
+	
+	var smallest_distance = 100
+	var closest_tile
+	for t in free_neighbors:
+		var distance = Utility.calc_distance(start_location, t)
+		if distance < smallest_distance:
+			smallest_distance = distance
+			closest_tile = t
+	return closest_tile
 
 func is_travelable(location):
 	var tile = get_tile(location)
 	var tile_data = Constants.TILE_TEMPLATES[tile]
 	if tile_data["impassable"] == true: return false
 	return true
-
-
-#region utility
 
 
 func get_tile(location: Array):
@@ -203,4 +254,4 @@ func get_available_poses_for_tile(location):
 
 		
 
-#endregion
+#endregion utility

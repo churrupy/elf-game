@@ -3,7 +3,6 @@ extends Node
 
 #var X_RANGE
 #var Y_RANGE
-@export var npc_scene: PackedScene
 var History = HISTORY_CLASS.new()
 
 
@@ -206,7 +205,7 @@ func display_npcs():
 
 func get_current_npcs():
 	Global.NEARBY_NPCS = []
-	var adjacent_locations = get_neighbors(Global.FOCUS_LOCATION)
+	var adjacent_locations = $Map.get_neighbors(Global.FOCUS_LOCATION)
 	for l in adjacent_locations:
 		Global.NEARBY_NPCS += Utility.get_npc_from_location(l)
 #endregion
@@ -247,7 +246,7 @@ func get_all_npc_actions(checked_npc):
 func get_npcs_in_range(location):
 	# gets all npcs with the same target who are nearby
 	var close_npcs = []
-	var target_neighbors = get_neighbors(location)
+	var target_neighbors = $Map.get_neighbors(location)
 	for n in target_neighbors:
 		close_npcs += Utility.get_npc_from_location(n)
 	return close_npcs
@@ -277,92 +276,6 @@ func determine_action(npc):
 
 #endregion
 
-
-
-#region pathfinding
-
-#func step_towards_location(start, end):
-func step_towards_location(end, start): #trying this out, pathfinding from target instead
-	#pathfinding
-	if start == end:
-		push_error("Trying to pathfind to current location")
-		return start # shouldn't happen but who knows
-
-	var queue = [start]
-	var visited = [start]
-	var parent_dict = {}
-
-	var current
-
-	while len(queue) > 0:
-		current = queue.pop_front()
-		if current == end:
-			return parent_dict[end]
-		for neighbor in get_neighbors(current):
-			if neighbor in visited:
-				continue
-			visited.append(neighbor)
-			queue.append(neighbor)
-			parent_dict[neighbor] = current
-	push_error("pathfind fail")
-
-func get_neighbors(location):
-	var neighbors = [
-		#[location[0], location[1]],
-		# adjacent
-		[location[0] + 1, location[1]],
-		[location[0] - 1, location[1]],
-		[location[0], location[1] + 1],
-		[location[0], location[1] - 1],
-		# diagonals
-		[location[0] + 1, location[1] + 1],
-		[location[0] + 1, location[1] - 1],
-		[location[0] - 1, location[1] + 1],
-		[location[0] - 1, location[1] - 1]
-	]
-	var valid_neighbors = []
-	for n in neighbors:
-		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]:
-			continue
-		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]:
-			continue
-		if !$Map.is_travelable(n): continue
-		valid_neighbors.append(n)
-		
-	return valid_neighbors
-
-func get_next_step(parent_dict, start, end):
-	var node = end
-	while true:
-		var parent = parent_dict[node] #not sure if i can use a list as a key in godot 
-		if parent == start:
-			return node
-		node = parent
-
-func get_closest_adjacent_tile(start_location, target_location):
-
-	var neighbors = get_neighbors(target_location)
-	if start_location in neighbors:
-		return start_location
-	var free_neighbors = Utility.filter_reserved_tiles(neighbors)
-
-	if len(free_neighbors) == 0:
-		print("no free adjacent tiles found")
-		return null
-	
-	var smallest_distance = 100
-	var closest_tile
-	for t in free_neighbors:
-		var distance = Utility.calc_distance(start_location, t)
-		if distance < smallest_distance:
-			smallest_distance = distance
-			closest_tile = t
-	return closest_tile
-
-
-
-#endregion
-	
 
 
 #region menus
@@ -407,7 +320,7 @@ func match_tile_to_closest_adjacent(tile_list, npc_location):
 	# returns {target_tile: closest_neighbor}
 	var filtered_tiles = {}
 	for tile in tile_list:
-		var tile_c = get_closest_adjacent_tile(npc_location, tile)
+		var tile_c = $Map.get_closest_adjacent_tile(npc_location, tile)
 		if tile_c == null: continue
 		filtered_tiles[tile] = tile_c
 	return filtered_tiles

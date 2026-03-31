@@ -85,7 +85,7 @@ func score():
 
 func step_towards_location():
 	var old_location = OWNER.LOCATION.duplicate()
-	var next_step = ENGINE.step_towards_location(OWNER.LOCATION, LOCATION)
+	var next_step = ENGINE.get_node("Map").step_towards_location(OWNER.LOCATION, LOCATION)
 	if next_step == null:
 		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
 		print("teleporting...")

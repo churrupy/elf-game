@@ -8,7 +8,7 @@ func can_do_action():
 		if !TARGET.ACTION.is_joinable(): return false
 		if !TARGET.ACTION.is_conversable(): return false
 	
-	var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+	var free_tile = ENGINE.get_node("Map").get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
 	if free_tile == null:
 		return false
 	LOCATION = free_tile

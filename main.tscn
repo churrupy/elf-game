@@ -1,16 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://p30gae8jaqvk"]
+[gd_scene load_steps=7 format=3 uid="uid://p30gae8jaqvk"]
 
 [ext_resource type="Script" uid="uid://bvte16k71lpps" path="res://scripts/main.gd" id="1_7mycd"]
 [ext_resource type="PackedScene" uid="uid://k1uuc7whn4yg" path="res://player.tscn" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://c8ald5ikbggg7" path="res://default_menu.tscn" id="3_lquwl"]
 [ext_resource type="PackedScene" uid="uid://buetf41yyhdos" path="res://npc_menu.tscn" id="4_7mycd"]
-[ext_resource type="PackedScene" uid="uid://b3nfuqwhtvmbc" path="res://displayed_npc.tscn" id="5_lquwl"]
 [ext_resource type="PackedScene" uid="uid://jusdqdsrm4go" path="res://talk_menu.tscn" id="6_272bh"]
 [ext_resource type="PackedScene" uid="uid://drm6eb25ugdmi" path="res://map.tscn" id="7_272bh"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_7mycd")
-npc_scene = ExtResource("5_lquwl")
 
 [node name="Map" parent="." instance=ExtResource("7_272bh")]
 

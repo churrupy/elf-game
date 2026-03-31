@@ -27,7 +27,7 @@ func can_do_action():
 
 	if is_reserved or !is_travelable:
 		if !can_do_off_tile(): return false
-		var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET)
+		var free_tile = ENGINE.get_node("Map").get_closest_adjacent_tile(OWNER.LOCATION, TARGET)
 		if free_tile == null:
 			return false
 		LOCATION = free_tile
