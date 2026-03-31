@@ -14,7 +14,7 @@ func _ready() -> void:
 
 
 func update():
-	var history = ENGINE.History.filter_by_npc(MENU_NPC).slice(-20, -1)
+	var history: Array = ENGINE.History.filter_by_npc(MENU_NPC.ID).slice(-20, -1)
 	#var history_list = ENGINE.History.history_to_string(history)
 	#LOCATION = npc.ACTION.TARGET
 	$NameLabel.text = MENU_NPC.NAME
@@ -24,26 +24,23 @@ func update():
 	for child in $TalkDetails.get_node("DialogueDetails").get_children():
 		child.queue_free()
 	
-	var involved_npcs = []
-	for item in history:
-		if "dialogue" in item["arg"]:
-
-			var label = Label.new()
-			label.text = item["arg"]["dialogue"]
-			var container_size = $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_size()
+	var involved_npcs: Array = []
+	for item: HISTORY_EVENT in history:
+		if item.DIALOGUE != "":
+			
+			var label: Label = Label.new()
+			label.text = item.DIALOGUE
+			var container_size: Vector2 = $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_size()
 			label.custom_minimum_size = Vector2(container_size[0]*.75, 1)
 			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			$TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").add_child(label)
 
-			if item["npc"] == MENU_NPC.ID:
-				if "witnesses" in item["arg"]:
-					for w in item["arg"]["witnesses"]:
-						if w not in involved_npcs: involved_npcs.append(w)
-			else:
-				if item["npc"] not in involved_npcs: involved_npcs.append(item["npc"])
+			for w: String in item.WITNESSES:
+				if w == MENU_NPC.ID: continue
+				if w not in involved_npcs: involved_npcs.append(w)
 		
-	for npc_id in involved_npcs:
-		var npc = Global.NPCS[npc_id]
+	for npc_id: String in involved_npcs:
+		var npc: NPC = Global.NPCS[npc_id]
 		var name_button = buttons.instantiate()
 		name_button.initialize(npc)
 		$TalkDetails.get_node("DialogueDetails").add_child(name_button)

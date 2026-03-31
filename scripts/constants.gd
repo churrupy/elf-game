@@ -103,7 +103,7 @@ var PORTRAIT_TEMPLATES = {
 
 var CLASS_TEMPLATES = {
 	"GenericAction": GenericAction,
-	"TileAction": TileAction,
+	#"TileAction": TileAction,
 	"SocialAction": SocialAction,
 	"SeduceAction": SeduceAction
 }
@@ -163,7 +163,7 @@ const ACTION_TEMPLATES = {
 		"joinable": true,
 		"other_req": false,
 		"do_off_tile": true,
-		"class": "TileAction"
+		"class": "GenericAction"
 	},
 	"dance" : {
 		"need": "fun",
@@ -174,7 +174,7 @@ const ACTION_TEMPLATES = {
 		"other_req": false,
 		"do_off_tile": false,
 		"conversable": false,
-		"class": "TileAction"
+		"class": "GenericAction"
 	},
 	"drink": {
 		"need": "fun",
@@ -184,7 +184,7 @@ const ACTION_TEMPLATES = {
 		"joinable": false,
 		"other_req": false,
 		"do_off_tile": true,
-		"class": "TileAction"
+		"class": "GenericAction"
 	},
 	"use toilet": {
 		"need": "bladder",
@@ -195,7 +195,7 @@ const ACTION_TEMPLATES = {
 		"other_req": false,
 		"do_off_tile": false,
 		"conversable": false,
-		"class": "TileAction"
+		"class": "GenericAction"
 	},
 	"snack": {
 		"need": "hunger",
@@ -205,7 +205,7 @@ const ACTION_TEMPLATES = {
 		"joinable": false,
 		"other_req": false,
 		"do_off_tile": true,
-		"class": "TileAction"
+		"class": "GenericAction"
 	},
 	"follow": {
 		"need": "none",

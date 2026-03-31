@@ -2,7 +2,7 @@ extends Node
 
 class_name HISTORY_CLASS
 
-var HISTORY = []
+var HISTORY: Array
 
 
 
@@ -12,6 +12,20 @@ func _ready() -> void:
 
 func _process(delta:float):
 	pass
+
+
+func add_event(npc_id: String, action: String, location: Array, witnesses: Array = [], dialogue: String = "") -> void:
+	var new_event = HISTORY_EVENT.new()
+	new_event.TICK = Global.TICKS
+	new_event.NPC_ID = npc_id
+	new_event.ACTION = action
+	new_event.LOCATION = location
+	var index: int = witnesses.find(npc_id)
+	if index > -1:
+		witnesses.remove_at(index)
+	new_event.WITNESSES = witnesses
+	new_event.DIALOGUE = dialogue
+	HISTORY.append(new_event)
 
 
 func add_entry(npc, action, location, arg={}):
@@ -26,18 +40,26 @@ func add_entry(npc, action, location, arg={}):
 	}
 	HISTORY.append(history_dict)
 
-func filter_by_doer(npc):
+func filter_by_doer_old(npc):
 	# actions npc does
 	if npc is NPC:
 		npc = npc.ID
 	var filtered_history = []
 	for h in HISTORY:
-		if h["npc"] == npc:
+		if h.NPC == npc:
 			filtered_history.append(h)
 	return filtered_history
 
+func filter_by_doer(npc_id: String) -> Array:
+	# filter by initiator of event
+	return HISTORY.filter(func(event): return event.NPC_ID == npc_id)
 
-func filter_by_npc(npc):
+
+func filter_by_npc(npc_id: String) -> Array:
+	# filter by whether npc is involved in event (whether doer or witness)
+	return HISTORY.filter(func(event): return (event.NPC_ID == npc_id) or (npc_id in event.WITNESSES))
+
+func filter_by_npc_old(npc):
 	# actions npc is either doer or target
 	if npc is NPC:
 		npc = npc.ID
@@ -51,7 +73,12 @@ func filter_by_npc(npc):
 
 	return filtered_history
 
-func filter_by_location(location):
+func filter_by_location(location: Array) -> Array:
+	if location == null:
+		return []
+	return HISTORY.filter(func(event): event.LOCATION == location)
+
+func filter_by_location_old(location):
 	if location == null:
 		return []
 	var filtered_history = []
@@ -60,7 +87,28 @@ func filter_by_location(location):
 			filtered_history.append(h)
 	return filtered_history
 
-func history_to_string(history_list = []):
+func history_to_string(history_list: Array =[]) -> Array:
+	if history_list == []:
+		history_list = HISTORY
+	var display_list: Array = []
+	for h in history_list:
+		var _str: String = "Tick {tick}: {location} {npc} {action}"
+		if len(h.WITNESSES) > 0:
+			_str += " with {witnesses}"
+		_str = _str.format({
+			"tick": h.TICK,
+			"location": str(h.LOCATION),
+			"npc": h.NPC_ID,
+			"action": h.ACTION,
+			"witnesses": h.WITNESSES
+		})
+		display_list.append(_str)
+	return display_list
+
+
+
+
+func history_to_string_old(history_list = []):
 	if history_list == []:
 		history_list = HISTORY
 	var display_list = []

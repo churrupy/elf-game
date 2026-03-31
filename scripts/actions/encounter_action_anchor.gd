@@ -31,7 +31,7 @@ func do_action():
 				"witnesses": [n.ID],
 				"dialogue": dialogue_string
 			}
-			ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
+			ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [n.ID], dialogue_string)
 
 
 	var needs_refreshed = ["release", "arousal"]
@@ -46,7 +46,7 @@ func do_action():
 			"witnesses": witnesses,
 			"dialogue": dialogue_string
 		}
-		ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
+		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
 		#STATUS = "finish"
 		ORGASM_COUNT += 1
 		OWNER.NEEDS["arousal"] = 50

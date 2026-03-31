@@ -36,7 +36,7 @@ func update():
 		child.queue_free()
 
 	# get last five moves
-	var history = ENGINE.History.filter_by_doer(MENU_NPC)
+	var history = ENGINE.History.filter_by_doer(MENU_NPC.ID)
 	var history_list = ENGINE.History.history_to_string(history)
 	var last_five = history_list.slice(-10,-1)
 	last_five.reverse()

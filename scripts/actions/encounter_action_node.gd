@@ -1,5 +1,6 @@
 class_name EncounterActionNode extends GenericAction
 
+var TARGET: NPC
 var POSE = "standing"
 var ORIENTATION = "front"
 var RECENT_ACTION
@@ -47,7 +48,7 @@ func do_action():
 		"witnesses": [TARGET.ID],
 		"dialogue": dialogue_string
 	}
-	ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
+	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
 
 	COUNTDOWN -= 1
 	var needs_refreshed = ["release", "arousal"]
@@ -63,7 +64,7 @@ func do_action():
 			"witnesses": witnesses,
 			"dialogue": dialogue_string
 		}
-		ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
+		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
 		ORGASM_COUNT += 1
 		OWNER.NEEDS["arousal"] = 50
 

@@ -2,6 +2,8 @@ extends GenericAction
 # TARGET is always an object with .LOCATION
 class_name SocialAction
 
+var TARGET: NPC
+
 func can_do_action():
 	# also sets LOCATION
 	if TARGET.ACTION != null:
@@ -46,14 +48,14 @@ func do_action():
 		"witnesses": [TARGET.ID],
 		"dialogue": dialogue_string
 	}
-	ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
+	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
 	var impression = TARGET.hear_flirt(OWNER.ID)
 	dialogue_string = TARGET.NAME + " was " + impression + " about being flirted with."
 	history_params = {
 		"witnesses": [OWNER.ID],
 		"dialogue": dialogue_string
 	}
-	ENGINE.History.add_entry(TARGET, "converse", TARGET.LOCATION, history_params)
+	ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
 
 
 	super.do_action() # does need refresh and countdown

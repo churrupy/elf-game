@@ -42,7 +42,8 @@ func create_npc():
 	ID_COUNTER += 1
 	#add_child(npc)
 	Global.NPCS[npc.ID] = npc
-	History.add_entry(npc.ID, "created", npc.LOCATION)
+	print(npc.LOCATION, typeof(npc.LOCATION))
+	History.add_event(npc.ID, "created", npc.LOCATION)
 
 #endregion
 
@@ -110,7 +111,7 @@ func tick_npcs():
 		if npc.ACTION == null:
 			npc.ACTION = determine_action(npc)
 		elif npc.ACTION.STATUS == "finish":
-			History.add_entry(npc.ID, "finished", npc.LOCATION, {"action": npc.ACTION.ID})
+			History.add_event(npc.ID, "finished", npc.LOCATION)
 			npc.ACTION = null
 		else:
 			npc.ACTION.tick()

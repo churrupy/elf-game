@@ -18,9 +18,9 @@ func calc_distance(loc1, loc2):
 
 #region npcs
 
-func filter_reserved_tiles(tile_list):
-	var free_tiles = []
-	for tile in tile_list:
+func filter_reserved_tiles(tile_list: Array) -> Array:
+	var free_tiles: Array = []
+	for tile: Array in tile_list:
 		if is_location_reserved(tile): continue
 		free_tiles.append(tile)
 	return free_tiles

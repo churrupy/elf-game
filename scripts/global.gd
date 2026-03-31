@@ -3,7 +3,7 @@ extends Node
 var NPCS = {}
 var NEARBY_NPCS = []
 var FOCUS_NPCS = []
-var TICKS = 0
+var TICKS: int = 0
 
 var FOCUS_TARGET
 var FOCUS_LOCATION

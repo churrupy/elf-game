@@ -3,23 +3,23 @@ extends Container
 class_name NPC
 
 
-var NAME
-var ID
+var NAME: String
+var ID: String
 
-var SKIN_COLOR
-var HAIR_COLOR
-var EYE_COLOR
+var SKIN_COLOR: Color
+var HAIR_COLOR: Color
+var EYE_COLOR: Color
 
-var PORTRAIT = {}
+var PORTRAIT: Dictionary = {}
 
-var LOCATION = [0,0]
-var GENDER
-var ACTION
-var RECENT_TOPIC
-var STYLE
-var OPINIONS = {}
-var RELATIONSHIPS = {}
-var NEEDS = {
+var LOCATION: Array = [0,0]
+var GENDER: String
+var ACTION: GenericAction
+var RECENT_TOPIC: String
+var STYLE: String
+var OPINIONS: Dictionary = {}
+var RELATIONSHIPS: Dictionary = {}
+var NEEDS: Dictionary = {
 	"hunger": 50.0,
 	"energy": 50.0,
 	"release": 50.0,
@@ -33,12 +33,12 @@ var NEEDS = {
 
 var SPRITE
 var GLOW_SPRITE
-var BUTTON
+var BUTTON: TextureButton
 var GLOW_BUTTON
 
-var STYLES = ["goth", "punk", "prep", "country", "athletic", "queer"]
+var STYLES: Array = ["goth", "punk", "prep", "country", "athletic", "queer"]
 
-var NAMES = {
+var NAMES: Dictionary = {
 	"male": ["Gerald", "Harry", "Irving", "Jackson", "Kyle", "Leon", "Michael", "Christopher", "Matthew", "Joshua", "David", "James", "Daniel", "Robert", "John", "Joseph", "Andrew", "Justin", "Ryan", "Brandon", "Jason", "William", "Jonathan", "Brian", "Kevin", "Eric", "Nicholas", "Timothy", "Adam", "Anthony", "Thomas", "Steven", "Benjamin", "Mark", "Scott", "Paul"],
 	"female": ["Agatha", "Bridget", "Cassidy", "Daniella", "Eve", "Jennifer", "Jessica", "Amanda", "Sarah", "Ashley", "Stephanie", "Emily", "Nicole", "Elizabeth", "Heather", "Melissa", "Michelle", "Kimberly", "Amy", "Angela", "Tiffany", "Rebecca", "Rachel", "Laura", "Courtney", "Amber", "Christina", "Samantha", "Hannah", "Erin", "Katherine", "Megan", "Danielle", "Brittany", "Lauren"]
 }

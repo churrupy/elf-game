@@ -10,7 +10,7 @@ node types: # not specific in code, but it's good for me to keep track
 	- people
 """
 
-const CONVERSATION_NODES = {
+const CONVERSATION_NODES: Dictionary[String, Array] = {
 	"athlete": ["job", "sports", "fitness"],
 	"competitiveness": ["sports"],
 	"doctor": ["job", "medicine", "illness"],
@@ -26,7 +26,7 @@ const CONVERSATION_NODES = {
 
 
 
-const DIALOGUE_STRINGS = {
+const DIALOGUE_STRINGS: Dictionary[String, String] = {
 	"sports": "Sports are cool.",
 	"fitness": "Fitness is cool.",
 	"health": "Health is cool.",
@@ -43,8 +43,8 @@ func display_topic(topic):
 	return DIALOGUE_STRINGS[topic]
 
 
-func get_next_topic(topic):
-	if topic == null:
+func get_next_topic(topic: String):
+	if topic == "":
 		return DIALOGUE_STRINGS.keys().pick_random()
 	else:
 		return CONVERSATION_NODES[topic].pick_random()

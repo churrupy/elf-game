@@ -2,14 +2,16 @@ extends GenericAction
 
 class_name SeduceAction
 
+var TARGET: NPC
+
 func can_do_action():
 	# also sets LOCATION
 	if TARGET.ACTION != null:
 		if !TARGET.ACTION.is_joinable(): return false
 		if !TARGET.ACTION.is_conversable(): return false
 	
-	var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
-	if free_tile == null:
+	var free_tile: Array = ENGINE.get_node("Map").get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+	if free_tile == []:
 		return false
 	LOCATION = free_tile
 	return true
@@ -50,13 +52,13 @@ func do_action():
 				"witnesses": [TARGET.ID],
 				"dialogue": dialogue_string
 			}
-			ENGINE.History.add_entry(OWNER, "converse", LOCATION, history_params)
+			ENGINE.History.add_event(OWNER.ID, "converse", LOCATION, [TARGET.ID], dialogue_string)
 			dialogue_string = TARGET.NAME + " accepted the proposition!"
 			history_params = {
 				"witnesses": [OWNER.ID],
 				"dialogue": dialogue_string
 			}
-			ENGINE.History.add_entry(TARGET, "converse", LOCATION, history_params)
+			ENGINE.History.add_event(TARGET, "converse", LOCATION, [OWNER.ID], dialogue_string)
 
 			# create new actions for the both of them
 			var chosen_location = locations.keys().pick_random()
@@ -79,11 +81,11 @@ func do_action():
 		"witnesses": [TARGET.ID],
 		"dialogue": dialogue_string
 	}
-	ENGINE.History.add_entry(OWNER, "converse", OWNER.LOCATION, history_params)
+	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
 	dialogue_string = TARGET.NAME + " was " + impression + " about being flirted with."
 	history_params = {
 		"witnesses": [OWNER.ID],
 		"dialogue": dialogue_string
 	}
-	ENGINE.History.add_entry(TARGET, "converse", TARGET.LOCATION, history_params)
+	ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
 	super.do_action()

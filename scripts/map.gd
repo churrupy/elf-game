@@ -107,17 +107,17 @@ func update():
 
 #region pathfinding
 
-func step_towards_location(end, start): #trying this out, pathfinding from target instead
+func step_towards_location(end: Array, start: Array) -> Array: #trying this out, pathfinding from target instead
 	#pathfinding
 	if start == end:
 		push_error("Trying to pathfind to current location")
 		return start # shouldn't happen but who knows
 
-	var queue = [start]
-	var visited = [start]
-	var parent_dict = {}
+	var queue: Array = [start]
+	var visited: Array = [start]
+	var parent_dict: Dictionary = {}
 
-	var current
+	var current: Array
 
 	while len(queue) > 0:
 		current = queue.pop_front()
@@ -130,17 +130,19 @@ func step_towards_location(end, start): #trying this out, pathfinding from targe
 			queue.append(neighbor)
 			parent_dict[neighbor] = current
 	push_error("pathfind fail")
+	return []
 
 
 
 
-func get_next_step(parent_dict, start, end):
-	var node = end
+func get_next_step(parent_dict: Dictionary, start: Array, end: Array) -> Array:
+	var node: Array = end
 	while true:
 		var parent = parent_dict[node] #not sure if i can use a list as a key in godot 
 		if parent == start:
 			return node
 		node = parent
+	return []
 
 
 
@@ -149,8 +151,8 @@ func get_next_step(parent_dict, start, end):
 
 #region utility
 
-func get_neighbors(location):
-	var neighbors = [
+func get_neighbors(location: Array) -> Array:
+	var neighbors: Array = [
 		#[location[0], location[1]],
 		# adjacent
 		[location[0] + 1, location[1]],
@@ -163,8 +165,8 @@ func get_neighbors(location):
 		[location[0] - 1, location[1] + 1],
 		[location[0] - 1, location[1] - 1]
 	]
-	var valid_neighbors = []
-	for n in neighbors:
+	var valid_neighbors: Array = []
+	for n: Array in neighbors:
 		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]:
 			continue
 		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]:
@@ -174,21 +176,21 @@ func get_neighbors(location):
 		
 	return valid_neighbors
 
-func get_closest_adjacent_tile(start_location, target_location):
+func get_closest_adjacent_tile(start_location: Array, target_location: Array) -> Array:
 	# gets tile adjacent to target that's closest to start location
-	var neighbors = get_neighbors(target_location)
+	var neighbors: Array = get_neighbors(target_location)
 	if start_location in neighbors:
 		return start_location
-	var free_neighbors = Utility.filter_reserved_tiles(neighbors)
+	var free_neighbors: Array = Utility.filter_reserved_tiles(neighbors)
 
 	if len(free_neighbors) == 0:
 		print("no free adjacent tiles found")
-		return null
+		return []
 	
-	var smallest_distance = 100
-	var closest_tile
-	for t in free_neighbors:
-		var distance = Utility.calc_distance(start_location, t)
+	var smallest_distance: float = 100
+	var closest_tile: Array
+	for t: Array in free_neighbors:
+		var distance: float = Utility.calc_distance(start_location, t)
 		if distance < smallest_distance:
 			smallest_distance = distance
 			closest_tile = t
@@ -206,7 +208,7 @@ func get_tile(location: Array):
 	if location[1] not in range(len(MAP[0])): return null
 	return MAP[location[0]][location[1]]
 
-func random_empty_tile():
+func random_empty_tile() -> Array:
 	while true:
 		var x = randi_range(0, Constants.MAP_SIZE[0]-1) 
 		var y = randi_range(0, Constants.MAP_SIZE[1]-1)
@@ -214,6 +216,7 @@ func random_empty_tile():
 		var tile_data = Constants.TILE_TEMPLATES[tile]
 		if tile_data["impassable"] == false:
 			return [x,y]
+	return []
 
 func find_action_locations(action):
 	var filtered_locations = []
@@ -237,11 +240,11 @@ func get_all_actions_on_map():
 			var tile = MAP[i][j]
 			var tile_data = Constants.TILE_TEMPLATES[tile]
 			for action in tile_data["actions"]:
-				var action_data = Constants.ACTION_TEMPLATES[action]
-				var action_class_id = action_data["class"]
-				var action_class = Constants.CLASS_TEMPLATES[action_class_id]
-				var new_action  = action_class.new(ENGINE, action)
-				new_action.TARGET = [i,j] # where the npc wants to pathfind to
+				var action_data: Dictionary = Constants.ACTION_TEMPLATES[action]
+				var action_class_id: String = action_data["class"]
+				var action_class: GDScript = Constants.CLASS_TEMPLATES[action_class_id]
+				var new_action: GenericAction  = action_class.new(ENGINE, action)
+				#new_action.TARGET = [i,j] # where the npc wants to pathfind to
 				new_action.LOCATION = [i,j] # where the npc ends up (if adjacent to target)
 				all_actions.append(new_action)
 	return all_actions
