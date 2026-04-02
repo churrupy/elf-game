@@ -58,6 +58,9 @@ func run():
 			# create new action for the both of them
 			# right now seduction TARGET is the anchor and the OWNER is the node, but i'll figure out how I want to arrange that later
 
+			print("CREATING ENCOUNTER")
+			print(loc, " ", closest_loc)
+
 			var tile: TILE = ENGINE.Map.get_tile(loc)
 			var new_action:ACTION = EncounterActionAnchor.new(ENGINE, TARGET, tile)
 			ENGINE.NpcManager.add_state(new_action)

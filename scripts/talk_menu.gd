@@ -16,7 +16,6 @@ func _ready() -> void:
 
 
 func update():
-	print("z index talk menu", z_index)
 	if MENU_NPC == null: 
 		return
 	var history: Array[HISTORY_EVENT] = ENGINE.History.filter_by_npc(MENU_NPC.ID).slice(-20, -1)

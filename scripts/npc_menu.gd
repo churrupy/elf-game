@@ -38,7 +38,8 @@ func update():
 	# get last five moves
 	var history = ENGINE.History.filter_by_doer(MENU_NPC.ID)
 	var history_list = ENGINE.History.history_to_string(history)
-	var last_five = history_list.slice(-10,-1)
+	var last_five = history_list.slice(-100,-1)
+	#var last_five = history_list.slice()
 	last_five.reverse()
 	display_string += last_five
 	

@@ -61,7 +61,6 @@ func _init(engine, room) -> void:
 	size = Constants.MAIN_FRAME_SIZE
 	position = Constants.MAIN_FRAME_POSITION
 	color = Color(.3, .3, .3)
-	z_index = -50
 	
 	var room_data: Dictionary = TILES_TEMPLATES[ROOM]
 	var special_tiles: Dictionary = room_data["special"]
@@ -107,7 +106,6 @@ func clear_tiles():
 			remove_child(child)
 
 func update() -> void:
-	print("z index map", z_index)
 	clear_tiles()
 	for tile: TILE in TILES:
 		#[var x: int, var y: int] = tile.LOCATION

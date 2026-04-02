@@ -5,7 +5,7 @@ class_name EncounterActionAnchor extends ACTION
 var POSE = "standing"
 var ORGASM_COUNT = 0
 
-func _init(engine, owner: NPC, target: Node) -> void:
+func _init(engine, owner: NPC, target: TILE) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "encounter"
@@ -25,7 +25,9 @@ func run() -> Array:
 
 	for npc_id:String in nodes:
 		var npc:NPC = Global.NPCS[npc_id]
-		var current_action:Array = npc.STATE_STACK.back().RECENT_ACTION
+		var recent_action: ACTION = npc.STATE_STACK.back()
+		#print(npc_id, recent_action)
+		var current_action:Array = recent_action.RECENT_ACTION
 		var dialogue_string: String = OWNER.NAME + "'s " + current_action[1] + " was used by " + npc.NAME + "'s " + current_action[0] + "."
 		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [npc_id], dialogue_string)
 		

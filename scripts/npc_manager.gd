@@ -9,7 +9,6 @@ var ID_COUNTER: int = 0
 
 func _init(engine) -> void:
 	ENGINE = engine
-	z_index = -40
 	for i: int in Constants.NUM_NPCS:
 		create_npc()
 	
@@ -87,7 +86,6 @@ func add_state(new_action: ACTION) -> void:
 
 func update() -> void:
 	# updates display, does not tick npcs
-	print("z index", z_index)
 	print("updating npc manager")
 	for child in get_children():
 		remove_child(child)
@@ -95,12 +93,9 @@ func update() -> void:
 	for npc: NPC in NPCS:
 		var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
 		if x_index < 0:
-			print(Global.X_RANGE, npc.LOCATION[0])
-			print("continuing")
 			continue
 		var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(npc.LOCATION[1]))
 		if y_index < 0:
-			print("continuing")
 			continue
 
 		add_child(npc)
@@ -149,15 +144,11 @@ func get_all_npc_actions(checked_npc: NPC) -> Array[ACTION]:
 func is_available(npc: NPC) -> bool:
 	# returns whether the npc is available for interactions
 	var current_action: ACTION = npc.STATE_STACK.back()
-	var nonconcurrent_actions: Array[RefCounted] = [
-		#EnergyAction,
-		#HungerAction, # not sure if i want this interruptable or not
-		MoveAction, # i'll update this eventually
-		BladderAction,
-		EncounterActionAnchor,
-		EncounterActionNode,
+	var nonconcurrent_actions: Array[String] = [
+		"move",
+		"encounter"
 	]
-	if current_action in nonconcurrent_actions: #have no idea if this will work
+	if current_action.ID in nonconcurrent_actions: #have no idea if this will work
 		return false
 	return true
 

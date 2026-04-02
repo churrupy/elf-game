@@ -21,6 +21,9 @@ func _init(type: String, location: Vector2) -> void:
 	texture = load("res://models/" + tile_data["png"])
 
 
+func _to_string():
+	return "Tile: " + str(LOCATION)
+
 func _process(delta: float) -> void:
 	pass
 
