@@ -6,6 +6,7 @@
 
 [node name="TalkMenu" type="Label"]
 z_index = 50
+y_sort_enabled = true
 offset_right = 600.0
 offset_bottom = 660.0
 script = ExtResource("1_etbpw")

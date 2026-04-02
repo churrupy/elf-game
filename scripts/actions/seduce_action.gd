@@ -7,17 +7,7 @@ func _init(engine, owner: NPC, target: NPC) -> void:
 	super._init(engine, owner, target)
 
 func can_do_action() -> bool:
-	# also sets LOCATION
-	return true
-	if TARGET.ACTION != null:
-		if !TARGET.ACTION.is_joinable(): return false
-		if !TARGET.ACTION.is_conversable(): return false
-	
-	var free_tile: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
-	if free_tile == Vector2.INF:
-		return false
-	LOCATION = free_tile
-	return true
+	return ENGINE.NpcManager.is_available(TARGET)
 
 func score() -> void:
 	

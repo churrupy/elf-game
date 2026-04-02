@@ -16,7 +16,7 @@ func _init(engine, owner: NPC, target: Node) -> void:
 func run() -> Array:
 	#wtf does the anchor do here lol
 	# get attached nodes
-	var pose_options: Array[String] = ENGINE.Map.get_available_poses_for_tile(LOCATION)
+	var pose_options: Array = ENGINE.Map.get_available_poses_for_tile(LOCATION)
 	POSE = pose_options.pick_random()
 
 	var nodes: Array[String] = get_nodes()

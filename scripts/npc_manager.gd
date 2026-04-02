@@ -9,8 +9,10 @@ var ID_COUNTER: int = 0
 
 func _init(engine) -> void:
 	ENGINE = engine
+	z_index = -40
 	for i: int in Constants.NUM_NPCS:
 		create_npc()
+	
 	
 
 func create_npc() -> void:
@@ -37,6 +39,8 @@ func tick() -> void:
 		print("ticking ", npc.NAME)
 		var current_action: ACTION = npc.STATE_STACK.back()
 
+		print(current_action)
+
 		var result: Array = current_action.tick()
 
 		print(result)
@@ -48,7 +52,7 @@ func tick() -> void:
 			npc.STATE_STACK.append(new_action)
 		elif result[0] == "replace":
 			current_action.exit_state()
-			npc.STATE_STCK.pop_back()
+			npc.STATE_STACK.pop_back()
 			var new_action:ACTION = result[1]
 			new_action.enter_state()
 			npc.STATE_STACK.append(new_action)
@@ -83,18 +87,17 @@ func add_state(new_action: ACTION) -> void:
 
 func update() -> void:
 	# updates display, does not tick npcs
+	print("z index", z_index)
 	print("updating npc manager")
 	for child in get_children():
 		remove_child(child)
 	
 	for npc: NPC in NPCS:
-		var x: int = int(npc.LOCATION[0])
 		var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
 		if x_index < 0:
 			print(Global.X_RANGE, npc.LOCATION[0])
 			print("continuing")
 			continue
-		var y: int = int(npc.LOCATION[1])
 		var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(npc.LOCATION[1]))
 		if y_index < 0:
 			print("continuing")
@@ -149,6 +152,7 @@ func is_available(npc: NPC) -> bool:
 	var nonconcurrent_actions: Array[RefCounted] = [
 		#EnergyAction,
 		#HungerAction, # not sure if i want this interruptable or not
+		MoveAction, # i'll update this eventually
 		BladderAction,
 		EncounterActionAnchor,
 		EncounterActionNode,
@@ -169,8 +173,8 @@ func is_reserved(location: Vector2) -> bool:
 func get_nearby_npcs(location: Vector2) -> Array[String]:
 	var nearby_npcs: Array[String]
 	for npc: NPC in NPCS:
-		if npc.LOCATION[0] not in range(location[0]-1, location[0]+1): continue
-		if npc.LOCATION[1] not in range(location[1]-1, location[1]+1): continue
+		if int(npc.LOCATION[0]) not in range(location[0]-1, location[0]+2): continue
+		if int(npc.LOCATION[1]) not in range(location[1]-1, location[1]+2): continue
 		nearby_npcs.append(npc.ID)
 	return nearby_npcs
 

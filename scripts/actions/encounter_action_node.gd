@@ -53,11 +53,11 @@ func run() -> Array:
 
 	# pick an action
 	# display it
-	var pose_options: Array[String] = ENGINE.Map.get_available_poses_for_tile(LOCATION)
+	var pose_options: Array = ENGINE.Map.get_available_poses_for_tile(LOCATION)
 	POSE = pose_options.pick_random()
 
 
-	var pose_data: Array = [POSE, ORIENTATION, TARGET.ACTION.POSE]
+	var pose_data: Array = [POSE, ORIENTATION, target_action.POSE]
 	RECENT_ACTION = determine_action(pose_data).pick_random()
 	var dialogue_string = OWNER.NAME + " used their " + RECENT_ACTION[0] + " on " + TARGET.NAME + "'s " + RECENT_ACTION[1] + "."
 	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
@@ -95,10 +95,10 @@ func determine_action(pose_data:Array) -> Array:
 	var valid_actions: Array
 	for action: Array in action_list:
 		var owner_gender: String = OWNER.GENDER
-		var owner_body: Array[String] = GENDER_TEMPLATES[owner_gender]
+		var owner_body: Array = GENDER_TEMPLATES[owner_gender]
 		if action[0] not in owner_body: continue
 		var target_gender: String = TARGET.GENDER
-		var target_body: Array[String] = GENDER_TEMPLATES[target_gender]
+		var target_body: Array = GENDER_TEMPLATES[target_gender]
 		if action[1] not in target_body: continue
 		valid_actions.append(action)
 	return valid_actions

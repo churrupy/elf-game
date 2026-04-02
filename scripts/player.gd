@@ -5,7 +5,7 @@ class_name Player
 var ID:String = "player"
 
 var LOCATION: Vector2
-var ACTION: IdleAction
+var CURRENT_ACTION: IdleAction
 var NEEDS: Dictionary
 var COLOR: Color = Color(1,1,1)
 

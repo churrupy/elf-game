@@ -16,8 +16,10 @@ var NpcManager: NPC_MANAGER = NPC_MANAGER.new(self)
 func _ready() -> void:
 	# set engine in children
 	add_child(Map)
+	move_child(Map, 0)
 	add_child(NpcManager)
 	NpcManager.show()
+	#Map.hide()
 	for child in get_children():
 		if "ENGINE" in child:
 			child.ENGINE = self
@@ -96,8 +98,8 @@ func _process(_delta: float) -> void:
 
 func _on_move_without_tick() -> void:
 	Map.tick()
-	set_current_npcs()
-	#update_current_npcs()
+	set_nearby_npcs()
+	#update_nearby_npcs()
 
 
 
@@ -110,9 +112,8 @@ func tick() -> void:
 	Global.TICKS += 1
 	print("Ticks: ", Global.TICKS)
 	print("Focused on " + Global.FOCUS_TARGET + " at " + str(Global.FOCUS_LOCATION))
-	#tick_npcs()
-	set_current_npcs()
 	NpcManager.tick()
+	set_nearby_npcs()
 	update_display()
 
 '''
@@ -218,9 +219,10 @@ func display_npcs():
 		npc.show()
 
 
-func set_current_npcs() -> void:
+func set_nearby_npcs() -> void:
 	Global.NEARBY_NPCS = []
-	Global.NEARBY_NPCS = get_npcs_in_range($Player.LOCATION)
+	Global.NEARBY_NPCS = NpcManager.get_nearby_npcs($Player.LOCATION)
+	#Global.NEARBY_NPCS = get_npcs_in_range($Player.LOCATION)
 	
 #endregion
 
@@ -231,7 +233,7 @@ func set_current_npcs() -> void:
 
 
 
-
+'''
 
 func get_npcs_in_range(location: Vector2) -> Array[String]:
 	# gets all npcs with the same target who are nearby
@@ -240,7 +242,7 @@ func get_npcs_in_range(location: Vector2) -> Array[String]:
 	for v: Vector2 in target_neighbors:
 		close_npcs += Utility.get_npc_from_location(v)
 	return close_npcs
-	
+'''
 
 
 #endregion

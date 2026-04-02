@@ -39,19 +39,6 @@ func score() -> void:
 
 func can_do_action() -> bool:
 	return true
-	# target is a location
-	var is_reserved: bool = Utility.is_location_reserved(LOCATION)
-	var is_impassable: bool = ENGINE.Map.is_impassable(LOCATION)
-
-	if is_reserved or is_impassable:
-		if !can_do_off_tile(): return false
-		var free_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, LOCATION)
-		if free_location == Vector2.INF:
-			return false
-		LOCATION = free_location
-		return true
-	else:
-		return true
 
 
 func score_old() -> void:
@@ -66,8 +53,6 @@ func score_old() -> void:
 
 
 	# score based on distance
-	var total_x
-	var total_y
 	SCORE -= OWNER.LOCATION.distance_to(LOCATION)
 	'''
 	total_x = abs(OWNER.LOCATION[0]- LOCATION[0])
@@ -78,7 +63,7 @@ func score_old() -> void:
 
 
 func step_towards_location() -> void:
-	var old_location: Vector2 = OWNER.LOCATION
+	#var old_location: Vector2 = OWNER.LOCATION
 	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	if next_step == Vector2.INF:
 		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
@@ -105,6 +90,8 @@ func tick() -> Array:
 		var tile: TILE = ENGINE.Map.get_tile(LOCATION)
 		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, ID)
 		return ["add", new_action]
+	if !can_do_action():
+		return ["end", null]
 	# recheck can-do-action, so we don't interrupt other people's actions
 	var result: Array = run()
 	OWNER.decay_needs()
@@ -112,7 +99,7 @@ func tick() -> Array:
 
 func run() -> Array:
 	# extends
-	return []
+	return ["running", null]
 	
 
 func update_moving_location():
@@ -155,7 +142,7 @@ func chitchat() -> void:
 		# don't talk to self
 		return
 
-	#witnesses.erase(OWNER.ID)
+	witnesses.erase(OWNER.ID)
 
 	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
 	OWNER.RECENT_TOPIC = new_topic
@@ -185,7 +172,7 @@ func chitchat() -> void:
 
 
 func _to_string():
-	return ID + " " + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")" + "Score: " + str(SCORE)
+	return ID + " to " + str(TARGET) + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")"
 
 func refresh_needs(need:String) -> void:
 	var refresh_rate: float = Constants.NEED_REFRESH_RATES[need]
@@ -200,7 +187,7 @@ func get_nodes() -> Array[String]:
 		var npc: NPC = Global.NPCS[npc_id]
 		var current_action: ACTION = npc.STATE_STACK.back()
 		if current_action.TARGET == OWNER:
-			nodes.append(npc)
+			nodes.append(npc_id)
 	return nodes
 
 
