@@ -1,63 +1,65 @@
 extends RefCounted
 
-class_name GenericAction
+class_name ACTION
 
 var ENGINE
 var ID: String
 var OWNER: NPC
-#var TARGET: Array
-var LOCATION: Array # this tile gets reserved by owner
+var TARGET: Node # maybe Array[Container]? to accomodate furniture/items
+var LOCATION: Vector2 # this tile gets reserved by owner
 var COUNTDOWN: int
 var SCORE: int = 0
 var STATUS: String
 
 
-func _init(engine, action_id):
+func _init(engine, owner: NPC, target: Node) -> void:
 	ENGINE = engine
-	#OWNER = owner
-	ID = action_id
-	var action_data = Constants.ACTION_TEMPLATES[ID]
+	OWNER = owner
+	TARGET = target
+	var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
 	COUNTDOWN = action_data["duration"]
+	score()
+
+func enter_state():
+	pass
+
+func exit_state():
+	pass
+
+func suspend_state():
+	pass
+
+func resume_state():
+	pass
 
 
-func can_do_action():
-	'''
-	if TARGET is NPC:
-		if TARGET.ACTION != null:
-			var encounter_flag = false
-			if TARGET.ACTION.ID == "encounter":
-				encounter_flag = true
-			if !TARGET.ACTION.is_joinable(): return false
-			if !TARGET.ACTION.is_conversable(): return false
-			if encounter_flag:
-				push_error("ENCOUNTER PASSED CAN DO ACTION")
+func score() -> void:
+	pass
 
-		var free_tile = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
-		if free_tile == null:
-			return false
-		LOCATION = free_tile
-		return true
-	else:
-	'''
+
+func can_do_action() -> bool:
+	return true
 	# target is a location
-	var is_reserved = Utility.is_location_reserved(LOCATION)
-	var is_travelable = ENGINE.get_node("Map").is_travelable(LOCATION)
+	var is_reserved: bool = Utility.is_location_reserved(LOCATION)
+	var is_impassable: bool = ENGINE.Map.is_impassable(LOCATION)
 
-	if is_reserved or !is_travelable:
+	if is_reserved or is_impassable:
 		if !can_do_off_tile(): return false
-		var free_tile = ENGINE.get_node("Map").get_closest_adjacent_tile(OWNER.LOCATION, LOCATION)
-		if free_tile == null:
+		var free_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, LOCATION)
+		if free_location == Vector2.INF:
 			return false
-		LOCATION = free_tile
+		LOCATION = free_location
 		return true
 	else:
 		return true
 
 
-func score():
+func score_old() -> void:
+	pass
+	#extends
 	# score based on need
-	var action_data = Constants.ACTION_TEMPLATES[ID]
-	var need = action_data["need"]
+	var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
+	var need: String = action_data["need"]
 	SCORE += 100-OWNER.NEEDS[need]
 	if need in ["hunger", "energy"]:
 		SCORE += 10 # bonus for urgent needs
@@ -66,17 +68,19 @@ func score():
 	# score based on distance
 	var total_x
 	var total_y
+	SCORE -= OWNER.LOCATION.distance_to(LOCATION)
+	'''
 	total_x = abs(OWNER.LOCATION[0]- LOCATION[0])
 	total_y = abs(OWNER.LOCATION[1] - LOCATION[1])
 	SCORE -= (total_x + total_y)
+	'''
 
 
 
-
-func step_towards_location():
-	var old_location = OWNER.LOCATION.duplicate()
-	var next_step = ENGINE.get_node("Map").step_towards_location(OWNER.LOCATION, LOCATION)
-	if next_step == null:
+func step_towards_location() -> void:
+	var old_location: Vector2 = OWNER.LOCATION
+	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
+	if next_step == Vector2.INF:
 		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
 		print("teleporting...")
 		OWNER.LOCATION = LOCATION
@@ -95,21 +99,26 @@ func recheck_can_do_action():
 	return true
 
 
-func tick():
-	# target is a travelable tile (just a location array)
-	#if !recheck_can_do_action():
-	#	return
-	if OWNER.LOCATION == LOCATION:
-		do_action()
-	else:
-		step_towards_location()
+func tick() -> Array:
+	if OWNER.LOCATION != LOCATION:
+		#var ACTION_CLASS: GDScript = Constants.ACTION_ID["MoveAction"]
+		var tile: TILE = ENGINE.Map.get_tile(LOCATION)
+		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile)
+		return ["add", new_action]
+	# recheck can-do-action, so we don't interrupt other people's actions
+	var result: Array = run()
 	OWNER.decay_needs()
+	return result
+
+func run() -> Array:
+	# extends
+	return []
 	
 
 func update_moving_location():
-	var neighbors = ENGINE.get_node("Map").get_neighbors(LOCATION)
+	var neighbors = ENGINE.Map.get_neighbors(LOCATION)
 	if LOCATION not in neighbors:
-		var free_tile = ENGINE.get_node("Map").get_closest_adjacent_tile(OWNER.LOCATION, LOCATION)
+		var free_tile = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, LOCATION)
 		if free_tile == null:
 			STATUS = "finish"
 		else:
@@ -124,16 +133,16 @@ func do_action():
 	ENGINE.History.add_event(OWNER.ID, ID, LOCATION)
 
 	if is_conversable():
-		converse()
+		chitchat()
 
 	if COUNTDOWN < 0:
 		STATUS = "finish"
 
 
-func converse():
-	var center_of_conversation = LOCATION
+func chitchat() -> void:
+	var center_of_conversation: Vector2 = LOCATION
 
-	var witnesses = ENGINE.get_npcs_in_range(center_of_conversation)
+	var witnesses: Array[String] = ENGINE.get_npcs_in_range(center_of_conversation)
 
 	if len(witnesses) < 2:
 		# owner is also in witness list
@@ -144,12 +153,12 @@ func converse():
 		# don't talk to self
 		return
 
-	witnesses.erase(OWNER)
+	witnesses.erase(OWNER.ID)
 
-	var new_topic = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
+	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
 	OWNER.RECENT_TOPIC = new_topic
-	var opinion = OWNER.OPINIONS[new_topic]
-	var op_str = OWNER.NAME + ": " + '"' + new_topic.capitalize() + " are "
+	var opinion: int = OWNER.OPINIONS[new_topic]
+	var op_str: String = OWNER.NAME + ": " + '"' + new_topic.capitalize() + " are "
 	if opinion >= 3:
 		op_str+= "great!"
 	elif opinion >= 0:
@@ -159,31 +168,39 @@ func converse():
 	else:
 		op_str += "terrible!"
 	op_str += '"'
-	var history_params = {
-		"dialogue": op_str,
-		"witnesses": witnesses
-	}
 	ENGINE.History.add_event(OWNER.ID, "converse", center_of_conversation, witnesses, op_str)
 
-	for g in witnesses:
-		if g == OWNER.ID:
+	refresh_needs("social")
+
+	for npc_id: String in witnesses:
+		if npc_id == OWNER.ID:
 			continue
-		var g_npc = Global.NPCS[g]
-		var impression = g_npc.hear_topic(OWNER.ID, new_topic, opinion)
-		var _str = g_npc.NAME + " was " + impression + " with that statement."
-		history_params = {
-			"dialogue": _str,
-			"witnesses": [OWNER.ID]
-		}
-		ENGINE.History.add_event(g, "converse", center_of_conversation, [OWNER.ID], _str)
+		var npc = Global.NPCS[npc_id]
+		var impression: String = npc.hear_topic(OWNER.ID, new_topic, opinion)
+		var _str: String = npc.NAME + " was " + impression + " with that statement."
+		ENGINE.History.add_event(npc_id, "converse", center_of_conversation, [OWNER.ID], _str)
 
 
 
 func _to_string():
-	return ID + " " + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")"
+	return ID + " " + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")" + "Score: " + str(SCORE)
+
+func refresh_needs(need:String) -> void:
+	var refresh_rate: float = Constants.NEED_REFRESH_RATES[need]
+	OWNER.NEEDS[need] += refresh_rate
 
 
 #region utility
+
+func get_nodes() -> Array[String]:
+	var nodes: Array[String]
+	for npc_id: String in Global.NPCS.keys():
+		var npc: NPC = Global.NPCS[npc_id]
+		var current_action: ACTION = npc.STATE_STACK.back()
+		if current_action.TARGET == OWNER:
+			nodes.append(npc)
+	return nodes
+
 
 func get_opinion():
 	# dummy function
@@ -196,22 +213,22 @@ func get_opinion():
 		return 0
 	'''
 
-func get_attraction():
+func get_attraction() -> int:
 	#var other_style = TARGET.STYLE
 	#return OWNER.OPINIONS[other_style]
 	return 0
 
-func is_joinable():
+func is_joinable() -> bool:
 	var action_data = Constants.ACTION_TEMPLATES[ID]
 	return action_data["joinable"]
 
-func is_conversable():
+func is_conversable() -> bool:
 	var action_data = Constants.ACTION_TEMPLATES[ID]
 	if "conversable" in action_data: return false
 	return true
 
-func can_do_off_tile():
-	var action_data = Constants.ACTION_TEMPLATES[ID]
+func can_do_off_tile() -> bool:
+	var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
 	return action_data["do_off_tile"]
 
 

@@ -1,61 +1,53 @@
-extends GenericAction
-# TARGET is always an object with .LOCATION
-class_name SocialAction
+class_name SocialAction extends ACTION
 
-var TARGET: NPC
+func _init(engine, owner: NPC, target: NPC) -> void:
+	# i hope this works lol
+	# no scoring needed for this
+	ID = "converse"
+	super._init(engine, owner, target)
 
 func can_do_action():
+	return true
 	# also sets LOCATION
 	if TARGET.ACTION != null:
 		if !TARGET.ACTION.is_joinable(): return false
 		if !TARGET.ACTION.is_conversable(): return false
 	
-	var free_tile = ENGINE.get_node("Map").get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+	var free_tile = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
 	if free_tile == null:
 		return false
 	LOCATION = free_tile
 	return true
 
-func score():
+func score() -> void:
 	# score based on need
-	var action_data = Constants.ACTION_TEMPLATES[ID]
-	var need = action_data["need"]
-	SCORE += 100-OWNER.NEEDS[need]
-	if need in ["hunger", "energy"]:
-		SCORE += 10 # bonus for urgent needs
+	var need: int = OWNER.NEEDS["social"]
+	SCORE += 100 - need
 
 	# score based on preference
 	if OWNER == TARGET:
 		SCORE = -100
 		return
 	SCORE += get_opinion()
+
+	var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
+	if closest_location == Vector2.INF:
+		SCORE = -100
+		return
+	LOCATION = closest_location
+	'''
 	if ID == "flirt":
 		SCORE += get_attraction()
+	'''
 
 	# distance isn't taken into account just yet
 	# eventually npcs will prioritize people in the same room/building and not running off across the map to socialize
 
-func tick():
-	if !recheck_can_do_action():
-		return
-	update_moving_location()
-	super.tick()
 
-func do_action():
+func run():
+	chitchat() # refresh needs already covered in this
+	# have some kind of "if attracted to, then flirt" here
 
-	var dialogue_string = OWNER.NAME + " flirted with " + TARGET.NAME
-	var history_params = {
-		"witnesses": [TARGET.ID],
-		"dialogue": dialogue_string
-	}
-	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
-	var impression = TARGET.hear_flirt(OWNER.ID)
-	dialogue_string = TARGET.NAME + " was " + impression + " about being flirted with."
-	history_params = {
-		"witnesses": [OWNER.ID],
-		"dialogue": dialogue_string
-	}
-	ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
-
-
-	super.do_action() # does need refresh and countdown
+	COUNTDOWN -= 1
+	if COUNTDOWN < 0:
+		return ["end", null]

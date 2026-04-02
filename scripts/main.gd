@@ -3,16 +3,21 @@ extends Node
 
 #var X_RANGE
 #var Y_RANGE
-var History = HISTORY_CLASS.new()
+var Map: MAP = MAP.new(self, "club")
+var History: HISTORY_CLASS = HISTORY_CLASS.new(self)
+var NpcManager: NPC_MANAGER = NPC_MANAGER.new(self)
 
 
 
-var ID_COUNTER = 0
+
 
 #region init
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# set engine in children
+	add_child(Map)
+	add_child(NpcManager)
+	NpcManager.show()
 	for child in get_children():
 		if "ENGINE" in child:
 			child.ENGINE = self
@@ -24,16 +29,20 @@ func _ready() -> void:
 	SignalBus.close_talk_menu.connect(close_talk_menu)
 	SignalBus.toggle_talk_menu.connect(toggle_talk_menu)
 
+	var passable_locations: Array[Vector2] = Map.filter_passable_locations()
+	#var filtered_tiles: Array[TILE] = Utility.filter_reserved_tiles(passable_tiles)
+	$Player.LOCATION = passable_locations.pick_random()
+	update_focus_target("player")
+
 	
-	Global.FOCUS_TARGET = "player"
-	Global.FOCUS_LOCATION = $Player.LOCATION.duplicate()
-	
-	for i in Constants.NUM_NPCS:
-		create_npc()
+	#Global.FOCUS_TARGET = "player"
+	#Global.FOCUS_LOCATION = $Player.LOCATION
+
 	$NpcMenu.hide()
 	$TalkMenu.hide()
 	tick()
 
+'''
 func create_npc():
 	var npc = NPC.new()
 	var tile = $Map.random_empty_tile()
@@ -44,7 +53,7 @@ func create_npc():
 	Global.NPCS[npc.ID] = npc
 	print(npc.LOCATION, typeof(npc.LOCATION))
 	History.add_event(npc.ID, "created", npc.LOCATION)
-
+'''
 #endregion
 
 
@@ -54,25 +63,27 @@ func _process(_delta: float) -> void:
 		tick()
 		return
 
-	var delta_direction = [0,0]
+	var delta_direction: Vector2 = Vector2.ZERO
 	if Input.is_action_just_pressed("move_right"):
 		print("right")
-		delta_direction = [1,0]
+		delta_direction = Vector2.RIGHT
 	if Input.is_action_just_pressed("move_left"):
 		print("left")
-		delta_direction = [-1,0]
+		delta_direction = Vector2.LEFT
 	if Input.is_action_just_pressed("move_up"):
 		print("up")
-		delta_direction = [0,-1]
+		delta_direction = Vector2.UP
 	if Input.is_action_just_pressed("move_down"):
 		print("down")
-		delta_direction = [0,1]
+		delta_direction = Vector2.DOWN
 
-	if delta_direction == [0,0]:
+	if delta_direction == Vector2.ZERO:
 		return
 
-	var new_location = [$Player.LOCATION[0] + delta_direction[0], $Player.LOCATION[1] + delta_direction[1]]
-	if $Map.is_travelable(new_location):
+	var new_location: Vector2 = $Player.LOCATION + delta_direction
+	#print("new location", new_location)
+	#var new_location = [$Player.LOCATION[0] + delta_direction[0], $Player.LOCATION[1] + delta_direction[1]]
+	if !Map.is_impassable(new_location):
 		$Player.LOCATION = new_location
 		$NpcMenu.unwatch_npc()
 		tick()
@@ -84,8 +95,8 @@ func _process(_delta: float) -> void:
 
 
 func _on_move_without_tick() -> void:
-	$Map.tick()
-	get_current_npcs()
+	Map.tick()
+	set_current_npcs()
 	#update_current_npcs()
 
 
@@ -99,10 +110,12 @@ func tick() -> void:
 	Global.TICKS += 1
 	print("Ticks: ", Global.TICKS)
 	print("Focused on " + Global.FOCUS_TARGET + " at " + str(Global.FOCUS_LOCATION))
-	tick_npcs()
-	get_current_npcs()
+	#tick_npcs()
+	set_current_npcs()
+	NpcManager.tick()
 	update_display()
 
+'''
 func tick_npcs():
 	for npc_id in Global.NPCS.keys():
 		if npc_id == "player": continue
@@ -117,6 +130,8 @@ func tick_npcs():
 			npc.ACTION.tick()
 	print("")
 
+'''
+
 #endregion
 
 
@@ -126,9 +141,10 @@ func update_display():
 	print("updating map center")
 	update_map_center()
 	print("displaying npcs")
-	display_npcs()
+	#display_npcs()
+	NpcManager.update()
 	print("displaying map")
-	$Map.update()
+	Map.update()
 	print("displaying defaultmenu")
 	$DefaultMenu.update()
 	if $NpcMenu.visible:
@@ -139,17 +155,15 @@ func update_display():
 		$TalkMenu.update()
 
 
-func update_focus_target(new_target):
+func update_focus_target(new_target: String) -> void:
 	print("updating focus target")
-	if new_target is not String:
-		new_target = new_target.ID
 	Global.FOCUS_TARGET = new_target
 	var target_object
 	if new_target == "player":
 		target_object = $Player
 	else:
 		target_object = Global.NPCS[new_target]
-	target_object.position = Global.MAP_CENTER
+	target_object.position = Global.MAP_CENTER + Vector2(25,25)
 	update_display()
 
 
@@ -159,7 +173,7 @@ func update_map_center():
 		focus_npc = $Player
 	else:
 		focus_npc = Global.NPCS[Global.FOCUS_TARGET]
-	Global.FOCUS_LOCATION = focus_npc.LOCATION.duplicate()
+	Global.FOCUS_LOCATION = focus_npc.LOCATION
 	Global.X_RANGE = [Global.FOCUS_LOCATION[0] - 7, Global.FOCUS_LOCATION[0] + 8]
 	Global.Y_RANGE = [Global.FOCUS_LOCATION[1] - 5, Global.FOCUS_LOCATION[1] + 6]
 
@@ -201,55 +215,30 @@ func display_npcs():
 		
 		npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0] + (Constants.TILE_SIZE/2)
 		npc.global_position[1] = y_index * Constants.TILE_SIZE + Constants.TILE_SIZE/2
-		#npc.show()
+		npc.show()
 
 
-func get_current_npcs():
+func set_current_npcs() -> void:
 	Global.NEARBY_NPCS = []
-	var adjacent_locations = $Map.get_neighbors(Global.FOCUS_LOCATION)
-	for l in adjacent_locations:
-		Global.NEARBY_NPCS += Utility.get_npc_from_location(l)
+	Global.NEARBY_NPCS = get_npcs_in_range($Player.LOCATION)
+	
 #endregion
-
-func get_npc_list():
-	var npc_list = []
-	for npc_id in Global.NPCS.keys():
-		var npc = Global.NPCS[npc_id]
-		npc_list.append(npc)
-	return npc_list
-
 
 
 #region npc actions
 
 
-func get_all_npc_actions(checked_npc):
-	var npc_actions = ["converse", "flirt", "seduce"]
-	#var npc_actions = ["seduce"]
-	var all_actions = []
-	for npc_id in Global.NPCS.keys():
-		if npc_id == checked_npc.ID: continue
-		var npc = Global.NPCS[npc_id]
-		for npc_a in npc_actions:
-			var action_data = Constants.ACTION_TEMPLATES[npc_a]
-			var action_class_id= action_data["class"]
-			var action_class = Constants.CLASS_TEMPLATES[action_class_id]
-			var new_action = action_class.new(self, npc_a)
-			#var new_action = action_data["type"].new(self, npc_a)
-			new_action.TARGET = npc
-			new_action.LOCATION = npc.LOCATION
-			all_actions.append(new_action)
-	return all_actions
 
 
 
 
-func get_npcs_in_range(location):
+
+func get_npcs_in_range(location: Vector2) -> Array[String]:
 	# gets all npcs with the same target who are nearby
-	var close_npcs = []
-	var target_neighbors = $Map.get_neighbors(location)
-	for n in target_neighbors:
-		close_npcs += Utility.get_npc_from_location(n)
+	var close_npcs: Array[String]
+	var target_neighbors: Array[Vector2] = Map.get_neighbors(location)
+	for v: Vector2 in target_neighbors:
+		close_npcs += Utility.get_npc_from_location(v)
 	return close_npcs
 	
 
@@ -258,9 +247,9 @@ func get_npcs_in_range(location):
 
 
 #region npc ai
-
+'''
 func determine_action(npc):
-	var all_actions = $Map.get_all_actions_on_map()
+	var all_actions = Map.get_all_actions_on_map()
 	all_actions += get_all_npc_actions(npc)
 	#var all_actions = get_all_npc_actions(npc)
 	for action in all_actions:
@@ -272,7 +261,7 @@ func determine_action(npc):
 		if action.can_do_action():
 			return action
 	push_error("action not found for", npc.NAME)
-
+'''
 
 
 #endregion
@@ -321,7 +310,7 @@ func match_tile_to_closest_adjacent(tile_list, npc_location):
 	# returns {target_tile: closest_neighbor}
 	var filtered_tiles = {}
 	for tile in tile_list:
-		var tile_c = $Map.get_closest_adjacent_tile(npc_location, tile)
+		var tile_c = Map.get_closest_adjacent_location(npc_location, tile)
 		if tile_c == null: continue
 		filtered_tiles[tile] = tile_c
 	return filtered_tiles

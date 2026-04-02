@@ -2,7 +2,19 @@ extends Container
 
 class_name NPC
 
+#region constants
+# i'll change this eventually
+# yeet you into an xml file
+var STYLES: Array = ["goth", "punk", "prep", "country", "athletic", "queer"]
 
+var NAMES: Dictionary = {
+	"male": ["Gerald", "Harry", "Irving", "Jackson", "Kyle", "Leon", "Michael", "Christopher", "Matthew", "Joshua", "David", "James", "Daniel", "Robert", "John", "Joseph", "Andrew", "Justin", "Ryan", "Brandon", "Jason", "William", "Jonathan", "Brian", "Kevin", "Eric", "Nicholas", "Timothy", "Adam", "Anthony", "Thomas", "Steven", "Benjamin", "Mark", "Scott", "Paul"],
+	"female": ["Agatha", "Bridget", "Cassidy", "Daniella", "Eve", "Jennifer", "Jessica", "Amanda", "Sarah", "Ashley", "Stephanie", "Emily", "Nicole", "Elizabeth", "Heather", "Melissa", "Michelle", "Kimberly", "Amy", "Angela", "Tiffany", "Rebecca", "Rachel", "Laura", "Courtney", "Amber", "Christina", "Samantha", "Hannah", "Erin", "Katherine", "Megan", "Danielle", "Brittany", "Lauren"]
+}
+
+#endregion constants
+
+#region data
 var NAME: String
 var ID: String
 
@@ -12,9 +24,9 @@ var EYE_COLOR: Color
 
 var PORTRAIT: Dictionary = {}
 
-var LOCATION: Array = [0,0]
+var LOCATION: Vector2
 var GENDER: String
-var ACTION: GenericAction
+#var ACTION: GenericAction
 var RECENT_TOPIC: String
 var STYLE: String
 var OPINIONS: Dictionary = {}
@@ -29,19 +41,24 @@ var NEEDS: Dictionary = {
 	"arousal": 0.0
 }
 
+#endregion
 
 
+#region sprite
 var SPRITE
 var GLOW_SPRITE
 var BUTTON: TextureButton
 var GLOW_BUTTON
 
-var STYLES: Array = ["goth", "punk", "prep", "country", "athletic", "queer"]
+#endregion sprite
 
-var NAMES: Dictionary = {
-	"male": ["Gerald", "Harry", "Irving", "Jackson", "Kyle", "Leon", "Michael", "Christopher", "Matthew", "Joshua", "David", "James", "Daniel", "Robert", "John", "Joseph", "Andrew", "Justin", "Ryan", "Brandon", "Jason", "William", "Jonathan", "Brian", "Kevin", "Eric", "Nicholas", "Timothy", "Adam", "Anthony", "Thomas", "Steven", "Benjamin", "Mark", "Scott", "Paul"],
-	"female": ["Agatha", "Bridget", "Cassidy", "Daniella", "Eve", "Jennifer", "Jessica", "Amanda", "Sarah", "Ashley", "Stephanie", "Emily", "Nicole", "Elizabeth", "Heather", "Melissa", "Michelle", "Kimberly", "Amy", "Angela", "Tiffany", "Rebecca", "Rachel", "Laura", "Courtney", "Amber", "Christina", "Samantha", "Hannah", "Erin", "Katherine", "Megan", "Danielle", "Brittany", "Lauren"]
-}
+#region actions
+
+var STATE_STACK: Array[ACTION] = []
+
+#endregion actions
+
+
 
 #region initialize
 func initialize(ID_COUNTER):
@@ -99,6 +116,7 @@ func initialize(ID_COUNTER):
 	BUTTON.pressed.connect(sprite_clicked)
 	
 	
+	
 #endregion
 	
 #region tick
@@ -128,15 +146,15 @@ func update_relationship(other_npc_id, change):
 		RELATIONSHIPS[other_npc_id] = 0
 	RELATIONSHIPS[other_npc_id] += change
 
-func hear_topic(speaker_id, topic, opinion):
+func hear_topic(speaker_id: String, topic: String, opinion: int) -> String:
 	if speaker_id == ID:
-		return
+		return ""
 	if speaker_id not in RELATIONSHIPS:
 		RELATIONSHIPS[speaker_id] = 0
 	RECENT_TOPIC = topic
-	var this_opinion = OPINIONS[topic]
-	var diff = abs(this_opinion - opinion)
-	var impression
+	var this_opinion: int = OPINIONS[topic]
+	var diff: int = abs(this_opinion - opinion)
+	var impression: String
 	if diff < 2:
 		update_relationship(speaker_id, 1)
 		impression = "pleased"

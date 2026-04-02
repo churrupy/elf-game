@@ -1,16 +1,30 @@
 extends TextureRect
 
-class_name Tile
+class_name TILE
 
-var TYPE
-var LOCATION
-var RESERVED
-var OCCUPANT
-
+var TYPE: String
+var LOCATION: Vector2
+var INVENTORY: Array
 
 
-func _ready() -> void:
+
+func _init(type: String, location: Vector2) -> void:
+	TYPE = type
+	LOCATION = location
+	var initial_label: Label = Label.new()
+	var _str: String = TYPE.substr(0,6) + " " + str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))
+	initial_label.text = str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))
+	add_child(initial_label)
+	#$TypeInitialLabel.text = TYPE.substr(0,6)
+	#$LocationLabel.text = str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))
+	var tile_data: Dictionary = Constants.TILE_TEMPLATES[TYPE]
+	texture = load("res://models/" + tile_data["png"])
+
+
+func _process(delta: float) -> void:
 	pass
+
+
 
 func initialize(type, location):
 	$TypeInitialLabel.text = type.substr(0,6)
@@ -18,6 +32,3 @@ func initialize(type, location):
 	var tile_data = Constants.TILE_TEMPLATES[type]
 	texture = load("res://models/" + tile_data["png"])
 	
-
-func _process(delta: float) -> void:
-	pass

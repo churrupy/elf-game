@@ -1,28 +1,29 @@
-extends GenericAction
+class_name SeduceAction extends ACTION
 
-class_name SeduceAction
+func _init(engine, owner: NPC, target: NPC) -> void:
+	# i hope this works lol
+	# no scoring needed for this
+	ID = "seduce"
+	super._init(engine, owner, target)
 
-var TARGET: NPC
-
-func can_do_action():
+func can_do_action() -> bool:
 	# also sets LOCATION
+	return true
 	if TARGET.ACTION != null:
 		if !TARGET.ACTION.is_joinable(): return false
 		if !TARGET.ACTION.is_conversable(): return false
 	
-	var free_tile: Array = ENGINE.get_node("Map").get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
-	if free_tile == []:
+	var free_tile: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
+	if free_tile == Vector2.INF:
 		return false
 	LOCATION = free_tile
 	return true
 
-func score():
-	var action_data = Constants.ACTION_TEMPLATES[ID]
-	var need = action_data["need"]
-	SCORE += 100-OWNER.NEEDS[need]
-	if need in ["hunger", "energy"]:
-		SCORE += 10 # bonus for urgent needs
-
+func score() -> void:
+	
+	var need: int = OWNER.NEEDS["release"]
+	SCORE += 100 - need
+	
 	# score based on preference
 	if OWNER == TARGET:
 		SCORE = -100
@@ -30,62 +31,64 @@ func score():
 	SCORE += get_opinion()
 	SCORE += get_attraction()
 
+	var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
+	if closest_location == Vector2.INF:
+		SCORE = -100
+		return
+	LOCATION = closest_location
 
+'''
 func tick():
 	if !recheck_can_do_action():
 		return
 	update_moving_location()
 	super.tick()
+'''
 
-func do_action():
+func run():
 	# target hears flirt
 	var impression = TARGET.hear_flirt(OWNER.ID)
 	if impression == "pleased":
 		# flirt accepted, try to find location
-		var locations = ENGINE.get_node("Map").find_action_locations("encounter")
-		locations = Utility.filter_reserved_tiles(locations) # returns list
-		locations = ENGINE.match_tile_to_closest_adjacent(locations, OWNER.LOCATION) #returns dict lol
-		if len(locations.keys()) > 0:
-			# add action entry
-			var dialogue_string = OWNER.NAME + " tried to seduce " + TARGET.NAME
-			var history_params = {
-				"witnesses": [TARGET.ID],
-				"dialogue": dialogue_string
-			}
-			ENGINE.History.add_event(OWNER.ID, "converse", LOCATION, [TARGET.ID], dialogue_string)
+		# look for new location that has at least one adjacent open tile for encounter
+		var locations: Array[Vector2] = ENGINE.Map.find_action_locations("encounter")
+		locations = ENGINE.NpcManager.filter_reserved_locations(locations) # returns list
+
+		for loc: Vector2 in locations:
+			# target in this action is node
+			var closest_loc: Vector2 = ENGINE.Map.get_closest_adjacent_location(TARGET.LOCATION, loc)
+			if closest_loc == Vector2.INF: continue # no valid adjacent tiles
+
+			var dialogue_string: String = OWNER.NAME + " tried to seduce " + TARGET.NAME
+			ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
+
 			dialogue_string = TARGET.NAME + " accepted the proposition!"
-			history_params = {
-				"witnesses": [OWNER.ID],
-				"dialogue": dialogue_string
-			}
-			ENGINE.History.add_event(TARGET, "converse", LOCATION, [OWNER.ID], dialogue_string)
+			ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
 
-			# create new actions for the both of them
-			var chosen_location = locations.keys().pick_random()
-			var new_action = EncounterActionAnchor.new(ENGINE, "encounter")
-			new_action.OWNER = TARGET
-			new_action.LOCATION = chosen_location
-			TARGET.ACTION = new_action
+			# create new action for the both of them
+			# right now seduction TARGET is the anchor and the OWNER is the node, but i'll figure out how I want to arrange that later
 
-			new_action = EncounterActionNode.new(ENGINE, "encounter")
-			new_action.OWNER = OWNER
-			new_action.TARGET = TARGET
-			new_action.LOCATION = locations[chosen_location]
-			OWNER.ACTION = new_action
-			
-			return
-		else:
-			print("encounter location not found")
-	var dialogue_string = OWNER.NAME + " flirted with " + TARGET.NAME
-	var history_params = {
-		"witnesses": [TARGET.ID],
-		"dialogue": dialogue_string
-	}
-	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
-	dialogue_string = TARGET.NAME + " was " + impression + " about being flirted with."
-	history_params = {
-		"witnesses": [OWNER.ID],
-		"dialogue": dialogue_string
-	}
-	ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
-	super.do_action()
+			var tile: TILE = ENGINE.Map.get_tile(loc)
+			var new_action:ACTION = EncounterActionAnchor.new(ENGINE, TARGET, tile)
+			ENGINE.NpcManager.add_state(new_action)
+
+			new_action = EncounterActionNode.new(ENGINE, OWNER, TARGET)
+			new_action.LOCATION = closest_loc
+
+			return ["replace", new_action] # lol at having a class explicitly to start new states, and returning via a result like a schlub
+		
+		# seduce accepted but no valid locations turns it into a flirt
+
+		var dialogue_string: String = OWNER.NAME + " flirted with " + TARGET.NAME
+		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
+		dialogue_string = TARGET.NAME + " was " + impression + " about being flirted with."
+		ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
+		
+	else:
+		# seduce denied
+		var dialogue_string: String = OWNER.NAME + " flirted with " + TARGET.NAME
+		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
+		dialogue_string = TARGET.NAME + " was annoyed about being flirted with."
+		ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
+	
+	return ["end", null]

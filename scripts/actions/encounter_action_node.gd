@@ -1,16 +1,22 @@
-class_name EncounterActionNode extends GenericAction
+class_name EncounterActionNode extends ACTION
 
-var TARGET: NPC
-var POSE = "standing"
-var ORIENTATION = "front"
-var RECENT_ACTION
-var ORGASM_COUNT = 0
+var POSE:String = "standing"
+var ORIENTATION: String = "front"
+var RECENT_ACTION: Array
+var ORGASM_COUNT: int = 0
 
-const gender = {
+const GENDER_TEMPLATES: Dictionary = {
 	"male": ["hands", "mouth", "penis"],
 	"female": ["hands", "mouth", "vagina"]
 }
 
+func _init(engine, owner: NPC, target: NPC):
+	ID = "encounter"
+	super._init(engine, owner, target)
+	# no scoring needed
+	# LOCATION has to be manually set by whatever is initializing this class
+
+'''
 func tick():
 	# set action location
 	if OWNER.LOCATION != LOCATION:
@@ -25,7 +31,7 @@ func tick():
 
 	var target_neighbors = ENGINE.get_neighbors(TARGET.ACTION.LOCATION)
 	if OWNER.LOCATION not in target_neighbors:
-		LOCATION = ENGINE.get_closest_adjacent_tile(OWNER.LOCATION, TARGET.LOCATION)
+		LOCATION = ENGINE.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
 		if LOCATION == null:
 			STATUS = "finish"
 			return
@@ -36,81 +42,63 @@ func tick():
 			do_action()
 			OWNER.decay_needs()
 
-func do_action():
+'''
+
+func run() -> Array:
+	# wait for target to get to location
+	var target_action: ACTION = TARGET.STATE_STACK.back()
+	if target_action is not EncounterActionAnchor:
+		# target isn't to location yet
+		return ["running", null]
+
 	# pick an action
 	# display it
-	var pose_options = ENGINE.get_node("Map").get_available_poses_for_tile(LOCATION)
+	var pose_options: Array[String] = ENGINE.Map.get_available_poses_for_tile(LOCATION)
 	POSE = pose_options.pick_random()
-	var pose_data = [POSE, ORIENTATION, TARGET.ACTION.POSE]
+
+
+	var pose_data: Array = [POSE, ORIENTATION, TARGET.ACTION.POSE]
 	RECENT_ACTION = determine_action(pose_data).pick_random()
 	var dialogue_string = OWNER.NAME + " used their " + RECENT_ACTION[0] + " on " + TARGET.NAME + "'s " + RECENT_ACTION[1] + "."
-	var history_params = {
-		"witnesses": [TARGET.ID],
-		"dialogue": dialogue_string
-	}
 	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
 
-	COUNTDOWN -= 1
-	var needs_refreshed = ["release", "arousal"]
-	for need in needs_refreshed:
-		var refresh_rate = Constants.NEED_REFRESH_RATES[need]
-		OWNER.NEEDS[need] += refresh_rate
+	var needs_refreshed: Array[String] = ["release", "arousal"]
+	for need: String in needs_refreshed:
+		refresh_needs(need)
+
+	var has_orgasmed: bool = check_orgasm()
+	if has_orgasmed:
+		if target_action.ORGASM_COUNT > 0:
+			var nodes: Array[String] = get_nodes()
+			if len(nodes) == 0:
+				# can quit encounter when target has orgasmed at least once and node has no nodes attached to it
+				return ["end", null]
+	return ["running", null]
+
 	
+
+func check_orgasm() -> bool:
 	if OWNER.NEEDS["arousal"] >= 100:
-		dialogue_string = OWNER.NAME + " came!"
-		var witnesses = get_nodes()
+		var dialogue_string = OWNER.NAME + " came!"
+		var witnesses: Array[String] = get_nodes()
 		witnesses.append(TARGET.ID)
-		history_params = {
-			"witnesses": witnesses,
-			"dialogue": dialogue_string
-		}
 		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
 		ORGASM_COUNT += 1
 		OWNER.NEEDS["arousal"] = 50
+		return true
+	return false
 
 
-	if COUNTDOWN < 0:
-		STATUS = "finish"
-
-	# process arousal here
-
-
-func determine_action(pose_data):
-	var action_list = EncounterActions.POSES[pose_data]
-	var valid_actions = []
-	for action in action_list:
-		var owner_gender = OWNER.GENDER
-		var owner_body = gender[owner_gender]
+func determine_action(pose_data:Array) -> Array:
+	# holy shit this is bad lol
+	var action_list: Array = EncounterActions.POSES[pose_data]
+	var valid_actions: Array
+	for action: Array in action_list:
+		var owner_gender: String = OWNER.GENDER
+		var owner_body: Array[String] = GENDER_TEMPLATES[owner_gender]
 		if action[0] not in owner_body: continue
-		var target_gender = TARGET.GENDER
-		var target_body = gender[target_gender]
+		var target_gender: String = TARGET.GENDER
+		var target_body: Array[String] = GENDER_TEMPLATES[target_gender]
 		if action[1] not in target_body: continue
 		valid_actions.append(action)
 	return valid_actions
-
-func flag_nodes_finished():
-	var nodes = get_nodes()
-	for node in nodes:
-		node.ACTION.flag_nodes_finished()
-	STATUS = "finish"
-
-func have_all_nodes_orgasmed():
-	var nodes = get_nodes()
-	for node in nodes:
-		if node.ACTION.ID != "encounter": continue
-		if node.ACTION.have_all_nodes_orgasmed() == false:
-			return false
-	if ORGASM_COUNT == 0:
-		return false
-	return true
-
-
-func get_nodes():
-	var nodes = []
-	for npc_id in Global.NPCS.keys():
-		var npc = Global.NPCS[npc_id]
-		if npc.ACTION == null: continue
-		if npc.ACTION.TARGET is Array: continue
-		if npc.ACTION.TARGET == OWNER:
-			nodes.append(npc)
-	return nodes

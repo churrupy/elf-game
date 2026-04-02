@@ -42,6 +42,3 @@ text = "Name"
 layout_mode = 2
 text = "here's a test of a label with a lot of words in it"
 autowrap_mode = 3
-
-[connection signal="move_without_tick_signal" from="Player" to="." method="_on_move_without_tick"]
-[connection signal="tick" from="Player" to="." method="_on_tick"]

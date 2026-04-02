@@ -1,13 +1,13 @@
 extends ColorRect
 
-class_name Map
+class_name MAP
 
 var ENGINE
-var MAP = []
-var ROOM = "club"
+var TILES: Array[TILE]
+var ROOM: String
 @export var tile_scene: PackedScene
 
-var MAP_TEMPLATES = {
+var TILES_TEMPLATES = {
 "club": {
 		"default": "empty",
 		"size": [3,3],
@@ -53,22 +53,48 @@ var MAP_TEMPLATES = {
 	}
 
 }
+	
 
-
-func _ready() -> void:
-	#$Grid.hide()			
+func _init(engine, room) -> void:
+	ENGINE = engine
+	ROOM = room
 	size = Constants.MAIN_FRAME_SIZE
 	position = Constants.MAIN_FRAME_POSITION
-	var room_data = MAP_TEMPLATES[ROOM]
-	var special_tiles = room_data["special"]
-	for i in Constants.MAP_SIZE[0]:
-		MAP.append([])
-		for j in Constants.MAP_SIZE[1]:
-			var location = [i, j]
-			var type = room_data["default"]
+	color = Color(.3, .3, .3)
+	
+	var room_data: Dictionary = TILES_TEMPLATES[ROOM]
+	var special_tiles: Dictionary = room_data["special"]
+	for i: int in Constants.MAP_SIZE[0]:
+		for j: int in Constants.MAP_SIZE[1]:
+			
+			#tile.LOCATION = Vector2(i,j)
+			var location = Vector2(i,j)
+			var loc_array = [i,j]
+			var type: String = room_data["default"]
+			if loc_array in special_tiles.keys():
+				type = special_tiles[loc_array]
+
+			var tile: TILE = TILE.new(type, Vector2(i,j))
+			TILES.append(tile)
+
+
+func _ready_old() -> void:
+	pass
+	#$Grid.hide()
+	'''
+	size = Constants.MAIN_FRAME_SIZE
+	position = Constants.MAIN_FRAME_POSITION
+	var room_data: Dictionary = TILES_TEMPLATES[ROOM]
+	var special_tiles: Dictionary = room_data["special"]
+	for i: int in Constants.MAP_SIZE[0]:
+		TILES.append([])
+		for j: int in Constants.MAP_SIZE[1]:
+			var location: Array = [i, j]
+			var type: String = room_data["default"]
 			if location in special_tiles.keys():
 				type = special_tiles[location]
-			MAP[i].append(type)
+			TILES[i].append(type)
+	'''
 
 
 
@@ -76,16 +102,38 @@ func _ready() -> void:
 
 func clear_tiles():
 	for child in get_children():
-		if child is Tile:
-			child.queue_free()
+		if child is TILE:
+			remove_child(child)
 
-func update():
+func update() -> void:
+	clear_tiles()
+	print(Global.X_RANGE)
+	print(Global.Y_RANGE)
+	for tile: TILE in TILES:
+		#[var x: int, var y: int] = tile.LOCATION
+		var x: int = tile.LOCATION[0]
+		var y: int = tile.LOCATION[1]
+		if x not in range(Global.X_RANGE[0], Global.X_RANGE[1]):
+			continue;
+		if y not in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
+			continue
+		
+		add_child(tile)
+		var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
+		var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
+		tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0]
+		tile.global_position[1] = y_index * Constants.TILE_SIZE
+		#tile.show()
+			
+
+
+func update_old():
 	clear_tiles()
 	for x in range (Global.X_RANGE[0], Global.X_RANGE[1]):
-		if x not in range(0, len(MAP)):
+		if x not in range(0, len(TILES)):
 			continue
 		for y in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
-			if y not in range(0, len(MAP[0])):
+			if y not in range(0, len(TILES[0])):
 				continue
 			var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
 			if x_index < 0:
@@ -107,17 +155,17 @@ func update():
 
 #region pathfinding
 
-func step_towards_location(end: Array, start: Array) -> Array: #trying this out, pathfinding from target instead
+func step_towards_location(end: Vector2, start: Vector2) -> Vector2:
 	#pathfinding
 	if start == end:
 		push_error("Trying to pathfind to current location")
 		return start # shouldn't happen but who knows
 
-	var queue: Array = [start]
-	var visited: Array = [start]
+	var queue: Array[Vector2] = [start]
+	var visited: Array[Vector2] = [start]
 	var parent_dict: Dictionary = {}
 
-	var current: Array
+	var current: Vector2
 
 	while len(queue) > 0:
 		current = queue.pop_front()
@@ -130,28 +178,93 @@ func step_towards_location(end: Array, start: Array) -> Array: #trying this out,
 			queue.append(neighbor)
 			parent_dict[neighbor] = current
 	push_error("pathfind fail")
-	return []
+	return Vector2.INF
 
 
 
-
-func get_next_step(parent_dict: Dictionary, start: Array, end: Array) -> Array:
-	var node: Array = end
+# not used
+func get_next_step(parent_dict: Dictionary, start: Vector2, end: Vector2) -> Vector2:
+	var node: Vector2 = end
 	while true:
 		var parent = parent_dict[node] #not sure if i can use a list as a key in godot 
 		if parent == start:
 			return node
 		node = parent
-	return []
+	return Vector2.INF
 
 
 
 #endregion pathfinding
 
 
+#region filters
+
+func get_tiles_from_vector_list(vector_list: Array[Vector2]) -> Array[TILE]:
+	if len(vector_list) == 0:
+		return TILES
+	var tile_list: Array[TILE]
+	for v: Vector2 in vector_list:
+		var tile: TILE = get_tile(v)
+		tile_list.append(tile)
+	return tile_list
+
+
+func filter_passable_locations(vector_list: Array[Vector2] = []) -> Array[Vector2]:
+	var tile_list: Array[TILE] = get_tiles_from_vector_list(vector_list)
+	var passable_locations: Array[Vector2]
+	for tile: TILE in tile_list:
+		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
+		if tile_data["impassable"] == false:
+			passable_locations.append(tile.LOCATION)
+	return passable_locations
+
+
+
+#endregion filters
+
+#region checks
+
+func is_impassable(location: Vector2) -> bool:
+	var tile: TILE = get_tile(location)
+	if tile == null:
+		return true
+	var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
+	return tile_data["impassable"]
+
+
+
+
+#endregion
+
+
 #region utility
 
-func get_neighbors(location: Array) -> Array:
+func get_neighbors(location: Vector2) -> Array[Vector2]:
+
+	var neighbors: Array[Vector2] = [
+		# adjacent
+		location + Vector2(1,0),
+		location + Vector2(-1,0),
+		location + Vector2(0,1),
+		location + Vector2(0,-1),
+		# diaglonals
+		location + Vector2(1,1),
+		location + Vector2(1,-1),
+		location + Vector2(-1,1),
+		location + Vector2(-1,-1)
+	]
+
+	var valid_neighbors: Array[Vector2]
+	for n: Vector2 in neighbors:
+		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]: continue
+		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]: continue
+		if is_impassable(n): continue
+		valid_neighbors.append(n)
+	var passable_locations: Array[Vector2] = filter_passable_locations(valid_neighbors)
+	return passable_locations
+
+
+func get_neighbors_old(location: Array) -> Array:
 	var neighbors: Array = [
 		#[location[0], location[1]],
 		# adjacent
@@ -166,78 +279,106 @@ func get_neighbors(location: Array) -> Array:
 		[location[0] - 1, location[1] - 1]
 	]
 	var valid_neighbors: Array = []
-	for n: Array in neighbors:
+	for n: Vector2 in neighbors:
 		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]:
 			continue
 		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]:
 			continue
-		if !is_travelable(n): continue
+		if is_impassable(n): continue
 		valid_neighbors.append(n)
 		
 	return valid_neighbors
 
-func get_closest_adjacent_tile(start_location: Array, target_location: Array) -> Array:
+func get_closest_adjacent_location(start_location: Vector2, target_location: Vector2) -> Vector2:
 	# gets tile adjacent to target that's closest to start location
-	var neighbors: Array = get_neighbors(target_location)
+	var neighbors: Array[Vector2] = get_neighbors(target_location)
 	if start_location in neighbors:
 		return start_location
-	var free_neighbors: Array = Utility.filter_reserved_tiles(neighbors)
+	
+	var free_neighbors: Array[Vector2] = ENGINE.NpcManager.filter_reserved_locations(neighbors)
 
 	if len(free_neighbors) == 0:
 		print("no free adjacent tiles found")
-		return []
+		return Vector2.INF
 	
 	var smallest_distance: float = 100
-	var closest_tile: Array
-	for t: Array in free_neighbors:
-		var distance: float = Utility.calc_distance(start_location, t)
+	var closest_tile: Vector2
+	for v: Vector2 in free_neighbors:
+		var distance: float = start_location.distance_to(v)
 		if distance < smallest_distance:
 			smallest_distance = distance
-			closest_tile = t
+			closest_tile = v
 	return closest_tile
 
-func is_travelable(location):
-	var tile = get_tile(location)
-	var tile_data = Constants.TILE_TEMPLATES[tile]
-	if tile_data["impassable"] == true: return false
-	return true
 
 
-func get_tile(location: Array):
-	if location[0] not in range(len(MAP)): return null
-	if location[1] not in range(len(MAP[0])): return null
-	return MAP[location[0]][location[1]]
 
-func random_empty_tile() -> Array:
+func get_tile(location: Vector2) -> TILE:
+	for tile: TILE in TILES:
+		if tile.LOCATION == location:
+			return tile
+	return null
+
+func get_tile_old(location: Array):
+	if location[0] not in range(len(TILES)): return null
+	if location[1] not in range(len(TILES[0])): return null
+	return TILES[location[0]][location[1]]
+
+'''
+func random_empty_tile_old() -> Array:
 	while true:
 		var x = randi_range(0, Constants.MAP_SIZE[0]-1) 
 		var y = randi_range(0, Constants.MAP_SIZE[1]-1)
-		var tile = MAP[x][y]
+		var tile = TILES[x][y]
 		var tile_data = Constants.TILE_TEMPLATES[tile]
 		if tile_data["impassable"] == false:
 			return [x,y]
 	return []
+'''
+	
+func random_empty_tile() -> TILE:
+	for tile:TILE in TILES:
+		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
+		if tile_data["impassable"] == false: return tile
+	return null
 
-func find_action_locations(action):
-	var filtered_locations = []
-	for i in len(MAP):
-		for j in len(MAP[0]):
-			var location = [i,j]
-			var tile = get_tile(location)
-			var tile_data = Constants.TILE_TEMPLATES[tile]
-			if action in tile_data["actions"]:
-				filtered_locations.append(location)
-
+func find_action_locations(action:String) -> Array[Vector2]:
+	if action == "encounter":
+		return find_encounter_locations()
+	var filtered_locations: Array[Vector2] = []
+	for tile: TILE in TILES:
+		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
+		if action in tile_data["actions"]:
+			filtered_locations.append(tile.LOCATION)
 	return filtered_locations
 
 
+func find_encounter_locations() -> Array[Vector2]:
+	var encounter_locations: Array[Vector2]
+	for tile:TILE in TILES:
+		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
+		if "encounter_location" in tile_data.keys():
+			encounter_locations.append(tile.LOCATION)
+	return encounter_locations
 
 
-func get_all_actions_on_map():
+
+func get_all_actions_on_map(npc) -> Array[ACTION]:
+	var all_actions: Array[ACTION]
+	for tile: TILE in TILES:
+		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
+		for action: String in tile_data["actions"]:
+			var action_class_id: String = Constants.ACTION_TEMPLATES[action]["class"]
+			var ACTION_CLASS: GDScript = Constants.ACTION_ID[action_class_id]
+			var new_action: ACTION = ACTION_CLASS.new(ENGINE, npc, tile)
+			all_actions.append(new_action)
+	return all_actions
+'''
+func get_all_actions_on_map_old():
 	var all_actions = []
-	for i in len(MAP):
-		for j in len(MAP[0]):
-			var tile = MAP[i][j]
+	for i in len(TILES):
+		for j in len(TILES[0]):
+			var tile = TILES[i][j]
 			var tile_data = Constants.TILE_TEMPLATES[tile]
 			for action in tile_data["actions"]:
 				var action_data: Dictionary = Constants.ACTION_TEMPLATES[action]
@@ -248,10 +389,11 @@ func get_all_actions_on_map():
 				new_action.LOCATION = [i,j] # where the npc ends up (if adjacent to target)
 				all_actions.append(new_action)
 	return all_actions
+'''
 
-func get_available_poses_for_tile(location):
-	var tile = get_tile(location)
-	var pose_class = Constants.TILE_TEMPLATES[tile]["poses"]
+func get_available_poses_for_tile(location: Vector2) -> Array[String]:
+	var tile: TILE = get_tile(location)
+	var pose_class: String = Constants.TILE_TEMPLATES[tile.TYPE]["poses"]
 	return Constants.POSE_CLASS[pose_class]
 
 

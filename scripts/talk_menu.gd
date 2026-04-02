@@ -1,5 +1,7 @@
 extends Label
 
+#class_name Talk_Menu
+
 var ENGINE
 var LOCATION # "center" of conversation,  might not actually be the npc themselves (eg gathering around a table, etc)
 var MENU_NPC
@@ -14,7 +16,9 @@ func _ready() -> void:
 
 
 func update():
-	var history: Array = ENGINE.History.filter_by_npc(MENU_NPC.ID).slice(-20, -1)
+	if MENU_NPC == null: 
+		return
+	var history: Array[HISTORY_EVENT] = ENGINE.History.filter_by_npc(MENU_NPC.ID).slice(-20, -1)
 	#var history_list = ENGINE.History.history_to_string(history)
 	#LOCATION = npc.ACTION.TARGET
 	$NameLabel.text = MENU_NPC.NAME

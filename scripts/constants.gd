@@ -1,7 +1,7 @@
 extends Node
 
 #region game const
-const TILE_SIZE = 60
+const TILE_SIZE = 64
 const SCREEN_SIZE = Vector2(1200, 660)
 const MAP_SIZE = [10,10] # num tiles across
 const BOTTOM_RIGHT = Vector2(MAP_SIZE[0]-1, MAP_SIZE[1]-1)
@@ -102,15 +102,44 @@ var PORTRAIT_TEMPLATES = {
 }
 
 var CLASS_TEMPLATES = {
-	"GenericAction": GenericAction,
+	"GenericAction": ACTION,
 	#"TileAction": TileAction,
 	"SocialAction": SocialAction,
 	"SeduceAction": SeduceAction
 }
 
+var ACTION_ID: Dictionary = {
+	"IdleAction": IdleAction,
+	"SocialAction": SocialAction,
+	"SeduceAction": SeduceAction,
+	"HungerAction": HungerAction,
+	"BladderAction": BladderAction,
+	"MoveAction": MoveAction,
+	"DanceAction": DanceAction,
+	"DrinkAction": DrinkAction
+}
+
 
 #region action templates
 const ACTION_TEMPLATES = {
+	"idle": {
+		"need": "",
+		"duration": 0,
+		"pose": "standing",
+		"joinable": true,
+		"other_req": false,
+		"do_off_tile": false,
+		"class": "IdleAction"
+	},
+	"move": {
+		"need": "",
+		"duration": 0,
+		"pose": "standing",
+		"joinable": false,
+		"other_req": false,
+		"do_off_tile": false,
+		"class": "MoveAction"
+	},
 	#region SocialAction
 	"converse": {
 		"need": "social",
@@ -132,7 +161,7 @@ const ACTION_TEMPLATES = {
 		"other_req": true,
 		"do_off_tile": true,
 		"conversable": false,
-		"class": "GenericAction"
+		"class": "SocialAction" # LOL i'll figure this out later
 	},
 	"flirt": {
 		"need": "social",
@@ -163,7 +192,7 @@ const ACTION_TEMPLATES = {
 		"joinable": true,
 		"other_req": false,
 		"do_off_tile": true,
-		"class": "GenericAction"
+		"class": "SocialAction"
 	},
 	"dance" : {
 		"need": "fun",
@@ -174,7 +203,7 @@ const ACTION_TEMPLATES = {
 		"other_req": false,
 		"do_off_tile": false,
 		"conversable": false,
-		"class": "GenericAction"
+		"class": "DanceAction"
 	},
 	"drink": {
 		"need": "fun",
@@ -184,7 +213,7 @@ const ACTION_TEMPLATES = {
 		"joinable": false,
 		"other_req": false,
 		"do_off_tile": true,
-		"class": "GenericAction"
+		"class": "DrinkAction"
 	},
 	"use toilet": {
 		"need": "bladder",
@@ -195,28 +224,17 @@ const ACTION_TEMPLATES = {
 		"other_req": false,
 		"do_off_tile": false,
 		"conversable": false,
-		"class": "GenericAction"
+		"class": "BladderAction"
 	},
 	"snack": {
-		"need": "hunger",
 		"duration": 5,
 		"followers": [0,0],
 		"pose": "standing",
 		"joinable": false,
 		"other_req": false,
 		"do_off_tile": true,
-		"class": "GenericAction"
+		"class": "HungerAction"
 	},
-	"follow": {
-		"need": "none",
-		"duration": 0,
-		"followers": [0,0],
-		"pose": "standing",
-		"joinable": true,
-		"other_req": true,
-		"do_off_tile": true,
-		"class": "GenericAction"
-	}
 }
 
 #endregion
@@ -232,13 +250,13 @@ const POSE_CLASS = {
 }
 const TILE_TEMPLATES = {
 	"empty": {
-		"actions": ["loiter"],
+		"actions": [],
 		"impassable": false,
 		"png": "tile.png",
 		"poses": "EmptyPoses"
 	},
 	"social_empty": {
-		"actions": ["loiter"],
+		"actions": [],
 		"impassable": false,
 		"png": "tile.png",
 		"poses": "EmptyPoses"
@@ -250,19 +268,20 @@ const TILE_TEMPLATES = {
 		"poses": "EmptyPoses"
 	},
 	"toilet":  {
-		"actions": ["use toilet", "loiter", "encounter"],
+		"actions": ["use toilet"],
 		"impassable": false,
+		"encounter_location": true,
 		"png": "toilet.png",
 		"poses": "ChairPoses"
 	},
 	"bar": {
-		"actions": ["loiter", "snack"],
+		"actions": ["drink", "snack"],
 		"impassable": true,
 		"png": "bar.png",
 		"poses": "HSurfacePoses"
 	},
 	"table": {
-		"actions": ["loiter"],
+		"actions": [],
 		"impassable": true,
 		"png": "table.png",
 		"poses": "HSurfacePoses"

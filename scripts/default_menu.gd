@@ -14,6 +14,8 @@ func _process(delta: float) -> void:
 	pass
 
 func update():
+	var player_location: Vector2 = ENGINE.get_node("Player").LOCATION
+	$PCLocationLabel.text = str(player_location)
 	var player_history = ENGINE.History.filter_by_npc("player")
 	var player_history_list = ENGINE.History.history_to_string(player_history)
 	var trunc_history = player_history_list.slice(-10, -1)
@@ -28,8 +30,8 @@ func update():
 		$PlayerHistoryContainer.get_node("VBoxContainer").add_child(new_label)
 	for child in $NearbyNpcsContainer.get_node("VBoxContainer").get_children():
 		child.queue_free()
-	for npc_id in Global.NEARBY_NPCS:
-		var npc = Global.NPCS[npc_id]
+	for npc_id: String in Global.NEARBY_NPCS:
+		var npc: NPC = Global.NPCS[npc_id]
 		var npc_button = buttons.instantiate()
 		npc_button.initialize(npc)
 		$NearbyNpcsContainer.get_node("VBoxContainer").add_child(npc_button)

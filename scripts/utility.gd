@@ -1,5 +1,7 @@
 extends Node
 
+# class_name Utility
+
 
 #region tile
 
@@ -18,25 +20,31 @@ func calc_distance(loc1, loc2):
 
 #region npcs
 
-func filter_reserved_tiles(tile_list: Array) -> Array:
-	var free_tiles: Array = []
-	for tile: Array in tile_list:
-		if is_location_reserved(tile): continue
-		free_tiles.append(tile)
-	return free_tiles
 
-
-func get_npc_from_location(location: Array):
-	var npcs = []
-	for npc_id in Global.NPCS:
-		var npc = Global.NPCS[npc_id]
+func get_npc_from_location(location: Vector2) -> Array[String]:
+	var npcs: Array[String]
+	for npc_id: String in Global.NPCS.keys():
+		var npc: NPC = Global.NPCS[npc_id]
 		if npc.LOCATION == location:
 			npcs.append(npc_id)
 	return npcs
 
+func is_location_reserved(loc: Vector2) -> bool:
+	for npc_id: String in Global.NPCS:
+		var npc: NPC = Global.NPCS[npc_id]
+		var current_action_loc = npc.STATE_STACK.back().LOCATION
+		if current_action_loc == loc: return true
+		#if npc.ACTION != null and npc.ACTION.LOCATION == loc: return true
+	return false
 
+func is_tile_reserved(tile: TILE) -> bool:
+	for npc_id: String in Global.NPCS:
+		var npc: NPC = Global.NPCS[npc_id]
+		if npc.ACTION != null and npc.ACTION.LOCATION == tile.LOCATION:
+			return true
+	return false
 
-func is_location_reserved(location):
+func is_location_reserved_old(location):
 	# checks if an npc already has this as a target location
 	for npc_id in Global.NPCS:
 		var npc = Global.NPCS[npc_id]

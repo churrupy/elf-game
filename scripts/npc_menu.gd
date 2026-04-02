@@ -22,7 +22,7 @@ func update():
 	display_string.append(_str)
 	_str = "Current Location: " + str(MENU_NPC.LOCATION)
 	display_string.append(_str)
-	_str = "Current Action: " + str(MENU_NPC.ACTION)
+	_str = "Current Action: " + str(MENU_NPC.STATE_STACK.back().ID)
 	display_string.append(_str)
 	_str = "Current Topic: " + str(MENU_NPC.RECENT_TOPIC)
 	display_string.append(_str)

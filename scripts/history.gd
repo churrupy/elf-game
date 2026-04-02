@@ -2,9 +2,11 @@ extends Node
 
 class_name HISTORY_CLASS
 
-var HISTORY: Array
+var ENGINE
+var HISTORY: Array[HISTORY_EVENT]
 
-
+func _init(engine):
+	ENGINE = engine
 
 func _ready() -> void:
 	pass
@@ -14,7 +16,7 @@ func _process(delta:float):
 	pass
 
 
-func add_event(npc_id: String, action: String, location: Array, witnesses: Array = [], dialogue: String = "") -> void:
+func add_event(npc_id: String, action: String, location: Vector2, witnesses: Array = [], dialogue: String = "") -> void:
 	var new_event = HISTORY_EVENT.new()
 	new_event.TICK = Global.TICKS
 	new_event.NPC_ID = npc_id
@@ -50,12 +52,12 @@ func filter_by_doer_old(npc):
 			filtered_history.append(h)
 	return filtered_history
 
-func filter_by_doer(npc_id: String) -> Array:
+func filter_by_doer(npc_id: String) -> Array[HISTORY_EVENT]:
 	# filter by initiator of event
 	return HISTORY.filter(func(event): return event.NPC_ID == npc_id)
 
 
-func filter_by_npc(npc_id: String) -> Array:
+func filter_by_npc(npc_id: String) -> Array[HISTORY_EVENT]:
 	# filter by whether npc is involved in event (whether doer or witness)
 	return HISTORY.filter(func(event): return (event.NPC_ID == npc_id) or (npc_id in event.WITNESSES))
 

@@ -5,6 +5,6 @@ class_name HISTORY_EVENT
 var TICK: int
 var NPC_ID: String
 var ACTION: String
-var LOCATION: Array
+var LOCATION: Vector2
 var WITNESSES: Array
 var DIALOGUE: String
