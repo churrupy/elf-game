@@ -23,30 +23,33 @@ func run() -> Array:
 	if len(nodes) == 0:
 		return ["end", null]
 
+	var interacted_with: bool = false
 	for npc_id:String in nodes:
 		var npc:NPC = Global.NPCS[npc_id]
 		var recent_action: ACTION = npc.STATE_STACK.back()
-		#print(npc_id, recent_action)
+		print(npc_id, recent_action)
+		#print(recent_action.RECENT_ACTION)
+		if recent_action.ID == "move" or recent_action.RECENT_ACTION == []:
+			continue # still getting to location
+		interacted_with = true
 		var current_action:Array = recent_action.RECENT_ACTION
+		print(recent_action.RECENT_ACTION)
 		var dialogue_string: String = OWNER.NAME + "'s " + current_action[1] + " was used by " + npc.NAME + "'s " + current_action[0] + "."
 		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [npc_id], dialogue_string)
 		
-
-	var needs_refreshed: Array[String] = ["release", "arousal"]
-	for need: String in needs_refreshed:
-		refresh_needs(need)
-
-	check_orgasm()
+	if interacted_with:
+		var needs_refreshed: Array[String] = ["release", "arousal"]
+		for need: String in needs_refreshed:
+			refresh_needs(need)
+		check_orgasm()
 
 	return ["running", null]
 	
 
-func check_orgasm() -> bool:
+func check_orgasm() -> void:
 	if OWNER.NEEDS["arousal"] >= 100:
 		var dialogue_string = OWNER.NAME + " came!"
 		var witnesses: Array[String] = get_nodes()
 		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
 		ORGASM_COUNT += 1
 		OWNER.NEEDS["arousal"] = 50
-		return true
-	return false

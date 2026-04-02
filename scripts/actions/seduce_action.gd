@@ -9,6 +9,11 @@ func _init(engine, owner: NPC, target: NPC) -> void:
 func can_do_action() -> bool:
 	return ENGINE.NpcManager.is_available(TARGET)
 
+
+
+
+
+
 func score() -> void:
 	
 	var need: int = OWNER.NEEDS["release"]
@@ -27,17 +32,26 @@ func score() -> void:
 		return
 	LOCATION = closest_location
 
-'''
-func tick():
-	if !recheck_can_do_action():
-		return
-	update_moving_location()
-	super.tick()
-'''
+
+func tick() -> Array:
+	if !can_do_action():
+		return ["end", null]
+	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+		#var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
+		#var tile: TILE = ENGINE.Map.get_tile(closest_location)
+		var new_action: ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, ID)
+		return ["add", new_action]
+	
+	var result: Array = run()
+	OWNER.decay_needs()
+	return result
+
 
 func run():
 	# target hears flirt
 	var impression = TARGET.hear_flirt(OWNER.ID)
+	if !ENGINE.NpcManager.is_available(TARGET):
+		impression = 0
 	if impression == "pleased":
 		# flirt accepted, try to find location
 		# look for new location that has at least one adjacent open tile for encounter
@@ -57,9 +71,6 @@ func run():
 
 			# create new action for the both of them
 			# right now seduction TARGET is the anchor and the OWNER is the node, but i'll figure out how I want to arrange that later
-
-			print("CREATING ENCOUNTER")
-			print(loc, " ", closest_loc)
 
 			var tile: TILE = ENGINE.Map.get_tile(loc)
 			var new_action:ACTION = EncounterActionAnchor.new(ENGINE, TARGET, tile)

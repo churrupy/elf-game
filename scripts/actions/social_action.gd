@@ -25,19 +25,22 @@ func score() -> void:
 		SCORE = -100
 		return
 	LOCATION = closest_location
-	'''
-	if ID == "flirt":
-		SCORE += get_attraction()
-	'''
 
-	# distance isn't taken into account just yet
-	# eventually npcs will prioritize people in the same room/building and not running off across the map to socialize
+func tick() -> Array:
+	if !can_do_action():
+		return ["end", null]
+	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+		var new_action: ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, ID)
+		return ["add", new_action]
+	var result: Array = run()
+	OWNER.decay_needs()
+	return result
 
-
-func run():
+func run() -> Array:
 	chitchat() # refresh needs already covered in this
 	# have some kind of "if attracted to, then flirt" here
 
 	COUNTDOWN -= 1
-	if COUNTDOWN < 0:
+	if COUNTDOWN < 0 or !ENGINE.NpcManager.is_available(TARGET):
 		return ["end", null]
+	return ["running", null]

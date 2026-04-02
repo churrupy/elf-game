@@ -34,7 +34,7 @@ var RELATIONSHIPS: Dictionary = {}
 var NEEDS: Dictionary = {
 	"hunger": 50.0,
 	"energy": 50.0,
-	"release": 50.0,
+	"release": 10.0,
 	"social": 50.0,
 	"fun": 50.0,
 	"bladder": 50.0,

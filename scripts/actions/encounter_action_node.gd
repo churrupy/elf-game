@@ -16,33 +16,6 @@ func _init(engine, owner: NPC, target: NPC) -> void:
 	# no scoring needed
 	# LOCATION has to be manually set by whatever is initializing this class
 
-'''
-func tick():
-	# set action location
-	if OWNER.LOCATION != LOCATION:
-		step_towards_location()
-	if TARGET.LOCATION == TARGET.ACTION.LOCATION:
-		do_action()
-	# if target not at location, just, like, vibe or something man
-	OWNER.decay_needs()
-	return
-
-
-
-	var target_neighbors = ENGINE.get_neighbors(TARGET.ACTION.LOCATION)
-	if OWNER.LOCATION not in target_neighbors:
-		LOCATION = ENGINE.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
-		if LOCATION == null:
-			STATUS = "finish"
-			return
-		step_towards_location()
-		OWNER.decay_needs()
-	else:
-		if TARGET.ACTION.AT_LOCATION:
-			do_action()
-			OWNER.decay_needs()
-
-'''
 
 func run() -> Array:
 	# wait for target to get to location
@@ -66,8 +39,8 @@ func run() -> Array:
 	for need: String in needs_refreshed:
 		refresh_needs(need)
 
-	var has_orgasmed: bool = check_orgasm()
-	if has_orgasmed:
+	check_orgasm()
+	if ORGASM_COUNT > 0:
 		if target_action.ORGASM_COUNT > 0:
 			var nodes: Array[String] = get_nodes()
 			if len(nodes) == 0:
@@ -77,7 +50,7 @@ func run() -> Array:
 
 	
 
-func check_orgasm() -> bool:
+func check_orgasm() -> void:
 	if OWNER.NEEDS["arousal"] >= 100:
 		var dialogue_string = OWNER.NAME + " came!"
 		var witnesses: Array[String] = get_nodes()
@@ -85,8 +58,6 @@ func check_orgasm() -> bool:
 		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
 		ORGASM_COUNT += 1
 		OWNER.NEEDS["arousal"] = 50
-		return true
-	return false
 
 
 func determine_action(pose_data:Array) -> Array:

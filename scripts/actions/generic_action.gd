@@ -112,18 +112,6 @@ func update_moving_location():
 			LOCATION = free_tile
 
 
-func do_action():
-	COUNTDOWN -= 1
-	var action_need = Constants.ACTION_TEMPLATES[ID]["need"]
-	var refresh_rate = Constants.NEED_REFRESH_RATES[action_need]
-	OWNER.NEEDS[action_need] += refresh_rate
-	ENGINE.History.add_event(OWNER.ID, ID, LOCATION)
-
-	if is_conversable():
-		chitchat()
-
-	if COUNTDOWN < 0:
-		STATUS = "finish"
 
 
 func chitchat() -> void:

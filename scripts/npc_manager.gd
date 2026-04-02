@@ -144,11 +144,14 @@ func get_all_npc_actions(checked_npc: NPC) -> Array[ACTION]:
 func is_available(npc: NPC) -> bool:
 	# returns whether the npc is available for interactions
 	var current_action: ACTION = npc.STATE_STACK.back()
-	var nonconcurrent_actions: Array[String] = [
-		"move",
+	var current_action_id: String = current_action.ID
+	if current_action_id == "move":
+		current_action_id = current_action.MOVING_FOR
+	var busy_actions: Array[String] = [
+		"use toilet",
 		"encounter"
 	]
-	if current_action.ID in nonconcurrent_actions: #have no idea if this will work
+	if current_action_id in busy_actions: #have no idea if this will work
 		return false
 	return true
 
