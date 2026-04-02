@@ -142,18 +142,20 @@ func do_action():
 func chitchat() -> void:
 	var center_of_conversation: Vector2 = LOCATION
 
-	var witnesses: Array[String] = ENGINE.get_npcs_in_range(center_of_conversation)
+	var witnesses: Array[String] = ENGINE.NpcManager.get_nearby_npcs(center_of_conversation)
+
+	#var witnesses: Array[String] = ENGINE.get_npcs_in_range(center_of_conversation)
 
 	if len(witnesses) < 2:
 		# owner is also in witness list
 		center_of_conversation = OWNER.LOCATION
-		witnesses = ENGINE.get_npcs_in_range(center_of_conversation)
+		witnesses = ENGINE.NpcManager.get_nearby_npcs(center_of_conversation)
 
 	if len(witnesses) < 2:
 		# don't talk to self
 		return
 
-	witnesses.erase(OWNER.ID)
+	#witnesses.erase(OWNER.ID)
 
 	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
 	OWNER.RECENT_TOPIC = new_topic

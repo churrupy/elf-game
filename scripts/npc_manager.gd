@@ -165,4 +165,13 @@ func is_reserved(location: Vector2) -> bool:
 			return true
 	return false
 
+
+func get_nearby_npcs(location: Vector2) -> Array[String]:
+	var nearby_npcs: Array[String]
+	for npc: NPC in NPCS:
+		if npc.LOCATION[0] not in range(location[0]-1, location[0]+1): continue
+		if npc.LOCATION[1] not in range(location[1]-1, location[1]+1): continue
+		nearby_npcs.append(npc.ID)
+	return nearby_npcs
+
 #endregion utility
