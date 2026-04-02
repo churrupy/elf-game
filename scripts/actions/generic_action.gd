@@ -103,7 +103,7 @@ func tick() -> Array:
 	if OWNER.LOCATION != LOCATION:
 		#var ACTION_CLASS: GDScript = Constants.ACTION_ID["MoveAction"]
 		var tile: TILE = ENGINE.Map.get_tile(LOCATION)
-		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile)
+		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, ID)
 		return ["add", new_action]
 	# recheck can-do-action, so we don't interrupt other people's actions
 	var result: Array = run()

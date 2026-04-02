@@ -9,6 +9,10 @@ func _init(engine, owner: NPC, target: Node) -> void:
 	LOCATION = owner.LOCATION
 	super._init(engine, owner, target)
 
+func resume_state():
+	var result: Array = run()
+	ENGINE.NpcManager.add_state(result[1])
+
 func can_do_action() -> bool:
 	return true
 
