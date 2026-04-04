@@ -20,9 +20,6 @@ func run() -> Array:
 	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		LOCATION = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
 	else:
-		print("############ending move")
-		print("location", OWNER.LOCATION)
-		print("target", TARGET.LOCATION)
 		return ["end", null]
 
 	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)

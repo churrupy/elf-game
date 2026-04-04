@@ -112,6 +112,29 @@ func update_moving_location():
 			LOCATION = free_tile
 
 
+func witnesses_hear(action_id: String) -> void:
+	var witnesses: Array[String] = [OWNER.ID]
+	if TARGET is NPC:
+		witnesses += TARGET.ID
+
+	witnesses += ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)
+
+	if LOCATION != TARGET.LOCATION:
+		witnesses += ENGINE.NpcManager.get_nearby_npcs(LOCATION)
+
+	var temp_dict: Dictionary  = {}
+	for w: String in witnesses:
+		temp_dict[w] = 0
+	witnesses = temp_dict.keys()
+
+	if len(witnesses) == 0:
+		return
+
+	for npc_id: String in witnesses:
+		ENGINE.History.add_event("", action_id, LOCATION, witnesses)
+
+
+
 
 
 func chitchat() -> void:

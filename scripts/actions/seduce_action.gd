@@ -50,8 +50,10 @@ func tick() -> Array:
 func run():
 	# target hears flirt
 	var impression = TARGET.hear_flirt(OWNER.ID)
+	'''
 	if !ENGINE.NpcManager.is_available(TARGET):
 		impression = 0
+	'''
 	if impression == "pleased":
 		# flirt accepted, try to find location
 		# look for new location that has at least one adjacent open tile for encounter

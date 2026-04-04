@@ -27,13 +27,10 @@ func run() -> Array:
 	for npc_id:String in nodes:
 		var npc:NPC = Global.NPCS[npc_id]
 		var recent_action: ACTION = npc.STATE_STACK.back()
-		print(npc_id, recent_action)
-		#print(recent_action.RECENT_ACTION)
-		if recent_action.ID == "move" or recent_action.RECENT_ACTION == []:
+		if recent_action.ID != "encounter" or recent_action.RECENT_ACTION == []:
 			continue # still getting to location
 		interacted_with = true
 		var current_action:Array = recent_action.RECENT_ACTION
-		print(recent_action.RECENT_ACTION)
 		var dialogue_string: String = OWNER.NAME + "'s " + current_action[1] + " was used by " + npc.NAME + "'s " + current_action[0] + "."
 		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [npc_id], dialogue_string)
 		

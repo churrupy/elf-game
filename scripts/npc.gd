@@ -146,6 +146,7 @@ func update_relationship(other_npc_id, change):
 		RELATIONSHIPS[other_npc_id] = 0
 	RELATIONSHIPS[other_npc_id] += change
 
+
 func hear_topic(speaker_id: String, topic: String, opinion: int) -> String:
 	if speaker_id == ID:
 		return ""
