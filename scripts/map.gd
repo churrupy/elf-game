@@ -78,26 +78,6 @@ func _init(engine, room) -> void:
 			TILES.append(tile)
 
 
-func _ready_old() -> void:
-	pass
-	#$Grid.hide()
-	'''
-	size = Constants.MAIN_FRAME_SIZE
-	position = Constants.MAIN_FRAME_POSITION
-	var room_data: Dictionary = TILES_TEMPLATES[ROOM]
-	var special_tiles: Dictionary = room_data["special"]
-	for i: int in Constants.MAP_SIZE[0]:
-		TILES.append([])
-		for j: int in Constants.MAP_SIZE[1]:
-			var location: Array = [i, j]
-			var type: String = room_data["default"]
-			if location in special_tiles.keys():
-				type = special_tiles[location]
-			TILES[i].append(type)
-	'''
-
-
-
 #region update
 
 func clear_tiles():
@@ -124,30 +104,6 @@ func update() -> void:
 		#tile.show()
 			
 
-
-func update_old():
-	clear_tiles()
-	for x in range (Global.X_RANGE[0], Global.X_RANGE[1]):
-		if x not in range(0, len(TILES)):
-			continue
-		for y in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
-			if y not in range(0, len(TILES[0])):
-				continue
-			var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
-			if x_index < 0:
-				continue
-			var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
-			if y_index < 0:
-				continue
-			var location = [x, y]
-			var tile_type = get_tile(location)
-			if tile_type == null: continue
-			var tile = tile_scene.instantiate()
-			tile.initialize(tile_type, location)
-			add_child(tile)
-			tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0]
-			tile.global_position[1] = y_index * Constants.TILE_SIZE
-			tile.show()
 
 #endregion update
 
@@ -262,30 +218,6 @@ func get_neighbors(location: Vector2) -> Array[Vector2]:
 	return passable_locations
 
 
-func get_neighbors_old(location: Array) -> Array:
-	var neighbors: Array = [
-		#[location[0], location[1]],
-		# adjacent
-		[location[0] + 1, location[1]],
-		[location[0] - 1, location[1]],
-		[location[0], location[1] + 1],
-		[location[0], location[1] - 1],
-		# diagonals
-		[location[0] + 1, location[1] + 1],
-		[location[0] + 1, location[1] - 1],
-		[location[0] - 1, location[1] + 1],
-		[location[0] - 1, location[1] - 1]
-	]
-	var valid_neighbors: Array = []
-	for n: Vector2 in neighbors:
-		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]:
-			continue
-		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]:
-			continue
-		if is_impassable(n): continue
-		valid_neighbors.append(n)
-		
-	return valid_neighbors
 
 func get_closest_adjacent_location(start_location: Vector2, target_location: Vector2) -> Vector2:
 	# gets tile adjacent to target that's closest to start location
@@ -317,23 +249,6 @@ func get_tile(location: Vector2) -> TILE:
 			return tile
 	return null
 
-func get_tile_old(location: Array):
-	if location[0] not in range(len(TILES)): return null
-	if location[1] not in range(len(TILES[0])): return null
-	return TILES[location[0]][location[1]]
-
-'''
-func random_empty_tile_old() -> Array:
-	while true:
-		var x = randi_range(0, Constants.MAP_SIZE[0]-1) 
-		var y = randi_range(0, Constants.MAP_SIZE[1]-1)
-		var tile = TILES[x][y]
-		var tile_data = Constants.TILE_TEMPLATES[tile]
-		if tile_data["impassable"] == false:
-			return [x,y]
-	return []
-'''
-	
 func random_empty_tile() -> TILE:
 	for tile:TILE in TILES:
 		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
@@ -371,24 +286,9 @@ func get_all_actions_on_map(npc) -> Array[ACTION]:
 			var new_action: ACTION = ACTION_CLASS.new(ENGINE, npc, tile)
 			all_actions.append(new_action)
 	return all_actions
-'''
-func get_all_actions_on_map_old():
-	var all_actions = []
-	for i in len(TILES):
-		for j in len(TILES[0]):
-			var tile = TILES[i][j]
-			var tile_data = Constants.TILE_TEMPLATES[tile]
-			for action in tile_data["actions"]:
-				var action_data: Dictionary = Constants.ACTION_TEMPLATES[action]
-				var action_class_id: String = action_data["class"]
-				var action_class: GDScript = Constants.CLASS_TEMPLATES[action_class_id]
-				var new_action: GenericAction  = action_class.new(ENGINE, action)
-				#new_action.TARGET = [i,j] # where the npc wants to pathfind to
-				new_action.LOCATION = [i,j] # where the npc ends up (if adjacent to target)
-				all_actions.append(new_action)
-	return all_actions
-'''
 
+
+	
 func get_available_poses_for_tile(location: Vector2) -> Array:
 	var tile: TILE = get_tile(location)
 	var pose_class: String = Constants.TILE_TEMPLATES[tile.TYPE]["poses"]

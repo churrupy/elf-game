@@ -14,11 +14,39 @@ var DIALOGUE_LIST = []
 func _ready() -> void:
 	pass # Replace with function body.
 
+func update() -> void:
+	if MENU_NPC == null:
+		return
+	
+	# cleanup
+	$NameLabel.text = MENU_NPC.NAME
+	for child in $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_children():
+		child.queue_free()
 
-func update():
+	for child in $TalkDetails.get_node("DialogueDetails").get_children():
+		child.queue_free()
+
+
+	var involved_npcs:Array[String] = [] # fix this in a second
+	var history_strings:Array[String] = ENGINE.History.populate_talk_menu(MENU_NPC.ID)
+	for string:String in history_strings:
+		var label: Label = Label.new()
+		label.text = string
+		var container_size: Vector2 = $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_size()
+		label.custom_minimum_size = Vector2(container_size[0]*.75, 1)
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		$TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").add_child(label)
+
+	# set scrollbar to bottom hopefully
+	# looks kinda awkward but does technically work
+	$TalkDetails.get_node("DialogueContainer").scroll_vertical = $TalkDetails.get_node("DialogueContainer").get_v_scroll_bar().max_value
+
+
+
+func update_old():
 	if MENU_NPC == null: 
 		return
-	var history: Array[HISTORY_EVENT] = ENGINE.History.filter_by_npc(MENU_NPC.ID).slice(-20, -1)
+	var history: Array[HistoryEvent] = ENGINE.History.filter_by_npc(MENU_NPC.ID).slice(-20, -1)
 	#var history_list = ENGINE.History.history_to_string(history)
 	#LOCATION = npc.ACTION.TARGET
 	$NameLabel.text = MENU_NPC.NAME
@@ -29,7 +57,7 @@ func update():
 		child.queue_free()
 	
 	var involved_npcs: Array = []
-	for item: HISTORY_EVENT in history:
+	for item: HistoryEvent in history:
 		if item.DIALOGUE != "":
 			
 			var label: Label = Label.new()

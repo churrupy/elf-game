@@ -33,7 +33,7 @@ func run() -> Array:
 	var pose_data: Array = [POSE, ORIENTATION, target_action.POSE]
 	RECENT_ACTION = determine_action(pose_data).pick_random()
 	var dialogue_string = OWNER.NAME + " used their " + RECENT_ACTION[0] + " on " + TARGET.NAME + "'s " + RECENT_ACTION[1] + "."
-	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
+	#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
 
 	var needs_refreshed: Array[String] = ["release", "arousal"]
 	for need: String in needs_refreshed:
@@ -55,7 +55,7 @@ func check_orgasm() -> void:
 		var dialogue_string = OWNER.NAME + " came!"
 		var witnesses: Array[String] = get_nodes()
 		witnesses.append(TARGET.ID)
-		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
+		#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
 		ORGASM_COUNT += 1
 		OWNER.NEEDS["arousal"] = 50
 

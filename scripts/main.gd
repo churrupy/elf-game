@@ -3,9 +3,9 @@ extends Node
 
 #var X_RANGE
 #var Y_RANGE
-var Map: MAP = MAP.new(self, "club")
-var History: HISTORY_CLASS = HISTORY_CLASS.new(self)
-var NpcManager: NPC_MANAGER = NPC_MANAGER.new(self)
+var Map:MAP = MAP.new(self, "club")
+var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
+var NpcManager:NPC_MANAGER = NPC_MANAGER.new(self)
 
 
 
@@ -44,18 +44,6 @@ func _ready() -> void:
 	$TalkMenu.hide()
 	tick()
 
-'''
-func create_npc():
-	var npc = NPC.new()
-	var tile = $Map.random_empty_tile()
-	npc.LOCATION = tile
-	npc.initialize(ID_COUNTER)
-	ID_COUNTER += 1
-	#add_child(npc)
-	Global.NPCS[npc.ID] = npc
-	print(npc.LOCATION, typeof(npc.LOCATION))
-	History.add_event(npc.ID, "created", npc.LOCATION)
-'''
 #endregion
 
 
@@ -116,22 +104,6 @@ func tick() -> void:
 	set_nearby_npcs()
 	update_display()
 
-'''
-func tick_npcs():
-	for npc_id in Global.NPCS.keys():
-		if npc_id == "player": continue
-		print("ticking ", npc_id)
-		var npc: NPC = Global.NPCS[npc_id]
-		if npc.ACTION == null:
-			npc.ACTION = determine_action(npc)
-		elif npc.ACTION.STATUS == "finish":
-			History.add_event(npc.ID, "finished", npc.LOCATION)
-			npc.ACTION = null
-		else:
-			npc.ACTION.tick()
-	print("")
-
-'''
 
 #endregion
 

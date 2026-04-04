@@ -14,6 +14,17 @@ func _process(delta: float) -> void:
 
 	
 func update():
+	# clear menu
+	for child in $NpcHistoryContainer.get_node("VBoxContainer").get_children():
+		child.queue_free()
+
+	update_npc_details()
+	update_history()
+	update_portrait()
+
+	SignalBus.npc_hover.emit(MENU_NPC)
+
+func update_npc_details() -> void:
 	$NameLabel.text = MENU_NPC.NAME
 	var display_string = []
 	var _str = "Id: " + MENU_NPC.ID
@@ -30,27 +41,29 @@ func update():
 	for need in MENU_NPC.NEEDS:
 		_str = need.capitalize() + ": " + str(int(MENU_NPC.NEEDS[need]))
 		display_string.append(_str)
-	
-	# clear container
-	for child in $NpcHistoryContainer.get_node("VBoxContainer").get_children():
-		child.queue_free()
 
-	# get last five moves
-	var history = ENGINE.History.filter_by_doer(MENU_NPC.ID)
-	var history_list = ENGINE.History.history_to_string(history)
-	var last_five = history_list.slice(-100,-1)
-	#var last_five = history_list.slice()
-	last_five.reverse()
-	display_string += last_five
-	
 	for item in display_string:
 		var new_label = Label.new()
 		new_label.text = item
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$NpcHistoryContainer.get_node("VBoxContainer").add_child(new_label)
 
+func update_history() -> void:
+	# get last five moves
+	var history_strings:Array[String] = ENGINE.History.populate_npc_menu(MENU_NPC.ID)
+	history_strings.reverse()
+	for item:String in history_strings:
+		var new_label = Label.new()
+		new_label.text = item
+		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		$NpcHistoryContainer.get_node("VBoxContainer").add_child(new_label)
+	
+
+func update_portrait() -> void:
+	for child in $Portrait.get_children():
+		child.queue_free()
+	
 	#$Portrait.get_node("Splash").modulate = MENU_NPC.HAIR_COLOR
-	clear_portrait()
 	var splash = TextureRect.new()
 	splash.modulate = MENU_NPC.EYE_COLOR
 	splash.scale = Vector2(1.2,1.2)
@@ -72,12 +85,6 @@ func update():
 		sprite.scale = Vector2(1.2,1.2)
 		$Portrait.add_child(sprite)
 	$Portrait.global_position = Vector2(68,84)
-
-	SignalBus.npc_hover.emit(MENU_NPC)
-
-func clear_portrait():
-	for child in $Portrait.get_children():
-		child.queue_free()
 
 
 func close_npc_menu() -> void:

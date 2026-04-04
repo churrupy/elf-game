@@ -24,7 +24,7 @@ func score() -> void:
 
 func run() -> Array:
 	refresh_needs("bladder")
-	ENGINE.History.add_event(OWNER.ID, "toileted", LOCATION)
+	ENGINE.History.add_event(OWNER.ID, "toileted")
 
 	if OWNER.NEEDS["bladder"] >= 100:
 		return ["end", null]

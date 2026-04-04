@@ -29,7 +29,7 @@ func score() -> void:
 
 func run() -> Array:
 	refresh_needs("fun")
-	ENGINE.History.add_event(OWNER.ID, "danced", LOCATION)
+	ENGINE.History.add_event(OWNER.ID, "drinks")
 
 	chitchat()
 

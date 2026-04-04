@@ -53,6 +53,7 @@ var GLOW_BUTTON
 #endregion sprite
 
 #region actions
+var EVENT_QUEUE: Array[HistoryEvent]
 
 var STATE_STACK: Array[ACTION] = []
 

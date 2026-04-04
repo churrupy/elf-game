@@ -27,7 +27,7 @@ func run() -> Array:
 	else:
 		OWNER.LOCATION = next_step
 	
-	ENGINE.History.add_event(OWNER.ID, "moved to", LOCATION)
+	ENGINE.History.add_event(OWNER.ID, "moves")
 	return ["running", null]
 
 

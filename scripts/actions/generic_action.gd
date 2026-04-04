@@ -69,10 +69,10 @@ func step_towards_location() -> void:
 		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
 		print("teleporting...")
 		OWNER.LOCATION = LOCATION
-		ENGINE.History.add_event(OWNER.ID, "moved to", LOCATION)
+		#ENGINE.History.add_event(OWNER.ID, "moved to", LOCATION)
 	else:
 		OWNER.LOCATION = next_step
-		ENGINE.History.add_event(OWNER.ID, "moved to", LOCATION)
+		#ENGINE.History.add_event(OWNER.ID, "moved to", LOCATION)
 
 
 func recheck_can_do_action():
@@ -131,13 +131,25 @@ func witnesses_hear(action_id: String) -> void:
 		return
 
 	for npc_id: String in witnesses:
-		ENGINE.History.add_event("", action_id, LOCATION, witnesses)
-
-
-
+		pass
+		#ENGINE.History.add_event("", action_id, LOCATION, witnesses)
 
 
 func chitchat() -> void:
+	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
+	OWNER.RECENT_TOPIC = new_topic
+	var opinion:int = OWNER.OPINIONS[new_topic]
+	var params:Dictionary = {
+		"topic": new_topic,
+		"opinion": opinion
+	}
+	ENGINE.History.add_event(OWNER.ID, "converse", "", params)
+
+	refresh_needs("social")
+
+
+
+func chitchat_old() -> void:
 	var center_of_conversation: Vector2 = LOCATION
 
 	var witnesses: Array[String] = ENGINE.NpcManager.get_nearby_npcs(center_of_conversation)
@@ -168,7 +180,7 @@ func chitchat() -> void:
 	else:
 		op_str += "terrible!"
 	op_str += '"'
-	ENGINE.History.add_event(OWNER.ID, "converse", center_of_conversation, witnesses, op_str)
+	#ENGINE.History.add_event(OWNER.ID, "converse", center_of_conversation, witnesses, op_str)
 
 	refresh_needs("social")
 
@@ -178,7 +190,7 @@ func chitchat() -> void:
 		var npc = Global.NPCS[npc_id]
 		var impression: String = npc.hear_topic(OWNER.ID, new_topic, opinion)
 		var _str: String = npc.NAME + " was " + impression + " with that statement."
-		ENGINE.History.add_event(npc_id, "converse", center_of_conversation, [OWNER.ID], _str)
+		#ENGINE.History.add_event(npc_id, "converse", center_of_conversation, [OWNER.ID], _str)
 
 
 

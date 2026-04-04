@@ -28,7 +28,7 @@ func create_npc() -> void:
 	var new_action: ACTION = IdleAction.new(ENGINE, npc, null)
 	npc.STATE_STACK.append(new_action)
 	
-	ENGINE.History.add_event(npc.ID, "created", npc.LOCATION)
+	#ENGINE.History.add_event(npc.ID, "created", npc.LOCATION)
 
 
 
@@ -36,6 +36,9 @@ func create_npc() -> void:
 func tick() -> void:
 	for npc:NPC in NPCS:
 		print("ticking ", npc.NAME)
+
+		process_events(npc)
+
 		var current_action: ACTION = npc.STATE_STACK.back()
 
 		print(current_action)
@@ -64,6 +67,39 @@ func tick() -> void:
 			# state continues running
 			#assumes result is ["running", null]
 			pass
+
+
+func process_events(npc:NPC) -> void:
+	for event:HistoryEvent in npc.EVENT_QUEUE:
+		var reaction: int
+		if event.ACTOR not in npc.RELATIONSHIPS:
+			npc.RELATIONSHIPS[event.ACTOR] = 0
+		#var actor_opinion = npc.RELATIONSHIPS[event.ACTOR]
+		if event.ACTION_ID == "converse":
+			var topic:String = event.PARAM["topic"]
+			var actor_opinion = event.PARAM["opinion"]
+			var npc_opinion:int = npc.OPINIONS[topic]
+			var diff:int = abs(actor_opinion - npc_opinion)
+			if diff < 2: reaction = 1
+			elif diff < 4: reaction = 0
+			else: reaction = -1
+			npc.RELATIONSHIPS[event.ACTOR] += reaction
+		ENGINE.History.add_reaction(npc.ID, reaction, event)
+		if event.TARGET == npc.ID:
+			# npc is target and broadcasts reaction
+			var action:String
+			var action_list: Dictionary = {
+				1: "accepts",
+				0: "indifferent",
+				-1: "rejects"
+			}
+
+			ENGINE.History.add_event(npc.ID, action_list[reaction], event.ACTOR)
+
+	npc.EVENT_QUEUE = [] # clear queue
+
+
+
 
 func add_state_old(npc_id:String, new_state_id:String, params: Dictionary) -> void:
 	var npc: NPC = get_npc(npc_id)
@@ -128,7 +164,7 @@ func get_all_npc_actions(checked_npc: NPC) -> Array[ACTION]:
 	var action_classes: Array[RefCounted] = [
 		SocialAction, 
 		#"FlirtAction", 
-		SeduceAction
+		#SeduceAction
 	]
 	var all_actions: Array[ACTION]
 	for npc_id: String in Global.NPCS.keys():

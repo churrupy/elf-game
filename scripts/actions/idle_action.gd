@@ -19,8 +19,8 @@ func can_do_action() -> bool:
 
 func run():
 	print("running")
-	var dialogue_string: String = OWNER.NAME + " is choosing a new action."
-	ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [], dialogue_string)
+	#var dialogue_string: String = OWNER.NAME + " is choosing a new action."
+	#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [], dialogue_string)
 	#LOCATION = OWNER.LOCATION # keeps in place for idling
 	var all_actions: Array[ACTION] = ENGINE.Map.get_all_actions_on_map(OWNER)
 	all_actions += ENGINE.NpcManager.get_all_npc_actions(OWNER)

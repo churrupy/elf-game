@@ -32,7 +32,7 @@ func run() -> Array:
 		interacted_with = true
 		var current_action:Array = recent_action.RECENT_ACTION
 		var dialogue_string: String = OWNER.NAME + "'s " + current_action[1] + " was used by " + npc.NAME + "'s " + current_action[0] + "."
-		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [npc_id], dialogue_string)
+		#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [npc_id], dialogue_string)
 		
 	if interacted_with:
 		var needs_refreshed: Array[String] = ["release", "arousal"]
@@ -47,6 +47,6 @@ func check_orgasm() -> void:
 	if OWNER.NEEDS["arousal"] >= 100:
 		var dialogue_string = OWNER.NAME + " came!"
 		var witnesses: Array[String] = get_nodes()
-		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
+		#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, witnesses, dialogue_string)
 		ORGASM_COUNT += 1
 		OWNER.NEEDS["arousal"] = 50
