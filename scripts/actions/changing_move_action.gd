@@ -11,16 +11,17 @@ func _init(engine, owner:NPC, target:NPC, moving_for:String) -> void:
 	COUNTDOWN = 3
 	super._init(engine, owner, target)
 
-func tick() -> Array:
-	var result: Array = run()
+func tick() -> ActionResult:
+	var result: ActionResult = run()
 	OWNER.decay_needs()
 	return result
 
-func run() -> Array:
+func run() -> ActionResult:
 	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		LOCATION = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
 	else:
-		return ["end", null]
+		return ActionResult.new("end", null)
+		#return ["end", null]
 
 	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	if next_step == Vector2.INF:
@@ -31,7 +32,8 @@ func run() -> Array:
 		OWNER.LOCATION = next_step
 
 	ENGINE.History.add_event(OWNER.ID, "moves")
-	return ["running", null]
+	return ActionResult.new("running", null)
+	#return ["running", null]
 
 func _to_string():
 	return "Moving for " + MOVING_FOR + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")" + "Score: " + str(SCORE)

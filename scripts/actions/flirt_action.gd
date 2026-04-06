@@ -10,10 +10,11 @@ func _init(engine, owner:NPC, target:NPC) -> void:
 func can_do_action() -> bool:
 	return ENGINE.NpcManager.is_available(TARGET)
 
-func tick() -> Array:
-	var res:Array = ["running", null]
+func tick() -> ActionResult:
+	var res:ActionResult = ActionResult.new("running", null)
 	if !can_do_action():
-		res = ["end", null]
+		res.STATUS = "end"
+		#res = ["end", null]
 	else:
 		res = run()
 	OWNER.decay_needs()

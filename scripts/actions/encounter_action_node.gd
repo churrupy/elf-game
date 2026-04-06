@@ -17,12 +17,13 @@ func _init(engine, owner: NPC, target: NPC) -> void:
 	# LOCATION has to be manually set by whatever is initializing this class
 
 
-func run() -> Array:
+func run() -> ActionResult:
 	# wait for target to get to location
 	var target_action: ACTION = TARGET.STATE_STACK.back()
 	if target_action is not EncounterActionAnchor:
 		# target isn't to location yet
-		return ["running", null]
+		return ActionResult.new("running", null)
+		#return ["running", null]
 
 	# pick an action
 	# display it
@@ -45,8 +46,10 @@ func run() -> Array:
 			var nodes: Array[String] = get_nodes()
 			if len(nodes) == 0:
 				# can quit encounter when target has orgasmed at least once and node has no nodes attached to it
-				return ["end", null]
-	return ["running", null]
+				return ActionResult.new("end", null)
+				#return ["end", null]
+	return ActionResult.new("running", null)
+	#return ["running", null]
 
 	
 

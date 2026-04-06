@@ -16,6 +16,7 @@ func _process(delta: float) -> void:
 func update():
 	var player_location: Vector2 = ENGINE.get_node("Player").LOCATION
 	$PCLocationLabel.text = str(player_location)
+	$TickLabel.text = "TICKS: " + str(Global.TICKS)
 	var player_history = ENGINE.History.filter_by_npc("player")
 	var player_history_list = ENGINE.History.history_to_string(player_history)
 	var trunc_history = player_history_list.slice(-10, -1)

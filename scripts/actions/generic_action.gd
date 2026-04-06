@@ -1,6 +1,4 @@
-extends RefCounted
-
-class_name ACTION
+class_name ACTION extends RefCounted
 
 var ENGINE
 var ID: String
@@ -92,22 +90,26 @@ func recheck_can_do_action():
 	return true
 
 
-func tick() -> Array:
+func tick() -> ActionResult:
 	if OWNER.LOCATION != LOCATION:
 		#var ACTION_CLASS: GDScript = Constants.ACTION_ID["MoveAction"]
 		var tile: TILE = ENGINE.Map.get_tile(LOCATION)
 		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, ID)
-		return ["add", new_action]
+		return ActionResult.new("add", new_action)
+		#return ["add", new_action]
 	if !can_do_action():
-		return ["end", null]
+		return ActionResult.new("end", null)
+		#return ["end", null]
 	# recheck can-do-action, so we don't interrupt other people's actions
-	var result: Array = run()
+	#var result:ActionResult = ActionResult.new("running", null)
+	var result:ActionResult = run()
 	OWNER.decay_needs()
 	return result
 
-func run() -> Array:
+func run() -> ActionResult:
 	# extends
-	return ["running", null]
+	return ActionResult.new("running", null)
+	#return ["running", null]
 	
 
 func update_moving_location():
@@ -144,7 +146,7 @@ func witnesses_hear(action_id: String) -> void:
 
 
 func chitchat() -> void:
-	flirt()
+	#flirt()
 	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
 	OWNER.RECENT_TOPIC = new_topic
 	var opinion:int = OWNER.OPINIONS[new_topic]

@@ -12,7 +12,7 @@ func _init(engine, owner: NPC, target: TILE) -> void:
 	super._init(engine, owner, target)
 
 
-func run() -> Array:
+func run() -> ActionResult:
 	#wtf does the anchor do here lol
 	# get attached nodes
 	var pose_options: Array = ENGINE.Map.get_available_poses_for_tile(LOCATION)
@@ -20,7 +20,8 @@ func run() -> Array:
 
 	var nodes: Array[String] = get_nodes()
 	if len(nodes) == 0:
-		return ["end", null]
+		return ActionResult.new("end", null)
+		#return ["end", null]
 
 	var interacted_with: bool = false
 	for npc_id:String in nodes:
@@ -39,7 +40,8 @@ func run() -> Array:
 			refresh_needs(need)
 		check_orgasm()
 
-	return ["running", null]
+	return ActionResult.new("running", null)
+	#return ["running", null]
 	
 
 func check_orgasm() -> void:

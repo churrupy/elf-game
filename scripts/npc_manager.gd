@@ -43,22 +43,24 @@ func tick() -> void:
 
 		print(current_action)
 
-		var result: Array = current_action.tick()
+		var result: ActionResult = current_action.tick()
 
 		print(result)
 
-		if result[0] == "add":
+		if result.STATUS == "add":
 			current_action.suspend_state()
-			var new_action:ACTION = result[1]
-			new_action.enter_state()
-			npc.STATE_STACK.append(new_action)
-		elif result[0] == "replace":
+			result.NEW_ACTION.enter_state()
+			#var new_action:ACTION = result[1]
+			#new_action.enter_state()
+			npc.STATE_STACK.append(result.NEW_ACTION)
+		elif result.STATUS == "replace":
 			current_action.exit_state()
 			npc.STATE_STACK.pop_back()
-			var new_action:ACTION = result[1]
-			new_action.enter_state()
-			npc.STATE_STACK.append(new_action)
-		elif result[0] == "end":
+			#var new_action:ACTION = result[1]
+			#new_action.enter_state()
+			result.NEW_ACTION.enter_state()
+			npc.STATE_STACK.append(result.NEW_ACTION)
+		elif result.STATUS == "end":
 			var new_action:ACTION = current_action.exit_state()
 			npc.STATE_STACK.pop_back()
 			if new_action != null:

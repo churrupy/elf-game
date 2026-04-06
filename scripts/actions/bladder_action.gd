@@ -22,10 +22,12 @@ func score() -> void:
 	SCORE -= OWNER.LOCATION.distance_to(LOCATION)
 
 
-func run() -> Array:
+func run() -> ActionResult:
 	refresh_needs("bladder")
 	ENGINE.History.add_event(OWNER.ID, "toileted")
 
 	if OWNER.NEEDS["bladder"] >= 100:
-		return ["end", null]
-	return ["running", null]
+		return ActionResult.new("end", null)
+		#return ["end", null]
+	return ActionResult.new("running", null)
+	#return ["running", null]

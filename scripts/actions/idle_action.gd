@@ -10,14 +10,14 @@ func _init(engine, owner: NPC, target: Node) -> void:
 	super._init(engine, owner, target)
 
 func resume_state():
-	var result: Array = run()
-	ENGINE.NpcManager.add_state(result[1])
+	var result: ActionResult = run()
+	ENGINE.NpcManager.add_state(result.NEW_ACTION)
 
 func can_do_action() -> bool:
 	return true
 
 
-func run():
+func run() -> ActionResult:
 	print("running")
 	#var dialogue_string: String = OWNER.NAME + " is choosing a new action."
 	#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [], dialogue_string)
@@ -27,7 +27,9 @@ func run():
 	all_actions.sort_custom(func(a,b): return b.SCORE < a.SCORE)
 	for action:ACTION in all_actions:
 		if action.can_do_action():
-			return ["add", action]
+			return ActionResult.new("add", action)
+			#return ["add", action]
 
 	print("no action found")
-	return ["running", null]
+	return ActionResult.new("running", null)
+	#return ["running", null]

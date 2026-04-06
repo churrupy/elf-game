@@ -29,24 +29,25 @@ func score() -> void:
 		return
 	LOCATION = closest_location
 
-func tick() -> Array:
-	var res:Array = ["running", null]
+func tick() -> ActionResult:
+	var res:ActionResult = ActionResult.new("running", null)
 	if !can_do_action():
-		res = ["end", null]
+		res.STATUS = "end"
+		#res = ["end", null]
 	elif OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
-		var new_action: ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, ID)
-		res = ["add", new_action]
+		res.STATUS = "add"
+		res.NEW_ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, ID)
 	else:
 		res = run()
 	OWNER.decay_needs()
 	return res
 
-func run() -> Array:
+func run() -> ActionResult:
 	
 	#print("*************", PHYSICAL_ACTION)
-	flirt()
+	#flirt()
 
-	var res: Array = ["running", null]
+	var res: ActionResult = ActionResult.new("running", null)
 
 	var nearby_npcs:Array[String] = ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)
 	if len(nearby_npcs) > 0:
@@ -55,7 +56,9 @@ func run() -> Array:
 
 	COUNTDOWN -= 1
 	if COUNTDOWN < 0 or !ENGINE.NpcManager.is_available(TARGET):
-		return ["end", null]
+		return ActionResult.new("end", null)
+		#return ["end", null]
+	
 	return res
 
 '''
