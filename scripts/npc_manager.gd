@@ -59,10 +59,14 @@ func tick() -> void:
 			new_action.enter_state()
 			npc.STATE_STACK.append(new_action)
 		elif result[0] == "end":
-			current_action.exit_state()
+			var new_action:ACTION = current_action.exit_state()
 			npc.STATE_STACK.pop_back()
-			var next_action: ACTION = npc.STATE_STACK.back()
-			next_action.resume_state()
+			if new_action != null:
+				new_action.enter_state()
+				npc.STATE_STACK.append(new_action)
+			else:
+				var next_action: ACTION = npc.STATE_STACK.back()
+				next_action.resume_state()
 		else:
 			# state continues running
 			#assumes result is ["running", null]
@@ -84,6 +88,17 @@ func process_events(npc:NPC) -> void:
 			elif diff < 4: reaction = 0
 			else: reaction = -1
 			npc.RELATIONSHIPS[event.ACTOR] += reaction
+		elif event.ACTION_ID == "flirt":
+			if event.TARGET == npc.ID:
+				var attraction: int = get_attraction(event.TARGET, event.ACTOR)
+				if attraction > 0:
+					reaction = 1
+				elif attraction == 0:
+					reaction = 0
+				else:
+					reaction = -1
+			else:
+				reaction = 0
 		ENGINE.History.add_reaction(npc.ID, reaction, event)
 		if event.TARGET == npc.ID:
 			# npc is target and broadcasts reaction
@@ -94,7 +109,7 @@ func process_events(npc:NPC) -> void:
 				-1: "rejects"
 			}
 
-			ENGINE.History.add_event(npc.ID, action_list[reaction], event.ACTOR)
+			#ENGINE.History.add_event(npc.ID, action_list[reaction], event.ACTOR)
 
 	npc.EVENT_QUEUE = [] # clear queue
 
@@ -176,6 +191,17 @@ func get_all_npc_actions(checked_npc: NPC) -> Array[ACTION]:
 			var new_action: ACTION = ACTION_CLASS.new(ENGINE, checked_npc, npc)
 			all_actions.append(new_action)
 	return all_actions
+
+func get_attraction(npc_id:String, target_npc_id:String) -> int:
+	return 1 # for testing
+	var npc:NPC = Global.NPCS[npc_id]
+	var target_npc:NPC = Global.NPCS[target_npc_id]
+	var attraction:int = npc.OPINIONS[target_npc.STYLE]
+	print("$$$$$$$$$$$$$$$$$", attraction)
+	return attraction
+	#return npc.OPINIONS[target_npc.STYLE]
+	#var other_style = other_npc.STYLE
+	#return OPINIONS[other_style]
 
 func is_available(npc: NPC) -> bool:
 	# returns whether the npc is available for interactions

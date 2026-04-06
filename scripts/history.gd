@@ -6,6 +6,11 @@ var ENGINE
 var HISTORY: Array[HistoryEvent]
 var REACTIONS: Array[EventReaction]
 
+var CONVERSABLES: Array[String] = [
+	"converse",
+	"flirt"
+]
+
 func _init(engine):
 	ENGINE = engine
 
@@ -30,6 +35,7 @@ func add_event(actor_id:String, action:String, target:String = "", params:Dictio
 
 	var witnesses: Array[String] = ENGINE.NpcManager.get_nearby_npcs(actor.LOCATION)
 	for w: String in witnesses:
+		if w == actor_id: continue
 		add_to_reaction_queue(w, new_event)
 
 	return new_event
@@ -95,6 +101,15 @@ func event_to_string(event:HistoryEvent) -> String:
 			op_str = "terrible!"
 		_str = "[" + str(event.TICK) + "] " + actor.NAME + ' says, "' + event.PARAM["topic"] + " are " + op_str + '"'
 		return _str
+	if event.ACTION_ID in Dialogue.ENCOUNTER_STRINGS:
+		var target = Global.NPCS[event.TARGET]
+		var str_list: Array[String] = [
+			"[" + str(event.TICK) + "] ",
+			actor.NAME,
+			Dialogue.ENCOUNTER_STRINGS[event.ACTION_ID],
+			target.NAME
+		]
+		return " ".join(str_list) + "."
 	else:
 		var str_list: Array[String] = [
 			"[" + str(event.TICK) + "] ",
@@ -112,6 +127,7 @@ func get_reactions_to_event(event:HistoryEvent) -> Array[EventReaction]:
 	return REACTIONS.filter(func(reaction): return reaction.EVENT == event)
 
 func reaction_to_string(reaction:EventReaction) -> String:
+	print("NOPE")
 	var witness = Global.NPCS[reaction.WITNESS]
 	var reaction_dict: Dictionary = {
 		1: "pleased",
@@ -128,12 +144,13 @@ func populate_talk_menu(npc_id:String) -> Array[String]:
 	i don't know what i want to show up in the talk menu lol
 	'''
 	var return_string:Array[String] = []
-	var events:Array[HistoryEvent] = HISTORY.filter(func(event): return (event.ACTOR == npc_id or event.TARGET == npc_id) and event.ACTION_ID == "converse")
+	var events:Array[HistoryEvent] = HISTORY.filter(func(event): return (event.ACTOR == npc_id or event.TARGET == npc_id))
 	for event:HistoryEvent in events:
 		return_string.append(event_to_string(event))
 		var reaction_list:Array[EventReaction] = get_reactions_to_event(event)
 		for reaction:EventReaction in reaction_list:
-			return_string.append(reaction_to_string(reaction))
+			pass
+			#return_string.append(reaction_to_string(reaction))
 	
 	return return_string
 
@@ -186,6 +203,11 @@ func filter_by_location_old(location):
 		if h["location"] == location:
 			filtered_history.append(h)
 	return filtered_history
+
+func does_event_exist(actor_id:String, action_id:String, target_id:String) -> int:
+	var event_index:int = HISTORY.find_custom(func(event): return event.ACTOR==actor_id and event.ACTION_ID == action_id and event.TARGET == target_id)
+	return event_index
+	
 
 func history_to_string(history_list: Array =[]) -> Array:
 	if history_list == []:

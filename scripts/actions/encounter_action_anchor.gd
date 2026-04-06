@@ -2,7 +2,6 @@ class_name EncounterActionAnchor extends ACTION
 
 # target is a tile/location
 
-var POSE = "standing"
 var ORGASM_COUNT = 0
 
 func _init(engine, owner: NPC, target: TILE) -> void:

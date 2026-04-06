@@ -1,8 +1,8 @@
 class_name EncounterActionNode extends ACTION
 
-var POSE:String = "standing"
+#var POSE:String = "standing"
 var ORIENTATION: String = "front"
-var RECENT_ACTION: Array
+#var RECENT_ACTION: Array
 var ORGASM_COUNT: int = 0
 
 const GENDER_TEMPLATES: Dictionary = {
@@ -31,8 +31,8 @@ func run() -> Array:
 
 
 	var pose_data: Array = [POSE, ORIENTATION, target_action.POSE]
-	RECENT_ACTION = determine_action(pose_data).pick_random()
-	var dialogue_string = OWNER.NAME + " used their " + RECENT_ACTION[0] + " on " + TARGET.NAME + "'s " + RECENT_ACTION[1] + "."
+	#RECENT_ACTION = determine_action(pose_data).pick_random()
+	#var dialogue_string = OWNER.NAME + " used their " + RECENT_ACTION[0] + " on " + TARGET.NAME + "'s " + RECENT_ACTION[1] + "."
 	#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
 
 	var needs_refreshed: Array[String] = ["release", "arousal"]

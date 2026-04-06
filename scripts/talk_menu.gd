@@ -28,7 +28,7 @@ func update() -> void:
 
 
 	var involved_npcs:Array[String] = [] # fix this in a second
-	var history_strings:Array[String] = ENGINE.History.populate_talk_menu(MENU_NPC.ID)
+	var history_strings:Array[String] = ENGINE.History.populate_talk_menu(MENU_NPC.ID).slice(-10,-1)
 	for string:String in history_strings:
 		var label: Label = Label.new()
 		label.text = string

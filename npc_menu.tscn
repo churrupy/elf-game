@@ -43,6 +43,9 @@ horizontal_alignment = 1
 
 [node name="Portrait" parent="." instance=ExtResource("2_pcope")]
 layout_mode = 0
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
 offset_left = 9.0
 offset_top = 11.0
 offset_right = 49.0

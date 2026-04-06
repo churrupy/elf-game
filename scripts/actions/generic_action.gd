@@ -12,6 +12,10 @@ var SCORE: int = 0
 var STATUS: String
 
 
+var POSE:String = "standing"
+var PHYSICAL_ACTION:String = ""
+
+
 func _init(engine, owner: NPC, target: Node) -> void:
 	ENGINE = engine
 	OWNER = owner
@@ -23,8 +27,12 @@ func _init(engine, owner: NPC, target: Node) -> void:
 func enter_state():
 	pass
 
-func exit_state():
-	pass
+func exit_state() -> ACTION:
+	if PHYSICAL_ACTION != "":
+		var new_action:ACTION = SocialAction.new(ENGINE, OWNER, TARGET)
+		new_action.PHYSICAL_ACTION = PHYSICAL_ACTION
+		return new_action
+	return null
 
 func suspend_state():
 	pass
@@ -136,6 +144,7 @@ func witnesses_hear(action_id: String) -> void:
 
 
 func chitchat() -> void:
+	flirt()
 	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
 	OWNER.RECENT_TOPIC = new_topic
 	var opinion:int = OWNER.OPINIONS[new_topic]
@@ -147,6 +156,58 @@ func chitchat() -> void:
 
 	refresh_needs("social")
 
+
+func flirt() -> void:
+	# deal with being target of escalation
+	print("flirting hit")
+	var nodes:Array[String] = get_nodes()
+	if len(nodes) > 0:
+		# target
+		# right now just assume that being targeted automatically means escalation
+		# i'll figure out the details later
+		for node:String in nodes:
+			# decide whether to rebuff them
+			var attraction:int = ENGINE.NpcManager.get_attraction(OWNER.ID, node)
+			if attraction < 0:
+				ENGINE.History.add_event(OWNER.ID, "rebuff", node)
+	
+	if PHYSICAL_ACTION != "":
+		print("physical action", PHYSICAL_ACTION)
+		if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+			# target moved away
+			TARGET = null
+		var event_index:int = ENGINE.History.does_event_exist(TARGET.ID, "rebuff", OWNER.ID)
+		if event_index > -1:
+			PHYSICAL_ACTION == ""
+		else:
+			# try to escalate
+			if PHYSICAL_ACTION in Dialogue.ENCOUNTER_ESCALATION:
+				print("escalating")
+				PHYSICAL_ACTION = Dialogue.ENCOUNTER_ESCALATION[PHYSICAL_ACTION]
+				ENGINE.History.add_event(OWNER.ID, PHYSICAL_ACTION, TARGET.ID)
+
+	elif (OWNER.NEEDS["release"] < 50 or OWNER.NEEDS["arousal"] > 30):
+		print("target:", TARGET)
+		print(TARGET is NPC)
+		if TARGET is not NPC:
+			var nearby_npcs:Array[String] = ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)
+			var highest_attraction: int = 0
+			var most_attractive_npc:String = ""
+			for npc_id:String in nearby_npcs:
+				if npc_id == OWNER.ID: continue
+				#var npc:NPC = Global.NPCS[npc_id]
+				var attraction:int = ENGINE.NpcManager.get_attraction(OWNER.ID, npc_id)
+				if attraction > highest_attraction:
+					#var event_index:int = ENGINE.History.does_event_exist(npc_id, "rebuff", OWNER.ID) #assumes that target npc will never change their mind (though i really should put expiration dates on the events lol)
+					highest_attraction = attraction
+					most_attractive_npc = npc_id
+			if most_attractive_npc != "":
+				print("found attractive", most_attractive_npc)
+				TARGET = Global.NPCS[most_attractive_npc]
+		else:
+			# let's start with this
+			PHYSICAL_ACTION = "sweet nothings"
+			ENGINE.History.add_event(OWNER.ID, PHYSICAL_ACTION, TARGET.ID)
 
 
 func chitchat_old() -> void:

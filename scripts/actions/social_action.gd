@@ -1,12 +1,13 @@
 class_name SocialAction extends ACTION
 
+
 func _init(engine, owner: NPC, target: NPC) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "converse"
 	super._init(engine, owner, target)
 
-func can_do_action():
+func can_do_action() -> bool:
 	return ENGINE.NpcManager.is_available(TARGET)
 
 func score() -> void:
@@ -29,21 +30,27 @@ func score() -> void:
 	LOCATION = closest_location
 
 func tick() -> Array:
+	var res:Array = ["running", null]
 	if !can_do_action():
-		return ["end", null]
-	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+		res = ["end", null]
+	elif OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		var new_action: ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, ID)
-		return ["add", new_action]
-	var result: Array = run()
+		res = ["add", new_action]
+	else:
+		res = run()
 	OWNER.decay_needs()
-	return result
+	return res
 
 func run() -> Array:
-	var res: Array = ["running", null]
-	if OWNER.NEEDS["release"] < 50 or OWNER.NEEDS["arousal"] > 30:
-		res = flirt()
+	
+	#print("*************", PHYSICAL_ACTION)
+	flirt()
 
-	chitchat() # refresh needs already covered in this
+	var res: Array = ["running", null]
+
+	var nearby_npcs:Array[String] = ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)
+	if len(nearby_npcs) > 0:
+		chitchat() # refresh needs already covered in this
 	# have some kind of "if attracted to, then flirt" here
 
 	COUNTDOWN -= 1
@@ -51,8 +58,56 @@ func run() -> Array:
 		return ["end", null]
 	return res
 
+'''
+func flirt() -> void:
+	# deal with being target of escalation
+	var nodes:Array[String] = get_nodes()
+	if len(nodes) > 0:
+		# target
+		# right now just assume that being targeted automatically means escalation
+		# i'll figure out the details later
+		for node:String in nodes:
+			# decide whether to rebuff them
+			var attraction:int = ENGINE.NpcManager.get_attraction(OWNER.ID, node)
+			if attraction < 0:
+				ENGINE.History.add_event(OWNER.ID, "rebuff", node)
+	
+	if PHYSICAL_ACTION != "":
+		if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+			# target moved away
+			TARGET = null
+		var event_index:int = ENGINE.History.does_event_exist(TARGET.ID, "rebuff", OWNER.ID)
+		if event_index < 0:
+			PHYSICAL_ACTION == ""
+		else:
+			# try to escalate
+			if PHYSICAL_ACTION in Dialogue.ENCOUNTER_ESCALATION:
+				PHYSICAL_ACTION = Dialogue.ENCOUNTER_ESCALATION[PHYSICAL_ACTION]
+				ENGINE.History.add_event(OWNER.ID, PHYSICAL_ACTION, TARGET.ID)
 
-func flirt() -> Array:
+	elif (OWNER.NEEDS["release"] < 50 or OWNER.NEEDS["arousal"] > 30):
+		if TARGET != NPC:
+			var nearby_npcs:Array[String] = ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)
+			var highest_attraction: int = 0
+			var most_attractive_npc:String
+			for npc_id:String in nearby_npcs:
+				#var npc:NPC = Global.NPCS[npc_id]
+				var attraction:int = ENGINE.NpcManager.get_attraction(OWNER.ID, npc_id)
+				if attraction > highest_attraction:
+					var event_index:int = ENGINE.History.does_event_exist(npc_id, "rebuff", OWNER.ID) #assumes that target npc will never change their mind (though i really should put expiration dates on the events lol)
+					highest_attraction = attraction
+					most_attractive_npc = npc_id
+			if most_attractive_npc != null:
+				TARGET = Global.NPCS[most_attractive_npc]
+		else:
+			# let's start with this
+			PHYSICAL_ACTION = "sweet nothings"
+			ENGINE.History.add_event(OWNER.ID, PHYSICAL_ACTION, TARGET.ID)
+
+
+'''
+
+func flirt_old() -> Array:
 	var impression = TARGET.hear_flirt(OWNER.ID)
 	'''
 	if !ENGINE.NpcManager.is_available(TARGET):

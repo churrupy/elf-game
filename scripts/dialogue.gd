@@ -48,3 +48,19 @@ func get_next_topic(topic: String):
 		return DIALOGUE_STRINGS.keys().pick_random()
 	else:
 		return CONVERSATION_NODES[topic].pick_random()
+
+
+
+
+var ENCOUNTER_STRINGS:Dictionary = {
+	"sweet nothings": " whispered sweet nothings to ",
+	"kiss neck": " kisses the neck of ",
+	"play with nipples": " plays with the nipples of "
+}
+
+
+var ENCOUNTER_ESCALATION:Dictionary = { # what a horrible way to do this lol
+	"sweet nothings": "kiss neck",
+	"kiss neck": "play with nipples"
+
+}
