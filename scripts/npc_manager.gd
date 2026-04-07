@@ -152,8 +152,9 @@ func update() -> void:
 			continue
 
 		add_child(npc)
-		npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0] + (Constants.TILE_SIZE/2)
-		npc.global_position[1] = y_index * Constants.TILE_SIZE + Constants.TILE_SIZE/2
+		npc.global_position[0] = (x_index * Constants.TILE_SIZE)
+		npc.global_position[1] = y_index * Constants.TILE_SIZE
+		npc.global_position = npc.global_position + Vector2(Constants.TILE_SIZE/2, Constants.TILE_SIZE/2)
 		npc.show()
 
 

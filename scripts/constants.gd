@@ -2,7 +2,7 @@ extends Node
 
 #region game const
 const TILE_SIZE = 64
-const SCREEN_SIZE = Vector2(1200, 660)
+#const SCREEN_SIZE = Vector2(1200, 660)
 const MAP_SIZE = [10,10] # num tiles across
 const BOTTOM_RIGHT = Vector2(MAP_SIZE[0]-1, MAP_SIZE[1]-1)
 const NUM_NPCS = 2

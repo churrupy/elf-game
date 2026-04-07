@@ -99,7 +99,7 @@ func update() -> void:
 		add_child(tile)
 		var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
 		var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
-		tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0]
+		tile.global_position[0] = (x_index * Constants.TILE_SIZE)
 		tile.global_position[1] = y_index * Constants.TILE_SIZE
 		#tile.show()
 			
