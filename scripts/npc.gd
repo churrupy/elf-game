@@ -45,10 +45,13 @@ var NEEDS: Dictionary = {
 
 
 #region sprite
-var SPRITE
-var GLOW_SPRITE
+var SPRITE: Sprite2D = Sprite2D.new()
+var GLOW_SPRITE: Sprite2D = Sprite2D.new()
 var BUTTON: TextureButton
 var GLOW_BUTTON
+var NPC_BUTTON: Button = Button.new()
+
+var MENU_OPEN: bool = false
 
 #endregion sprite
 
@@ -90,8 +93,48 @@ func initialize(ID_COUNTER):
 		OPINIONS[style] = randi_range(-5,5)
 
 
-	
+	load_sprites()
+	#load_sprites_old()
 
+	
+	
+	
+func load_sprites() -> void:
+	SPRITE.texture = load("res://models/npc.png")
+	SPRITE.modulate = HAIR_COLOR
+	add_child(SPRITE)
+
+	GLOW_SPRITE.texture = load("res://models/npc_glow.png")
+	GLOW_SPRITE.modulate = HAIR_COLOR
+	#add_child(GLOW_SPRITE)
+
+	#NPC_BUTTON = Button.new()
+	#var rect:Rect2 = SPRITE.texture.get_size()
+	var button_size:Vector2 = SPRITE.texture.get_size()
+	NPC_BUTTON.size = button_size
+	print("size")
+	print(NPC_BUTTON.size)
+	#print(rect)
+
+	NPC_BUTTON.mouse_entered.connect(sprite_hover)
+	NPC_BUTTON.mouse_exited.connect(sprite_hoveroff)
+	NPC_BUTTON.pressed.connect(sprite_clicked)
+	
+	NPC_BUTTON.anchor_left = 0.5
+	NPC_BUTTON.anchor_right = 0.5
+	NPC_BUTTON.anchor_top = 0.5
+	NPC_BUTTON.anchor_bottom = 0.5
+
+	NPC_BUTTON.offset_left = -button_size.x / 2
+	NPC_BUTTON.offset_right = button_size.x / 2
+	NPC_BUTTON.offset_top = -button_size.y / 2
+	NPC_BUTTON.offset_bottom = button_size.y / 2
+	
+	add_child(NPC_BUTTON)
+
+
+
+func load_sprites_old() -> void:
 	BUTTON = TextureButton.new()
 	add_child(BUTTON)
 	BUTTON.texture_normal = load("res://models/npc.png")
@@ -115,8 +158,6 @@ func initialize(ID_COUNTER):
 	'''
 
 	BUTTON.pressed.connect(sprite_clicked)
-	
-	
 	
 #endregion
 	
@@ -191,8 +232,21 @@ func hear_flirt(speaker_id):
 
 #region sprite
 
-func sprite_clicked() -> void:
+func sprite_hover() -> void:
+	remove_child(SPRITE)
+	add_child(GLOW_SPRITE)
+	MENU_OPEN = true
 	SignalBus.open_npc_menu.emit(self)
+	
+
+func sprite_hoveroff() -> void:
+	remove_child(GLOW_SPRITE)
+	add_child(SPRITE)
+	MENU_OPEN = false
+	SignalBus.try_close_npc_menu.emit()
+
+func sprite_clicked() -> void:
+	SignalBus.keep_open_npc_menu.emit()
 
 
 #endregion

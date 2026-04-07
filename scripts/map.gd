@@ -58,9 +58,11 @@ var TILES_TEMPLATES = {
 func _init(engine, room) -> void:
 	ENGINE = engine
 	ROOM = room
-	size = Constants.MAIN_FRAME_SIZE
-	position = Constants.MAIN_FRAME_POSITION
+	#size = Global.MAIN_FRAME_SIZE
+	#position = Constants.MAIN_FRAME_POSITION
 	color = Color(.3, .3, .3)
+	size = Constants.CENTER_PANEL_SIZE
+	global_position = Constants.CENTER_PANEL_LOCATION
 	
 	var room_data: Dictionary = TILES_TEMPLATES[ROOM]
 	var special_tiles: Dictionary = room_data["special"]
@@ -99,7 +101,7 @@ func update() -> void:
 		add_child(tile)
 		var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
 		var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
-		tile.global_position[0] = (x_index * Constants.TILE_SIZE)
+		tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
 		tile.global_position[1] = y_index * Constants.TILE_SIZE
 		#tile.show()
 			

@@ -6,6 +6,7 @@ var ENGINE
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	$TextureRect.modulate = Constants.COLOR_LIST.pick_random()
 	pass
 
 
@@ -15,8 +16,9 @@ func _process(delta: float) -> void:
 
 func update():
 	var player_location: Vector2 = ENGINE.get_node("Player").LOCATION
-	$PCLocationLabel.text = str(player_location)
-	$TickLabel.text = "TICKS: " + str(Global.TICKS)
+	var location_text: String = "[" + str(int(player_location[0])) + "," + str(int(player_location[1])) + "]"
+	$PCLocationLabel.text = location_text
+	$TickLabel.text = "T:" + str(Global.TICKS)
 	var player_history = ENGINE.History.filter_by_npc("player")
 	var player_history_list = ENGINE.History.history_to_string(player_history)
 	var trunc_history = player_history_list.slice(-10, -1)

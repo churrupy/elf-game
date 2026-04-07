@@ -6,9 +6,85 @@ const TILE_SIZE = 64
 const MAP_SIZE = [10,10] # num tiles across
 const BOTTOM_RIGHT = Vector2(MAP_SIZE[0]-1, MAP_SIZE[1]-1)
 const NUM_NPCS = 2
-const SIDEBAR_SIZE = Vector2(300, SCREEN_SIZE[1])
-const MAIN_FRAME_SIZE = Vector2(SCREEN_SIZE[0] - SIDEBAR_SIZE[0], SCREEN_SIZE[1])
-const MAIN_FRAME_POSITION = Vector2(SIDEBAR_SIZE[0], 0)
+
+#region window
+
+var SCREEN_SIZE: Vector2 = DisplayServer.window_get_size()
+#var MAP_CENTER: Vector2 = Vector2(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2)
+
+var LEFT_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/4, SCREEN_SIZE[1])
+var LEFT_PANEL_LOCATION = Vector2.ZERO
+
+var CENTER_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]) # map
+var CENTER_PANEL_LOCATION = Vector2(LEFT_PANEL_LOCATION[0] + LEFT_PANEL_SIZE[0], SCREEN_SIZE[1])
+
+var RIGHT_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/4, SCREEN_SIZE[1]/2)
+var RIGHT_PANEL_LOCATION = Vector2(CENTER_PANEL_LOCATION[0] + CENTER_PANEL_SIZE[0], SCREEN_SIZE[1])
+
+#endregion window
+
+
+#region map
+var MAP_CENTER = Vector2(CENTER_PANEL_SIZE[0]/2 + CENTER_PANEL_LOCATION[0], CENTER_PANEL_LOCATION[1]/2)
+
+var NUM_X_TILES = int(CENTER_PANEL_SIZE[0] / TILE_SIZE) # num tiles across in x direction
+var NUM_Y_TILES = int(CENTER_PANEL_SIZE[1] / TILE_SIZE) # num tiles across in y direction
+
+
+#endregion map
+
+
+
+
+
+#region colors
+'''
+var COLOR1: Color = Color.html("#804674")
+var COLOR2: Color = Color.html("#A86464")
+var COLOR3: Color = Color.html("#B3E5BE")
+var COLOR4: Color = Color.html("#F5FFC9")
+var COLOR5: Color = Color.html("#5798cc")
+'''
+'''
+var COLOR1: Color = Color.html("#5FAAAF")
+var COLOR2: Color = Color.html("#784D9E")
+var COLOR3: Color = Color.html("#F4B942")
+var COLOR4: Color = Color.html("#9195D4")
+var COLOR5: Color = Color.html("#F3DE8A")
+'''
+'''
+var COLOR_LIST: Array[String] = [
+	"#ffd1dc",
+	"#e9b6ac",
+	"#c4a280",
+	"#939160",
+	"#5a7f54",
+	"#006b57"
+]
+'''
+'''
+var COLOR_LIST: Array[String] = [
+	"#ffd1dc",
+	"#d5b2c7",
+	"#a996b0",
+	"#7d7b95",
+	"#546178",
+	"#2f4858"
+]
+'''
+
+var COLOR_LIST: Array[String] = [
+	"#ffd1dc",
+	"#43212B",
+	"#D2C6A5",
+	"#2F4858",
+	#"#83AFA1"
+	"#82d6bb"
+]
+
+
+#endregion colors
+
 
 #endregion
 

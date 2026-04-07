@@ -25,7 +25,9 @@ func _ready() -> void:
 			child.ENGINE = self
 	
 	SignalBus.open_npc_menu.connect(open_npc_menu)
+	SignalBus.keep_open_npc_menu.connect(keep_open_npc_menu)
 	SignalBus.close_npc_menu.connect(close_npc_menu)
+	SignalBus.try_close_npc_menu.connect(try_close_npc_menu)
 
 	SignalBus.open_talk_menu.connect(open_talk_menu)
 	SignalBus.close_talk_menu.connect(close_talk_menu)
@@ -110,7 +112,6 @@ func update_display():
 	print("updating map center")
 	update_map_center()
 	print("displaying npcs")
-	#display_npcs()
 	NpcManager.update()
 	print("displaying map")
 	Map.update()
@@ -132,7 +133,7 @@ func update_focus_target(new_target: String) -> void:
 		target_object = $Player
 	else:
 		target_object = Global.NPCS[new_target]
-	target_object.position = Global.MAP_CENTER + Vector2(10,20)
+	target_object.global_position = Constants.MAP_CENTER + Vector2(-10,20)
 	update_display()
 
 
@@ -143,54 +144,13 @@ func update_map_center():
 	else:
 		focus_npc = Global.NPCS[Global.FOCUS_TARGET]
 	Global.FOCUS_LOCATION = focus_npc.LOCATION
-	Global.X_RANGE = [Global.FOCUS_LOCATION[0] - 9, Global.FOCUS_LOCATION[0] + 10]
-	Global.Y_RANGE = [Global.FOCUS_LOCATION[1] - 5, Global.FOCUS_LOCATION[1] + 5]
-
-
-
-func display_npcs():
-	for child in get_children():
-		if child is NPC:
-			remove_child(child)
-
-	var npc_list = Global.NPCS.keys()
-	if Global.FOCUS_TARGET != "player":
-		npc_list.append("player")
-	
-	for npc_id in npc_list:
-		
-		var npc
-		if npc_id == "player":
-			npc = $Player
-		else:
-			npc = Global.NPCS[npc_id]
-
-		if npc_id == Global.FOCUS_TARGET:
-			add_child(npc)
-			npc.global_position = Global.MAP_CENTER
-			npc.show()
-			continue
-
-		var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(npc.LOCATION[0])
-		if x_index < 0:
-			continue
-		var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(npc.LOCATION[1])
-		if y_index < 0:
-			continue
-
-		if npc_id != "player":
-			add_child(npc)
-
-		
-		npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.MAIN_FRAME_POSITION[0] + (Constants.TILE_SIZE/2)
-		npc.global_position[1] = y_index * Constants.TILE_SIZE + Constants.TILE_SIZE/2
-		npc.show()
+	Global.X_RANGE = [Global.FOCUS_LOCATION[0] - Constants.NUM_X_TILES/2, Global.FOCUS_LOCATION[0] + (Constants.NUM_X_TILES/2 + 1)]
+	Global.Y_RANGE = [Global.FOCUS_LOCATION[1] - Constants.NUM_Y_TILES/2, Global.FOCUS_LOCATION[1] + (Constants.NUM_Y_TILES/2 + 1)]
 
 
 func set_nearby_npcs() -> void:
 	Global.NEARBY_NPCS = []
 	Global.NEARBY_NPCS = NpcManager.get_nearby_npcs($Player.LOCATION)
-	#Global.NEARBY_NPCS = get_npcs_in_range($Player.LOCATION)
 	
 #endregion
 
@@ -199,18 +159,29 @@ func set_nearby_npcs() -> void:
 
 
 #region menus
-func open_npc_menu(npc):
-	$DefaultMenu.hide()
+func open_npc_menu(npc) -> void:
+	#$DefaultMenu.hide()
 	$NpcMenu.MENU_NPC = npc
 	$NpcMenu.update()
 	$NpcMenu.show()
 	$TalkMenu.MENU_NPC = npc
 	$TalkMenu.update()
 
+func keep_open_npc_menu() -> void:
+	$NpcMenu.KEEP_OPEN = true
+
+func try_close_npc_menu() -> void:
+	# will close npc menu if KEEP_OPEN is not flagged
+	if $NpcMenu.KEEP_OPEN:
+		pass
+	else:
+		close_npc_menu()
+
 func close_npc_menu():
 	$TalkMenu.hide()
+	$NpcMenu.KEEP_OPEN = false
 	$NpcMenu.hide()
-	$DefaultMenu.show()
+	#$DefaultMenu.show()
 
 
 func toggle_talk_menu(npc):

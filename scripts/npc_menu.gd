@@ -1,13 +1,15 @@
 extends Control
 
 var ENGINE
-var MENU_NPC
-var WATCH = false
+var MENU_NPC: NPC
+var WATCH: bool = false
+var KEEP_OPEN: bool = false
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	$UnWatchButton.hide()
+	$BG.modulate = Constants.COLOR_LIST.pick_random()
 
 func _process(delta: float) -> void:
 	pass
@@ -60,18 +62,23 @@ func update_history() -> void:
 	
 
 func update_portrait() -> void:
-	for child in $Portrait.get_children():
-		child.queue_free()
+	$Portrait.update(MENU_NPC)
+
+func update_portrait_old() -> void:
+	#for child in $Portrait.get_children():
+	#	child.queue_free()
 	
 	#$Portrait.get_node("Splash").modulate = MENU_NPC.HAIR_COLOR
-	var splash = TextureRect.new()
-	splash.modulate = MENU_NPC.EYE_COLOR
-	splash.scale = Vector2(1.2,1.2)
-	$Portrait.add_child(splash)
-	var background = Sprite2D.new()
-	background.texture = load("res://models/portrait/portrait_background.png")
-	background.scale = Vector2(1.2,1.2)
-	$Portrait.add_child(background)
+	$Portrait.get_node("Splash").modulate = MENU_NPC.EYE_COLOR
+	#var splash = TextureRect.new()
+	#splash.modulate = MENU_NPC.EYE_COLOR
+	#splash.scale = Vector2(1.2,1.2)
+	#$Portrait.add_child(splash)
+	#$Portrait.get_node("PortraitBackground").scale = Vector2(1.2,1.2)
+	#var background = Sprite2D.new()
+	#background.texture = load("res://models/portrait/portrait_background.png")
+	#background.scale = Vector2(1.2,1.2)
+	#$Portrait.add_child(background)
 	for part in MENU_NPC.PORTRAIT.keys():
 		var sprite = Sprite2D.new()
 		var pathfile = MENU_NPC.PORTRAIT[part]
@@ -85,6 +92,8 @@ func update_portrait() -> void:
 		sprite.scale = Vector2(1.2,1.2)
 		$Portrait.add_child(sprite)
 	$Portrait.global_position = Vector2(68,84)
+
+
 
 
 func close_npc_menu() -> void:
