@@ -302,6 +302,17 @@ const ACTION_TEMPLATES = {
 		"conversable": false,
 		"class": "BladderAction"
 	},
+	"bladder": {
+		"need": "bladder",
+		"duration": 5,
+		"followers": [0,0],
+		"pose": "standing",
+		"joinable": false,
+		"other_req": false,
+		"do_off_tile": false,
+		"conversable": false,
+		"class": "BladderAction"
+	},
 	"snack": {
 		"duration": 5,
 		"followers": [0,0],
@@ -311,6 +322,15 @@ const ACTION_TEMPLATES = {
 		"do_off_tile": true,
 		"class": "HungerAction"
 	},
+	"hunger": {
+		"duration": 5,
+		"followers": [0,0],
+		"pose": "standing",
+		"joinable": false,
+		"other_req": false,
+		"do_off_tile": true,
+		"class": "HungerAction"
+	}
 }
 
 #endregion
@@ -344,14 +364,14 @@ const TILE_TEMPLATES = {
 		"poses": "EmptyPoses"
 	},
 	"toilet":  {
-		"actions": ["use toilet"],
+		"actions": ["use toilet", "bladder"],
 		"impassable": false,
 		"encounter_location": true,
 		"png": "toilet.png",
 		"poses": "ChairPoses"
 	},
 	"bar": {
-		"actions": ["drink", "snack"],
+		"actions": ["drink", "snack", "hunger"],
 		"impassable": true,
 		"png": "bar.png",
 		"poses": "HSurfacePoses"

@@ -26,7 +26,7 @@ var PORTRAIT: Dictionary = {}
 
 var LOCATION: Vector2
 var GENDER: String
-#var ACTION: GenericAction
+var CURRENT_ACTION: ACTION
 var RECENT_TOPIC: String
 var STYLE: String
 var OPINIONS: Dictionary = {}

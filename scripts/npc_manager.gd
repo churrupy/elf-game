@@ -4,13 +4,16 @@ class_name NPC_MANAGER
 
 var ENGINE
 var NPCS: Array[NPC]
+var Determinator: ActionDeterminator
 
 var ID_COUNTER: int = 0
 
 func _init(engine) -> void:
 	ENGINE = engine
+	Determinator = ActionDeterminator.new(ENGINE)
 	for i: int in Constants.NUM_NPCS:
 		create_npc()
+	
 	
 	
 
@@ -25,15 +28,71 @@ func create_npc() -> void:
 	Global.NPCS[npc.ID] = npc
 	
 	# initialize state stack
-	var new_action: ACTION = IdleAction.new(ENGINE, npc, null)
+	var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)
 	npc.STATE_STACK.append(new_action)
 	
 	#ENGINE.History.add_event(npc.ID, "created", npc.LOCATION)
 
+func tick_new() -> void:
+	for npc:NPC in NPCS:
+		print ("ticking ", npc.NAME)
 
-
+		if npc.CURRENT_ACTION == null:
+			Determinator.determine_next_action(npc)
+		else:
+			var action_result = npc.CURRENT_ACTION.tick()
+			if action_result == "finish":
+				npc.CURRENT_ACTION = null
+		
+		npc.decay_needs()
 
 func tick() -> void:
+	for npc:NPC in NPCS:
+		print ("ticking: ", npc.NAME)
+
+
+		var current_action: ACTION = npc.STATE_STACK.back()
+		print (current_action)
+
+		var result: ActionResult = current_action.tick()
+		print(result)
+
+		if result.STATUS == "add":
+			current_action.suspend_state()
+			result.NEW_ACTION.enter_state()
+			#var new_action:ACTION = result[1]
+			#new_action.enter_state()
+			npc.STATE_STACK.append(result.NEW_ACTION)
+		elif result.STATUS == "replace":
+			current_action.exit_state()
+			npc.STATE_STACK.pop_back()
+			#var new_action:ACTION = result[1]
+			#new_action.enter_state()
+			result.NEW_ACTION.enter_state()
+			npc.STATE_STACK.append(result.NEW_ACTION)
+		elif result.STATUS == "end":
+			current_action.exit_state()
+			npc.STATE_STACK.pop_back()
+			var old_action:ACTION = npc.STATE_STACK[-1]
+			old_action.resume_state()
+			'''
+			var new_action:ACTION = current_action.exit_state()
+			
+			npc.STATE_STACK.pop_back()
+			if new_action != null:
+				new_action.enter_state()
+				npc.STATE_STACK.append(new_action)
+			else:
+				var next_action: ACTION = npc.STATE_STACK.back()
+				next_action.resume_state()
+			'''				
+		else:
+			# state continues running
+			#assumes result is ["running", null]
+			pass
+
+
+func tick_old() -> void:
 	for npc:NPC in NPCS:
 		print("ticking ", npc.NAME)
 
@@ -128,14 +187,17 @@ func add_state_old(npc_id:String, new_state_id:String, params: Dictionary) -> vo
 	npc.STATE_STACK.append(new_action)
 
 
-func add_state(new_action: ACTION) -> void:
+func add_state(new_action:ACTION) -> void:
+	print(new_action)
 	var npc = new_action.OWNER
 	var current_action: ACTION = npc.STATE_STACK.back()
 	current_action.suspend_state()
 	new_action.enter_state()
 	npc.STATE_STACK.append(new_action)
 
-
+func add_state_new(new_action: ACTION) -> void:
+	var npc = new_action.OWNER
+	npc.CURRENT_ACTION = new_action
 
 func update() -> void:
 	# updates display, does not tick npcs

@@ -15,6 +15,24 @@ func tick() -> ActionResult:
 	OWNER.decay_needs()
 	return result
 
+func tick_new():
+	var result = run()
+	return result
+
+func run_new():
+	if OWNER.LOCATION == LOCATION:
+		return "finish"
+	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
+	if next_step == Vector2.INF:
+		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
+		print("teleporting...")
+		OWNER.LOCATION = LOCATION
+	else:
+		OWNER.LOCATION = next_step
+	
+	ENGINE.History.add_event(OWNER.ID, "moves")
+	return "continue"
+
 
 func run() -> ActionResult:
 	if OWNER.LOCATION == LOCATION:

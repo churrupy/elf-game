@@ -1,20 +1,28 @@
 class_name IdleAction extends ACTION
 
 # this class does determine_action
+var Determinator: ActionDeterminator
 
-func _init(engine, owner: NPC, target: Node) -> void:
+func _init(engine, owner: NPC, target: Node, determinator: ActionDeterminator) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "idle"
 	LOCATION = owner.LOCATION
+	Determinator = determinator
 	super._init(engine, owner, target)
 
 func resume_state():
-	var result: ActionResult = run()
-	ENGINE.NpcManager.add_state(result.NEW_ACTION)
+	pass
+	#var result: ActionResult = run()
+	#ENGINE.NpcManager.add_state(result.NEW_ACTION)
 
 func can_do_action() -> bool:
 	return true
+
+func run_new() -> ActionResult:
+	print("running")
+	Determinator.determine_next_action(OWNER)
+	return ActionResult.new("running", null)
 
 
 func run() -> ActionResult:
