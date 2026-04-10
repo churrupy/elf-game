@@ -253,3 +253,21 @@ func sprite_clicked() -> void:
 
 
 #endregion
+
+
+func get_journal_entry() -> Array[String]:
+	var display_list: Array[String] = []
+	var _str = "Name: " + NAME
+	display_list.append(_str)
+
+	_str = "ID: " + ID
+	display_list.append(_str)
+
+	_str = "Gender: " + GENDER
+	display_list.append(_str)
+
+	for need in NEEDS:
+		_str = need.capitalize() + ": " + str(int(NEEDS[need]))
+		display_list.append(_str)
+	
+	return display_list

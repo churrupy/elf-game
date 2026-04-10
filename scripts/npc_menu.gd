@@ -40,9 +40,11 @@ func update_npc_details() -> void:
 	_str = "Current Topic: " + str(MENU_NPC.SOCIAL_ACTION.RECENT_TOPIC)
 	display_string.append(_str)
 	
+	'''
 	for need in MENU_NPC.NEEDS:
 		_str = need.capitalize() + ": " + str(int(MENU_NPC.NEEDS[need]))
 		display_string.append(_str)
+	'''
 
 	for item in display_string:
 		var new_label = Label.new()
@@ -65,20 +67,8 @@ func update_portrait() -> void:
 	$Portrait.update(MENU_NPC)
 
 func update_portrait_old() -> void:
-	#for child in $Portrait.get_children():
-	#	child.queue_free()
-	
-	#$Portrait.get_node("Splash").modulate = MENU_NPC.HAIR_COLOR
+	return
 	$Portrait.get_node("Splash").modulate = MENU_NPC.EYE_COLOR
-	#var splash = TextureRect.new()
-	#splash.modulate = MENU_NPC.EYE_COLOR
-	#splash.scale = Vector2(1.2,1.2)
-	#$Portrait.add_child(splash)
-	#$Portrait.get_node("PortraitBackground").scale = Vector2(1.2,1.2)
-	#var background = Sprite2D.new()
-	#background.texture = load("res://models/portrait/portrait_background.png")
-	#background.scale = Vector2(1.2,1.2)
-	#$Portrait.add_child(background)
 	for part in MENU_NPC.PORTRAIT.keys():
 		var sprite = Sprite2D.new()
 		var pathfile = MENU_NPC.PORTRAIT[part]
