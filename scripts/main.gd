@@ -33,6 +33,10 @@ func _ready() -> void:
 	SignalBus.close_talk_menu.connect(close_talk_menu)
 	SignalBus.toggle_talk_menu.connect(toggle_talk_menu)
 
+	SignalBus.open_journal.connect(open_journal)
+	SignalBus.close_journal.connect(close_journal)
+	SignalBus.update_journal.connect(update_journal)
+
 	var passable_locations: Array[Vector2] = Map.filter_passable_locations()
 	#var filtered_tiles: Array[TILE] = Utility.filter_reserved_tiles(passable_tiles)
 	$Player.LOCATION = passable_locations.pick_random()
@@ -123,6 +127,8 @@ func update_display():
 	if $TalkMenu.visible:
 		print("displaying talkmenu")
 		$TalkMenu.update()
+	if $Journal.visible:
+		$Journal.update()
 
 
 func update_focus_target(new_target: String) -> void:
@@ -202,6 +208,15 @@ func open_talk_menu(npc):
 func close_talk_menu():
 	$TalkMenu.hide()
 
+func open_journal():
+	$Journal.show()
+
+func close_journal():
+	$Journal.hide()
+
+func update_journal(topic):
+	$Journal.update_topic(topic)
+	$Journal.show()
 
 
 #endregion

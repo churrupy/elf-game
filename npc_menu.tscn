@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://buetf41yyhdos"]
+[gd_scene load_steps=8 format=3 uid="uid://buetf41yyhdos"]
 
 [ext_resource type="Script" uid="uid://dswehjefs22t2" path="res://scripts/npc_menu.gd" id="1_ubb6d"]
 [ext_resource type="PackedScene" uid="uid://wqx311ixn3i1" path="res://portrait.tscn" id="2_pcope"]
 [ext_resource type="Texture2D" uid="uid://c2m2pg2artbpk" path="res://models/watch.png" id="2_prfe1"]
 [ext_resource type="Texture2D" uid="uid://ccddj83dn687y" path="res://models/left_menu.png" id="2_xu03f"]
 [ext_resource type="Texture2D" uid="uid://jt3v8h4mtfk7" path="res://models/watch_glow.png" id="3_h4d1c"]
+[ext_resource type="Texture2D" uid="uid://b58kjptfeeafb" path="res://models/journal.png" id="6_m7ag2"]
 
 [sub_resource type="Theme" id="Theme_h4d1c"]
 
@@ -40,9 +41,9 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -5.0
+offset_left = 13.0
 offset_top = 19.0
-offset_right = 53.0
+offset_right = 71.0
 offset_bottom = 47.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 20
@@ -61,38 +62,46 @@ offset_bottom = 51.0
 
 [node name="TalkButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 205.0
-offset_top = 63.0
-offset_right = 299.0
-offset_bottom = 99.0
+offset_left = 162.0
+offset_top = 121.0
+offset_right = 256.0
+offset_bottom = 157.0
 theme_override_font_sizes/font_size = 20
 text = "Talk"
 
 [node name="WatchButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 143.0
-offset_top = 55.0
-offset_right = 191.0
-offset_bottom = 103.0
+offset_left = 165.0
+offset_top = 53.0
+offset_right = 213.0
+offset_bottom = 101.0
 theme_override_font_sizes/font_size = 20
 icon = ExtResource("2_prfe1")
 
 [node name="UnWatchButton" type="Button" parent="."]
 visible = false
 layout_mode = 0
-offset_left = 143.0
+offset_left = 165.0
 offset_top = 53.0
-offset_right = 191.0
+offset_right = 213.0
 offset_bottom = 101.0
 theme_override_font_sizes/font_size = 20
 icon = ExtResource("3_h4d1c")
+
+[node name="JournalButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 227.0
+offset_top = 51.0
+offset_right = 283.0
+offset_bottom = 107.0
+icon = ExtResource("6_m7ag2")
 
 [node name="NpcHistoryContainer" type="ScrollContainer" parent="."]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 181.0
-offset_right = 318.0
-offset_bottom = 658.0
+offset_right = 301.0
+offset_bottom = 544.0
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
@@ -106,3 +115,4 @@ theme = SubResource("Theme_h4d1c")
 [connection signal="pressed" from="TalkButton" to="." method="open_talk_menu"]
 [connection signal="pressed" from="WatchButton" to="." method="watch_npc"]
 [connection signal="pressed" from="UnWatchButton" to="." method="unwatch_npc"]
+[connection signal="pressed" from="JournalButton" to="." method="open_journal"]

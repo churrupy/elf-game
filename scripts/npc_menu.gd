@@ -136,3 +136,7 @@ func open_talk_menu() -> void:
 
 func toggle_talk_menu() -> void:
 	SignalBus.toggle_talk_menu.emit(MENU_NPC)
+
+
+func open_journal() -> void:
+	SignalBus.update_journal.emit(MENU_NPC)
