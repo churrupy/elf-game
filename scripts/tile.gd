@@ -20,6 +20,10 @@ func _init(type: String, location: Vector2) -> void:
 	var tile_data: Dictionary = Constants.TILE_TEMPLATES[TYPE]
 	texture = load("res://models/" + tile_data["png"])
 
+func initialize() -> void:
+	var tile_data: Dictionary = Constants.TILE_TEMPLATES[TYPE]
+	texture = load("res://models/" + tile_data["png"])
+
 
 func _to_string():
 	return "Tile: " + str(LOCATION)
@@ -29,7 +33,7 @@ func _process(delta: float) -> void:
 
 
 
-func initialize(type, location):
+func initialize_old(type, location):
 	$TypeInitialLabel.text = type.substr(0,6)
 	$LocationLabel.text = str(int(location[0])) + "," + str(int(location[1]))
 	var tile_data = Constants.TILE_TEMPLATES[type]

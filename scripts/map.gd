@@ -12,37 +12,70 @@ var TILES_TEMPLATES = {
 		"default": "empty",
 		"size": [3,3],
 		"special": {
-			[0,0]: "social_empty",
-			[0,2]: "social_empty",
-			[0,4]: "social_empty",
-			[1,8]: "table",
-			[2,1]: "dance_floor",
+			# bar
+			[0,8]: "bar",
+			[1,8]: "bar",
+			[2,8]: "bar",
+			[3,8]: "bar",
+			[4,8]: "bar",
+
+			#[0,0]: "social_empty",
+			#[0,2]: "social_empty",
+			#[0,4]: "social_empty",
+			
+			#tables
+			[0,2]: "table",
+			[0,4]: "table",
+			[0,6]: "table",
+			
+			[2,2]: "dance_floor",
 			[2,3]: "dance_floor",
+			[2,4]: "dance_floor",
 			[2,5]: "dance_floor",
-			[2,8]: "table",
-			[4,1]: "dance_floor",
+
+			[3,2]: "dance_floor",
+			[3,3]: "dance_floor",
+			[3,4]: "dance_floor",
+			[3,5]: "dance_floor",
+
+			[4,2]: "dance_floor",
 			[4,3]: "dance_floor",
+			[4,4]: "dance_floor",
 			[4,5]: "dance_floor",
-			[5,8]: "bar",
-			[6,0]: "wall",
-			[6,1]: "wall",
-			[6,2]: "wall",
-			[6,3]: "wall",
-			[6,4]: "wall",
-			[6,5]: "wall",
-			[6,8]: "bar",
-			[7,8]: "bar",
-			[8,1]: "wall",
-			[8,3]: "wall",
-			[8,5]: "wall",
-			[8,8]: "bar",
-			[9,0]: "toilet",
+
+			[5,2]: "dance_floor",
+			[5,3]: "dance_floor",
+			[5,4]: "dance_floor",
+			[5,5]: "dance_floor",
+
+			#divider wall
+			[7,0]: "wall",
+			[7,1]: "wall",
+			[7,2]: "wall",
+			[7,3]: "wall",
+			[7,4]: "wall",
+			[7,5]: "wall",
+			[7,6]: "wall",
+			[7,7]: "wall",
+
+
+
+			#toilets and stalls
+			[10,0]: "toilet",
 			[9,1]: "wall",
-			[9,2]: "toilet",
+			[10,1]: "wall",
+
+			[10,2]: "toilet",
 			[9,3]: "wall",
-			[9,4]: "toilet",
+			[10,3]: "wall",
+
+			[10,4]: "toilet",			
 			[9,5]: "wall",
-			[9,8]: "bar"
+			[10,5]: "wall",
+
+			[10,6]: "toilet",
+			[9,7]: "wall",
+			[10,7]: "wall"
 		},
 		"ascii": '''
 [S][S][S][S]
@@ -63,8 +96,27 @@ func _init(engine, room) -> void:
 	color = Color(.3, .3, .3)
 	size = Constants.CENTER_PANEL_SIZE
 	global_position = Constants.CENTER_PANEL_LOCATION
-	
+
+	var map_size: int = Constants.MAP_SIZE[0] * Constants.MAP_SIZE[1]
 	var room_data: Dictionary = TILES_TEMPLATES[ROOM]
+	var default_type: String = room_data["default"]
+
+	var width: int = Constants.MAP_SIZE[0]
+
+	for i in range(0,map_size):
+		var x:int = i%width
+		var y:int = i/width
+		var location: Vector2 = Vector2(x,y)
+		var tile:TILE = TILE.new(default_type, location)
+		TILES.append(tile)
+
+	for loc: Array in room_data["special"]:
+		var type: String = room_data["special"][loc]
+		var index = (loc[1] * width) + loc[0]
+		TILES[index].TYPE = type
+		TILES[index].initialize()
+	
+	'''
 	var special_tiles: Dictionary = room_data["special"]
 	for i: int in Constants.MAP_SIZE[0]:
 		for j: int in Constants.MAP_SIZE[1]:
@@ -78,6 +130,9 @@ func _init(engine, room) -> void:
 
 			var tile: TILE = TILE.new(type, Vector2(i,j))
 			TILES.append(tile)
+
+	
+	'''
 
 
 #region update
