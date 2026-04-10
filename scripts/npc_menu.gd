@@ -37,12 +37,35 @@ func update_npc_details() -> void:
 	display_string.append(_str)
 	_str = "Current Action: " + str(MENU_NPC.STATE_STACK.back())
 	display_string.append(_str)
+	_str = "Facing: " + str(MENU_NPC.DIRECTION)
+	display_string.append(_str)
 
+	var can_see_list: Array[String] = ENGINE.NpcManager.can_see(MENU_NPC)
+	_str = "Looking At: " + ", ".join(can_see_list)
+	display_string.append(_str)
+
+	'''
+	var nearby_npcs: Array[String] = ENGINE.NpcManager.get_nearby_npcs(MENU_NPC.LOCATION)
+	var looking_at:Array[String]
+	for npc_id:String in nearby_npcs:
+		if npc_id == MENU_NPC.ID: continue
+		var npc:NPC = Global.NPCS[npc_id]
+		var direction = MENU_NPC.LOCATION.direction_to(npc.LOCATION)
+		if direction.dot(MENU_NPC.DIRECTION) > 0:
+			looking_at.append(npc_id)
+
+	_str = "Looking At: " + ", ".join(looking_at)
+	display_string.append(_str)
+
+	'''
+
+	'''
 	var looking_at_loc: Vector2 = MENU_NPC.LOCATION + MENU_NPC.DIRECTION
 	var looking_at:Array[String] = ENGINE.NpcManager.get_npc_from_location(looking_at_loc)
 	#var looking_at_string: String = ", ".join(looking_at)
 	_str = "Looking At: " + ", ".join(looking_at)
 	display_string.append(_str)
+	'''
 
 	_str = "Current Topic: " + str(MENU_NPC.SOCIAL_ACTION.RECENT_TOPIC)
 	display_string.append(_str)

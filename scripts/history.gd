@@ -126,7 +126,6 @@ func get_reactions_to_event(event:HistoryEvent) -> Array[EventReaction]:
 	return REACTIONS.filter(func(reaction): return reaction.EVENT == event)
 
 func reaction_to_string(reaction:EventReaction) -> String:
-	print("NOPE")
 	var witness = Global.NPCS[reaction.WITNESS]
 	var reaction_dict: Dictionary = {
 		1: "pleased",

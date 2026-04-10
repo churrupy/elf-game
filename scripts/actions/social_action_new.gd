@@ -47,15 +47,28 @@ func tick() -> ActionResult:
 
 
 func run() -> ActionResult:
+	# right now only people who're in conversation with them can hear them (no walkbys)
 	print("running social action")
 	var res: ActionResult = ActionResult.new("running")
 	var witnesses: Array[String] = ENGINE.NpcManager.get_conversation_partners(OWNER)
 	if len(witnesses) == 0:
 		return res
+
+	# figure out what direction npc should face
+	var average_vector: Vector2 = Vector2.ZERO
+	var npc_counter:int = 0
+	for npc_id:String in witnesses:
+		var npc:NPC = Global.NPCS[npc_id]
+		var direction:Vector2 = npc.LOCATION - OWNER.LOCATION
+		average_vector += direction
+		npc_counter += 1
+	
+	var average_direction: Vector2 = Vector2(average_vector[0]/npc_counter, average_vector[1]/npc_counter)
+	OWNER.update_direction(average_direction)
+
 	
 	# if any witnesses are unknown to npc, introduce self
 	for npc_id:String in witnesses:
-		if npc_id == OWNER.ID: continue
 		if npc_id not in OWNER.RELATIONSHIPS:
 			# introduce self
 			OWNER.RELATIONSHIPS[npc_id] = 0 			

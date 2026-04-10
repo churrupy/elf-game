@@ -365,21 +365,5 @@ func get_direction(from:Vector2, to:Vector2) -> String:
 		return "right"
 	else:
 		return "left"
-	'''
-	if from[0] == to[0]:
-		#vertically oriented
-		if from[1] < to[1]:
-			return "down"
-		else:
-			return "up"
-	elif from[1] == to[1]:
-		#horizontally oriented
-		if from[0] < to[0]:
-			return "right"
-		else:
-			return "left"
-	return ""
-	'''
-		
 
 #endregion utility

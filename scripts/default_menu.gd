@@ -7,7 +7,6 @@ var ENGINE
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	$TextureRect.modulate = Constants.COLOR_LIST.pick_random()
-	print("sdfsdfu")
 	pass
 
 

@@ -57,6 +57,8 @@ var MENU_OPEN: bool = false # tracks whether npc glows
 var DIRECTION: Vector2
 var DIRECTION_LABEL: Label = Label.new()
 
+var LOOKING_AT: Array[Vector2]
+
 
 
 #endregion sprite
@@ -69,7 +71,17 @@ var SOCIAL_ACTION: SocialAction_new
 
 #endregion actions
 
-
+func _draw()->void:
+	#print("DRAWING")
+	var direction_angle: float = DIRECTION.angle()
+	var start_angle: float = direction_angle + (PI/2)
+	var end_angle: float = direction_angle - (PI/2)
+	#print(start_angle, " ", end_angle)
+	draw_arc(LOCATION, Constants.TILE_SIZE, start_angle, end_angle, 20, HAIR_COLOR)
+	#print(NAME, " is looking at:")
+	for v: Vector2 in LOOKING_AT:
+		var direction: Vector2 = LOCATION.direction_to(v) * Constants.TILE_SIZE
+		draw_line(LOCATION, direction, HAIR_COLOR, 5.0)
 
 #region initialize
 func initialize(ID_COUNTER):
@@ -120,8 +132,6 @@ func load_sprites() -> void:
 	#var rect:Rect2 = SPRITE.texture.get_size()
 	var button_size:Vector2 = SPRITE.texture.get_size()
 	NPC_BUTTON.size = button_size
-	print("size")
-	print(NPC_BUTTON.size)
 	#print(rect)
 
 	NPC_BUTTON.mouse_entered.connect(sprite_hover)
@@ -291,44 +301,20 @@ func get_journal_entry() -> Array[String]:
 	
 	return display_list
 
-'''
-func update_direction_old(new_direction:String) -> void:
-	DIRECTION = new_direction
-	print("upate direction")
-	print($DirectionLabel)
-	print(DIRECTION)
-	for child in get_children():
-		if child is Label:
-			child.text = new_direction[0].capitalize()
-'''
-
-
-
 func update_direction(new_direction:Vector2) -> void:
+	new_direction = new_direction.sign()
 	DIRECTION = new_direction
-	var direction_text: String
-	match new_direction:
-		Vector2.LEFT:
-			direction_text = "L"
-		Vector2(-1,-1):
-			direction_text = "L"
-		Vector2(-1,1):
-			direction_text = "L"
-		Vector2.RIGHT:
-			direction_text = "R"
-		Vector2(1,1):
-			direction_text = "R"
-		Vector2(1,-1):
-			direction_text = "R"
-		Vector2.UP:
-			direction_text = "U"
-		Vector2.DOWN:
-			direction_text = "D"
-		_:
-			direction_text = "" # until i decide how to do diagonals
+	var direction_text:String
+
+	if new_direction[0] < 0:
+		direction_text = "L"
+	elif new_direction[0] > 0:
+		direction_text = "R"
+	elif new_direction[1] < 0:
+		direction_text = "U"
+	elif new_direction[1] > 0:
+		direction_text = "D"
+	else:
+		return # retain original direction
+		#direction_text = "X"
 	DIRECTION_LABEL.text = direction_text
-	'''
-	for child in get_children():
-		if child is Label:
-			child.text = direction_text
-	'''

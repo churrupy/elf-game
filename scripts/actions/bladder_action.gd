@@ -24,8 +24,29 @@ func score() -> void:
 
 
 func run() -> ActionResult:
+	print("toileting")
 	refresh_needs("bladder")
 	ENGINE.History.add_event(OWNER.ID, "toileted")
+
+	# update direction facing
+	# get_neighbors already filters out impassable tiles
+	# of course doesn't take into consideration impassable tiles that you can see over (eg table) but whatever i'll deal for now
+	# i guess technically a table wouldn't eventually be impassable, it would just take a long time to get around, but WHATEVER
+	var neighbors: Array[Vector2] = ENGINE.Map.get_neighbors(OWNER.LOCATION) 
+
+
+	var average_vector: Vector2 = Vector2.ZERO
+	var wall_counter:int = 0
+	for v: Vector2 in neighbors:
+		var direction: Vector2 = v - OWNER.LOCATION
+		average_vector += direction
+		wall_counter += 1
+		
+	
+	var average_direction: Vector2 = Vector2(average_vector[0]/wall_counter, average_vector[1]/wall_counter)
+	print("average_direction ", average_direction)
+	OWNER.update_direction(average_direction)
+
 
 	if OWNER.NEEDS["bladder"] >= 100:
 		return ActionResult.new("end", null)

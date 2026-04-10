@@ -224,6 +224,14 @@ func update() -> void:
 		npc.global_position[1] = y_index * Constants.TILE_SIZE
 		npc.global_position = npc.global_position + Vector2(Constants.TILE_SIZE/2, Constants.TILE_SIZE/2)
 		npc.show()
+		var can_see_npcs: Array[String] = can_see(npc)
+		var looking_at: Array[Vector2]
+		for npc_id:String in can_see_npcs:
+			var checked_npc:NPC = Global.NPCS[npc_id]
+			looking_at.append(checked_npc.LOCATION)
+		npc.LOOKING_AT = looking_at
+		npc.queue_redraw()
+			#draw_line(npc.position, checked_npc.position, Color.WHITE, -1.0)
 
 
 #region filters
@@ -268,7 +276,6 @@ func get_attraction(npc_id:String, target_npc_id:String) -> int:
 	var npc:NPC = Global.NPCS[npc_id]
 	var target_npc:NPC = Global.NPCS[target_npc_id]
 	var attraction:int = npc.OPINIONS[target_npc.STYLE]
-	print("$$$$$$$$$$$$$$$$$", attraction)
 	return attraction
 	#return npc.OPINIONS[target_npc.STYLE]
 	#var other_style = other_npc.STYLE
@@ -318,12 +325,28 @@ func get_conversation_partners(npc:NPC) -> Array[String]:
 	var npc_index: int = nearby_npcs.find(npc.ID)
 	if npc_index > -1:
 		nearby_npcs.pop_at(npc_index)
-	return nearby_npcs
+	# filters out people who are moving
+	var conversation_partners: Array[String]
+	for npc_id: String in nearby_npcs:
+		if npc_id == npc.ID: continue
+		var checked_npc:NPC = Global.NPCS[npc_id]
+		var current_action: ACTION = checked_npc.STATE_STACK[-1]
+		if current_action is MoveAction: continue # if they're moving they're not part of the conversation
+		conversation_partners.append(npc_id)
 
-func looking_at(npc:NPC):
-	var vectors: Dictionary = {
+	return conversation_partners
 
-	}
-	#var looking_at_loc: Vector2 = 
+
+func can_see(npc:NPC) -> Array[String]:
+	var nearby_npcs: Array[String] = get_nearby_npcs(npc.LOCATION)
+	var can_see_list: Array[String]
+	for npc_id:String in nearby_npcs:
+		if npc_id == npc.ID: continue
+		var checked_npc:NPC = Global.NPCS[npc_id]
+		var direction = npc.LOCATION.direction_to(checked_npc.LOCATION)
+		if direction.dot(npc.DIRECTION)> -0.5:
+			can_see_list.append(npc_id)
+	return can_see_list
+
 
 #endregion utility

@@ -14,6 +14,7 @@ func _init(type: String, location: Vector2) -> void:
 	var initial_label: Label = Label.new()
 	var _str: String = TYPE.substr(0,6) + " " + str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))
 	initial_label.text = str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))
+	initial_label.position += Vector2(5,0)
 	add_child(initial_label)
 	#$TypeInitialLabel.text = TYPE.substr(0,6)
 	#$LocationLabel.text = str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))
