@@ -7,6 +7,7 @@ var ENGINE
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	$TextureRect.modulate = Constants.COLOR_LIST.pick_random()
+	print("sdfsdfu")
 	pass
 
 
@@ -45,3 +46,7 @@ func update():
 func open_npc_menu(npc):
 	SignalBus.npc_click.emit(npc)
 	
+
+
+func open_journal() -> void:
+	SignalBus.open_journal.emit()
