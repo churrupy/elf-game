@@ -69,7 +69,7 @@ func score_old() -> void:
 	'''
 
 
-
+'''
 func step_towards_location() -> void:
 	#var old_location: Vector2 = OWNER.LOCATION
 	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
@@ -81,7 +81,7 @@ func step_towards_location() -> void:
 	else:
 		OWNER.LOCATION = next_step
 		#ENGINE.History.add_event(OWNER.ID, "moved to", LOCATION)
-
+'''
 
 func recheck_can_do_action():
 	# what an awful bandaid lol

@@ -39,6 +39,7 @@ func run() -> ActionResult:
 	if OWNER.LOCATION == LOCATION:
 		return ActionResult.new("end", null)
 		#return ["end", null]
+	var old_location: Vector2 = OWNER.LOCATION
 	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	if next_step == Vector2.INF:
 		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
@@ -46,6 +47,16 @@ func run() -> ActionResult:
 		OWNER.LOCATION = LOCATION
 	else:
 		OWNER.LOCATION = next_step
+
+		var new_direction: Vector2 = next_step - old_location
+		print("new direction", new_direction)
+		OWNER.update_direction(new_direction)
+
+
+		#var new_direction:String = ENGINE.Map.get_direction(old_location, next_step)
+		#if new_direction != "":
+	#		OWNER.update_direction(new_direction)
+
 	
 	ENGINE.History.add_event(OWNER.ID, "moves")
 	return ActionResult.new("running", null)

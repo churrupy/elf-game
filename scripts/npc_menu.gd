@@ -37,6 +37,13 @@ func update_npc_details() -> void:
 	display_string.append(_str)
 	_str = "Current Action: " + str(MENU_NPC.STATE_STACK.back())
 	display_string.append(_str)
+
+	var looking_at_loc: Vector2 = MENU_NPC.LOCATION + MENU_NPC.DIRECTION
+	var looking_at:Array[String] = ENGINE.NpcManager.get_npc_from_location(looking_at_loc)
+	#var looking_at_string: String = ", ".join(looking_at)
+	_str = "Looking At: " + ", ".join(looking_at)
+	display_string.append(_str)
+
 	_str = "Current Topic: " + str(MENU_NPC.SOCIAL_ACTION.RECENT_TOPIC)
 	display_string.append(_str)
 	

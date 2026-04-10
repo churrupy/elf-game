@@ -305,11 +305,25 @@ func get_nearby_npcs(location: Vector2) -> Array[String]:
 		nearby_npcs.append(npc.ID)
 	return nearby_npcs
 
+
+func get_npc_from_location(location: Vector2) -> Array[String]:
+	var npc_list: Array[String]
+	for npc:NPC in NPCS:
+		if npc.LOCATION == location:
+			npc_list.append(npc.ID)
+	return npc_list
+
 func get_conversation_partners(npc:NPC) -> Array[String]:
 	var nearby_npcs: Array[String] = get_nearby_npcs(npc.LOCATION)
 	var npc_index: int = nearby_npcs.find(npc.ID)
 	if npc_index > -1:
 		nearby_npcs.pop_at(npc_index)
 	return nearby_npcs
+
+func looking_at(npc:NPC):
+	var vectors: Dictionary = {
+
+	}
+	#var looking_at_loc: Vector2 = 
 
 #endregion utility

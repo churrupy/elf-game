@@ -52,7 +52,12 @@ var BUTTON: TextureButton
 var GLOW_BUTTON
 var NPC_BUTTON: Button = Button.new()
 
-var MENU_OPEN: bool = false
+var MENU_OPEN: bool = false # tracks whether npc glows
+
+var DIRECTION: Vector2
+var DIRECTION_LABEL: Label = Label.new()
+
+
 
 #endregion sprite
 
@@ -108,6 +113,7 @@ func load_sprites() -> void:
 
 	GLOW_SPRITE.texture = load("res://models/npc_glow.png")
 	GLOW_SPRITE.modulate = HAIR_COLOR
+	GLOW_SPRITE.hide()
 	#add_child(GLOW_SPRITE)
 
 	#NPC_BUTTON = Button.new()
@@ -131,8 +137,17 @@ func load_sprites() -> void:
 	NPC_BUTTON.offset_right = button_size.x / 2
 	NPC_BUTTON.offset_top = -button_size.y / 2
 	NPC_BUTTON.offset_bottom = button_size.y / 2
-	
+
 	add_child(NPC_BUTTON)
+	add_child(DIRECTION_LABEL)
+
+	#var DirectionLabel: Label = Label.new()
+	#add_child(DirectionLabel)
+	#update_direction(Vector2.UP)
+	#DirectionLabel.text = DIRECTION[0].capitalize()
+	#add_child(DirectionLabel)
+	
+	
 
 
 
@@ -236,15 +251,19 @@ func hear_flirt(speaker_id):
 #region sprite
 
 func sprite_hover() -> void:
-	remove_child(SPRITE)
-	add_child(GLOW_SPRITE)
+	SPRITE.hide()
+	GLOW_SPRITE.show()
+	#remove_child(SPRITE)
+	#add_child(GLOW_SPRITE)
 	MENU_OPEN = true
 	SignalBus.open_npc_menu.emit(self)
 	
 
 func sprite_hoveroff() -> void:
-	remove_child(GLOW_SPRITE)
-	add_child(SPRITE)
+	GLOW_SPRITE.hide()
+	SPRITE.show()
+	#remove_child(GLOW_SPRITE)
+	#add_child(SPRITE)
 	MENU_OPEN = false
 	SignalBus.try_close_npc_menu.emit()
 
@@ -271,3 +290,45 @@ func get_journal_entry() -> Array[String]:
 		display_list.append(_str)
 	
 	return display_list
+
+'''
+func update_direction_old(new_direction:String) -> void:
+	DIRECTION = new_direction
+	print("upate direction")
+	print($DirectionLabel)
+	print(DIRECTION)
+	for child in get_children():
+		if child is Label:
+			child.text = new_direction[0].capitalize()
+'''
+
+
+
+func update_direction(new_direction:Vector2) -> void:
+	DIRECTION = new_direction
+	var direction_text: String
+	match new_direction:
+		Vector2.LEFT:
+			direction_text = "L"
+		Vector2(-1,-1):
+			direction_text = "L"
+		Vector2(-1,1):
+			direction_text = "L"
+		Vector2.RIGHT:
+			direction_text = "R"
+		Vector2(1,1):
+			direction_text = "R"
+		Vector2(1,-1):
+			direction_text = "R"
+		Vector2.UP:
+			direction_text = "U"
+		Vector2.DOWN:
+			direction_text = "D"
+		_:
+			direction_text = "" # until i decide how to do diagonals
+	DIRECTION_LABEL.text = direction_text
+	'''
+	for child in get_children():
+		if child is Label:
+			child.text = direction_text
+	'''

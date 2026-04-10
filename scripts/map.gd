@@ -352,6 +352,34 @@ func get_available_poses_for_tile(location: Vector2) -> Array:
 	return Constants.POSE_CLASS[pose_class]
 
 
+func get_direction(from:Vector2, to:Vector2) -> String:
+	if from.distance_to(to) >=2:
+		push_error("spots too far apart!")
+		return ""
+		
+	if from[1] < to[1]:
+		return "down"
+	elif from[1] > to[1]:
+		return "up"
+	elif from[0] < to[0]:
+		return "right"
+	else:
+		return "left"
+	'''
+	if from[0] == to[0]:
+		#vertically oriented
+		if from[1] < to[1]:
+			return "down"
+		else:
+			return "up"
+	elif from[1] == to[1]:
+		#horizontally oriented
+		if from[0] < to[0]:
+			return "right"
+		else:
+			return "left"
+	return ""
+	'''
 		
 
 #endregion utility
