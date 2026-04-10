@@ -37,7 +37,7 @@ func update_npc_details() -> void:
 	display_string.append(_str)
 	_str = "Current Action: " + str(MENU_NPC.STATE_STACK.back())
 	display_string.append(_str)
-	_str = "Current Topic: " + str(MENU_NPC.RECENT_TOPIC)
+	_str = "Current Topic: " + str(MENU_NPC.SOCIAL_ACTION.RECENT_TOPIC)
 	display_string.append(_str)
 	
 	for need in MENU_NPC.NEEDS:

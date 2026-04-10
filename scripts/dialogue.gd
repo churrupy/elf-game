@@ -55,7 +55,8 @@ func get_next_topic(topic: String):
 var ENCOUNTER_STRINGS:Dictionary = {
 	"sweet nothings": " whispered sweet nothings to ",
 	"kiss neck": " kisses the neck of ",
-	"play with nipples": " plays with the nipples of "
+	"play with nipples": " plays with the nipples of ",
+	"introduce": " introduced themselves to "
 }
 
 

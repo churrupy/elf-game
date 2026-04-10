@@ -2,6 +2,7 @@ class_name BladderAction extends ACTION
 
 func _init(engine, owner:NPC, target:TILE) -> void:
 	ID = "use toilet"
+	CHATTABLE = false
 	super._init(engine, owner, target)
 
 func score() -> void:

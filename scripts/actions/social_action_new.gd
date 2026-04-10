@@ -1,11 +1,14 @@
-class_name SocialAction extends ACTION
+class_name SocialAction_new extends ACTION
+
+var RECENT_TOPIC:String
 
 
-func _init(engine, owner: NPC, target: NPC) -> void:
-	# i hope this works lol
+func _init(engine, owner: NPC, target: NPC=null) -> void:
 	# no scoring needed for this
+	ENGINE = engine
+	OWNER = owner
 	ID = "converse"
-	super._init(engine, owner, target)
+	#super._init(engine, owner, target)
 
 func can_do_action() -> bool:
 	return ENGINE.NpcManager.is_available(TARGET)
@@ -43,26 +46,41 @@ func tick() -> ActionResult:
 	return res
 
 
-
 func run() -> ActionResult:
+	print("running social action")
+	var res: ActionResult = ActionResult.new("running")
+	var witnesses: Array[String] = ENGINE.NpcManager.get_conversation_partners(OWNER)
+	if len(witnesses) == 0:
+		return res
 	
-	#print("*************", PHYSICAL_ACTION)
-	#flirt()
+	# if any witnesses are unknown to npc, introduce self
+	for npc_id:String in witnesses:
+		if npc_id == OWNER.ID: continue
+		if npc_id not in OWNER.RELATIONSHIPS:
+			# introduce self
+			OWNER.RELATIONSHIPS[npc_id] = 0 			
+			ENGINE.History.add_event(OWNER.ID, "introduce", npc_id)
+			return res
 
-	var res: ActionResult = ActionResult.new("running", null)
+	# if any witnesses npc has not interacted with in x ticks, greet them
+	'''
+	figure this out later
+	'''
+	# then talk about topics
+	var new_topic: String = Dialogue.get_next_topic(RECENT_TOPIC)
+	var opinion: int = OWNER.OPINIONS[new_topic]
+	RECENT_TOPIC = new_topic
+	var params: Dictionary = {
+		"topic": new_topic,
+		"opinion": opinion
+	}
+	ENGINE.History.add_event(OWNER.ID, "converse", "", params)
+	refresh_needs("social")
 
-	var nearby_npcs:Array[String] = ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)
-	if len(nearby_npcs) > 0:
-		pass
-		#chitchat() # refresh needs already covered in this
-	# have some kind of "if attracted to, then flirt" here
 
-	COUNTDOWN -= 1
-	if COUNTDOWN < 0 or !ENGINE.NpcManager.is_available(TARGET):
-		return ActionResult.new("end", null)
-		#return ["end", null]
-	
 	return res
+
+
 
 func flirt_old() -> Array:
 	var impression = TARGET.hear_flirt(OWNER.ID)

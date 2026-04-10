@@ -31,7 +31,7 @@ func run() -> ActionResult:
 	refresh_needs("fun")
 	ENGINE.History.add_event(OWNER.ID, "dances")
 
-	chitchat()
+	#chitchat()
 
 	COUNTDOWN -= 1
 	if COUNTDOWN < 0:

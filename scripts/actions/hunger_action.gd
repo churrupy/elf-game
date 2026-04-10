@@ -34,7 +34,7 @@ func run() -> ActionResult:
 	refresh_needs("hunger")
 	#ENGINE.History.add_event(OWNER.ID, "ate", LOCATION)
 
-	chitchat()
+	#chitchat()
 
 	COUNTDOWN -= 1
 	if COUNTDOWN < 0:

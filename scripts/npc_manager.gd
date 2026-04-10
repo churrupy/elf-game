@@ -30,6 +30,7 @@ func create_npc() -> void:
 	# initialize state stack
 	var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)
 	npc.STATE_STACK.append(new_action)
+	npc.SOCIAL_ACTION = SocialAction_new.new(ENGINE, npc)
 	
 	#ENGINE.History.add_event(npc.ID, "created", npc.LOCATION)
 
@@ -43,6 +44,8 @@ func tick_new() -> void:
 			var action_result = npc.CURRENT_ACTION.tick()
 			if action_result == "finish":
 				npc.CURRENT_ACTION = null
+
+		var _res: ActionResult = npc.SOCIAL_ACTION.run()
 		
 		npc.decay_needs()
 
@@ -90,6 +93,9 @@ func tick() -> void:
 			# state continues running
 			#assumes result is ["running", null]
 			pass
+		if current_action.CHATTABLE:
+			var _res: ActionResult = npc.SOCIAL_ACTION.run()
+		#npc.decay_needs()
 
 
 func tick_old() -> void:
@@ -297,6 +303,13 @@ func get_nearby_npcs(location: Vector2) -> Array[String]:
 		if int(npc.LOCATION[0]) not in range(location[0]-1, location[0]+2): continue
 		if int(npc.LOCATION[1]) not in range(location[1]-1, location[1]+2): continue
 		nearby_npcs.append(npc.ID)
+	return nearby_npcs
+
+func get_conversation_partners(npc:NPC) -> Array[String]:
+	var nearby_npcs: Array[String] = get_nearby_npcs(npc.LOCATION)
+	var npc_index: int = nearby_npcs.find(npc.ID)
+	if npc_index > -1:
+		nearby_npcs.pop_at(npc_index)
 	return nearby_npcs
 
 #endregion utility

@@ -8,6 +8,7 @@ func _init(engine, owner: NPC, target: TILE, moving_for: String) -> void:
 	ID = "move"
 	LOCATION = target.LOCATION
 	MOVING_FOR = moving_for
+	CHATTABLE = false
 	super._init(engine, owner, target)
 
 func tick() -> ActionResult:

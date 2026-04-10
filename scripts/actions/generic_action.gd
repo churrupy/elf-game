@@ -9,6 +9,8 @@ var COUNTDOWN: int
 var SCORE: int = 0
 var STATUS: String
 
+var CHATTABLE: bool = true
+
 
 var POSE:String = "standing"
 var PHYSICAL_ACTION:String = ""
@@ -149,6 +151,7 @@ func chitchat() -> void:
 	#flirt()
 	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
 	OWNER.RECENT_TOPIC = new_topic
+	OWNER.SOCIAL_ACTION.RECENT_TOPIC = new_topic
 	var opinion:int = OWNER.OPINIONS[new_topic]
 	var params:Dictionary = {
 		"topic": new_topic,
@@ -157,7 +160,6 @@ func chitchat() -> void:
 	ENGINE.History.add_event(OWNER.ID, "converse", "", params)
 
 	refresh_needs("social")
-
 
 func flirt() -> void:
 	# deal with being target of escalation
@@ -232,6 +234,7 @@ func chitchat_old() -> void:
 
 	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
 	OWNER.RECENT_TOPIC = new_topic
+	OWNER.SOCIAL_ACTION.RECENT_TOPIC = new_topic
 	var opinion: int = OWNER.OPINIONS[new_topic]
 	var op_str: String = OWNER.NAME + ": " + '"' + new_topic.capitalize() + " are "
 	if opinion >= 3:

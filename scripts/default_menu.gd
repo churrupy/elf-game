@@ -31,6 +31,7 @@ func update():
 		new_label.text = item
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$PlayerHistoryContainer.get_node("VBoxContainer").add_child(new_label)
+	'''
 	for child in $NearbyNpcsContainer.get_node("VBoxContainer").get_children():
 		child.queue_free()
 	for npc_id: String in Global.NEARBY_NPCS:
@@ -38,6 +39,7 @@ func update():
 		var npc_button = buttons.instantiate()
 		npc_button.initialize(npc)
 		$NearbyNpcsContainer.get_node("VBoxContainer").add_child(npc_button)
+	'''
 			
 			
 func open_npc_menu(npc):

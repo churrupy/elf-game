@@ -19,6 +19,12 @@ func resume_state():
 func can_do_action() -> bool:
 	return true
 
+func tick() -> ActionResult:
+	LOCATION = OWNER.LOCATION
+	var result:ActionResult = run()
+	OWNER.decay_needs()
+	return result
+
 func run_new() -> ActionResult:
 	print("running")
 	Determinator.determine_next_action(OWNER)

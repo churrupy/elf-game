@@ -31,6 +31,7 @@ var RECENT_TOPIC: String
 var STYLE: String
 var OPINIONS: Dictionary = {}
 var RELATIONSHIPS: Dictionary = {}
+var MEMORIES: Dictionary = {}
 var NEEDS: Dictionary = {
 	"hunger": 50.0,
 	"energy": 50.0,
@@ -59,6 +60,7 @@ var MENU_OPEN: bool = false
 var EVENT_QUEUE: Array[HistoryEvent]
 
 var STATE_STACK: Array[ACTION] = []
+var SOCIAL_ACTION: SocialAction_new
 
 #endregion actions
 
@@ -195,6 +197,7 @@ func hear_topic(speaker_id: String, topic: String, opinion: int) -> String:
 	if speaker_id not in RELATIONSHIPS:
 		RELATIONSHIPS[speaker_id] = 0
 	RECENT_TOPIC = topic
+	SOCIAL_ACTION.RECENT_TOPIC = topic
 	var this_opinion: int = OPINIONS[topic]
 	var diff: int = abs(this_opinion - opinion)
 	var impression: String

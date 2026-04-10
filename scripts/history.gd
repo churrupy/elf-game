@@ -22,6 +22,7 @@ func _process(delta:float):
 	pass
 
 
+
 func add_event(actor_id:String, action:String, target:String = "", params:Dictionary={}) -> HistoryEvent:
 	var actor = Global.NPCS[actor_id]
 	var new_event = HistoryEvent.new()
@@ -91,15 +92,13 @@ func event_to_string(event:HistoryEvent) -> String:
 	if event.ACTION_ID == "converse":
 		var opinion:int = event.PARAM["opinion"]
 		var op_str:String
-		if opinion >= 3:
-			op_str = "great!"
-		elif opinion >= 0:
-			op_str = "okay."
-		elif opinion >= -3:
-			op_str = "lame."
+		if opinion > 0:
+			op_str = "positive"
+		elif opinion == 0:
+			op_str = "neutral"
 		else:
-			op_str = "terrible!"
-		_str = "[" + str(event.TICK) + "] " + actor.NAME + ' says, "' + event.PARAM["topic"] + " are " + op_str + '"'
+			op_str = "negative"
+		_str = "[" + str(event.TICK) + "] " + actor.NAME + ' expressed a  ' + op_str + " opinion about " + event.PARAM["topic"] + '.'
 		return _str
 	if event.ACTION_ID in Dialogue.ENCOUNTER_STRINGS:
 		var target = Global.NPCS[event.TARGET]
