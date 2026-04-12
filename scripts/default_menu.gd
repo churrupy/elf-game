@@ -10,7 +10,7 @@ var OPEN_MENUS: Dictionary[String, NpcMenuNode]
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$TextureRect.modulate = Constants.COLOR_LIST.pick_random()
+	#$PlayerDetails.get_node("BG").modulate = Constants.COLOR_LIST.pick_random()
 	pass
 		
 
@@ -27,8 +27,8 @@ func _process(_delta:float) -> void:
 func update():
 	var player_location: Vector2 = ENGINE.get_node("Player").LOCATION
 	var location_text: String = "[" + str(int(player_location[0])) + "," + str(int(player_location[1])) + "]"
-	$PCLocationLabel.text = location_text
-	$TickLabel.text = "T:" + str(Global.TICKS)
+	#$PlayerDetails.get_node("PCLocationLabel").text = location_text
+	#$PlayerDetails.get_node("TickLabel").text = "T:" + str(Global.TICKS)
 	var player_history = ENGINE.History.filter_by_npc("player")
 	var player_history_list = ENGINE.History.history_to_string(player_history)
 	var trunc_history = player_history_list.slice(-10, -1)
@@ -58,3 +58,14 @@ func hold_temp_menus() -> void:
 
 func open_journal() -> void:
 	SignalBus.open_journal.emit()
+
+
+func expand_player_details() -> void:
+	$PlayerDetails.get_node("Small").hide()
+	$PlayerDetails.get_node("Large").show()
+	pass
+
+func contract_player_details() -> void:
+	$PlayerDetails.get_node("Large").hide()
+	$PlayerDetails.get_node("Small").show()
+	pass
