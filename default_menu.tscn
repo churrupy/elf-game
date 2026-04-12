@@ -6,27 +6,22 @@
 [ext_resource type="PackedScene" uid="uid://btdi0hy7dsfga" path="res://npc_menu_new.tscn" id="3_y46xn"]
 [ext_resource type="Texture2D" uid="uid://b58kjptfeeafb" path="res://models/journal.png" id="4_jyfhq"]
 
-[node name="DefaultMenu" type="Control"]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="DefaultMenu" type="VBoxContainer"]
+custom_minimum_size = Vector2(300, 660)
+offset_right = 300.0
+offset_bottom = 660.0
 script = ExtResource("1_5qk5r")
 buttons = ExtResource("2_ur6fb")
 npc_menus = ExtResource("3_y46xn")
 
 [node name="Journal" type="Button" parent="."]
-layout_mode = 1
-offset_left = 1144.0
-offset_top = 24.0
-offset_right = 1200.0
-offset_bottom = 80.0
+layout_mode = 2
 icon = ExtResource("4_jyfhq")
 
 [node name="PlayerDetails" type="Control" parent="."]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+clip_contents = true
+custom_minimum_size = Vector2(300, 115)
+layout_mode = 2
 
 [node name="BG" type="TextureRect" parent="PlayerDetails"]
 layout_mode = 0
@@ -118,10 +113,8 @@ grow_vertical = 0
 text = "^^"
 
 [node name="NearbyNpcsContainer" type="ScrollContainer" parent="."]
-layout_mode = 0
-offset_top = 208.0
-offset_right = 303.0
-offset_bottom = 749.0
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="VBoxContainer" type="VBoxContainer" parent="NearbyNpcsContainer"]
 layout_mode = 2

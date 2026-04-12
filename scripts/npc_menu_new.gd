@@ -69,13 +69,13 @@ func close_npc_menu() -> void:
 func expand_menu() -> void:
 	$Small.hide()
 	$Large.show()
-	custom_minimum_size = Vector2(300,400)
+	custom_minimum_size = $Large.custom_minimum_size
 
 
 func contract_menu() -> void:
 	$Large.hide()
 	$Small.show()
-	custom_minimum_size = Vector2(300,200)
+	custom_minimum_size = $Small.custom_minimum_size
 
 
 func open_journal() -> void:
