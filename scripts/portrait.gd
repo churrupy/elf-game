@@ -15,14 +15,6 @@ var BANGS: TextureRect = TextureRect.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	#HAIR.global_position = global_position
-	#$Splash.add_child(HAIR)
-	#$Splash.add_child(EARS)
-	#$Splash.add_child(BODY)
-	#$Splash.add_child(EYES)
-	#$Splash.add_child(NOSE)
-	#$Splash.add_child(MOUTH)
-	#$Splash.add_child(BANGS)
 	add_child(BG)
 	add_child(HAIR)
 	add_child(EARS)
@@ -31,13 +23,6 @@ func _ready() -> void:
 	add_child(NOSE)
 	add_child(MOUTH)
 	add_child(BANGS)
-
-
-	for child in get_children():
-		child.scale = Vector2(1.2,1.2)
-
-	
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

@@ -74,13 +74,10 @@ var SOCIAL_ACTION: SocialAction_new
 
 
 func _draw()->void:
-	#print("DRAWING")
 	var direction_angle: float = DIRECTION.angle()
 	var start_angle: float = direction_angle + (PI/2)
 	var end_angle: float = direction_angle - (PI/2)
-	#print(start_angle, " ", end_angle)
 	draw_arc(LOCATION, Constants.TILE_SIZE, start_angle, end_angle, 20, HAIR_COLOR)
-	#print(NAME, " is looking at:")
 	for v: Vector2 in LOOKING_AT:
 		var direction: Vector2 = LOCATION.direction_to(v) * Constants.TILE_SIZE
 		draw_line(LOCATION, direction, HAIR_COLOR, 5.0)
@@ -93,13 +90,12 @@ func initialize(ID_COUNTER):
 	STYLE = STYLES.pick_random()
 	EYE_COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
 	HAIR_COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
-	#SKIN_COLOR = Color(randf_range(0,1), randf_range(0.25,0.50), randf_range(0.25,0.75)) # getting WILD in here
+	
 	var red = randf_range(0.15, .90)
 	var green = red - randf_range(0.05, 0.20)
 	green = clamp(green, 0.5, 1.0)
 	var blue = green - randf_range(0.05, 0.20)
 	blue = clamp(blue, 0.5, 1.0)
-	#SKIN_COLOR = Color(randf_range(0.20,0.9), randf_range(0.10,0.75), randf_range(0.05,0.70)) 
 	SKIN_COLOR = Color(red, green, blue)
 
 	for part in Constants.PORTRAIT_TEMPLATES.keys():
@@ -115,7 +111,6 @@ func initialize(ID_COUNTER):
 
 
 	load_sprites()
-	#load_sprites_old()
 
 	
 	
@@ -129,64 +124,9 @@ func load_sprites() -> void:
 	GLOW_SPRITE.modulate = HAIR_COLOR
 	GLOW_SPRITE.hide()
 	add_child(GLOW_SPRITE)
-
-	# #NPC_BUTTON = Button.new()
-	# #var rect:Rect2 = SPRITE.texture.get_size()
-	# var button_size:Vector2 = SPRITE.texture.get_size()
-	# NPC_BUTTON.size = button_size
-	# #print(rect)
-
-	# #NPC_BUTTON.mouse_entered.connect(sprite_hover)
-	# #NPC_BUTTON.mouse_exited.connect(sprite_hoveroff)
-	# #NPC_BUTTON.pressed.connect(sprite_clicked)
-	
-	# NPC_BUTTON.anchor_left = 0.5
-	# NPC_BUTTON.anchor_right = 0.5
-	# NPC_BUTTON.anchor_top = 0.5
-	# NPC_BUTTON.anchor_bottom = 0.5
-
-	# NPC_BUTTON.offset_left = -button_size.x / 2
-	# NPC_BUTTON.offset_right = button_size.x / 2
-	# NPC_BUTTON.offset_top = -button_size.y / 2
-	# NPC_BUTTON.offset_bottom = button_size.y / 2
-
-	# #add_child(NPC_BUTTON)
-	# add_child(DIRECTION_LABEL)
-
-	# #var DirectionLabel: Label = Label.new()
-	# #add_child(DirectionLabel)
-	# #update_direction(Vector2.UP)
-	# #DirectionLabel.text = DIRECTION[0].capitalize()
-	# #add_child(DirectionLabel)
 	
 	
 
-
-
-# func load_sprites_old() -> void:
-# 	BUTTON = TextureButton.new()
-# 	add_child(BUTTON)
-# 	BUTTON.texture_normal = load("res://models/npc.png")
-# 	BUTTON.texture_hover = load("res://models/npc_glow.png")
-# 	BUTTON.modulate = HAIR_COLOR
-
-# 	BUTTON.set_anchors_and_offsets_preset(Control.LayoutPreset.PRESET_CENTER, Control.LayoutPresetMode.PRESET_MODE_MINSIZE, 0)
-# 	#BUTTON.keep_offsets = true
-# 	#BUTTON.set_anchors_preset(Control.LayoutPreset.PRESET_CENTER)
-# 	'''
-# 	var button_size = BUTTON.get_size()
-# 	BUTTON.anchor_left = 0.5
-# 	BUTTON.anchor_right = 0.5
-# 	BUTTON.anchor_top = 0.5
-# 	BUTTON.anchor_bottom = 0.5
-
-# 	BUTTON.offset_left = -button_size.x / 2
-# 	BUTTON.offset_right = button_size.x / 2
-# 	BUTTON.offset_top = -button_size.y / 2
-# 	BUTTON.offset_bottom = button_size.y / 2
-# 	'''
-
-# 	#BUTTON.pressed.connect(sprite_clicked)
 	
 #endregion
 	
@@ -260,34 +200,6 @@ func hear_flirt(speaker_id):
 
 #endregion
 
-#region sprite
-
-# func sprite_hover() -> void:
-# 	#SPRITE.hide()
-# 	GLOW_SPRITE.show()
-
-# func sprite_hover_old() -> void:
-# 	SPRITE.hide()
-# 	GLOW_SPRITE.show()
-# 	#remove_child(SPRITE)
-# 	#add_child(GLOW_SPRITE)
-# 	MENU_OPEN = true
-# 	SignalBus.open_npc_menu.emit(self)
-	
-
-# func sprite_hoveroff() -> void:
-# 	GLOW_SPRITE.hide()
-# 	SPRITE.show()
-# 	#remove_child(GLOW_SPRITE)
-# 	#add_child(SPRITE)
-# 	MENU_OPEN = false
-# 	SignalBus.try_close_npc_menu.emit()
-
-# func sprite_clicked() -> void:
-# 	SignalBus.keep_open_npc_menu.emit()
-
-
-#endregion
 
 
 func get_journal_entry() -> Array[String]:

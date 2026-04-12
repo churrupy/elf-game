@@ -7,8 +7,6 @@ var Map:MAP = MAP.new(self, "club")
 var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
 var NpcManager:NPC_MANAGER = NPC_MANAGER.new(self)
 
-var HOVER_NPCS: Array[String] = []
-var HOLD_NPC_MENU_OPEN: bool = false
 
 
 
@@ -29,9 +27,9 @@ func _ready() -> void:
 		if "ENGINE" in child:
 			child.ENGINE = self
 	
-	SignalBus.open_npc_menu.connect(open_npc_menu)
-	SignalBus.keep_open_npc_menu.connect(keep_open_npc_menu)
-	SignalBus.close_npc_menu.connect(close_npc_menu)
+	#SignalBus.open_npc_menu.connect(open_npc_menu)
+	#SignalBus.keep_open_npc_menu.connect(keep_open_npc_menu)
+	#SignalBus.close_npc_menu.connect(close_npc_menu)
 	#SignalBus.try_close_npc_menu.connect(try_close_npc_menu)
 
 	SignalBus.open_talk_menu.connect(open_talk_menu)
@@ -61,10 +59,6 @@ func _process(_delta: float) -> void:
 	var mouse_position: Vector2 = get_viewport().get_mouse_position()
 	$MousePositionLabel.text = prettify_vector(mouse_position)
 
-	#print(mouse_position[0])
-	#print(Constants.CENTER_PANEL_LOCATION[0])
-	#print(Constants.CENTER_PANEL_LOCATION[0] + Constants.CENTER_PANEL_SIZE[0])
-	#print("*")
 	
 	if int(mouse_position[0]) in range(int(Constants.CENTER_PANEL_LOCATION[0]), int(Constants.CENTER_PANEL_LOCATION[0] + Constants.CENTER_PANEL_SIZE[0])):
 		#print("over map")
@@ -77,34 +71,6 @@ func _process(_delta: float) -> void:
 		if Input.is_action_just_pressed("mouse_click"):
 			$DefaultMenu.hold_temp_menus()
 		
-		# glow npcs
-		# if HOLD_NPC_MENU_OPEN:
-		# 	var new_npcs: Array[String] = NpcManager.get_npc_from_location(location)
-		# 	for npc_id: String in new_npcs:
-		# 		if npc_id not in HOVER_NPCS:
-		# 			HOVER_NPCS.append(npc_id)
-		# 	#HOVER_NPCS += NpcManager.get_npc_from_location(location)
-		# else:
-		# 	HOVER_NPCS = NpcManager.get_npc_from_location(location)
-		# #print(HOVER_NPCS)
-
-		# if Input.is_action_just_pressed("mouse_click"):
-		# 	HOLD_NPC_MENU_OPEN = true
-		#update()
-
-		'''
-		for npc_id:String in on_tile_list:
-			var npc:NPC = Global.NPCS[npc_id]
-			npc.sprite_hover()
-		'''
-
-	if len(HOVER_NPCS) == 0:
-		HOLD_NPC_MENU_OPEN = false
-		#update()
-
-	# if Input.is_action_just_pressed("mouse_click"):
-	# 	update()
-
 
 	if Input.is_action_just_pressed("auto_tick"):
 		tick()
@@ -219,32 +185,24 @@ func set_nearby_npcs() -> void:
 
 
 
-#region menus
-func open_npc_menu(npc) -> void:
-	#$DefaultMenu.hide()
-	$NpcMenu.MENU_NPC = npc
-	$NpcMenu.update()
-	$NpcMenu.show()
-	$TalkMenu.MENU_NPC = npc
-	$TalkMenu.update()
+# #region menus
+# func open_npc_menu(npc) -> void:
+# 	#$DefaultMenu.hide()
+# 	$NpcMenu.MENU_NPC = npc
+# 	$NpcMenu.update()
+# 	$NpcMenu.show()
+# 	$TalkMenu.MENU_NPC = npc
+# 	$TalkMenu.update()
 
-func keep_open_npc_menu() -> void:
-	$NpcMenu.KEEP_OPEN = true
+# func keep_open_npc_menu() -> void:
+# 	$NpcMenu.KEEP_OPEN = true
 
-'''
-func try_close_npc_menu() -> void:
-	# will close npc menu if KEEP_OPEN is not flagged
-	if $NpcMenu.KEEP_OPEN:
-		pass
-	else:
-		close_npc_menu()
-'''
 
-func close_npc_menu(npc_id):
-	$TalkMenu.hide()
-	$NpcMenu.KEEP_OPEN = false
-	$NpcMenu.hide()
-	#$DefaultMenu.show()
+# func close_npc_menu(npc_id):
+# 	$TalkMenu.hide()
+# 	$NpcMenu.KEEP_OPEN = false
+# 	$NpcMenu.hide()
+# 	#$DefaultMenu.show()
 
 
 func toggle_talk_menu(npc):
@@ -275,11 +233,6 @@ func update_journal(topic):
 	$Journal.update_topic(topic)
 	$Journal.show()
 
-
-func remove_from_hover(npc_id:String) -> void:
-	var index: int = HOVER_NPCS.find(npc_id)
-	if index > -1:
-		HOVER_NPCS.remove_at(index)
 
 
 #endregion

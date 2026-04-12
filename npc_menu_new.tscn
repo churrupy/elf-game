@@ -1,16 +1,19 @@
-[gd_scene load_steps=4 format=3 uid="uid://btdi0hy7dsfga"]
+[gd_scene load_steps=7 format=3 uid="uid://btdi0hy7dsfga"]
 
 [ext_resource type="Script" uid="uid://cge8bignbhgjn" path="res://scripts/npc_menu_new.gd" id="1_1hw2b"]
 [ext_resource type="Texture2D" uid="uid://ccddj83dn687y" path="res://models/left_menu.png" id="2_xb6o2"]
 [ext_resource type="PackedScene" uid="uid://wqx311ixn3i1" path="res://portrait.tscn" id="3_tuoab"]
+[ext_resource type="Texture2D" uid="uid://b58kjptfeeafb" path="res://models/journal.png" id="4_tuoab"]
+[ext_resource type="Texture2D" uid="uid://c2m2pg2artbpk" path="res://models/watch.png" id="5_xy0k7"]
+[ext_resource type="Texture2D" uid="uid://jt3v8h4mtfk7" path="res://models/watch_glow.png" id="6_vdaph"]
 
 [node name="NpcMenu_new" type="Control"]
 clip_contents = true
-custom_minimum_size = Vector2(300, 300)
+custom_minimum_size = Vector2(300, 200)
 layout_mode = 3
 anchors_preset = 0
 offset_right = 300.0
-offset_bottom = 300.0
+offset_bottom = 200.0
 mouse_force_pass_scroll_events = false
 script = ExtResource("1_1hw2b")
 
@@ -38,12 +41,50 @@ offset_bottom = 38.0
 theme_override_font_sizes/font_size = 24
 text = "Name"
 
-[node name="DetailContainer" type="VBoxContainer" parent="."]
-layout_mode = 0
+[node name="Small" type="Control" parent="."]
+custom_minimum_size = Vector2(300, 200)
+anchors_preset = 0
+offset_right = 300.0
+offset_bottom = 200.0
+
+[node name="ExpandButton" type="Button" parent="Small"]
+layout_mode = 2
+offset_left = 135.0
+offset_top = 167.0
+offset_right = 163.0
+offset_bottom = 198.0
+size_flags_horizontal = 4
+size_flags_vertical = 8
+text = "VV"
+
+[node name="Large" type="Control" parent="."]
+visible = false
+custom_minimum_size = Vector2(300, 400)
+anchors_preset = 0
+offset_right = 300.0
+offset_bottom = 400.0
+
+[node name="DetailContainer" type="VBoxContainer" parent="Large"]
+layout_mode = 2
 offset_left = 11.0
 offset_top = 179.0
 offset_right = 294.0
 offset_bottom = 296.0
+
+[node name="ContractButton" type="Button" parent="Large"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -13.0
+offset_top = -31.0
+offset_right = 13.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "^^
+"
 
 [node name="CloseButton" type="Button" parent="."]
 z_index = 5
@@ -59,5 +100,35 @@ grow_horizontal = 0
 theme_override_font_sizes/font_size = 24
 text = "X"
 
+[node name="JournalButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 240.0
+offset_top = 57.0
+offset_right = 296.0
+offset_bottom = 113.0
+icon = ExtResource("4_tuoab")
+
+[node name="WatchButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 246.0
+offset_top = 122.0
+offset_right = 294.0
+offset_bottom = 170.0
+icon = ExtResource("5_xy0k7")
+
+[node name="UnWatchButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 246.0
+offset_top = 122.0
+offset_right = 294.0
+offset_bottom = 170.0
+icon = ExtResource("6_vdaph")
+
+[connection signal="pressed" from="Small/ExpandButton" to="." method="expand_menu"]
+[connection signal="pressed" from="Large/ContractButton" to="." method="contract_menu"]
 [connection signal="mouse_entered" from="CloseButton" to="." method="onhover"]
 [connection signal="pressed" from="CloseButton" to="." method="close_npc_menu"]
+[connection signal="pressed" from="JournalButton" to="." method="open_journal"]
+[connection signal="pressed" from="WatchButton" to="." method="watch_npc"]
+[connection signal="pressed" from="UnWatchButton" to="." method="unwatch_npc"]
