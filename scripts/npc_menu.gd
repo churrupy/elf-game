@@ -5,14 +5,20 @@ var MENU_NPC: NPC
 var WATCH: bool = false
 var KEEP_OPEN: bool = false
 
+#var PORTRAIT: Portrait = Portrait.new()
+
 
 # Called when the node enters the scene tree for the first time.
-func _ready() -> void:
+func _ready_old() -> void:
 	$UnWatchButton.hide()
 	$BG.modulate = Constants.COLOR_LIST.pick_random()
 
 func _process(delta: float) -> void:
+
 	pass
+
+func _init(npc:NPC) -> void:
+	MENU_NPC = npc
 
 	
 func update():
@@ -44,37 +50,9 @@ func update_npc_details() -> void:
 	_str = "Looking At: " + ", ".join(can_see_list)
 	display_string.append(_str)
 
-	'''
-	var nearby_npcs: Array[String] = ENGINE.NpcManager.get_nearby_npcs(MENU_NPC.LOCATION)
-	var looking_at:Array[String]
-	for npc_id:String in nearby_npcs:
-		if npc_id == MENU_NPC.ID: continue
-		var npc:NPC = Global.NPCS[npc_id]
-		var direction = MENU_NPC.LOCATION.direction_to(npc.LOCATION)
-		if direction.dot(MENU_NPC.DIRECTION) > 0:
-			looking_at.append(npc_id)
-
-	_str = "Looking At: " + ", ".join(looking_at)
-	display_string.append(_str)
-
-	'''
-
-	'''
-	var looking_at_loc: Vector2 = MENU_NPC.LOCATION + MENU_NPC.DIRECTION
-	var looking_at:Array[String] = ENGINE.NpcManager.get_npc_from_location(looking_at_loc)
-	#var looking_at_string: String = ", ".join(looking_at)
-	_str = "Looking At: " + ", ".join(looking_at)
-	display_string.append(_str)
-	'''
-
 	_str = "Current Topic: " + str(MENU_NPC.SOCIAL_ACTION.RECENT_TOPIC)
 	display_string.append(_str)
-	
-	'''
-	for need in MENU_NPC.NEEDS:
-		_str = need.capitalize() + ": " + str(int(MENU_NPC.NEEDS[need]))
-		display_string.append(_str)
-	'''
+
 
 	for item in display_string:
 		var new_label = Label.new()

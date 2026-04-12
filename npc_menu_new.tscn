@@ -1,0 +1,63 @@
+[gd_scene load_steps=4 format=3 uid="uid://btdi0hy7dsfga"]
+
+[ext_resource type="Script" uid="uid://cge8bignbhgjn" path="res://scripts/npc_menu_new.gd" id="1_1hw2b"]
+[ext_resource type="Texture2D" uid="uid://ccddj83dn687y" path="res://models/left_menu.png" id="2_xb6o2"]
+[ext_resource type="PackedScene" uid="uid://wqx311ixn3i1" path="res://portrait.tscn" id="3_tuoab"]
+
+[node name="NpcMenu_new" type="Control"]
+clip_contents = true
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 300.0
+offset_bottom = 300.0
+mouse_force_pass_scroll_events = false
+script = ExtResource("1_1hw2b")
+
+[node name="BG" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("2_xb6o2")
+
+[node name="Portrait" parent="." instance=ExtResource("3_tuoab")]
+layout_mode = 1
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = -64.4
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 139.0
+offset_top = 15.0
+offset_right = 179.0
+offset_bottom = 38.0
+theme_override_font_sizes/font_size = 24
+text = "Name"
+
+[node name="DetailContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 179.0
+offset_right = 294.0
+offset_bottom = 296.0
+
+[node name="CloseButton" type="Button" parent="."]
+z_index = 5
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -54.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = 50.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 24
+text = "X"
+
+[connection signal="mouse_entered" from="CloseButton" to="." method="onhover"]
+[connection signal="pressed" from="CloseButton" to="." method="close_npc_menu"]

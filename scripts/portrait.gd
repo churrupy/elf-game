@@ -1,6 +1,8 @@
 extends Control
 
+class_name Portrait
 
+var BG: ColorRect = ColorRect.new()
 var HAIR: TextureRect = TextureRect.new()
 var EARS: TextureRect = TextureRect.new()
 var BODY: TextureRect = TextureRect.new()
@@ -21,6 +23,7 @@ func _ready() -> void:
 	#$Splash.add_child(NOSE)
 	#$Splash.add_child(MOUTH)
 	#$Splash.add_child(BANGS)
+	add_child(BG)
 	add_child(HAIR)
 	add_child(EARS)
 	add_child(BODY)
@@ -32,6 +35,7 @@ func _ready() -> void:
 
 	for child in get_children():
 		child.scale = Vector2(1.2,1.2)
+
 	
 
 
@@ -41,7 +45,9 @@ func _process(delta: float) -> void:
 
 
 func update(npc:NPC) -> void:
-	$Splash.modulate = npc.HAIR_COLOR
+	#$Splash.modulate = npc.HAIR_COLOR
+	BG.modulate = npc.HAIR_COLOR
+	
 	HAIR.texture = load(npc.PORTRAIT["hair"])
 	HAIR.modulate = npc.HAIR_COLOR
 	

@@ -15,7 +15,14 @@ func _init(engine) -> void:
 		create_npc()
 	
 	
+func _process(_delta: float) -> void:
+	pass
 	
+	#for npc in NPCS:
+		#if npc.ID in ENGINE.HOVER_NPCS:
+			#npc.sprite_hover()
+		#else:
+			#npc.sprite_hoveroff()
 
 func create_npc() -> void:
 	var npc: NPC = NPC.new()
@@ -52,6 +59,8 @@ func tick_new() -> void:
 func tick() -> void:
 	for npc:NPC in NPCS:
 		print ("ticking: ", npc.NAME)
+
+		
 
 
 		var current_action: ACTION = npc.STATE_STACK.back()
@@ -101,6 +110,11 @@ func tick() -> void:
 func tick_old() -> void:
 	for npc:NPC in NPCS:
 		print("ticking ", npc.NAME)
+
+		if npc.ID in ENGINE.HOVER_NPCS:
+			npc.sprite_hover()
+		else:
+			npc.sprite_hoveroff()
 
 		process_events(npc)
 
@@ -219,6 +233,11 @@ func update() -> void:
 		if y_index < 0:
 			continue
 
+		#if npc.ID in ENGINE.HOVER_NPCS:
+			#npc.sprite_hover()
+		#else:
+			#npc.sprite_hoveroff()
+
 		add_child(npc)
 		npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
 		npc.global_position[1] = y_index * Constants.TILE_SIZE
@@ -304,6 +323,9 @@ func is_reserved(location: Vector2) -> bool:
 	return false
 
 
+#region vector2
+
+
 func get_nearby_npcs(location: Vector2) -> Array[String]:
 	var nearby_npcs: Array[String]
 	for npc: NPC in NPCS:
@@ -319,6 +341,8 @@ func get_npc_from_location(location: Vector2) -> Array[String]:
 		if npc.LOCATION == location:
 			npc_list.append(npc.ID)
 	return npc_list
+
+#endregion
 
 func get_conversation_partners(npc:NPC) -> Array[String]:
 	var nearby_npcs: Array[String] = get_nearby_npcs(npc.LOCATION)

@@ -366,4 +366,13 @@ func get_direction(from:Vector2, to:Vector2) -> String:
 	else:
 		return "left"
 
+func get_location_from_mouse(loc: Vector2) -> Vector2:
+	loc = Vector2(loc[0]-Constants.CENTER_PANEL_LOCATION[0], loc[1])
+	var x:int = (int(loc[0]) / Constants.TILE_SIZE) + Global.X_RANGE[0]
+	var y:int = (int(loc[1]) / Constants.TILE_SIZE) + Global.Y_RANGE[0]
+	#var width: int = Constants.MAP_SIZE[0]
+	#var index: int = (loc[1] * width) + loc[0]
+	#var tile: TILE = TILES[index]
+	return Vector2(x,y)
+
 #endregion utility

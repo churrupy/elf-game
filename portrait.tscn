@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://caayah62rk68i" path="res://models/portait.png" id="2_n3ove"]
 
 [node name="Portrait" type="Control"]
+custom_minimum_size = Vector2(120, 165)
 layout_mode = 3
 anchor_right = 0.1
 anchor_bottom = 0.248
