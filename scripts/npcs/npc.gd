@@ -215,8 +215,16 @@ func get_impression(npc_id: String) -> Array[String]:
 	var other_npc: NPC = Global.NPCS[npc_id]
 
 	var attraction: int = get_attraction(other_npc)
-	if attraction > 50:
+	if attraction > 5:
+		impressions.append("very attractive")
+	elif attraction > 0:
 		impressions.append("attractive")
+	elif attraction == 0:
+		pass
+	elif attraction > -5:
+		impressions.append("unattractive")
+	else:
+		impressions.append("very unattractive")
 
 	#var tone_tracker: Array[String]
 	var tone_tracker: Dictionary[String, int]
@@ -253,17 +261,44 @@ func get_impression(npc_id: String) -> Array[String]:
 	
 	# process topic
 	for topic:String in topic_tracker.keys():
+		#var topic_string: String
+		var opinion_word:String
 		if topic_tracker[topic] > 0:
-			impressions.append("likes %s" % topic)
+			opinion_word = "likes"
+			#impressions.append("likes %s" % topic)
 		elif topic_tracker[topic] < 0:
-			impressions.append("dislikes %s" % topic)
+			opinion_word = "dislikes"
+			#impressions.append("dislikes %s" % topic)
+		var share_opinion: int = does_share_opinion(topic, topic_tracker[topic])
+		var color: String = "white"
+		if share_opinion == 1:
+			color = "green"
+		elif share_opinion == -1:
+			color = "red"
+		var _str: String = "[color={color}]{opinion} {topic}[/color]".format({
+			"color": color,
+			"opinion": opinion_word,
+			"topic": topic
+		})
+		impressions.append(_str)
 
 	
 
 	return impressions
 
+func does_share_opinion(topic: String, opinion: int) -> int:
+	# MAKE THIS AN ENUM omg
+	var this_opinion: int = OPINIONS[topic]
+	#if this_opinion == 0 or opinion == 0: return 0
+	if this_opinion > 0 and opinion > 0: return 1 # same opinion
+	if this_opinion < 0 and opinion < 0: return 1 # same opinion
+	if this_opinion > 0 and opinion < 0: return -1
+	if this_opinion < 0 and opinion > 0: return -1
+	return 0
+
+
 func get_attraction(other_npc: NPC) -> int:
-	return 100 #for testing
+	#return 100 #for testing
 	var other_style = other_npc.STYLE
 	return OPINIONS[other_style]
 

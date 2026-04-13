@@ -40,18 +40,16 @@ func process_reaction(npc:NPC) -> void:
 	# creates a witness report
 	# creates a relationship memory (whatever i want to call that)
 	if npc == SPEAKER: return
-	var npc_opinion: int = npc.OPINIONS[TOPIC]
-	if OPINION == 0 or npc_opinion == 0: 
-		# one person doesn't care when commenting
-		# don't create report
+	var npc_opinion: int = npc.does_share_opinion(TOPIC, OPINION)
+
+	if npc_opinion == 0:
 		return
-	elif OPINION == npc_opinion:
-		# share opinion, witness approves of statement
-		#var report:WitnessReport = WitnessReport.new(npc, self, 1)
+	elif npc_opinion == 1:
+		# shares opinion
 		npc.add_witness_report(self)
-		
+
 		var memory_id:String = "share like"
-		if OPINION == -1:
+		if OPINION < 0:
 			memory_id = "share dislike"
 		
 		npc.add_relationship_memory(SPEAKER, memory_id)
@@ -61,7 +59,7 @@ func process_reaction(npc:NPC) -> void:
 		npc.add_witness_report(self)
 
 		var memory_id:String = "likes something I hate"
-		if OPINION == -1:
+		if OPINION < 0:
 			memory_id = "hates something I like"
 		npc.add_relationship_memory(SPEAKER, memory_id)
 

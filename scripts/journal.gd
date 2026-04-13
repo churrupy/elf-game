@@ -15,7 +15,7 @@ func _process(delta: float) -> void:
 	pass
 
 func update() -> void:
-	for child in $Entry.get_children():
+	for child in $ScrollContainer.get_node("Entry").get_children():
 		child.queue_free()
 
 	if CURRENT_ENTRY is NPC:
@@ -43,7 +43,13 @@ func update_npc() -> void:
 		var new_label = Label.new()
 		new_label.text = item
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		$Entry.add_child(new_label)
+		$ScrollContainer.get_node("Entry").add_child(new_label)
+
+	#opinions
+	for op:String in npc.OPINIONS:
+		var new_label = Label.new()
+		new_label.text = op + ":" + str(npc.OPINIONS[op])
+		$ScrollContainer.get_node("Entry").add_child(new_label)
 
 	# relationship details
 	for npc_id: String in npc.RELATIONSHIPS.keys():
@@ -55,21 +61,24 @@ func update_npc() -> void:
 		var npc_button: Button = Button.new()
 		var rel_score: int = npc.get_opinion(npc_id)
 		npc_button.text = npc_id + " [" + str(rel_score) + "]"
-		$Entry.add_child(npc_button)
+		$ScrollContainer.get_node("Entry").add_child(npc_button)
 		npc_button.connect("pressed", update_topic.bind(checked_npc))
 
 		var opinion: String = npc.get_opinion_string(npc_id)
 		var opinion_label: Label = Label.new()
 		opinion_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + opinion + "."
 		opinion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		$Entry.add_child(opinion_label)
+		$ScrollContainer.get_node("Entry").add_child(opinion_label)
 
 		var impressions: Array[String] = npc.get_impression(npc_id)
 		if len(impressions) > 0:
-			var impression_label: Label = Label.new()
+			var impression_label: RichTextLabel = RichTextLabel.new()
 			impression_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			impression_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
-			$Entry.add_child(impression_label)
+			impression_label.fit_content = true
+			var _str: String = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
+			impression_label.append_text(_str)
+			#impression_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
+			$ScrollContainer.get_node("Entry").add_child(impression_label)
 		
 		var rel_details: RichTextLabel = RichTextLabel.new()
 		rel_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -79,7 +88,7 @@ func update_npc() -> void:
 			rel_details.push_list(0, RichTextLabel.ListType.LIST_DOTS, true)
 			rel_details.append_text(str(mem))
 			rel_details.pop()
-		$Entry.add_child(rel_details)
+		$ScrollContainer.get_node("Entry").add_child(rel_details)
 
 
 func close_menu() -> void:
