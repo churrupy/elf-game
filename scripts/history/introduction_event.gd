@@ -29,9 +29,6 @@ func process_reaction(npc:NPC) -> void:
 	# only processes if npc knows both people
 	if npc == SPEAKER: return
 	if npc == TARGET:
-		print("introduced to")
-		print(SPEAKER)
-		print(TARGET)
 		npc.add_relationship_memory(SPEAKER, "introduce")
 	elif SPEAKER.ID in npc.RELATIONSHIPS:
 		if TARGET.ID in npc.RELATIONSHIPS:

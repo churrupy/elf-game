@@ -23,8 +23,5 @@ func process_reaction(npc:NPC) -> void:
 		if p.ID not in npc.RELATIONSHIPS.keys():
 			return
 
-	# adds report for every conversation broadcast right now
-	# will eventually change it so that it only adds if it's a novel conversation broadcast
-	#var report:WitnessReport = WitnessReport.new(npc, self)
 	npc.add_witness_report(self)
 	

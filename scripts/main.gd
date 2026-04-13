@@ -180,27 +180,6 @@ func set_nearby_npcs() -> void:
 
 
 
-
-# #region menus
-# func open_npc_menu(npc) -> void:
-# 	#$DefaultMenu.hide()
-# 	$NpcMenu.MENU_NPC = npc
-# 	$NpcMenu.update()
-# 	$NpcMenu.show()
-# 	$TalkMenu.MENU_NPC = npc
-# 	$TalkMenu.update()
-
-# func keep_open_npc_menu() -> void:
-# 	$NpcMenu.KEEP_OPEN = true
-
-
-# func close_npc_menu(npc_id):
-# 	$TalkMenu.hide()
-# 	$NpcMenu.KEEP_OPEN = false
-# 	$NpcMenu.hide()
-# 	#$DefaultMenu.show()
-
-
 func toggle_talk_menu(npc):
 	if $TalkMenu.visible:
 		close_talk_menu()

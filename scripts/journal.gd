@@ -21,13 +21,6 @@ func update() -> void:
 	if CURRENT_ENTRY is NPC:
 		update_npc()
 		
-	# var display_list: Array[String] = CURRENT_ENTRY.get_journal_entry()
-	# for item:String in display_list:
-	# 	print(item)
-	# 	var new_label = Label.new()
-	# 	new_label.text = item
-	# 	new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	# 	$Entry.add_child(new_label)
 
 func update_topic(topic) -> void:
 	CURRENT_ENTRY = topic
@@ -53,28 +46,27 @@ func update_npc() -> void:
 		$Entry.add_child(new_label)
 
 	# relationship details
-	var rel_details: RichTextLabel = RichTextLabel.new()
-	rel_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	rel_details.fit_content = true
 	for npc_id: String in npc.RELATIONSHIPS.keys():
-		#var other_npc: NPC = Global.NPCS[npc_id]
 		var rel_list: Array = npc.RELATIONSHIPS[npc_id]
 		if len(rel_list) == 0: continue
-		rel_details.push_list(0, RichTextLabel.ListType.LIST_DOTS, true)
-		var display_npc: String = npc_id + " [" + str(npc.get_opinion(npc_id)) + "]"
-		rel_details.append_text(display_npc)
-		#rel_details.push_list(1, RichTextLabel.ListType.LIST_DOTS, true)
+
+		var checked_npc:NPC = Global.NPCS[npc_id]
+
+		var npc_button: Button = Button.new()
+		var rel_score: int = npc.get_opinion(npc_id)
+		npc_button.text = npc_id + " [" + str(rel_score) + "]"
+		$Entry.add_child(npc_button)
+		npc_button.connect("pressed", update_topic.bind(checked_npc))
+		
+		var rel_details: RichTextLabel = RichTextLabel.new()
+		rel_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rel_details.fit_content = true
+
 		for mem: RelationshipMemory in rel_list:
-			rel_details.push_list(1, RichTextLabel.ListType.LIST_DOTS, true)
+			rel_details.push_list(0, RichTextLabel.ListType.LIST_DOTS, true)
 			rel_details.append_text(str(mem))
 			rel_details.pop()
-		rel_details.pop()
-	print("rel test")
-	print(rel_details.get_parsed_text())
-	print(rel_details.get_text())
-	print(rel_details)
-	$Entry.add_child(rel_details)
-
+		$Entry.add_child(rel_details)
 
 
 func close_menu() -> void:

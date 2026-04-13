@@ -21,7 +21,6 @@ func _process(delta:float):
 	pass
 
 func add_introduce_event(speaker: NPC, target: NPC, tone: String = "") -> void:
-	print("introducing")
 	add_conversation_event(speaker)
 
 	var introduction_event: IntroductionEvent = IntroductionEvent.new(speaker, target, tone)
@@ -45,121 +44,6 @@ func add_conversation_event(speaker: NPC) -> void:
 	var conversation_event: ConversationEvent = ConversationEvent.new(convo_partners)
 	HISTORY.append(conversation_event)
 	ENGINE.NpcManager.broadcast_event(conversation_event)
-
-
-
-# func add_event(actor_id:String, action:String, target:String = "", params:Dictionary={}) -> EVENT:
-# 	var actor = Global.NPCS[actor_id]
-# 	var new_event = EVENT.new()
-# 	new_event.ACTOR = actor_id
-# 	new_event.ACTION_ID = action
-# 	new_event.TARGET = target
-# 	new_event.LOCATION = actor.LOCATION
-# 	new_event.TICK = Global.TICKS
-# 	new_event.PARAM = params
-# 	HISTORY.append(new_event)
-
-# 	var witnesses: Array[String] = ENGINE.NpcManager.get_nearby_npcs(actor.LOCATION)
-# 	for w: String in witnesses:
-# 		if w == actor_id: continue
-# 		add_to_reaction_queue(w, new_event)
-
-# 	return new_event
-
-
-# func add_to_reaction_queue(npc_id:String, event:EVENT) -> void:
-# 	if npc_id == event.ACTOR:
-# 		return
-# 	var npc = Global.NPCS[npc_id]
-# 	if event not in npc.EVENT_QUEUE:
-# 		npc.EVENT_QUEUE.append(event)
-
-
-# func add_reaction(witness_id:String, reaction:int, event:EVENT) -> void:
-# 	var new_reaction:EventReaction = EventReaction.new()
-# 	new_reaction.TICK = Global.TICKS
-# 	new_reaction.WITNESS = witness_id
-# 	new_reaction.EVENT = event
-# 	new_reaction.REACTION = reaction
-# 	REACTIONS.append(new_reaction)
-
-
-# func add_event_old(npc_id: String, action: String, location: Vector2, witnesses: Array = [], dialogue: String = "") -> void:
-# 	var new_event = EVENT.new()
-# 	new_event.TICK = Global.TICKS
-# 	new_event.NPC_ID = npc_id
-# 	new_event.ACTION_ID = action
-# 	new_event.LOCATION = location
-# 	var index: int = witnesses.find(npc_id)
-# 	if index > -1:
-# 		witnesses.remove_at(index)
-# 	new_event.WITNESSES = witnesses
-# 	new_event.DIALOGUE = dialogue
-# 	HISTORY.append(new_event)
-
-
-# func add_entry(npc, action, location, arg={}):
-# 	if npc is NPC:
-# 		npc = npc.ID
-# 	var history_dict = {
-# 		"tick": Global.TICKS,
-# 		"npc": npc,
-# 		"action": action,
-# 		"location": location,
-# 		"arg": arg
-# 	}
-# 	HISTORY.append(history_dict)
-
-
-# func event_to_string(event:EVENT) -> String:
-# 	var _str:String
-# 	var actor = Global.NPCS[event.ACTOR]
-# 	if event.ACTION_ID == "converse":
-# 		var opinion:int = event.PARAM["opinion"]
-# 		var op_str:String
-# 		if opinion > 0:
-# 			op_str = "positive"
-# 		elif opinion == 0:
-# 			op_str = "neutral"
-# 		else:
-# 			op_str = "negative"
-# 		_str = "[" + str(event.TICK) + "] " + actor.NAME + ' expressed a  ' + op_str + " opinion about " + event.PARAM["topic"] + '.'
-# 		return _str
-# 	if event.ACTION_ID in Dialogue.ENCOUNTER_STRINGS:
-# 		var target = Global.NPCS[event.TARGET]
-# 		var str_list: Array[String] = [
-# 			"[" + str(event.TICK) + "] ",
-# 			actor.NAME,
-# 			Dialogue.ENCOUNTER_STRINGS[event.ACTION_ID],
-# 			target.NAME
-# 		]
-# 		return " ".join(str_list) + "."
-# 	else:
-# 		var str_list: Array[String] = [
-# 			"[" + str(event.TICK) + "] ",
-# 			actor.NAME,
-# 			event.ACTION_ID,
-# 		]
-# 		'''
-# 		if event.TARGET != null:
-# 			var target = Global.NPCS[event.TARGET]
-# 			str_list.append(target.NAME)
-# 		'''
-# 		return " ".join(str_list) + "."
-
-# func get_reactions_to_event(event:EVENT) -> Array[EventReaction]:
-# 	return REACTIONS.filter(func(reaction): return reaction.EVENT == event)
-
-# func reaction_to_string(reaction:EventReaction) -> String:
-# 	var witness = Global.NPCS[reaction.WITNESS]
-# 	var reaction_dict: Dictionary = {
-# 		1: "pleased",
-# 		0: "indifferent",
-# 		-1: "annoyed"
-# 	}
-# 	var reaction_string:String = reaction_dict[reaction.REACTION]
-# 	var return_string:String = "[" + str(reaction.TICK) + "] " + witness.NAME + " is " + reaction_string + " about this."
-# 	return return_string
 
 
 func populate_talk_menu(npc_id:String) -> Array[String]:
@@ -189,46 +73,6 @@ func populate_npc_menu(npc_id:String) -> Array[String]:
 	#return return_string
 
 
-# func filter_by_actor(npc_id:String) -> Array[EVENT]:
-# 	return HISTORY.filter(func(event): return event.ACTOR == npc_id)
-
-# func filter_by_doer(npc_id: String) -> Array[EVENT]:
-# 	# filter by initiator of event
-# 	return HISTORY.filter(func(event): return event.NPC_ID == npc_id)
-
-
-# func filter_by_npc(npc_id: String) -> Array[EVENT]:
-# 	# filter by whether npc is involved in event (whether doer or witness)
-# 	return HISTORY.filter(func(event): return (event.NPC_ID == npc_id) or (npc_id in event.WITNESSES))
-
-# func filter_by_npc_old(npc):
-# 	# actions npc is either doer or target
-# 	if npc is NPC:
-# 		npc = npc.ID
-# 	var filtered_history = []
-# 	for h in HISTORY:
-# 		if h["npc"] == npc:
-# 			filtered_history.append(h)
-# 		elif "witnesses" in h["arg"]:
-# 			if npc in h["arg"]["witnesses"]:
-# 				filtered_history.append(h)
-
-# 	return filtered_history
-
-# func filter_by_location(location: Array) -> Array:
-# 	if location == null:
-# 		return []
-# 	return HISTORY.filter(func(event): event.LOCATION == location)
-
-# func filter_by_location_old(location):
-# 	if location == null:
-# 		return []
-# 	var filtered_history = []
-# 	for h in HISTORY:
-# 		if h["location"] == location:
-# 			filtered_history.append(h)
-# 	return filtered_history
-
 func does_event_exist(actor_id:String, action_id:String, target_id:String) -> int:
 	var event_index:int = HISTORY.find_custom(func(event): return event.ACTOR==actor_id and event.ACTION_ID == action_id and event.TARGET == target_id)
 	return event_index
@@ -251,26 +95,3 @@ func history_to_string(history_list: Array =[]) -> Array:
 		})
 		display_list.append(_str)
 	return display_list
-
-
-
-
-# func history_to_string_old(history_list = []):
-# 	if history_list == []:
-# 		history_list = HISTORY
-# 	var display_list = []
-# 	for h in history_list:
-# 		var _str = "Tick " + str(h["tick"]) + ": " + str(h["location"]) + " " + h["npc"] + " " + h["action"]
-# 		if "location" in h["arg"]:
-# 			var location_str = " to " + str(h["arg"]["location"])
-# 			_str += location_str
-# 		if "witnesses" in h["arg"]:
-# 			var group_str = " with " + ",".join(h["arg"]["witnesses"]) + "."
-# 			_str += group_str
-# 		'''
-# 		if "dialogue" in h["arg"]:
-# 			var dialogue_str = h["arg"]["dialogue"]
-# 			_str += dialogue_str
-# 		'''
-# 		display_list.append(_str)
-# 	return display_list

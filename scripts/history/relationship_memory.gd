@@ -10,14 +10,12 @@ var DISPLAY: String
 
 
 func _init(owner:NPC, target:NPC, memory_id:String) -> void:
-	#TICK = Global.TICKS
 	OWNER = owner
 	TARGET = target
 	MEMORY_ID = memory_id
 	var memory_data: Dictionary = Dialogue.RELATIONSHIP_DETAILS[MEMORY_ID]
 	SCORE = memory_data["score"]
 	DISPLAY = memory_data["display"]
-	#EXPIRES_ON = TICK + memory_data["duration"]
 	update_ticks()
 
 func update_ticks() -> void:

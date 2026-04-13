@@ -158,10 +158,6 @@ func add_witness_report(event: EVENT, opinion: int = 0) -> void:
 	MEMORIES.append(report)
 
 
-# func add_witness_report_old(report: WitnessReport) -> void:
-# 	if not already_reacted(report.EVENT):
-# 		MEMORIES.append(report)
-
 func is_report_in_memory(event:EVENT) -> bool:
 	for m: WitnessReport in MEMORIES:
 		if m.EVENT == event:
@@ -199,51 +195,12 @@ func get_opinion(npc_id: String) -> int:
 		score += mem.SCORE
 	return score
 
-# func update_relationship(other_npc_id, change):
-# 	if other_npc_id not in RELATIONSHIPS.keys():
-# 		RELATIONSHIPS[other_npc_id] = 0
-# 	RELATIONSHIPS[other_npc_id] += change
-
-
-# func hear_topic(speaker_id: String, topic: String, opinion: int) -> String:
-# 	if speaker_id == ID:
-# 		return ""
-# 	if speaker_id not in RELATIONSHIPS:
-# 		RELATIONSHIPS[speaker_id] = 0
-# 	RECENT_TOPIC = topic
-# 	SOCIAL_ACTION.RECENT_TOPIC = topic
-# 	var this_opinion: int = OPINIONS[topic]
-# 	var diff: int = abs(this_opinion - opinion)
-# 	var impression: String
-# 	if diff < 2:
-# 		update_relationship(speaker_id, 1)
-# 		impression = "pleased"
-# 	elif diff < 4:
-# 		impression = "unimpressed"
-# 	else:
-# 		update_relationship(speaker_id, -1)
-# 		impression = "annoyed"
-# 	return impression
 
 func get_attraction(other_npc):
 	return 100 #for testing
 	var other_style = other_npc.STYLE
 	return OPINIONS[other_style]
 
-
-# func hear_flirt(speaker_id):
-# 	var npc = Global.NPCS[speaker_id]
-# 	var attraction = get_attraction(npc)
-# 	var impression
-# 	if attraction >= 3:
-# 		update_relationship(speaker_id, 1)
-# 		impression = "pleased"
-# 	elif attraction >=-3:
-# 		impression = "unimpressed"
-# 	else:
-# 		update_relationship(speaker_id, -1)
-# 		impression = "annoyed"
-# 	return impression
 
 #endregion
 
