@@ -27,10 +27,10 @@ func update():
 	var location_text: String = "[" + str(int(player_location[0])) + "," + str(int(player_location[1])) + "]"
 	$PlayerDetails.get_node("PCLocationLabel").text = location_text
 	$PlayerDetails.get_node("TickLabel").text = "T:" + str(Global.TICKS)
-	var player_history = ENGINE.History.filter_by_npc("player")
-	var player_history_list = ENGINE.History.history_to_string(player_history)
-	var trunc_history = player_history_list.slice(-10, -1)
-	trunc_history.reverse()
+	#var player_history = ENGINE.History.filter_by_npc("player")
+	#var player_history_list = ENGINE.History.history_to_string(player_history)
+	#var trunc_history = player_history_list.slice(-10, -1)
+	#trunc_history.reverse()
 			
 func open_npc_menus(npc_list:Array[String]) -> void:
 	#print(npc_list)

@@ -65,3 +65,40 @@ var ENCOUNTER_ESCALATION:Dictionary = { # what a horrible way to do this lol
 	"kiss neck": "play with nipples"
 
 }
+
+
+var RELATIONSHIP_STRINGS: Dictionary = {
+	"introduce": "introduced to",
+	"share like": " ",
+	"share dislike": "",
+	"likes something I hate": "",
+	"hates something I like": ""
+}
+
+var RELATIONSHIP_DETAILS = {
+	"introduce": {
+		"score": 5,
+		"display": "introduced self to me",
+		"duration": 100
+	},
+	"share like": {
+		"score": 5,
+		"display": "share interest",
+		"duration": 100
+	},
+	"share dislike": {
+		"score": 3,
+		"display": "share dislike",
+		"duration": 100
+	},
+	"likes something I hate": {
+		"score": -2,
+		"display": "likes something I hate",
+		"duration": 100
+	},
+	"hates something I like": {
+		"score": -5,
+		"display": "hates something I like",
+		"duration": 100
+	}
+}

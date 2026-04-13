@@ -1,10 +1,12 @@
 extends Node
 
+var ENGINE
 var CURRENT_ENTRY
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	$BG.modulate = Constants.COLOR_LIST.pick_random()
 	pass # Replace with function body.
 
 
@@ -15,18 +17,64 @@ func _process(delta: float) -> void:
 func update() -> void:
 	for child in $Entry.get_children():
 		child.queue_free()
+
+	if CURRENT_ENTRY is NPC:
+		update_npc()
 		
-	var display_list: Array[String] = CURRENT_ENTRY.get_journal_entry()
-	for item:String in display_list:
-		print(item)
+	# var display_list: Array[String] = CURRENT_ENTRY.get_journal_entry()
+	# for item:String in display_list:
+	# 	print(item)
+	# 	var new_label = Label.new()
+	# 	new_label.text = item
+	# 	new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# 	$Entry.add_child(new_label)
+
+func update_topic(topic) -> void:
+	CURRENT_ENTRY = topic
+	update()
+
+func update_npc() -> void:
+	# standard details
+	var npc: NPC = CURRENT_ENTRY
+	var display_list: Array[String] = [
+		"Name: " + npc.NAME,
+		"ID: " + npc.ID,
+		"Gender: " + npc.GENDER,
+	]
+	
+	for need: String in npc.NEEDS.keys():
+		var _str: String = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
+		display_list.append(_str)
+
+	for item: String in display_list:
 		var new_label = Label.new()
 		new_label.text = item
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$Entry.add_child(new_label)
 
-func update_topic(topic) -> void:
-	CURRENT_ENTRY = topic
-	update()
+	# relationship details
+	var rel_details: RichTextLabel = RichTextLabel.new()
+	rel_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rel_details.fit_content = true
+	for npc_id: String in npc.RELATIONSHIPS.keys():
+		#var other_npc: NPC = Global.NPCS[npc_id]
+		var rel_list: Array = npc.RELATIONSHIPS[npc_id]
+		if len(rel_list) == 0: continue
+		rel_details.push_list(0, RichTextLabel.ListType.LIST_DOTS, true)
+		var display_npc: String = npc_id + " [" + str(npc.get_opinion(npc_id)) + "]"
+		rel_details.append_text(display_npc)
+		#rel_details.push_list(1, RichTextLabel.ListType.LIST_DOTS, true)
+		for mem: RelationshipMemory in rel_list:
+			rel_details.push_list(1, RichTextLabel.ListType.LIST_DOTS, true)
+			rel_details.append_text(str(mem))
+			rel_details.pop()
+		rel_details.pop()
+	print("rel test")
+	print(rel_details.get_parsed_text())
+	print(rel_details.get_text())
+	print(rel_details)
+	$Entry.add_child(rel_details)
+
 
 
 func close_menu() -> void:

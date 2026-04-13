@@ -46,26 +46,20 @@ func process_reaction(npc:NPC) -> void:
 		return
 	elif OPINION == npc_opinion:
 		# share opinion, witness approves of statement
-		var report:WitnessReport = WitnessReport.new(npc, self, 1)
-		npc.add_witness_report(report)
+		#var report:WitnessReport = WitnessReport.new(npc, self, 1)
+		npc.add_witness_report(self)
 		
 		var memory_id:String = "share like"
 		if OPINION == -1:
 			memory_id = "share dislike"
 		
-		var relationship_memory: RelationshipMemory = RelationshipMemory.new(npc, SPEAKER, memory_id, 5)
-		if SPEAKER.ID not in npc.RELATIONSHIPS:
-			npc.RELATIONSHIPS[SPEAKER.ID] = []
-		npc.RELATIONSHIPS[SPEAKER.ID].append(relationship_memory)
+		npc.add_relationship_memory(SPEAKER, memory_id)
 	else:
 		#opposite opinions
-		var report:WitnessReport = WitnessReport.new(npc, self, -1)
-		npc.add_witness_report(report)
+		#var report:WitnessReport = WitnessReport.new(npc, self, -1)
+		npc.add_witness_report(self)
 
 		var memory_id:String = "likes something I hate"
 		if OPINION == -1:
 			memory_id = "hates something I like"
-		var relationship_memory: RelationshipMemory = RelationshipMemory.new(npc, SPEAKER, memory_id, -5)
-		if SPEAKER.ID not in npc.RELATIONSHIPS:
-			npc.RELATIONSHIP[SPEAKER.ID] = []
-		npc.RELATIONSHIPS[SPEAKER.ID].append(relationship_memory)
+		npc.add_relationship_memory(SPEAKER, memory_id)

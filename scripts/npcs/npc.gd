@@ -28,7 +28,7 @@ var CURRENT_ACTION: ACTION
 var RECENT_TOPIC: String
 var STYLE: String
 var OPINIONS: Dictionary = {}
-var RELATIONSHIPS: Dictionary = {}
+var RELATIONSHIPS: Dictionary[String, Array] = {}
 var MEMORIES: Array[WitnessReport]
 
 
@@ -152,42 +152,78 @@ func _to_string():
 
 #region relationships
 
-func add_witness_report(report: WitnessReport) -> void:
-	if not already_reacted(report.EVENT):
-		MEMORIES.append(report)
+func add_witness_report(event: EVENT, opinion: int = 0) -> void:
+	if is_report_in_memory(event): return
+	var report:WitnessReport = WitnessReport.new(self, event, opinion)
+	MEMORIES.append(report)
 
-func already_reacted(event:EVENT) -> bool:
+
+# func add_witness_report_old(report: WitnessReport) -> void:
+# 	if not already_reacted(report.EVENT):
+# 		MEMORIES.append(report)
+
+func is_report_in_memory(event:EVENT) -> bool:
 	for m: WitnessReport in MEMORIES:
 		if m.EVENT == event:
 			m.TICK = Global.TICKS
 			return true
 	return false
 
-func update_relationship(other_npc_id, change):
-	if other_npc_id not in RELATIONSHIPS.keys():
-		RELATIONSHIPS[other_npc_id] = 0
-	RELATIONSHIPS[other_npc_id] += change
+func add_relationship_memory(speaker:NPC, memory_id: String) -> void:
+	if is_memory_in_relationship(speaker, memory_id): return
+	var relationship_memory: RelationshipMemory = RelationshipMemory.new(self, speaker, memory_id)
+	if speaker.ID not in RELATIONSHIPS:
+		RELATIONSHIPS[speaker.ID] = []
+	RELATIONSHIPS[speaker.ID].append(relationship_memory)
 
 
-func hear_topic(speaker_id: String, topic: String, opinion: int) -> String:
-	if speaker_id == ID:
-		return ""
-	if speaker_id not in RELATIONSHIPS:
-		RELATIONSHIPS[speaker_id] = 0
-	RECENT_TOPIC = topic
-	SOCIAL_ACTION.RECENT_TOPIC = topic
-	var this_opinion: int = OPINIONS[topic]
-	var diff: int = abs(this_opinion - opinion)
-	var impression: String
-	if diff < 2:
-		update_relationship(speaker_id, 1)
-		impression = "pleased"
-	elif diff < 4:
-		impression = "unimpressed"
-	else:
-		update_relationship(speaker_id, -1)
-		impression = "annoyed"
-	return impression
+func is_memory_in_relationship(speaker:NPC, memory_id: String) -> bool:
+	var npc_id: String = speaker.ID
+	if npc_id not in RELATIONSHIPS:
+		return false
+	for mem: RelationshipMemory in RELATIONSHIPS[npc_id]:
+		if mem.TARGET == speaker:
+			if mem.MEMORY_ID == memory_id:
+				mem.update_ticks()
+				return true
+	return false
+
+
+
+func get_opinion(npc_id: String) -> int:
+	if npc_id not in RELATIONSHIPS:
+		return 0
+	var rel_list: Array = RELATIONSHIPS[npc_id]
+	var score: int = 0
+	for mem: RelationshipMemory in rel_list:
+		score += mem.SCORE
+	return score
+
+# func update_relationship(other_npc_id, change):
+# 	if other_npc_id not in RELATIONSHIPS.keys():
+# 		RELATIONSHIPS[other_npc_id] = 0
+# 	RELATIONSHIPS[other_npc_id] += change
+
+
+# func hear_topic(speaker_id: String, topic: String, opinion: int) -> String:
+# 	if speaker_id == ID:
+# 		return ""
+# 	if speaker_id not in RELATIONSHIPS:
+# 		RELATIONSHIPS[speaker_id] = 0
+# 	RECENT_TOPIC = topic
+# 	SOCIAL_ACTION.RECENT_TOPIC = topic
+# 	var this_opinion: int = OPINIONS[topic]
+# 	var diff: int = abs(this_opinion - opinion)
+# 	var impression: String
+# 	if diff < 2:
+# 		update_relationship(speaker_id, 1)
+# 		impression = "pleased"
+# 	elif diff < 4:
+# 		impression = "unimpressed"
+# 	else:
+# 		update_relationship(speaker_id, -1)
+# 		impression = "annoyed"
+# 	return impression
 
 func get_attraction(other_npc):
 	return 100 #for testing
@@ -195,40 +231,22 @@ func get_attraction(other_npc):
 	return OPINIONS[other_style]
 
 
-func hear_flirt(speaker_id):
-	var npc = Global.NPCS[speaker_id]
-	var attraction = get_attraction(npc)
-	var impression
-	if attraction >= 3:
-		update_relationship(speaker_id, 1)
-		impression = "pleased"
-	elif attraction >=-3:
-		impression = "unimpressed"
-	else:
-		update_relationship(speaker_id, -1)
-		impression = "annoyed"
-	return impression
+# func hear_flirt(speaker_id):
+# 	var npc = Global.NPCS[speaker_id]
+# 	var attraction = get_attraction(npc)
+# 	var impression
+# 	if attraction >= 3:
+# 		update_relationship(speaker_id, 1)
+# 		impression = "pleased"
+# 	elif attraction >=-3:
+# 		impression = "unimpressed"
+# 	else:
+# 		update_relationship(speaker_id, -1)
+# 		impression = "annoyed"
+# 	return impression
 
 #endregion
 
-
-
-func get_journal_entry() -> Array[String]:
-	var display_list: Array[String] = []
-	var _str = "Name: " + NAME
-	display_list.append(_str)
-
-	_str = "ID: " + ID
-	display_list.append(_str)
-
-	_str = "Gender: " + GENDER
-	display_list.append(_str)
-
-	for need in NEEDS:
-		_str = need.capitalize() + ": " + str(int(NEEDS[need]))
-		display_list.append(_str)
-	
-	return display_list
 
 func update_direction(new_direction:Vector2) -> void:
 	new_direction = new_direction.sign()

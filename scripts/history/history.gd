@@ -20,17 +20,31 @@ func _ready() -> void:
 func _process(delta:float):
 	pass
 
-func add_dialogue_event(speaker: NPC, topic:String, opinion:int, tone:String) -> void:
-	var convo_partners_ids: Array[String] = ENGINE.NpcManager.get_conversation_partners(speaker)
-	var convo_partners: Array[NPC] = convo_partners_ids.map(func(npc_id): return Global.NPCS[npc_id])
-	var conversation_event: ConversationEvent = ConversationEvent.new(convo_partners)
-	HISTORY.append(conversation_event)
-	ENGINE.NpcManager.broadcast_event(conversation_event)
+func add_introduce_event(speaker: NPC, target: NPC, tone: String = "") -> void:
+	print("introducing")
+	add_conversation_event(speaker)
+
+	var introduction_event: IntroductionEvent = IntroductionEvent.new(speaker, target, tone)
+	HISTORY.append(introduction_event)
+	ENGINE.NpcManager.broadcast_event(introduction_event)
+
+func add_dialogue_event(speaker: NPC, topic:String, opinion:int, tone:String="") -> void:
+	add_conversation_event(speaker)
 
 	var dialogue_event: DialogueEvent = DialogueEvent.new(speaker, topic, opinion, tone) 
 	HISTORY.append(dialogue_event)
 	ENGINE.NpcManager.broadcast_event(dialogue_event)
 
+func add_conversation_event(speaker: NPC) -> void:
+	# will eventually update to take the center of conversation, not the speaker
+	var convo_partners_ids: Array[String] = ENGINE.NpcManager.get_conversation_partners(speaker)
+	var convo_partners: Array[NPC]
+	for npc_id: String in convo_partners_ids:
+		convo_partners.append(Global.NPCS[npc_id])
+	
+	var conversation_event: ConversationEvent = ConversationEvent.new(convo_partners)
+	HISTORY.append(conversation_event)
+	ENGINE.NpcManager.broadcast_event(conversation_event)
 
 
 
@@ -175,17 +189,17 @@ func populate_npc_menu(npc_id:String) -> Array[String]:
 	#return return_string
 
 
-func filter_by_actor(npc_id:String) -> Array[EVENT]:
-	return HISTORY.filter(func(event): return event.ACTOR == npc_id)
+# func filter_by_actor(npc_id:String) -> Array[EVENT]:
+# 	return HISTORY.filter(func(event): return event.ACTOR == npc_id)
 
-func filter_by_doer(npc_id: String) -> Array[EVENT]:
-	# filter by initiator of event
-	return HISTORY.filter(func(event): return event.NPC_ID == npc_id)
+# func filter_by_doer(npc_id: String) -> Array[EVENT]:
+# 	# filter by initiator of event
+# 	return HISTORY.filter(func(event): return event.NPC_ID == npc_id)
 
 
-func filter_by_npc(npc_id: String) -> Array[EVENT]:
-	# filter by whether npc is involved in event (whether doer or witness)
-	return HISTORY.filter(func(event): return (event.NPC_ID == npc_id) or (npc_id in event.WITNESSES))
+# func filter_by_npc(npc_id: String) -> Array[EVENT]:
+# 	# filter by whether npc is involved in event (whether doer or witness)
+# 	return HISTORY.filter(func(event): return (event.NPC_ID == npc_id) or (npc_id in event.WITNESSES))
 
 # func filter_by_npc_old(npc):
 # 	# actions npc is either doer or target
@@ -201,10 +215,10 @@ func filter_by_npc(npc_id: String) -> Array[EVENT]:
 
 # 	return filtered_history
 
-func filter_by_location(location: Array) -> Array:
-	if location == null:
-		return []
-	return HISTORY.filter(func(event): event.LOCATION == location)
+# func filter_by_location(location: Array) -> Array:
+# 	if location == null:
+# 		return []
+# 	return HISTORY.filter(func(event): event.LOCATION == location)
 
 # func filter_by_location_old(location):
 # 	if location == null:

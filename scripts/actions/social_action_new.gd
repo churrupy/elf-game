@@ -67,11 +67,13 @@ func run() -> ActionResult:
 	OWNER.update_direction(average_direction)
 
 	
-	# if any witnesses are unknown to npc, introduce self
+	# if self not in witness memory, introduce self
 	for npc_id:String in witnesses:
-		if npc_id not in OWNER.RELATIONSHIPS:
+		var checked_npc: NPC = Global.NPCS[npc_id]
+		if OWNER.ID not in checked_npc.RELATIONSHIPS:
 			# introduce self
-			OWNER.RELATIONSHIPS[npc_id] = 0 			
+			var tone: String = "" # will fix this eventualllyyyyy
+			ENGINE.History.add_introduce_event(OWNER, checked_npc, tone)	
 			#ENGINE.History.add_event(OWNER.ID, "introduce", npc_id)
 			return res
 
@@ -88,6 +90,7 @@ func run() -> ActionResult:
 		"opinion": opinion
 	}
 	#ENGINE.History.add_event(OWNER.ID, "converse", "", params)
+	ENGINE.History.add_dialogue_event(OWNER, new_topic, opinion)
 	refresh_needs("social")
 
 
