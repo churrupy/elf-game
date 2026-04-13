@@ -1,6 +1,4 @@
-extends Control
-
-class_name NpcMenuNode
+class_name NpcMenuNode extends Control
 
 var ENGINE
 var DISPLAY_NPC

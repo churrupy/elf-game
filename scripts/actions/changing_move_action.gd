@@ -31,7 +31,7 @@ func run() -> ActionResult:
 	else:
 		OWNER.LOCATION = next_step
 
-	ENGINE.History.add_event(OWNER.ID, "moves")
+	#ENGINE.History.add_event(OWNER.ID, "moves")
 	return ActionResult.new("running", null)
 	#return ["running", null]
 

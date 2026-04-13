@@ -19,7 +19,6 @@ func _ready() -> void:
 	add_child(Map)
 	move_child(Map, 0)
 	add_child(NpcManager)
-	move_child($NpcMenu, 1)
 	#move_child($DefaultMenu, 50)
 	NpcManager.show()
 	#Map.hide()
@@ -45,7 +44,6 @@ func _ready() -> void:
 	$Player.LOCATION = passable_locations.pick_random()
 	update_focus_target("player")
 
-	$NpcMenu.hide()
 	$TalkMenu.hide()
 	tick()
 
@@ -64,6 +62,8 @@ func _process(_delta: float) -> void:
 		#print("over map")
 		var location:Vector2 = Map.get_location_from_mouse(mouse_position)
 		$MouseTileLabel.text = prettify_vector(location)
+		if Map.is_in_line_of_sight($Player.LOCATION, location): 
+			$MouseTileLabel.text += " **"
 
 		var new_npcs: Array[String] = NpcManager.get_npc_from_location(location)
 		$DefaultMenu.open_npc_menus(new_npcs)
@@ -116,7 +116,6 @@ func _on_move_without_tick() -> void:
 
 
 func tick() -> void:
-	print_tree()
 	update_map_center()
 	print("")
 	print("ticking...")
@@ -142,9 +141,6 @@ func update():
 	Map.update()
 	print("displaying defaultmenu")
 	$DefaultMenu.update()
-	if $NpcMenu.visible:
-		print("displaying npcmenu")
-		$NpcMenu.update()
 	if $TalkMenu.visible:
 		print("displaying talkmenu")
 		$TalkMenu.update()
@@ -213,9 +209,6 @@ func toggle_talk_menu(npc):
 
 
 func open_talk_menu(npc):
-	$NpcMenu.MENU_NPC = npc
-	$NpcMenu.update()
-	$NpcMenu.show()
 	$TalkMenu.MENU_NPC = npc
 	$TalkMenu.update()
 	$TalkMenu.show()

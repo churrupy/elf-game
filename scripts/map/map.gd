@@ -146,6 +146,7 @@ func update() -> void:
 	clear_tiles()
 	for tile: TILE in TILES:
 		#[var x: int, var y: int] = tile.LOCATION
+		
 		var x: int = tile.LOCATION[0]
 		var y: int = tile.LOCATION[1]
 		if x not in range(Global.X_RANGE[0], Global.X_RANGE[1]):
@@ -158,6 +159,13 @@ func update() -> void:
 		var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
 		tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
 		tile.global_position[1] = y_index * Constants.TILE_SIZE
+		
+		if is_in_line_of_sight(ENGINE.get_node("Player").LOCATION, tile.LOCATION):
+			#print(ENGINE.prettify_vector(tile.LOCATION), " is in line of sight")
+			tile.modulate = Color(1,1,0)
+		else: 
+			tile.modulate = Color(1,1,1)
+
 		#tile.show()
 			
 
@@ -209,6 +217,50 @@ func get_next_step(parent_dict: Dictionary, start: Vector2, end: Vector2) -> Vec
 
 
 #region filters
+
+func get_ray_path(origin: Vector2, target: Vector2) -> Array[Vector2]:
+	var ray_path: Array[Vector2] = [origin]
+	var next_step: Vector2 = origin
+	var direction: Vector2 = origin.direction_to(target)
+	var y_sign: int = 1 if direction[1] >= 0 else -1
+	var x_sign: int = 1 if direction[0] >= 0 else -1
+	var distBtRow: float = 1/(abs(origin[1] - target[1]))
+	var distBtCol: float = 1/(abs(origin[0] - target[0]))
+	var distToY: float = distBtRow
+	var distToX: float = distBtCol
+	for i in range (0, 100):
+		if next_step == target: break
+		#print(ENGINE.prettify_vector(next_step))
+		if distToY <= distToX: 
+			# steeper line, moving either up/down
+			next_step[1] += 1 * y_sign
+			ray_path.append(next_step)
+			distToY += distBtRow
+		else:
+			# shallower line, moving either left/right
+			next_step[0] += 1 * x_sign
+			ray_path.append(next_step)
+			distToX += distBtCol
+	return ray_path
+
+func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
+	if int(target[0]) not in range(0, Constants.MAP_SIZE[0]) or int(target[1]) not in range(0, Constants.MAP_SIZE[1]):
+		return false
+	var ray_path: Array[Vector2] = get_ray_path(origin, target)
+	for v: Vector2 in ray_path:
+		var tile:TILE = get_tile(v)
+		if tile.TYPE == "wall":
+			return false
+	return true
+
+
+func filter_loc_in_direction(origin:Vector2, direction:Vector2) -> Array[Vector2]:
+	var filtered_loc: Array[Vector2]
+	for tile: TILE in TILES:
+		var checked_direction: Vector2 = origin.direction_to(tile.LOCATION)
+		if checked_direction == direction:
+			filtered_loc.append(tile.LOCATION)
+	return filtered_loc
 
 func get_tiles_from_vector_list(vector_list: Array[Vector2]) -> Array[TILE]:
 	if len(vector_list) == 0:

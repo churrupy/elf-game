@@ -58,7 +58,7 @@ func run() -> ActionResult:
 	#		OWNER.update_direction(new_direction)
 
 	
-	ENGINE.History.add_event(OWNER.ID, "moves")
+	#ENGINE.History.add_event(OWNER.ID, "moves")
 	return ActionResult.new("running", null)
 	#return ["running", null]
 

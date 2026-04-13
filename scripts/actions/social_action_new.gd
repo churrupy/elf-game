@@ -72,7 +72,7 @@ func run() -> ActionResult:
 		if npc_id not in OWNER.RELATIONSHIPS:
 			# introduce self
 			OWNER.RELATIONSHIPS[npc_id] = 0 			
-			ENGINE.History.add_event(OWNER.ID, "introduce", npc_id)
+			#ENGINE.History.add_event(OWNER.ID, "introduce", npc_id)
 			return res
 
 	# if any witnesses npc has not interacted with in x ticks, greet them
@@ -87,7 +87,7 @@ func run() -> ActionResult:
 		"topic": new_topic,
 		"opinion": opinion
 	}
-	ENGINE.History.add_event(OWNER.ID, "converse", "", params)
+	#ENGINE.History.add_event(OWNER.ID, "converse", "", params)
 	refresh_needs("social")
 
 

@@ -17,12 +17,6 @@ func _init(engine) -> void:
 	
 func _process(_delta: float) -> void:
 	pass
-	
-	#for npc in NPCS:
-		#if npc.ID in ENGINE.HOVER_NPCS:
-			#npc.sprite_hover()
-		#else:
-			#npc.sprite_hoveroff()
 
 func create_npc() -> void:
 	var npc: NPC = NPC.new()
@@ -41,20 +35,20 @@ func create_npc() -> void:
 	
 	#ENGINE.History.add_event(npc.ID, "created", npc.LOCATION)
 
-func tick_new() -> void:
-	for npc:NPC in NPCS:
-		print ("ticking ", npc.NAME)
+# func tick_new() -> void:
+# 	for npc:NPC in NPCS:
+# 		print ("ticking ", npc.NAME)
 
-		if npc.CURRENT_ACTION == null:
-			Determinator.determine_next_action(npc)
-		else:
-			var action_result = npc.CURRENT_ACTION.tick()
-			if action_result == "finish":
-				npc.CURRENT_ACTION = null
+# 		if npc.CURRENT_ACTION == null:
+# 			Determinator.determine_next_action(npc)
+# 		else:
+# 			var action_result = npc.CURRENT_ACTION.tick()
+# 			if action_result == "finish":
+# 				npc.CURRENT_ACTION = null
 
-		var _res: ActionResult = npc.SOCIAL_ACTION.run()
+# 		var _res: ActionResult = npc.SOCIAL_ACTION.run()
 		
-		npc.decay_needs()
+# 		npc.decay_needs()
 
 func tick() -> void:
 	for npc:NPC in NPCS:
@@ -107,104 +101,104 @@ func tick() -> void:
 		#npc.decay_needs()
 
 
-func tick_old() -> void:
-	for npc:NPC in NPCS:
-		print("ticking ", npc.NAME)
+# func tick_old() -> void:
+# 	for npc:NPC in NPCS:
+# 		print("ticking ", npc.NAME)
 
-		if npc.ID in ENGINE.HOVER_NPCS:
-			npc.sprite_hover()
-		else:
-			npc.sprite_hoveroff()
+# 		if npc.ID in ENGINE.HOVER_NPCS:
+# 			npc.sprite_hover()
+# 		else:
+# 			npc.sprite_hoveroff()
 
-		process_events(npc)
+# 		process_events(npc)
 
-		var current_action: ACTION = npc.STATE_STACK.back()
+# 		var current_action: ACTION = npc.STATE_STACK.back()
 
-		print(current_action)
+# 		print(current_action)
 
-		var result: ActionResult = current_action.tick()
+# 		var result: ActionResult = current_action.tick()
 
-		print(result)
+# 		print(result)
 
-		if result.STATUS == "add":
-			current_action.suspend_state()
-			result.NEW_ACTION.enter_state()
-			#var new_action:ACTION = result[1]
-			#new_action.enter_state()
-			npc.STATE_STACK.append(result.NEW_ACTION)
-		elif result.STATUS == "replace":
-			current_action.exit_state()
-			npc.STATE_STACK.pop_back()
-			#var new_action:ACTION = result[1]
-			#new_action.enter_state()
-			result.NEW_ACTION.enter_state()
-			npc.STATE_STACK.append(result.NEW_ACTION)
-		elif result.STATUS == "end":
-			var new_action:ACTION = current_action.exit_state()
-			npc.STATE_STACK.pop_back()
-			if new_action != null:
-				new_action.enter_state()
-				npc.STATE_STACK.append(new_action)
-			else:
-				var next_action: ACTION = npc.STATE_STACK.back()
-				next_action.resume_state()
-		else:
-			# state continues running
-			#assumes result is ["running", null]
-			pass
-
-
-func process_events(npc:NPC) -> void:
-	for event:HistoryEvent in npc.EVENT_QUEUE:
-		var reaction: int
-		if event.ACTOR not in npc.RELATIONSHIPS:
-			npc.RELATIONSHIPS[event.ACTOR] = 0
-		#var actor_opinion = npc.RELATIONSHIPS[event.ACTOR]
-		if event.ACTION_ID == "converse":
-			var topic:String = event.PARAM["topic"]
-			var actor_opinion = event.PARAM["opinion"]
-			var npc_opinion:int = npc.OPINIONS[topic]
-			var diff:int = abs(actor_opinion - npc_opinion)
-			if diff < 2: reaction = 1
-			elif diff < 4: reaction = 0
-			else: reaction = -1
-			npc.RELATIONSHIPS[event.ACTOR] += reaction
-		elif event.ACTION_ID == "flirt":
-			if event.TARGET == npc.ID:
-				var attraction: int = get_attraction(event.TARGET, event.ACTOR)
-				if attraction > 0:
-					reaction = 1
-				elif attraction == 0:
-					reaction = 0
-				else:
-					reaction = -1
-			else:
-				reaction = 0
-		ENGINE.History.add_reaction(npc.ID, reaction, event)
-		if event.TARGET == npc.ID:
-			# npc is target and broadcasts reaction
-			var action:String
-			var action_list: Dictionary = {
-				1: "accepts",
-				0: "indifferent",
-				-1: "rejects"
-			}
-
-			#ENGINE.History.add_event(npc.ID, action_list[reaction], event.ACTOR)
-
-	npc.EVENT_QUEUE = [] # clear queue
+# 		if result.STATUS == "add":
+# 			current_action.suspend_state()
+# 			result.NEW_ACTION.enter_state()
+# 			#var new_action:ACTION = result[1]
+# 			#new_action.enter_state()
+# 			npc.STATE_STACK.append(result.NEW_ACTION)
+# 		elif result.STATUS == "replace":
+# 			current_action.exit_state()
+# 			npc.STATE_STACK.pop_back()
+# 			#var new_action:ACTION = result[1]
+# 			#new_action.enter_state()
+# 			result.NEW_ACTION.enter_state()
+# 			npc.STATE_STACK.append(result.NEW_ACTION)
+# 		elif result.STATUS == "end":
+# 			var new_action:ACTION = current_action.exit_state()
+# 			npc.STATE_STACK.pop_back()
+# 			if new_action != null:
+# 				new_action.enter_state()
+# 				npc.STATE_STACK.append(new_action)
+# 			else:
+# 				var next_action: ACTION = npc.STATE_STACK.back()
+# 				next_action.resume_state()
+# 		else:
+# 			# state continues running
+# 			#assumes result is ["running", null]
+# 			pass
 
 
+# func process_events(npc:NPC) -> void:
+# 	for event:HistoryEvent in npc.EVENT_QUEUE:
+# 		var reaction: int
+# 		if event.ACTOR not in npc.RELATIONSHIPS:
+# 			npc.RELATIONSHIPS[event.ACTOR] = 0
+# 		#var actor_opinion = npc.RELATIONSHIPS[event.ACTOR]
+# 		if event.ACTION_ID == "converse":
+# 			var topic:String = event.PARAM["topic"]
+# 			var actor_opinion = event.PARAM["opinion"]
+# 			var npc_opinion:int = npc.OPINIONS[topic]
+# 			var diff:int = abs(actor_opinion - npc_opinion)
+# 			if diff < 2: reaction = 1
+# 			elif diff < 4: reaction = 0
+# 			else: reaction = -1
+# 			npc.RELATIONSHIPS[event.ACTOR] += reaction
+# 		elif event.ACTION_ID == "flirt":
+# 			if event.TARGET == npc.ID:
+# 				var attraction: int = get_attraction(event.TARGET, event.ACTOR)
+# 				if attraction > 0:
+# 					reaction = 1
+# 				elif attraction == 0:
+# 					reaction = 0
+# 				else:
+# 					reaction = -1
+# 			else:
+# 				reaction = 0
+# 		ENGINE.History.add_reaction(npc.ID, reaction, event)
+# 		if event.TARGET == npc.ID:
+# 			# npc is target and broadcasts reaction
+# 			var action:String
+# 			var action_list: Dictionary = {
+# 				1: "accepts",
+# 				0: "indifferent",
+# 				-1: "rejects"
+# 			}
+
+# 			#ENGINE.History.add_event(npc.ID, action_list[reaction], event.ACTOR)
+
+# 	npc.EVENT_QUEUE = [] # clear queue
 
 
-func add_state_old(npc_id:String, new_state_id:String, params: Dictionary) -> void:
-	var npc: NPC = get_npc(npc_id)
-	var current_action: ACTION = npc.STATE_STACK.back()
-	current_action.suspend()
-	var ACTION_CLASS: GDScript = Constants.ACTION_ID[new_state_id]
-	var new_action:ACTION = ACTION_CLASS.new(ENGINE, npc)
-	new_action.enter_state()
-	npc.STATE_STACK.append(new_action)
+
+
+# func add_state_old(npc_id:String, new_state_id:String, params: Dictionary) -> void:
+# 	var npc: NPC = get_npc(npc_id)
+# 	var current_action: ACTION = npc.STATE_STACK.back()
+# 	current_action.suspend()
+# 	var ACTION_CLASS: GDScript = Constants.ACTION_ID[new_state_id]
+# 	var new_action:ACTION = ACTION_CLASS.new(ENGINE, npc)
+# 	new_action.enter_state()
+# 	npc.STATE_STACK.append(new_action)
 
 
 func add_state(new_action:ACTION) -> void:
@@ -252,6 +246,20 @@ func update() -> void:
 		npc.queue_redraw()
 			#draw_line(npc.position, checked_npc.position, Color.WHITE, -1.0)
 
+
+func broadcast_event(event:EVENT) -> void:
+	# within hearing distance
+	if event.HEARABLE:
+		var nearby_npcs: Array[String] = get_nearby_npcs(event.LOCATION)
+		for npc_id:String in nearby_npcs:
+			var npc:NPC = Global.NPCS[npc_id]
+			event.process_reaction(npc)
+	# can be seen by
+	if event.SEEABLE:
+		for npc:NPC in NPCS:
+			if can_see_location(npc, event.LOCATION):
+				event.process_reaction(npc)
+	
 
 #region filters
 func filter_reserved_locations(loc_list: Array[Vector2]) -> Array[Vector2]:
@@ -345,6 +353,7 @@ func get_npc_from_location(location: Vector2) -> Array[String]:
 #endregion
 
 func get_conversation_partners(npc:NPC) -> Array[String]:
+	# will eventually be around the Conversation Center
 	var nearby_npcs: Array[String] = get_nearby_npcs(npc.LOCATION)
 	var npc_index: int = nearby_npcs.find(npc.ID)
 	if npc_index > -1:
@@ -359,6 +368,19 @@ func get_conversation_partners(npc:NPC) -> Array[String]:
 		conversation_partners.append(npc_id)
 
 	return conversation_partners
+
+
+func can_see_location(npc:NPC, loc:Vector2) -> bool:
+	#only checks angle, not distance right now
+	# ALSO doesn't take into consideration whether stuff is visually in the way lol
+	# this will be hella changed in the future i bet lol
+
+	var direction: Vector2 = npc.LOCATION.direction_to(loc) # checking if looking in the correct direction
+	if direction.dot(npc.DIRECTION) > -0.5:
+		if ENGINE.Map.is_in_line_of_sight(npc.LOCATION, loc):
+			return true
+	
+	return false
 
 
 func can_see(npc:NPC) -> Array[String]:

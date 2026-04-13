@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://btdi0hy7dsfga"]
 
-[ext_resource type="Script" uid="uid://cge8bignbhgjn" path="res://scripts/npc_menu_new.gd" id="1_1hw2b"]
+[ext_resource type="Script" uid="uid://86pbpt6fpna0" path="res://scripts/npcs/npc_menu_new.gd" id="1_vdaph"]
 [ext_resource type="Texture2D" uid="uid://ccddj83dn687y" path="res://models/left_menu.png" id="2_xb6o2"]
 [ext_resource type="PackedScene" uid="uid://wqx311ixn3i1" path="res://portrait.tscn" id="3_tuoab"]
 [ext_resource type="Texture2D" uid="uid://b58kjptfeeafb" path="res://models/journal.png" id="4_tuoab"]
@@ -15,7 +15,7 @@ anchors_preset = 0
 offset_right = 300.0
 offset_bottom = 200.0
 mouse_force_pass_scroll_events = false
-script = ExtResource("1_1hw2b")
+script = ExtResource("1_vdaph")
 
 [node name="BG" type="TextureRect" parent="."]
 custom_minimum_size = Vector2(300, 300)

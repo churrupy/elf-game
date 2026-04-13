@@ -1,0 +1,28 @@
+class_name ConversationEvent extends EVENT
+
+var PARTICIPANTS: Array[NPC]
+
+
+func _init(participants:Array[NPC]) -> void:
+	TICK = Global.TICKS
+	EXPIRES_ON = TICK + 50
+	PARTICIPANTS = participants
+	SEEABLE = true
+	LOCATION = participants[0].LOCATION # figure this out later
+
+func _to_string() -> String:
+	var names:Array[String] = PARTICIPANTS.map(func(npc): return npc.NAME)
+	names[-1] = "and " + names[-1]
+	var name_string: String = "[EVENT]" + ", ".join(names) + " talk together."
+	return name_string
+
+func process_reaction(npc:NPC) -> void:
+	if npc in PARTICIPANTS: return
+	# if npc knows everyone in participants, make a neutral witness report
+	for p:NPC in PARTICIPANTS:
+		if p.ID not in npc.RELATIONSHIPS.keys():
+			return
+
+	var report:WitnessReport = WitnessReport.new(npc, self)
+	npc.add_witness_report(report)
+	

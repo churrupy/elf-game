@@ -1,6 +1,5 @@
 extends Node
 
-@export var buttons: PackedScene
 @export var npc_menus: PackedScene
 var ENGINE
 
@@ -11,7 +10,6 @@ var OPEN_MENUS: Dictionary[String, NpcMenuNode]
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	$PlayerDetails.get_node("BG").modulate = Constants.COLOR_LIST.pick_random()
-	pass
 		
 
 func _process(_delta:float) -> void:
@@ -35,7 +33,7 @@ func update():
 	trunc_history.reverse()
 			
 func open_npc_menus(npc_list:Array[String]) -> void:
-	print(npc_list)
+	#print(npc_list)
 	TEMP_NPCS = npc_list.duplicate()
 	for npc_id:String in npc_list:
 		if npc_id not in OPEN_MENUS.keys():
@@ -46,7 +44,7 @@ func open_npc_menus(npc_list:Array[String]) -> void:
 			$NearbyNpcsContainer.get_node("VBoxContainer").add_child(npc_menu)
 
 
-	print(OPEN_MENUS)
+	#print(OPEN_MENUS)
 
 func hold_temp_menus() -> void:
 	for npc_id: String in TEMP_NPCS:

@@ -1,6 +1,4 @@
-extends Container
-
-class_name NPC
+class_name NPC extends Container
 
 #region constants
 # i'll change this eventually
@@ -31,7 +29,9 @@ var RECENT_TOPIC: String
 var STYLE: String
 var OPINIONS: Dictionary = {}
 var RELATIONSHIPS: Dictionary = {}
-var MEMORIES: Dictionary = {}
+var MEMORIES: Array[WitnessReport]
+
+
 var NEEDS: Dictionary = {
 	"hunger": 50.0,
 	"energy": 50.0,
@@ -64,7 +64,7 @@ var LOOKING_AT: Array[Vector2]
 #endregion sprite
 
 #region actions
-var EVENT_QUEUE: Array[HistoryEvent]
+var EVENT_QUEUE: Array[EVENT]
 
 var STATE_STACK: Array[ACTION] = []
 var SOCIAL_ACTION: SocialAction_new
@@ -151,6 +151,17 @@ func _to_string():
 #endregion
 
 #region relationships
+
+func add_witness_report(report: WitnessReport) -> void:
+	if not already_reacted(report.EVENT):
+		MEMORIES.append(report)
+
+func already_reacted(event:EVENT) -> bool:
+	for m: WitnessReport in MEMORIES:
+		if m.EVENT == event:
+			m.TICK = Global.TICKS
+			return true
+	return false
 
 func update_relationship(other_npc_id, change):
 	if other_npc_id not in RELATIONSHIPS.keys():

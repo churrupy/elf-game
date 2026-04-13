@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://jusdqdsrm4go"]
+[gd_scene load_steps=3 format=3 uid="uid://jusdqdsrm4go"]
 
 [ext_resource type="Script" uid="uid://bfm0q2bdkf8pn" path="res://scripts/talk_menu.gd" id="1_etbpw"]
 [ext_resource type="PackedScene" uid="uid://c30mvsbqcy0aw" path="res://conversation_button.tscn" id="2_0u07r"]
-[ext_resource type="PackedScene" uid="uid://dqcrueypgqflp" path="res://npc_button.tscn" id="3_ako7f"]
 
 [node name="TalkMenu" type="Label"]
 z_index = 50
@@ -11,7 +10,6 @@ offset_right = 600.0
 offset_bottom = 660.0
 script = ExtResource("1_etbpw")
 conversation_button_scene = ExtResource("2_0u07r")
-buttons = ExtResource("3_ako7f")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 0
