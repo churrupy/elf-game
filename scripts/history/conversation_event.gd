@@ -9,6 +9,7 @@ func _init(participants:Array[NPC]) -> void:
 	PARTICIPANTS = participants
 	SEEABLE = true
 	LOCATION = participants[0].LOCATION # figure this out later
+	TYPE = "converse"
 
 func _to_string() -> String:
 	var names:Array[String] = PARTICIPANTS.map(func(npc): return npc.NAME)
@@ -24,4 +25,8 @@ func process_reaction(npc:NPC) -> void:
 			return
 
 	npc.add_witness_report(self)
+
+
+func includes_npc(target:NPC) -> bool:
+	return target in PARTICIPANTS
 	

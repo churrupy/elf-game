@@ -6,9 +6,16 @@ var EXPIRED: bool = false
 var SEEABLE: bool = false
 var HEARABLE: bool = false
 var LOCATION: Vector2
+var TYPE: String
 
+func includes_npc(target:NPC) -> bool:
+	return false
 
+func get_impression_of(pov: NPC, target: NPC) -> String:
+	return ""
 
+func is_equal() -> bool:
+	return false
 
 func _to_string() -> String:
 	return ""

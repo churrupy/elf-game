@@ -1,4 +1,4 @@
-extends Node
+extends Control
 
 var ENGINE
 var CURRENT_ENTRY
@@ -29,8 +29,8 @@ func update_topic(topic) -> void:
 func update_npc() -> void:
 	# standard details
 	var npc: NPC = CURRENT_ENTRY
+	$Title.text = npc.NAME
 	var display_list: Array[String] = [
-		"Name: " + npc.NAME,
 		"ID: " + npc.ID,
 		"Gender: " + npc.GENDER,
 	]
@@ -57,6 +57,19 @@ func update_npc() -> void:
 		npc_button.text = npc_id + " [" + str(rel_score) + "]"
 		$Entry.add_child(npc_button)
 		npc_button.connect("pressed", update_topic.bind(checked_npc))
+
+		var opinion: String = npc.get_opinion_string(npc_id)
+		var opinion_label: Label = Label.new()
+		opinion_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + opinion + "."
+		opinion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		$Entry.add_child(opinion_label)
+
+		var impressions: Array[String] = npc.get_impression(npc_id)
+		if len(impressions) > 0:
+			var impression_label: Label = Label.new()
+			impression_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			impression_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
+			$Entry.add_child(impression_label)
 		
 		var rel_details: RichTextLabel = RichTextLabel.new()
 		rel_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

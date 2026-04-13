@@ -160,7 +160,7 @@ func add_witness_report(event: EVENT, opinion: int = 0) -> void:
 
 func is_report_in_memory(event:EVENT) -> bool:
 	for m: WitnessReport in MEMORIES:
-		if m.EVENT == event:
+		if m.EVENT_WITNESSED == EVENT:
 			m.TICK = Global.TICKS
 			return true
 	return false
@@ -195,8 +195,74 @@ func get_opinion(npc_id: String) -> int:
 		score += mem.SCORE
 	return score
 
+func get_opinion_string(npc_id: String) -> String:
+	var opinion_int: int = get_opinion(npc_id)
+	if opinion_int > 5:
+		return "awesome"
+	elif opinion_int > 0:
+		return "cool"
+	elif opinion_int == 0:
+		return "okay"
+	elif opinion_int > -5:
+		return "obnoxious"
+	else:
+		return "awful"
 
-func get_attraction(other_npc):
+
+func get_impression(npc_id: String) -> Array[String]:
+	# returns list of traits that self thinks of npc
+	var impressions: Array[String]
+	var other_npc: NPC = Global.NPCS[npc_id]
+
+	var attraction: int = get_attraction(other_npc)
+	if attraction > 50:
+		impressions.append("attractive")
+
+	#var tone_tracker: Array[String]
+	var tone_tracker: Dictionary[String, int]
+	var topic_tracker: Dictionary[String, int]
+	var action_tracker: Dictionary[String, int]
+	for report: WitnessReport in MEMORIES:
+		if report.includes_npc(other_npc): 
+			var checked_event = report.EVENT_WITNESSED
+			if "TONE" in checked_event: # determines their impression of their attitude
+				if checked_event.TONE != "":
+					if checked_event.TONE not in tone_tracker:
+						tone_tracker[checked_event.TONE] = 0
+					tone_tracker[checked_event.TONE] += 1
+			if "TOPIC" in checked_event: # determines their impression of their likes
+				if checked_event.OPINION != 0:
+					topic_tracker[checked_event.TOPIC] = checked_event.OPINION
+			if checked_event.TYPE not in action_tracker: # determines their impression of their actions
+				action_tracker[checked_event.TYPE] = 0
+			action_tracker[checked_event.TYPE] += 1
+
+	# process tone
+	for tone: String in tone_tracker.keys():
+		if tone_tracker[tone] > 5: #sure
+			# would eventually have self opinion on action changing the word
+			# like if the other npc is bragging, difference between "arrogant" and "confident"	
+			impressions.append(tone)
+
+	for action:String in action_tracker.keys():
+		if action_tracker[action] > 5:
+			if action == "converse": 
+				# would eventually have self opinion on action changing the word
+				# like if they hate being social, then they'd say "talks to much", or something like that 
+				impressions.append("is social")
+	
+	# process topic
+	for topic:String in topic_tracker.keys():
+		if topic_tracker[topic] > 0:
+			impressions.append("likes %s" % topic)
+		elif topic_tracker[topic] < 0:
+			impressions.append("dislikes %s" % topic)
+
+	
+
+	return impressions
+
+func get_attraction(other_npc: NPC) -> int:
 	return 100 #for testing
 	var other_style = other_npc.STYLE
 	return OPINIONS[other_style]

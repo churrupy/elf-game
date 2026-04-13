@@ -22,6 +22,7 @@ func _init(speaker:NPC, topic:String, opinion:int, tone:String = "") -> void:
 	TONE = tone
 	HEARABLE = true
 	LOCATION = speaker.LOCATION
+	TYPE = "converse"
 
 func _to_string() -> String:
 	#var npc:NPC = Global.NPCS[SPEAKER_ID]
@@ -63,3 +64,7 @@ func process_reaction(npc:NPC) -> void:
 		if OPINION == -1:
 			memory_id = "hates something I like"
 		npc.add_relationship_memory(SPEAKER, memory_id)
+
+func includes_npc(target:NPC) -> bool:
+	if target == SPEAKER: return true
+	return false

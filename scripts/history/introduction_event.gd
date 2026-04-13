@@ -12,6 +12,7 @@ func _init(speaker:NPC, target:NPC, tone:String = "") -> void:
 	TONE = tone
 	HEARABLE = true
 	LOCATION = speaker.LOCATION
+	TYPE = "converse"
 
 func _to_string() -> String:
 	var display_list: Array[String] = [
@@ -34,3 +35,6 @@ func process_reaction(npc:NPC) -> void:
 		if TARGET.ID in npc.RELATIONSHIPS:
 			#var report:WitnessReport =  .new(npc, self, 1)
 			npc.add_witness_report(self)
+
+func includes_npc(target:NPC) -> bool:
+	return target == SPEAKER
