@@ -4,9 +4,9 @@ var SPEAKER: NPC
 var TARGET:NPC
 var TONE:String
 
-func _init(speaker:NPC, target:NPC, tone:String = "") -> void:
-	TICK = Global.TICKS
-	EXPIRES_ON = TICK + 50
+func _init(speaker:NPC, target:NPC, tone:String = "neutral") -> void:
+	#TICK = Global.TICKS
+	#EXPIRES_ON = TICK + 50
 	SPEAKER = speaker
 	TARGET = target
 	TONE = tone
@@ -15,17 +15,28 @@ func _init(speaker:NPC, target:NPC, tone:String = "") -> void:
 	TYPE = "converse"
 	generate_tags()
 
+func update_ticks() -> void:
+	TICK = Global.TICKS
+	EXPIRES_ON = TICK + 50
+
 func generate_tags() -> void:
 	TAGS.append(TONE)
 	TAGS.append("social")
 
+func is_equal(other_event: EVENT) -> bool:
+	if self == other_event: return true
+	if other_event is not IntroductionEvent: return false
+	if SPEAKER != other_event.SPEAKER: return false
+	if TARGET != other_event.TARGET: return false
+	return true
+
 func _to_string() -> String:
 	var display_list: Array[String] = [
-		"[EVENT]",
+		"[{0}]".format([TICK]),
 		SPEAKER.NAME,
 		"introduced themselves to",
 		TARGET.NAME,
-		"in a %s tone." %TONE
+		"in a {0} tone.".format([TONE])
 	]
 
 	var display_string:String = " ".join(display_list)

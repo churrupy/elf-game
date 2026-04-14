@@ -11,11 +11,14 @@ var SCORE: int = 0 # for action history
 
 
 func _init(witness:NPC, event:EVENT, role:String) -> void:
-	TICK = Global.TICKS
+	#TICK = Global.TICKS
 	WITNESS = witness
 	EVENT_WITNESSED = event
 	ROLE = role
 	process_reaction()
+
+func update_ticks() -> void:
+	TICK = Global.TICKS
 
 func includes_npc(target:NPC) -> bool:
 	return EVENT_WITNESSED.includes_npc(target)
@@ -27,3 +30,18 @@ func process_reaction() -> void:
 		if opinion != 0:
 			REACTIONS[tag] = opinion
 			SCORE += opinion
+
+func get_display_string() -> String:
+	var event_string = str(EVENT_WITNESSED)
+	var color: String = "white"
+	if SCORE > 0:
+		color = "green"
+	elif SCORE < 0:
+		color = "red"
+
+	var _str = "[color={color}]{display}[/color]".format({
+		"color": color,
+		"display": event_string
+	})
+
+	return _str

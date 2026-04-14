@@ -41,6 +41,9 @@ func add_conversation_event(speaker: NPC) -> void:
 	for npc_id: String in convo_partners_ids:
 		convo_partners.append(Global.NPCS[npc_id])
 	
+	convo_partners.append(speaker) 
+	# lol at removing speaker and then adding them back in
+	
 	var conversation_event: ConversationEvent = ConversationEvent.new(convo_partners)
 	HISTORY.append(conversation_event)
 	ENGINE.NpcManager.broadcast_event(conversation_event)

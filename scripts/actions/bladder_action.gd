@@ -44,7 +44,7 @@ func run() -> ActionResult:
 		
 	
 	var average_direction: Vector2 = Vector2(average_vector[0]/wall_counter, average_vector[1]/wall_counter)
-	print("average_direction ", average_direction)
+	#print("average_direction ", average_direction)
 	OWNER.update_direction(average_direction)
 
 

@@ -125,6 +125,14 @@ offset_right = 294.0
 offset_bottom = 170.0
 icon = ExtResource("6_vdaph")
 
+[node name="TalkButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 193.0
+offset_top = 60.0
+offset_right = 233.0
+offset_bottom = 91.0
+text = "Talk"
+
 [connection signal="pressed" from="Small/ExpandButton" to="." method="expand_menu"]
 [connection signal="pressed" from="Large/ContractButton" to="." method="contract_menu"]
 [connection signal="mouse_entered" from="CloseButton" to="." method="onhover"]
@@ -132,3 +140,4 @@ icon = ExtResource("6_vdaph")
 [connection signal="pressed" from="JournalButton" to="." method="open_journal"]
 [connection signal="pressed" from="WatchButton" to="." method="watch_npc"]
 [connection signal="pressed" from="UnWatchButton" to="." method="unwatch_npc"]
+[connection signal="pressed" from="TalkButton" to="." method="open_talk_menu"]

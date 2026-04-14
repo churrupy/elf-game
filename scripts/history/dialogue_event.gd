@@ -5,17 +5,12 @@ var TOPIC:String
 var OPINION:int
 var TONE:String
 
-var opinion_dict:Dictionary = {
-	1: "praised %s",
-	0: "commented on %s",
-	-1: "mocked %s",
-
-}
 
 
-func _init(speaker:NPC, topic:String, opinion:int, tone:String = "") -> void:
-	TICK = Global.TICKS
-	EXPIRES_ON = TICK + 50
+
+func _init(speaker:NPC, topic:String, opinion:int, tone:String = "neutral") -> void:
+	#TICK = Global.TICKS
+	#EXPIRES_ON = TICK + 50
 	SPEAKER = speaker
 	TOPIC = topic
 	OPINION = opinion
@@ -23,7 +18,12 @@ func _init(speaker:NPC, topic:String, opinion:int, tone:String = "") -> void:
 	HEARABLE = true
 	LOCATION = speaker.LOCATION
 	TYPE = "converse"
+	update_ticks()
 	generate_tags()
+
+func update_ticks() -> void:
+	TICK = Global.TICKS
+	EXPIRES_ON = TICK + 50
 
 func generate_tags() -> void:
 	TAGS.append(TONE)
@@ -34,13 +34,35 @@ func generate_tags() -> void:
 	elif OPINION < 0:
 		TAGS.append("dislikes_{0}".format([TOPIC]))
 
+func is_equal(other_event:EVENT) -> bool:
+	if self == other_event: return true
+	if other_event is not DialogueEvent: return false
+	if SPEAKER != other_event.SPEAKER: return false
+	if TOPIC != other_event.TOPIC: return false
+	if OPINION != other_event.OPINION: return false
+	return true
+
 func _to_string() -> String:
+
+	var opinion_dict:Dictionary = {
+		1: "praised {0}",
+		0: "commented on {0}",
+		-1: "mocked {0}",
+
+	}
+	var opinion_string: String
+	if OPINION > 0: 
+		opinion_string = opinion_dict[1]
+	elif OPINION == 0:
+		opinion_string = opinion_dict[0]
+	else:
+		opinion_string = opinion_dict[-1]
 	#var npc:NPC = Global.NPCS[SPEAKER_ID]
 	var display_list: Array[String] = [
-		"[EVENT]",
+		"[{0}]".format([TICK]),
 		SPEAKER.NAME,
-		opinion_dict[OPINION] % TOPIC,
-		"in a %s tone." %TONE
+		opinion_string.format([TOPIC]),
+		"in a {0} tone.".format([TONE])
 	]
 	var display_string = " ".join(display_list)
 	return display_string

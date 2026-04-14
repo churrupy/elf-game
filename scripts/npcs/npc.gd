@@ -180,8 +180,8 @@ func add_witness_report(event: EVENT, role: String) -> void:
 
 func is_report_in_memory(event:EVENT) -> bool:
 	for m: WitnessReport in MEMORIES:
-		if m.EVENT_WITNESSED == event:
-			m.TICK = Global.TICKS
+		if m.EVENT_WITNESSED.is_equal(event):
+			m.update_ticks()
 			return true
 	return false
 
@@ -261,7 +261,11 @@ func get_impression(npc_id: String) -> Array[String]:
 	return impressions
 
 	
-
+func get_dialogues() -> Array[String]:
+	var dialogue_list: Array[String]
+	for report:WitnessReport in MEMORIES:
+		dialogue_list.append(report.get_display_string())
+	return dialogue_list
 
 func get_impression_old(npc_id: String) -> Array[String]:
 	# returns list of traits that self thinks of npc

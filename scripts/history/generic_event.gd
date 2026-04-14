@@ -15,7 +15,7 @@ func includes_npc(target:NPC) -> bool:
 func get_impression_of(pov: NPC, target: NPC) -> String:
 	return ""
 
-func is_equal() -> bool:
+func is_equal(other_event: EVENT) -> bool:
 	return false
 
 func _to_string() -> String:

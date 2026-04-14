@@ -11,7 +11,7 @@ var DIALOGUE_LIST = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	$BG.modulate = Constants.COLOR_LIST.pick_random()
 
 func update() -> void:
 	if MENU_NPC == null:
@@ -25,56 +25,31 @@ func update() -> void:
 	for child in $TalkDetails.get_node("DialogueDetails").get_children():
 		child.queue_free()
 
-
-	var involved_npcs:Array[String] = [] # fix this in a second
-	var history_strings:Array[String] = ENGINE.History.populate_talk_menu(MENU_NPC.ID).slice(-10,-1)
-	for string:String in history_strings:
-		var label: Label = Label.new()
-		label.text = string
-		var container_size: Vector2 = $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_size()
-		label.custom_minimum_size = Vector2(container_size[0]*.75, 1)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		$TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").add_child(label)
-
-	# set scrollbar to bottom hopefully
-	# looks kinda awkward but does technically work
-	$TalkDetails.get_node("DialogueContainer").scroll_vertical = $TalkDetails.get_node("DialogueContainer").get_v_scroll_bar().max_value
+	var dialogue_list: Array[String] = MENU_NPC.get_dialogues()
+	if len(dialogue_list) > 0:
+		var dialogue_label: RichTextLabel = RichTextLabel.new()
+		dialogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		dialogue_label.fit_content = true
+		for d: String in dialogue_list:
+			dialogue_label.push_paragraph(HORIZONTAL_ALIGNMENT_LEFT)
+			dialogue_label.append_text(d) # how will this print out?
+		$TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").add_child(dialogue_label)
 
 
+	# var involved_npcs:Array[String] = [] # fix this in a second
+	# var history_strings:Array[String] = ENGINE.History.populate_talk_menu(MENU_NPC.ID).slice(-10,-1)
+	# for string:String in history_strings:
+	# 	var label: Label = Label.new()
+	# 	label.text = string
+	# 	var container_size: Vector2 = $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_size()
+	# 	label.custom_minimum_size = Vector2(container_size[0]*.75, 1)
+	# 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# 	$TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").add_child(label)
 
-# func update_old():
-# 	if MENU_NPC == null: 
-# 		return
-# 	var history: Array[HistoryEvent] = ENGINE.History.filter_by_npc(MENU_NPC.ID).slice(-20, -1)
-# 	#var history_list = ENGINE.History.history_to_string(history)
-# 	#LOCATION = npc.ACTION.TARGET
-# 	$NameLabel.text = MENU_NPC.NAME
-# 	for child in $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_children():
-# 		child.queue_free()
+	# # set scrollbar to bottom hopefully
+	# # looks kinda awkward but does technically work
+	# $TalkDetails.get_node("DialogueContainer").scroll_vertical = $TalkDetails.get_node("DialogueContainer").get_v_scroll_bar().max_value
 
-# 	for child in $TalkDetails.get_node("DialogueDetails").get_children():
-# 		child.queue_free()
-	
-# 	var involved_npcs: Array = []
-# 	for item: HistoryEvent in history:
-# 		if item.DIALOGUE != "":
-			
-# 			var label: Label = Label.new()
-# 			label.text = item.DIALOGUE
-# 			var container_size: Vector2 = $TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").get_size()
-# 			label.custom_minimum_size = Vector2(container_size[0]*.75, 1)
-# 			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-# 			$TalkDetails.get_node("DialogueContainer").get_node("VBoxContainer").add_child(label)
-
-# 			for w: String in item.WITNESSES:
-# 				if w == MENU_NPC.ID: continue
-# 				if w not in involved_npcs: involved_npcs.append(w)
-		
-# 	for npc_id: String in involved_npcs:
-# 		var npc: NPC = Global.NPCS[npc_id]
-# 		var name_button = buttons.instantiate()
-# 		name_button.initialize(npc)
-# 		$TalkDetails.get_node("DialogueDetails").add_child(name_button)
 
 	
 

@@ -11,11 +11,10 @@ offset_bottom = 660.0
 script = ExtResource("1_etbpw")
 conversation_button_scene = ExtResource("2_0u07r")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="BG" type="ColorRect" parent="."]
 layout_mode = 0
 offset_right = 600.0
 offset_bottom = 660.0
-color = Color(0.17145, 0.330373, 0.291988, 1)
 
 [node name="NameLabel" type="Label" parent="."]
 layout_mode = 1
