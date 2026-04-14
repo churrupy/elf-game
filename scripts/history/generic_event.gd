@@ -7,6 +7,7 @@ var SEEABLE: bool = false
 var HEARABLE: bool = false
 var LOCATION: Vector2
 var TYPE: String
+var TAGS: Array[String] # things npcs can react to
 
 func includes_npc(target:NPC) -> bool:
 	return false

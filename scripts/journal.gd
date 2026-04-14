@@ -80,15 +80,15 @@ func update_npc() -> void:
 			#impression_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
 			$ScrollContainer.get_node("Entry").add_child(impression_label)
 		
-		var rel_details: RichTextLabel = RichTextLabel.new()
-		rel_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		rel_details.fit_content = true
+		# var rel_details: RichTextLabel = RichTextLabel.new()
+		# rel_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		# rel_details.fit_content = true
 
-		for mem: RelationshipMemory in rel_list:
-			rel_details.push_list(0, RichTextLabel.ListType.LIST_DOTS, true)
-			rel_details.append_text(str(mem))
-			rel_details.pop()
-		$ScrollContainer.get_node("Entry").add_child(rel_details)
+		# for mem: RelationshipMemory in rel_list:
+		# 	rel_details.push_list(0, RichTextLabel.ListType.LIST_DOTS, true)
+		# 	rel_details.append_text(str(mem))
+		# 	rel_details.pop()
+		# $ScrollContainer.get_node("Entry").add_child(rel_details)
 
 
 func close_menu() -> void:

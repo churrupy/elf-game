@@ -10,6 +10,10 @@ func _init(participants:Array[NPC]) -> void:
 	SEEABLE = true
 	LOCATION = participants[0].LOCATION # figure this out later
 	TYPE = "converse"
+	generate_tags()
+
+func generate_tags() -> void:
+	TAGS.append("social")
 
 func _to_string() -> String:
 	var names:Array[String] = PARTICIPANTS.map(func(npc): return npc.NAME)
@@ -17,14 +21,24 @@ func _to_string() -> String:
 	var name_string: String = "[EVENT]" + ", ".join(names) + " talk together."
 	return name_string
 
-func process_reaction(npc:NPC) -> void:
-	if npc in PARTICIPANTS: return
+func process_involvement(npc:NPC) -> void:
+	if npc in PARTICIPANTS:
+		npc.add_witness_report(self, "participant")
+	for p:NPC in PARTICIPANTS:
+		if p.ID not in npc.RELATIONSHIPS.keys():
+			return
+
+	npc.add_witness_report(self, "witness")
+
+func process_reaction_old(npc:NPC) -> void:
+	if npc in PARTICIPANTS: 
+		npc.add_witness_report(self, "participant")
 	# if npc knows everyone in participants, make a neutral witness report
 	for p:NPC in PARTICIPANTS:
 		if p.ID not in npc.RELATIONSHIPS.keys():
 			return
 
-	npc.add_witness_report(self)
+	npc.add_witness_report(self, "witness")
 
 
 func includes_npc(target:NPC) -> bool:

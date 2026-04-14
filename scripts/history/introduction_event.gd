@@ -13,6 +13,11 @@ func _init(speaker:NPC, target:NPC, tone:String = "") -> void:
 	HEARABLE = true
 	LOCATION = speaker.LOCATION
 	TYPE = "converse"
+	generate_tags()
+
+func generate_tags() -> void:
+	TAGS.append(TONE)
+	TAGS.append("social")
 
 func _to_string() -> String:
 	var display_list: Array[String] = [
@@ -26,15 +31,17 @@ func _to_string() -> String:
 	var display_string:String = " ".join(display_list)
 	return display_string
 
-func process_reaction(npc:NPC) -> void:
+func process_involvement(npc:NPC) -> void:
 	# only processes if npc knows both people
-	if npc == SPEAKER: return
+	if npc == SPEAKER:
+		npc.add_witness_report(self, "participant") 
 	if npc == TARGET:
+		npc.add_witness_report(self, "witness")
 		npc.add_relationship_memory(SPEAKER, "introduce")
 	elif SPEAKER.ID in npc.RELATIONSHIPS:
 		if TARGET.ID in npc.RELATIONSHIPS:
 			#var report:WitnessReport =  .new(npc, self, 1)
-			npc.add_witness_report(self)
+			npc.add_witness_report(self, "witness")
 
 func includes_npc(target:NPC) -> bool:
 	return target == SPEAKER

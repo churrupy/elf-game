@@ -253,12 +253,12 @@ func broadcast_event(event:EVENT) -> void:
 		var nearby_npcs: Array[String] = get_nearby_npcs(event.LOCATION)
 		for npc_id:String in nearby_npcs:
 			var npc:NPC = Global.NPCS[npc_id]
-			event.process_reaction(npc)
+			event.process_involvement(npc)
 	# can be seen by
 	if event.SEEABLE:
 		for npc:NPC in NPCS:
 			if can_see_location(npc, event.LOCATION):
-				event.process_reaction(npc)
+				event.process_involvement(npc)
 	
 
 #region filters

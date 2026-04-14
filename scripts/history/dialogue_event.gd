@@ -23,6 +23,16 @@ func _init(speaker:NPC, topic:String, opinion:int, tone:String = "") -> void:
 	HEARABLE = true
 	LOCATION = speaker.LOCATION
 	TYPE = "converse"
+	generate_tags()
+
+func generate_tags() -> void:
+	TAGS.append(TONE)
+	TAGS.append("social")
+	
+	if OPINION > 0:
+		TAGS.append("likes_{0}".format([TOPIC]))
+	elif OPINION < 0:
+		TAGS.append("dislikes_{0}".format([TOPIC]))
 
 func _to_string() -> String:
 	#var npc:NPC = Global.NPCS[SPEAKER_ID]
@@ -35,18 +45,21 @@ func _to_string() -> String:
 	var display_string = " ".join(display_list)
 	return display_string
 
-func process_reaction(npc:NPC) -> void:
+
+func process_involvement(npc:NPC) -> void:
 	# does two things (if applicable):
 	# creates a witness report
 	# creates a relationship memory (whatever i want to call that)
-	if npc == SPEAKER: return
+	if npc == SPEAKER: 
+		npc.add_witness_report(self, "participant")
+
 	var npc_opinion: int = npc.does_share_opinion(TOPIC, OPINION)
 
 	if npc_opinion == 0:
 		return
 	elif npc_opinion == 1:
 		# shares opinion
-		npc.add_witness_report(self)
+		npc.add_witness_report(self, "witness")
 
 		var memory_id:String = "share like"
 		if OPINION < 0:
@@ -56,7 +69,7 @@ func process_reaction(npc:NPC) -> void:
 	else:
 		#opposite opinions
 		#var report:WitnessReport = WitnessReport.new(npc, self, -1)
-		npc.add_witness_report(self)
+		npc.add_witness_report(self, "witness")
 
 		var memory_id:String = "likes something I hate"
 		if OPINION < 0:

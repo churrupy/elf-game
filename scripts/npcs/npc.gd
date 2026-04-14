@@ -31,6 +31,10 @@ var OPINIONS: Dictionary = {}
 var RELATIONSHIPS: Dictionary[String, Array] = {}
 var MEMORIES: Array[WitnessReport]
 
+var TAGS: Array[String]
+var LIKES: Array[String]
+var DISLIKES: Array[String]
+
 
 var NEEDS: Dictionary = {
 	"hunger": 50.0,
@@ -110,11 +114,27 @@ func initialize(ID_COUNTER):
 		OPINIONS[style] = randi_range(-5,5)
 
 
+	generate_tags()
 	load_sprites()
 
 	
 	
-	
+func generate_tags() -> void:
+	#TAGS.append(GENDER)
+	#TAGS.append(STYLE)
+
+	for topic:String in OPINIONS:
+		var score:int = OPINIONS[topic]
+		if score > 0:
+			#TAGS.append("likes_{0}".format([topic]))
+			LIKES.append("likes_{0}".format([topic]))
+			DISLIKES.append("dislikes_{0}".format([topic]))
+		elif score < 0:
+			#TAGS.append("dislikes_{0}".format([topic]))
+			LIKES.append("dislikes_{0}".format([topic]))
+			DISLIKES.append("likes_{0}".format([topic]))
+
+
 func load_sprites() -> void:
 	SPRITE.texture = load("res://models/npc.png")
 	SPRITE.modulate = HAIR_COLOR
@@ -152,20 +172,21 @@ func _to_string():
 
 #region relationships
 
-func add_witness_report(event: EVENT, opinion: int = 0) -> void:
+func add_witness_report(event: EVENT, role: String) -> void:
 	if is_report_in_memory(event): return
-	var report:WitnessReport = WitnessReport.new(self, event, opinion)
+	var report:WitnessReport = WitnessReport.new(self, event, role)
 	MEMORIES.append(report)
 
 
 func is_report_in_memory(event:EVENT) -> bool:
 	for m: WitnessReport in MEMORIES:
-		if m.EVENT_WITNESSED == EVENT:
+		if m.EVENT_WITNESSED == event:
 			m.TICK = Global.TICKS
 			return true
 	return false
 
 func add_relationship_memory(speaker:NPC, memory_id: String) -> void:
+	if speaker == self: return
 	if is_memory_in_relationship(speaker, memory_id): return
 	var relationship_memory: RelationshipMemory = RelationshipMemory.new(self, speaker, memory_id)
 	if speaker.ID not in RELATIONSHIPS:
@@ -185,8 +206,15 @@ func is_memory_in_relationship(speaker:NPC, memory_id: String) -> bool:
 	return false
 
 
+func get_opinion(tag: String) -> int:
+	if tag in LIKES: return 1
+	elif tag in DISLIKES: return -1
+	else: return 0
 
-func get_opinion(npc_id: String) -> int:
+
+
+
+func get_opinion_old(npc_id: String) -> int:
 	if npc_id not in RELATIONSHIPS:
 		return 0
 	var rel_list: Array = RELATIONSHIPS[npc_id]
@@ -208,8 +236,34 @@ func get_opinion_string(npc_id: String) -> String:
 	else:
 		return "awful"
 
-
 func get_impression(npc_id: String) -> Array[String]:
+	var impressions: Array[String]
+	var other_npc: NPC = Global.NPCS[npc_id]
+
+	if other_npc.STYLE in LIKES:
+		impressions.append("is [color=green]attractive[/color]")
+	elif other_npc.STYLE in DISLIKES:
+		impressions.append("is [color=red]unattractive[/color]")
+
+	for report: WitnessReport in MEMORIES:
+		if report.includes_npc(other_npc):
+			for reaction:String in report.REACTIONS.keys():
+				if report.REACTIONS[reaction] > 0:
+					var _str: String = '[color=green]{0}[/color]'.format([reaction])
+					if _str not in impressions:
+						impressions.append(_str)
+				elif report.REACTIONS[reaction] < 0:
+					var _str: String = '[color=red]{0}[/color]'.format([reaction])
+					if _str not in impressions:
+						impressions.append(_str)
+
+	# would like to be able to sort by tag and pair up incongruent tags
+	return impressions
+
+	
+
+
+func get_impression_old(npc_id: String) -> Array[String]:
 	# returns list of traits that self thinks of npc
 	var impressions: Array[String]
 	var other_npc: NPC = Global.NPCS[npc_id]
@@ -230,6 +284,7 @@ func get_impression(npc_id: String) -> Array[String]:
 	var tone_tracker: Dictionary[String, int]
 	var topic_tracker: Dictionary[String, int]
 	var action_tracker: Dictionary[String, int]
+	 
 	for report: WitnessReport in MEMORIES:
 		if report.includes_npc(other_npc): 
 			var checked_event = report.EVENT_WITNESSED
@@ -252,6 +307,7 @@ func get_impression(npc_id: String) -> Array[String]:
 			# like if the other npc is bragging, difference between "arrogant" and "confident"	
 			impressions.append(tone)
 
+	# process actions
 	for action:String in action_tracker.keys():
 		if action_tracker[action] > 5:
 			if action == "converse": 
