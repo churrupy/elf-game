@@ -427,4 +427,9 @@ func get_location_from_mouse(loc: Vector2) -> Vector2:
 	#var tile: TILE = TILES[index]
 	return Vector2(x,y)
 
+func highlight_tile(loc: Vector2, highlight_color: Color) -> void:
+	print("highlighting")
+	var tile: TILE = get_tile(loc)
+	tile.modulate = highlight_color
+
 #endregion utility

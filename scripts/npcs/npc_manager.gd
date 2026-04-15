@@ -246,6 +246,11 @@ func update() -> void:
 		npc.queue_redraw()
 			#draw_line(npc.position, checked_npc.position, Color.WHITE, -1.0)
 
+		# highlight reserved tile
+		var current_action: ACTION = npc.STATE_STACK[-1]
+		var reserved_loc: Vector2 = current_action.LOCATION
+		ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
+
 
 func broadcast_event(event:EVENT) -> void:
 	# within hearing distance

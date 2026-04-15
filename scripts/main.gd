@@ -135,10 +135,12 @@ func tick() -> void:
 func update():
 	print("updating map center")
 	update_map_center()
-	print("displaying npcs")
-	NpcManager.update()
 	print("displaying map")
 	Map.update()
+	print("displaying npcs")
+	NpcManager.update()
+	
+	
 	print("displaying defaultmenu")
 	$DefaultMenu.update()
 	if $TalkMenu.visible:
