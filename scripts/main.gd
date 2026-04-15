@@ -6,6 +6,7 @@ extends Node
 var Map:MAP = MAP.new(self, "club")
 var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
 var NpcManager:NPC_MANAGER = NPC_MANAGER.new(self)
+var CAMERA: Camera = Camera.new()
 
 
 
@@ -93,15 +94,19 @@ func _process(_delta: float) -> void:
 	if delta_direction == Vector2.ZERO:
 		return
 
-	var new_location: Vector2 = $Player.LOCATION + delta_direction
-	#print("new location", new_location)
-	#var new_location = [$Player.LOCATION[0] + delta_direction[0], $Player.LOCATION[1] + delta_direction[1]]
-	if !Map.is_impassable(new_location):
-		$Player.LOCATION = new_location
-		#$NpcMenu.unwatch_npc()
-		tick()
-	else:
+	if Global.FOCUS_TARGET == "cam":
+		CAMERA.LOCATION += delta_direction
 		update()
+	else:
+		var new_location: Vector2 = $Player.LOCATION + delta_direction
+		#print("new location", new_location)
+		#var new_location = [$Player.LOCATION[0] + delta_direction[0], $Player.LOCATION[1] + delta_direction[1]]
+		if !Map.is_impassable(new_location):
+			$Player.LOCATION = new_location
+			#$NpcMenu.unwatch_npc()
+			tick()
+		else:
+			update()
 	
 	
 #region ticks
@@ -139,6 +144,7 @@ func update():
 	Map.update()
 	print("displaying npcs")
 	NpcManager.update()
+	update_player()
 	
 	
 	print("displaying defaultmenu")
@@ -149,12 +155,30 @@ func update():
 	if $Journal.visible:
 		$Journal.update()
 
+func update_player() -> void:
+	if Global.FOCUS_TARGET != "player":
+		var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int($Player.LOCATION[0]))
+		if x_index < 0:
+			$Player.global_position = Vector2(-100,-100) # put them off-screen
+			return
+		var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int($Player.LOCATION[1]))
+		if y_index < 0:
+			$Player.global_position = Vector2(-100,-100) # put them off-screen
+			return
+		$Player.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
+		$Player.global_position[1] = y_index * Constants.TILE_SIZE
+		$Player.global_position = $Player.global_position + Vector2(Constants.TILE_SIZE/2, Constants.TILE_SIZE/2)
+		
+
 
 func update_focus_target(new_target: String) -> void:
 	print("updating focus target")
 	Global.FOCUS_TARGET = new_target
 	var target_object
-	if new_target == "player":
+	if new_target == "cam":
+		target_object = CAMERA
+		target_object.LOCATION = $Player.LOCATION
+	elif new_target == "player":
 		target_object = $Player
 	else:
 		target_object = Global.NPCS[new_target]
@@ -164,7 +188,9 @@ func update_focus_target(new_target: String) -> void:
 
 func update_map_center():
 	var focus_npc
-	if Global.FOCUS_TARGET == "player":
+	if Global.FOCUS_TARGET == "cam":
+		focus_npc = CAMERA
+	elif Global.FOCUS_TARGET == "player":
 		focus_npc = $Player
 	else:
 		focus_npc = Global.NPCS[Global.FOCUS_TARGET]
@@ -231,3 +257,12 @@ func prettify_vector(v:Vector2) -> String:
 
 
 #endregion
+
+
+func activate_free_cam() -> void:
+	if Global.FOCUS_TARGET != "cam":
+		update_focus_target("cam")
+		$FreeCamButton.text = "Stop Free Cam"
+	else:
+		update_focus_target("player")
+		$FreeCamButton.text = "Free Cam"

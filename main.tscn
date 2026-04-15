@@ -16,6 +16,14 @@ offset_right = 1211.0
 offset_bottom = 42.0
 color = Color(0.12549, 0.12549, 0.12549, 0.239216)
 
+[node name="FreeCamButton" type="Button" parent="."]
+offset_left = 548.0
+offset_top = 5.0
+offset_right = 629.0
+offset_bottom = 36.0
+text = "Free Cam
+"
+
 [node name="TalkMenu" parent="." instance=ExtResource("6_272bh")]
 visible = false
 top_level = true
@@ -34,11 +42,15 @@ offset_left = 313.0
 offset_top = 7.0
 offset_right = 353.0
 offset_bottom = 30.0
+text = "(0,0)"
 
 [node name="MouseTileLabel" type="Label" parent="."]
 offset_left = 421.0
 offset_top = 8.0
 offset_right = 461.0
 offset_bottom = 31.0
+text = "(0,0)"
 
 [node name="DefaultMenu" parent="." instance=ExtResource("3_lquwl")]
+
+[connection signal="pressed" from="FreeCamButton" to="." method="activate_free_cam"]
