@@ -56,3 +56,18 @@ func process_involvement(npc:NPC) -> void:
 
 func includes_npc(target:NPC) -> bool:
 	return target == SPEAKER
+
+
+func get_talk_menu_display() -> Wiki:
+
+	var template_list: Array[String] = [
+		"[{0}]".format([TICK]),
+		"[[NPC:{0}]]".format([SPEAKER.ID]),
+		"introduced themselves to",
+		"[[NPC:{0}]]".format([TARGET.ID]),
+		"in a [[TONE:{0}]] tone.".format([TONE])
+	]
+
+	var template_string: String = " ".join(template_list)
+	var new_wiki: Wiki = Wiki.new(template_string)
+	return new_wiki

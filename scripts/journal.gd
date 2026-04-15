@@ -64,31 +64,25 @@ func update_npc() -> void:
 		$ScrollContainer.get_node("Entry").add_child(npc_button)
 		npc_button.connect("pressed", update_topic.bind(checked_npc))
 
+
 		var opinion: String = npc.get_opinion_string(npc_id)
 		var opinion_label: Label = Label.new()
 		opinion_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + opinion + "."
 		opinion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$ScrollContainer.get_node("Entry").add_child(opinion_label)
 
-		var impressions: Array[String] = npc.get_impression(npc_id)
-		if len(impressions) > 0:
-			var impression_label: RichTextLabel = RichTextLabel.new()
-			impression_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			impression_label.fit_content = true
-			var _str: String = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
-			impression_label.append_text(_str)
-			#impression_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
-			$ScrollContainer.get_node("Entry").add_child(impression_label)
-		
-		# var rel_details: RichTextLabel = RichTextLabel.new()
-		# rel_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		# rel_details.fit_content = true
+		var impression_wiki: Wiki = npc.get_impression(checked_npc)
+		$ScrollContainer.get_node("Entry").add_child(impression_wiki)
 
-		# for mem: RelationshipMemory in rel_list:
-		# 	rel_details.push_list(0, RichTextLabel.ListType.LIST_DOTS, true)
-		# 	rel_details.append_text(str(mem))
-		# 	rel_details.pop()
-		# $ScrollContainer.get_node("Entry").add_child(rel_details)
+		# var impressions: Array[String] = npc.get_impression(npc_id)
+		# if len(impressions) > 0:
+		# 	var impression_label: RichTextLabel = RichTextLabel.new()
+		# 	impression_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		# 	impression_label.fit_content = true
+		# 	var _str: String = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
+		# 	impression_label.append_text(_str)
+		# 	#impression_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + ", ".join(impressions) + "."
+		# 	$ScrollContainer.get_node("Entry").add_child(impression_label)
 
 
 func close_menu() -> void:

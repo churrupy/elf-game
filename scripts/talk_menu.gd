@@ -16,6 +16,18 @@ func _ready() -> void:
 func update() -> void:
 	if MENU_NPC == null:
 		return
+
+	$NameLabel.text = MENU_NPC.NAME
+	for child in $DialogueContainer_new.get_node("VBoxContainer").get_children():
+		child.queue_free()
+
+	var dialogue_list: Array[Wiki] = MENU_NPC.get_talk_menu_display()
+	for d: Wiki in dialogue_list:
+		$DialogueContainer_new.get_node("VBoxContainer").add_child(d)
+
+func update_old() -> void:
+	if MENU_NPC == null:
+		return
 	
 	# cleanup
 	$NameLabel.text = MENU_NPC.NAME

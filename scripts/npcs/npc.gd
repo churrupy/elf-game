@@ -37,12 +37,12 @@ var DISLIKES: Array[String]
 
 
 var NEEDS: Dictionary = {
-	"hunger": 50.0,
-	"energy": 50.0,
-	"release": 10.0,
+	"hunger": 90.0,
+	"energy": 90.0,
+	"release": 90.0,
 	"social": 50.0,
-	"fun": 50.0,
-	"bladder": 50.0,
+	"fun": 90.0,
+	"bladder": 90.0,
 	"arousal": 0.0
 }
 
@@ -236,7 +236,36 @@ func get_opinion_string(npc_id: String) -> String:
 	else:
 		return "awful"
 
-func get_impression(npc_id: String) -> Array[String]:
+func get_impression(other_npc: NPC) -> Wiki:
+	var template_list: Array[String] = [
+		"{0} thinks [[NPC:{1}]] is".format([NAME, other_npc.ID])
+	]
+	if other_npc.STYLE in LIKES:
+		template_list.append("is attractive") 
+		# figure out how to color this later, probably by turning the labels in Wiki to rich text labels, but how do I markup??? who knows
+	elif other_npc.STYLE in DISLIKES:
+		template_list.append("is unattractive")
+
+	for report: WitnessReport in MEMORIES:
+		if report.includes_npc(other_npc):
+			for reaction:String in report.REACTIONS.keys():
+				var color: String = "white"
+				if report.REACTIONS[reaction] > 0:
+					color = "green"
+				elif report.REACTIONS[reaction] < 0:
+					color = "red"
+
+				var _str: String = "[[COLOR:{0},STRING:{1}]]".format([color, reaction])
+				if _str not in template_list:
+					template_list.append(_str)
+
+	var template_string: String = " ".join(template_list)
+	var new_wiki: Wiki = Wiki.new(template_string)
+	return new_wiki
+
+	
+
+func get_impression_old(npc_id: String) -> Array[String]:
 	var impressions: Array[String]
 	var other_npc: NPC = Global.NPCS[npc_id]
 
@@ -260,6 +289,11 @@ func get_impression(npc_id: String) -> Array[String]:
 	# would like to be able to sort by tag and pair up incongruent tags
 	return impressions
 
+func get_talk_menu_display() -> Array[Wiki]:
+	var wiki_list: Array[Wiki]
+	for report:WitnessReport in MEMORIES:
+		wiki_list.append(report.get_talk_menu_display())
+	return wiki_list
 	
 func get_dialogues() -> Array[String]:
 	var dialogue_list: Array[String]
@@ -267,7 +301,7 @@ func get_dialogues() -> Array[String]:
 		dialogue_list.append(report.get_display_string())
 	return dialogue_list
 
-func get_impression_old(npc_id: String) -> Array[String]:
+func get_impression_very_old(npc_id: String) -> Array[String]:
 	# returns list of traits that self thinks of npc
 	var impressions: Array[String]
 	var other_npc: NPC = Global.NPCS[npc_id]

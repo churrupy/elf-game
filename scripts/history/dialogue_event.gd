@@ -67,6 +67,31 @@ func _to_string() -> String:
 	var display_string = " ".join(display_list)
 	return display_string
 
+func get_talk_menu_display() -> Wiki:
+	var opinion_dict:Dictionary = {
+		1: "praised [[TOPIC:{0}]]",
+		0: "commented on [[TOPIC:{0}]]",
+		-1: "mocked [[TOPIC:{0}]]",
+	}
+
+	var opinion_string: String
+	if OPINION > 0: 
+		opinion_string = opinion_dict[1]
+	elif OPINION == 0:
+		opinion_string = opinion_dict[0]
+	else:
+		opinion_string = opinion_dict[-1]
+
+	var template_list: Array[String] = [
+		"[{0}]".format([TICK]),
+		"[[NPC:{0}]]".format([SPEAKER.ID]),
+		opinion_string.format([TOPIC]),
+		"in a [[TONE:{0}]] tone.".format([TONE])
+	]
+	var template_string: String = " ".join(template_list)
+	var new_wiki: Wiki = Wiki.new(template_string)
+	return new_wiki
+
 
 func process_involvement(npc:NPC) -> void:
 	# does two things (if applicable):
