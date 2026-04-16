@@ -29,7 +29,15 @@ offset_bottom = 45.0
 grow_horizontal = 2
 size_flags_horizontal = 0
 theme_override_font_sizes/font_size = 32
-text = "Journal"
+text = "default"
+
+[node name="Navigation" type="HFlowContainer" parent="."]
+custom_minimum_size = Vector2(290, 0)
+layout_mode = 0
+offset_left = 7.0
+offset_top = 47.0
+offset_right = 47.0
+offset_bottom = 87.0
 
 [node name="CloseButton" type="Button" parent="."]
 layout_mode = 0
@@ -39,10 +47,10 @@ text = "X"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 layout_mode = 0
-offset_left = 3.0
-offset_top = 52.0
-offset_right = 295.0
-offset_bottom = 652.0
+offset_left = 4.0
+offset_top = 95.0
+offset_right = 296.0
+offset_bottom = 645.0
 
 [node name="Entry" type="VBoxContainer" parent="ScrollContainer"]
 custom_minimum_size = Vector2(290, 0)

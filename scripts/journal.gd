@@ -1,12 +1,13 @@
 extends Control
 
 var ENGINE
-var CURRENT_ENTRY
+var CURRENT_ENTRY = "All"
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	$BG.modulate = Constants.COLOR_LIST.pick_random()
+	update()
 	pass # Replace with function body.
 
 
@@ -18,7 +19,19 @@ func update() -> void:
 	for child in $ScrollContainer.get_node("Entry").get_children():
 		child.queue_free()
 
-	if CURRENT_ENTRY is NPC:
+	for child in $Navigation.get_children():
+		child.queue_free()
+
+	if CURRENT_ENTRY is String:
+		if CURRENT_ENTRY == "All":
+			update_all()
+		elif CURRENT_ENTRY == "NPCs":
+			update_all_npcs()
+		elif CURRENT_ENTRY == "Topics":
+			update_all_topics()
+		elif CURRENT_ENTRY == "Traits":
+			update_all_traits()
+	elif CURRENT_ENTRY is NPC:
 		update_npc()
 		
 
@@ -26,10 +39,110 @@ func update_topic(topic) -> void:
 	CURRENT_ENTRY = topic
 	update()
 
+func update_all() -> void:
+	$Title.text = "Journal"
+
+	# navigation
+	# no navigation in update_all
+
+
+	# entry
+	var options: Array[String] = [
+		"NPCs",
+		"Topics",
+		"Traits"
+	]
+
+	for o: String in options:
+		var new_button: Button = Button.new()
+		new_button.text = o
+		new_button.connect("pressed", update_topic.bind(o))
+		$ScrollContainer.get_node("Entry").add_child(new_button)
+
+func update_all_npcs() -> void:
+	$Title.text = "NPCs"
+
+	# navigation
+	var options: Array[String] = [
+		"All",
+	]
+
+	for i in range(0,len(options)):
+		var option: String = options[i]
+		var nav_button: Button = Button.new()
+		nav_button.text = option
+		nav_button.connect("pressed", update_topic.bind(option))
+		$Navigation.add_child(nav_button)
+		if i != len(options) -1:
+			var label: Label = Label.new()
+			label.text = " > "
+			$Navigation.add_child(label)
+
+	for npc_id: String in Global.NPCS.keys():
+		var npc: NPC = Global.NPCS[npc_id]
+		var new_button: Button = Button.new()
+		new_button.text = npc.NAME
+		new_button.connect("pressed", update_topic.bind(npc))
+		$ScrollContainer.get_node("Entry").add_child(new_button)
+
+func update_all_topics() -> void:
+	$Title.text = "Topics"
+
+	var options: Array[String] = [
+		"All",
+	]
+
+	for i in range(0,len(options)):
+		var option: String = options[i]
+		var nav_button: Button = Button.new()
+		nav_button.text = option
+		nav_button.connect("pressed", update_topic.bind(option))
+		$Navigation.add_child(nav_button)
+		if i != len(options) -1:
+			var label: Label = Label.new()
+			label.text = " > "
+			$Navigation.add_child(label)
+
+func update_all_traits() -> void:
+	$Title.text = "Traits"
+
+	var options: Array[String] = [
+		"All",
+	]
+
+	for i in range(0,len(options)):
+		var option: String = options[i]
+		var nav_button: Button = Button.new()
+		nav_button.text = option
+		nav_button.connect("pressed", update_topic.bind(option))
+		$Navigation.add_child(nav_button)
+		if i != len(options) -1:
+			var label: Label = Label.new()
+			label.text = " > "
+			$Navigation.add_child(label)
+
+
 func update_npc() -> void:
 	# standard details
 	var npc: NPC = CURRENT_ENTRY
 	$Title.text = npc.NAME
+
+	var options: Array[String] = [
+		"All",
+		"NPCs"
+	]
+
+	for i in range(0,len(options)):
+		var option: String = options[i]
+		var nav_button: Button = Button.new()
+		nav_button.text = option
+		nav_button.connect("pressed", update_topic.bind(option))
+		$Navigation.add_child(nav_button)
+		if i != len(options) -1:
+			var label: Label = Label.new()
+			label.text = " > "
+			$Navigation.add_child(label)
+
 	var display_list: Array[String] = [
 		"ID: " + npc.ID,
 		"Gender: " + npc.GENDER,
