@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://p30gae8jaqvk"]
+[gd_scene load_steps=7 format=3 uid="uid://p30gae8jaqvk"]
 
 [ext_resource type="Script" uid="uid://bvte16k71lpps" path="res://scripts/main.gd" id="1_7mycd"]
 [ext_resource type="PackedScene" uid="uid://k1uuc7whn4yg" path="res://player.tscn" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://c8ald5ikbggg7" path="res://default_menu.tscn" id="3_lquwl"]
 [ext_resource type="PackedScene" uid="uid://dh8yr3ntcxb2s" path="res://journal.tscn" id="5_272bh"]
+[ext_resource type="PackedScene" uid="uid://hoqned72uhga" path="res://history.tscn" id="6_7mycd"]
 [ext_resource type="PackedScene" uid="uid://jusdqdsrm4go" path="res://talk_menu.tscn" id="6_272bh"]
 
 [node name="Main" type="Node"]
@@ -22,6 +23,14 @@ offset_top = 5.0
 offset_right = 629.0
 offset_bottom = 36.0
 text = "Free Cam
+"
+
+[node name="HistoryButton" type="Button" parent="."]
+offset_left = 664.0
+offset_top = 4.0
+offset_right = 728.0
+offset_bottom = 35.0
+text = "History
 "
 
 [node name="TalkMenu" parent="." instance=ExtResource("6_272bh")]
@@ -53,4 +62,8 @@ text = "(0,0)"
 
 [node name="DefaultMenu" parent="." instance=ExtResource("3_lquwl")]
 
+[node name="HistoryMenu" parent="." instance=ExtResource("6_7mycd")]
+visible = false
+
 [connection signal="pressed" from="FreeCamButton" to="." method="activate_free_cam"]
+[connection signal="pressed" from="HistoryButton" to="." method="toggle_history_menu"]

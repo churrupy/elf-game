@@ -115,24 +115,6 @@ func _init(engine, room) -> void:
 		var index = (loc[1] * width) + loc[0]
 		TILES[index].TYPE = type
 		TILES[index].initialize()
-	
-	'''
-	var special_tiles: Dictionary = room_data["special"]
-	for i: int in Constants.MAP_SIZE[0]:
-		for j: int in Constants.MAP_SIZE[1]:
-			
-			#tile.LOCATION = Vector2(i,j)
-			var location = Vector2(i,j)
-			var loc_array = [i,j]
-			var type: String = room_data["default"]
-			if loc_array in special_tiles.keys():
-				type = special_tiles[loc_array]
-
-			var tile: TILE = TILE.new(type, Vector2(i,j))
-			TILES.append(tile)
-
-	
-	'''
 
 
 #region update

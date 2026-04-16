@@ -1,6 +1,4 @@
-extends Node
-
-class_name HISTORY_CLASS
+class_name HISTORY_CLASS extends Control
 
 var ENGINE
 var HISTORY: Array[EVENT]
@@ -12,6 +10,7 @@ var CONVERSABLES: Array[String] = [
 
 func _init(engine):
 	ENGINE = engine
+	
 
 func _ready() -> void:
 	pass
@@ -24,14 +23,16 @@ func add_introduce_event(speaker: NPC, target: NPC, tone: String = "") -> void:
 	add_conversation_event(speaker)
 
 	var introduction_event: IntroductionEvent = IntroductionEvent.new(speaker, target, tone)
-	HISTORY.append(introduction_event)
+	add_event(introduction_event)
+	#HISTORY.append(introduction_event)
 	ENGINE.NpcManager.broadcast_event(introduction_event)
 
 func add_dialogue_event(speaker: NPC, topic:String, opinion:int, tone:String="") -> void:
 	add_conversation_event(speaker)
 
 	var dialogue_event: DialogueEvent = DialogueEvent.new(speaker, topic, opinion, tone) 
-	HISTORY.append(dialogue_event)
+	add_event(dialogue_event)
+	#HISTORY.append(dialogue_event)
 	ENGINE.NpcManager.broadcast_event(dialogue_event)
 
 func add_conversation_event(speaker: NPC) -> void:
@@ -45,8 +46,14 @@ func add_conversation_event(speaker: NPC) -> void:
 	# lol at removing speaker and then adding them back in
 	
 	var conversation_event: ConversationEvent = ConversationEvent.new(convo_partners)
-	HISTORY.append(conversation_event)
+	add_event(conversation_event)
 	ENGINE.NpcManager.broadcast_event(conversation_event)
+
+func add_event(event: EVENT) -> void:
+	# checks if event is already in list
+	for checked_event: EVENT in HISTORY:
+		if checked_event.is_equal(event): return
+	HISTORY.append(event)
 
 
 func populate_talk_menu(npc_id:String) -> Array[String]:
@@ -98,3 +105,4 @@ func history_to_string(history_list: Array =[]) -> Array:
 		})
 		display_list.append(_str)
 	return display_list
+ 

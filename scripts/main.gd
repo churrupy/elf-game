@@ -4,6 +4,7 @@ extends Node
 #var X_RANGE
 #var Y_RANGE
 var Map:MAP = MAP.new(self, "club")
+#var History:Control
 var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
 var NpcManager:NPC_MANAGER = NPC_MANAGER.new(self)
 var CAMERA: Camera = Camera.new()
@@ -17,6 +18,7 @@ var CAMERA: Camera = Camera.new()
 func _ready() -> void:
 	# set engine in children
 	#print($DefaultMenu.get_parent())
+	print("loading children")
 	add_child(Map)
 	move_child(Map, 0)
 	add_child(NpcManager)
@@ -39,6 +41,8 @@ func _ready() -> void:
 	SignalBus.open_journal.connect(open_journal)
 	SignalBus.close_journal.connect(close_journal)
 	SignalBus.update_journal.connect(update_journal)
+
+	SignalBus.toggle_journal.connect(toggle_journal)
 
 	var passable_locations: Array[Vector2] = Map.filter_passable_locations()
 	#var filtered_tiles: Array[TILE] = Utility.filter_reserved_tiles(passable_tiles)
@@ -233,6 +237,12 @@ func update_journal(topic):
 	$Journal.update_topic(topic)
 	$Journal.show()
 
+func toggle_journal(topic = null):
+	if $Journal.visible:
+		$Journal.hide()
+	else:
+		$Journal.update_topic(topic)
+		$Journal.show()
 
 
 #endregion
@@ -266,3 +276,7 @@ func activate_free_cam() -> void:
 	else:
 		update_focus_target("player")
 		$FreeCamButton.text = "Free Cam"
+
+
+func toggle_history_menu() -> void:
+	$HistoryMenu.toggle_menu()

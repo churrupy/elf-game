@@ -16,6 +16,8 @@ signal open_journal(topic)
 signal update_journal()
 signal close_journal()
 
+signal toggle_journal(topic)
+
 signal toggle_talk_menu(npc)
 
 signal say_topic(speaker, topic, opinion, location)
