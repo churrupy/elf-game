@@ -237,6 +237,28 @@ func get_opinion_string(npc_id: String) -> String:
 		return "awful"
 
 func get_impression(other_npc: NPC) -> Wiki:
+	var new_wiki: Wiki = Wiki.new()
+	new_wiki.add_to_wiki("{0} thinks".format([NAME]))
+	new_wiki.add_to_wiki(other_npc.ID, "button", Color.WHITE, true)
+	new_wiki.add_to_wiki("is")
+	if other_npc.STYLE in LIKES:
+		new_wiki.add_to_wiki("attractive", "label", Color.GREEN)
+	elif other_npc.STYLE in DISLIKES:
+		new_wiki.add_to_wiki("unattractive", "label", Color.RED)
+	
+	for report: WitnessReport in MEMORIES:
+		if report.includes_npc(other_npc):
+			for reaction: String in report.REACTIONS.keys():
+				if report.REACTIONS[reaction] > 0:
+					new_wiki.add_to_wiki(reaction, "button", Color.GREEN)
+				elif report.REACTIONS[reaction] == 0:
+					new_wiki.add_to_wiki(reaction, "button", Color.WHITE)
+				elif report.REACTIONS[reaction]< 0:
+					new_wiki.add_to_wiki(reaction, "button", Color.RED)
+
+	return new_wiki
+
+func get_impression_old(other_npc: NPC) -> Wiki:
 	var template_list: Array[String] = [
 		"{0} thinks [[NPC:{1}]] is".format([NAME, other_npc.ID])
 	]
@@ -250,44 +272,48 @@ func get_impression(other_npc: NPC) -> Wiki:
 		if report.includes_npc(other_npc):
 			for reaction:String in report.REACTIONS.keys():
 				var color: String = "white"
+				#var reaction: String = ""
 				if report.REACTIONS[reaction] > 0:
 					color = "green"
+					reaction = "likes"
 				elif report.REACTIONS[reaction] < 0:
 					color = "red"
+					reaction = "dislikes"
 
-				var _str: String = "[[COLOR:{0},STRING:{1}]]".format([color, reaction])
+				var _str: String = "[[COLOR:{0},BUTTON:{1}]]".format([color, reaction])
 				if _str not in template_list:
 					template_list.append(_str)
 
 	var template_string: String = " ".join(template_list)
-	var new_wiki: Wiki = Wiki.new(template_string)
+	#var new_wiki: Wiki = Wiki.new(template_string)
+	var new_wiki: Wiki = Wiki.new()
 	return new_wiki
 
 	
 
-func get_impression_old(npc_id: String) -> Array[String]:
-	var impressions: Array[String]
-	var other_npc: NPC = Global.NPCS[npc_id]
+# func get_impression_old(npc_id: String) -> Array[String]:
+# 	var impressions: Array[String]
+# 	var other_npc: NPC = Global.NPCS[npc_id]
 
-	if other_npc.STYLE in LIKES:
-		impressions.append("is [color=green]attractive[/color]")
-	elif other_npc.STYLE in DISLIKES:
-		impressions.append("is [color=red]unattractive[/color]")
+# 	if other_npc.STYLE in LIKES:
+# 		impressions.append("is [color=green]attractive[/color]")
+# 	elif other_npc.STYLE in DISLIKES:
+# 		impressions.append("is [color=red]unattractive[/color]")
 
-	for report: WitnessReport in MEMORIES:
-		if report.includes_npc(other_npc):
-			for reaction:String in report.REACTIONS.keys():
-				if report.REACTIONS[reaction] > 0:
-					var _str: String = '[color=green]{0}[/color]'.format([reaction])
-					if _str not in impressions:
-						impressions.append(_str)
-				elif report.REACTIONS[reaction] < 0:
-					var _str: String = '[color=red]{0}[/color]'.format([reaction])
-					if _str not in impressions:
-						impressions.append(_str)
+# 	for report: WitnessReport in MEMORIES:
+# 		if report.includes_npc(other_npc):
+# 			for reaction:String in report.REACTIONS.keys():
+# 				if report.REACTIONS[reaction] > 0:
+# 					var _str: String = '[color=green]{0}[/color]'.format([reaction])
+# 					if _str not in impressions:
+# 						impressions.append(_str)
+# 				elif report.REACTIONS[reaction] < 0:
+# 					var _str: String = '[color=red]{0}[/color]'.format([reaction])
+# 					if _str not in impressions:
+# 						impressions.append(_str)
 
-	# would like to be able to sort by tag and pair up incongruent tags
-	return impressions
+# 	# would like to be able to sort by tag and pair up incongruent tags
+# 	return impressions
 
 func get_talk_menu_display() -> Array[Wiki]:
 	var wiki_list: Array[Wiki]
@@ -301,84 +327,84 @@ func get_dialogues() -> Array[String]:
 		dialogue_list.append(report.get_display_string())
 	return dialogue_list
 
-func get_impression_very_old(npc_id: String) -> Array[String]:
-	# returns list of traits that self thinks of npc
-	var impressions: Array[String]
-	var other_npc: NPC = Global.NPCS[npc_id]
+# func get_impression_very_old(npc_id: String) -> Array[String]:
+# 	# returns list of traits that self thinks of npc
+# 	var impressions: Array[String]
+# 	var other_npc: NPC = Global.NPCS[npc_id]
 
-	var attraction: int = get_attraction(other_npc)
-	if attraction > 5:
-		impressions.append("very attractive")
-	elif attraction > 0:
-		impressions.append("attractive")
-	elif attraction == 0:
-		pass
-	elif attraction > -5:
-		impressions.append("unattractive")
-	else:
-		impressions.append("very unattractive")
+# 	var attraction: int = get_attraction(other_npc)
+# 	if attraction > 5:
+# 		impressions.append("very attractive")
+# 	elif attraction > 0:
+# 		impressions.append("attractive")
+# 	elif attraction == 0:
+# 		pass
+# 	elif attraction > -5:
+# 		impressions.append("unattractive")
+# 	else:
+# 		impressions.append("very unattractive")
 
-	#var tone_tracker: Array[String]
-	var tone_tracker: Dictionary[String, int]
-	var topic_tracker: Dictionary[String, int]
-	var action_tracker: Dictionary[String, int]
+# 	#var tone_tracker: Array[String]
+# 	var tone_tracker: Dictionary[String, int]
+# 	var topic_tracker: Dictionary[String, int]
+# 	var action_tracker: Dictionary[String, int]
 	 
-	for report: WitnessReport in MEMORIES:
-		if report.includes_npc(other_npc): 
-			var checked_event = report.EVENT_WITNESSED
-			if "TONE" in checked_event: # determines their impression of their attitude
-				if checked_event.TONE != "":
-					if checked_event.TONE not in tone_tracker:
-						tone_tracker[checked_event.TONE] = 0
-					tone_tracker[checked_event.TONE] += 1
-			if "TOPIC" in checked_event: # determines their impression of their likes
-				if checked_event.OPINION != 0:
-					topic_tracker[checked_event.TOPIC] = checked_event.OPINION
-			if checked_event.TYPE not in action_tracker: # determines their impression of their actions
-				action_tracker[checked_event.TYPE] = 0
-			action_tracker[checked_event.TYPE] += 1
+# 	for report: WitnessReport in MEMORIES:
+# 		if report.includes_npc(other_npc): 
+# 			var checked_event = report.EVENT_WITNESSED
+# 			if "TONE" in checked_event: # determines their impression of their attitude
+# 				if checked_event.TONE != "":
+# 					if checked_event.TONE not in tone_tracker:
+# 						tone_tracker[checked_event.TONE] = 0
+# 					tone_tracker[checked_event.TONE] += 1
+# 			if "TOPIC" in checked_event: # determines their impression of their likes
+# 				if checked_event.OPINION != 0:
+# 					topic_tracker[checked_event.TOPIC] = checked_event.OPINION
+# 			if checked_event.TYPE not in action_tracker: # determines their impression of their actions
+# 				action_tracker[checked_event.TYPE] = 0
+# 			action_tracker[checked_event.TYPE] += 1
 
-	# process tone
-	for tone: String in tone_tracker.keys():
-		if tone_tracker[tone] > 5: #sure
-			# would eventually have self opinion on action changing the word
-			# like if the other npc is bragging, difference between "arrogant" and "confident"	
-			impressions.append(tone)
+# 	# process tone
+# 	for tone: String in tone_tracker.keys():
+# 		if tone_tracker[tone] > 5: #sure
+# 			# would eventually have self opinion on action changing the word
+# 			# like if the other npc is bragging, difference between "arrogant" and "confident"	
+# 			impressions.append(tone)
 
-	# process actions
-	for action:String in action_tracker.keys():
-		if action_tracker[action] > 5:
-			if action == "converse": 
-				# would eventually have self opinion on action changing the word
-				# like if they hate being social, then they'd say "talks to much", or something like that 
-				impressions.append("is social")
+# 	# process actions
+# 	for action:String in action_tracker.keys():
+# 		if action_tracker[action] > 5:
+# 			if action == "converse": 
+# 				# would eventually have self opinion on action changing the word
+# 				# like if they hate being social, then they'd say "talks to much", or something like that 
+# 				impressions.append("is social")
 	
-	# process topic
-	for topic:String in topic_tracker.keys():
-		#var topic_string: String
-		var opinion_word:String
-		if topic_tracker[topic] > 0:
-			opinion_word = "likes"
-			#impressions.append("likes %s" % topic)
-		elif topic_tracker[topic] < 0:
-			opinion_word = "dislikes"
-			#impressions.append("dislikes %s" % topic)
-		var share_opinion: int = does_share_opinion(topic, topic_tracker[topic])
-		var color: String = "white"
-		if share_opinion == 1:
-			color = "green"
-		elif share_opinion == -1:
-			color = "red"
-		var _str: String = "[color={color}]{opinion} {topic}[/color]".format({
-			"color": color,
-			"opinion": opinion_word,
-			"topic": topic
-		})
-		impressions.append(_str)
+# 	# process topic
+# 	for topic:String in topic_tracker.keys():
+# 		#var topic_string: String
+# 		var opinion_word:String
+# 		if topic_tracker[topic] > 0:
+# 			opinion_word = "likes"
+# 			#impressions.append("likes %s" % topic)
+# 		elif topic_tracker[topic] < 0:
+# 			opinion_word = "dislikes"
+# 			#impressions.append("dislikes %s" % topic)
+# 		var share_opinion: int = does_share_opinion(topic, topic_tracker[topic])
+# 		var color: String = "white"
+# 		if share_opinion == 1:
+# 			color = "green"
+# 		elif share_opinion == -1:
+# 			color = "red"
+# 		var _str: String = "[color={color}]{opinion} {topic}[/color]".format({
+# 			"color": color,
+# 			"opinion": opinion_word,
+# 			"topic": topic
+# 		})
+# 		impressions.append(_str)
 
 	
 
-	return impressions
+# 	return impressions
 
 func does_share_opinion(topic: String, opinion: int) -> int:
 	# MAKE THIS AN ENUM omg

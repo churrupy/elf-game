@@ -16,6 +16,8 @@ func _process(delta: float) -> void:
 	pass
 
 func update() -> void:
+	print("updating")
+	print(CURRENT_ENTRY)
 	for child in $ScrollContainer.get_node("Entry").get_children():
 		child.queue_free()
 
@@ -31,6 +33,8 @@ func update() -> void:
 			update_all_topics()
 		elif CURRENT_ENTRY == "Traits":
 			update_all_traits()
+		else:
+			update_entry()
 	elif CURRENT_ENTRY is NPC:
 		update_npc()
 		
@@ -120,6 +124,30 @@ func update_all_traits() -> void:
 			var label: Label = Label.new()
 			label.text = " > "
 			$Navigation.add_child(label)
+
+
+func update_entry() -> void:
+	$Title.text = CURRENT_ENTRY.capitalize()
+
+	var options: Array[String] = [
+		"All",
+		"Topics"
+	]
+
+	for i in range(0,len(options)):
+		var option: String = options[i]
+		var nav_button: Button = Button.new()
+		nav_button.text = option
+		nav_button.connect("pressed", update_topic.bind(option))
+		$Navigation.add_child(nav_button)
+		if i != len(options) -1:
+			var label: Label = Label.new()
+			label.text = " > "
+			$Navigation.add_child(label)
+
+	var new_label: Label = Label.new()
+	new_label.text = "Instert information about this topic here"
+	$ScrollContainer.get_node("Entry").add_child(new_label)
 
 
 func update_npc() -> void:

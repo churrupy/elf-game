@@ -9,8 +9,8 @@ var TONE:String
 
 
 func _init(speaker:NPC, topic:String, opinion:int, tone:String = "neutral") -> void:
-	#TICK = Global.TICKS
-	#EXPIRES_ON = TICK + 50
+	TICK = Global.TICKS
+	EXPIRES_ON = TICK + 50
 	SPEAKER = speaker
 	TOPIC = topic
 	OPINION = opinion
@@ -18,12 +18,8 @@ func _init(speaker:NPC, topic:String, opinion:int, tone:String = "neutral") -> v
 	HEARABLE = true
 	LOCATION = speaker.LOCATION
 	TYPE = "converse"
-	update_ticks()
 	generate_tags()
 
-func update_ticks() -> void:
-	TICK = Global.TICKS
-	EXPIRES_ON = TICK + 50
 
 func generate_tags() -> void:
 	TAGS.append(TONE)
@@ -67,7 +63,7 @@ func _to_string() -> String:
 	var display_string = " ".join(display_list)
 	return display_string
 
-func get_talk_menu_display() -> Wiki:
+func get_talk_menu_display_old() -> Wiki:
 	var opinion_dict:Dictionary = {
 		1: "praised [[TOPIC:{0}]]",
 		0: "commented on [[TOPIC:{0}]]",
@@ -89,8 +85,33 @@ func get_talk_menu_display() -> Wiki:
 		"in a [[TONE:{0}]] tone.".format([TONE])
 	]
 	var template_string: String = " ".join(template_list)
-	var new_wiki: Wiki = Wiki.new(template_string)
+	#var new_wiki: Wiki = Wiki.new(template_string)
+	var new_wiki: Wiki = Wiki.new()
 	return new_wiki
+
+func get_talk_menu_display() -> Wiki:
+	var new_wiki: Wiki = Wiki.new()
+	new_wiki.add_to_wiki("[{0}]".format([TICK]))
+	new_wiki.add_to_wiki(SPEAKER.ID, "button", Color.WHITE, true)
+	var opinion_dict:Dictionary = {
+		1: "praised",
+		0: "commented on",
+		-1: "mocked",
+	}
+	if OPINION > 0: 
+		new_wiki.add_to_wiki(opinion_dict[1])
+	elif OPINION == 0:
+		new_wiki.add_to_wiki(opinion_dict[0])
+	else:
+		new_wiki.add_to_wiki(opinion_dict[-1])
+
+	new_wiki.add_to_wiki(TOPIC, "button")
+	new_wiki.add_to_wiki("in a")
+	new_wiki.add_to_wiki(TONE, "button")
+	new_wiki.add_to_wiki("tone.")
+
+	return new_wiki
+
 
 
 func process_involvement(npc:NPC) -> void:

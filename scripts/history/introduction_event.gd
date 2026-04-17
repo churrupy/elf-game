@@ -5,19 +5,16 @@ var TARGET:NPC
 var TONE:String
 
 func _init(speaker:NPC, target:NPC, tone:String = "neutral") -> void:
-	#TICK = Global.TICKS
-	#EXPIRES_ON = TICK + 50
+	TICK = Global.TICKS
+	EXPIRES_ON = TICK + 50
 	SPEAKER = speaker
 	TARGET = target
 	TONE = tone
 	HEARABLE = true
 	LOCATION = speaker.LOCATION
 	TYPE = "converse"
-	generate_tags()
+	generate_tags()   
 
-func update_ticks() -> void:
-	TICK = Global.TICKS
-	EXPIRES_ON = TICK + 50
 
 func generate_tags() -> void:
 	TAGS.append(TONE)
@@ -58,7 +55,8 @@ func includes_npc(target:NPC) -> bool:
 	return target == SPEAKER
 
 
-func get_talk_menu_display() -> Wiki:
+
+func get_talk_menu_display_old() -> Wiki:
 
 	var template_list: Array[String] = [
 		"[{0}]".format([TICK]),
@@ -69,5 +67,17 @@ func get_talk_menu_display() -> Wiki:
 	]
 
 	var template_string: String = " ".join(template_list)
-	var new_wiki: Wiki = Wiki.new(template_string)
+	#var new_wiki: Wiki = Wiki.new(template_string)
+	var new_wiki: Wiki = Wiki.new()
+	return new_wiki
+
+func get_talk_menu_display() -> Wiki:
+	var new_wiki: Wiki = Wiki.new()
+	new_wiki.add_to_wiki("[{0}]".format([TICK]))
+	new_wiki.add_to_wiki(SPEAKER.ID, "button", Color.WHITE, true)
+	new_wiki.add_to_wiki("introduced themselves to")
+	new_wiki.add_to_wiki(TARGET.ID, "button", Color.WHITE, true)
+	new_wiki.add_to_wiki("in a")
+	new_wiki.add_to_wiki(TONE, "button")
+	new_wiki.add_to_wiki("tone")
 	return new_wiki
