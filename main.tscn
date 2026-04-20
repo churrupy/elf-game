@@ -30,6 +30,7 @@ offset_left = 664.0
 offset_top = 4.0
 offset_right = 728.0
 offset_bottom = 35.0
+focus_mode = 0
 text = "History
 "
 
@@ -40,7 +41,6 @@ offset_left = 300.0
 offset_right = 900.0
 
 [node name="Journal" parent="." instance=ExtResource("5_272bh")]
-visible = false
 offset_left = 900.0
 offset_right = 1200.0
 

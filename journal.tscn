@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dh8yr3ntcxb2s"]
+[gd_scene load_steps=4 format=3 uid="uid://dh8yr3ntcxb2s"]
 
 [ext_resource type="Script" uid="uid://ckpc503pfmk8w" path="res://scripts/journal.gd" id="1_13d0y"]
 [ext_resource type="Texture2D" uid="uid://ccddj83dn687y" path="res://models/left_menu.png" id="2_8slvk"]
+[ext_resource type="Texture2D" uid="uid://b58kjptfeeafb" path="res://models/journal.png" id="2_g0kyd"]
 
 [node name="Journal" type="Control"]
 layout_mode = 3
@@ -10,7 +11,21 @@ offset_right = 300.0
 offset_bottom = 660.0
 script = ExtResource("1_13d0y")
 
-[node name="BG" type="TextureRect" parent="."]
+[node name="JournalButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 242.0
+offset_top = 49.0
+offset_right = 298.0
+offset_bottom = 105.0
+icon = ExtResource("2_g0kyd")
+
+[node name="Menu" type="Control" parent="."]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="BG" type="TextureRect" parent="Menu"]
 layout_mode = 2
 offset_right = 300.0
 offset_bottom = 660.0
@@ -18,43 +33,44 @@ size_flags_vertical = 3
 texture = ExtResource("2_8slvk")
 flip_h = true
 
-[node name="Title" type="Label" parent="."]
+[node name="Title" type="Label" parent="Menu"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -55.5
-offset_right = 55.5
+offset_left = 74.5
+offset_right = 185.5
 offset_bottom = 45.0
 grow_horizontal = 2
 size_flags_horizontal = 0
 theme_override_font_sizes/font_size = 32
 text = "default"
 
-[node name="Navigation" type="HFlowContainer" parent="."]
+[node name="Navigation" type="HFlowContainer" parent="Menu"]
 custom_minimum_size = Vector2(290, 0)
 layout_mode = 0
 offset_left = 7.0
 offset_top = 47.0
-offset_right = 47.0
+offset_right = 297.0
 offset_bottom = 87.0
 
-[node name="CloseButton" type="Button" parent="."]
+[node name="CloseButton" type="Button" parent="Menu"]
 layout_mode = 0
 offset_right = 32.0
 offset_bottom = 32.0
 text = "X"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
+[node name="ScrollContainer" type="ScrollContainer" parent="Menu"]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 95.0
 offset_right = 296.0
 offset_bottom = 645.0
 
-[node name="Entry" type="VBoxContainer" parent="ScrollContainer"]
+[node name="Entry" type="VBoxContainer" parent="Menu/ScrollContainer"]
 custom_minimum_size = Vector2(290, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
-[connection signal="pressed" from="CloseButton" to="." method="close_menu"]
+[connection signal="pressed" from="JournalButton" to="." method="toggle_journal"]
+[connection signal="pressed" from="Menu/CloseButton" to="." method="toggle_journal"]

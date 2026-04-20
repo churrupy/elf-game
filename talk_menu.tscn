@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://jusdqdsrm4go"]
 
 [ext_resource type="Script" uid="uid://bfm0q2bdkf8pn" path="res://scripts/talk_menu.gd" id="1_etbpw"]
-[ext_resource type="PackedScene" uid="uid://c30mvsbqcy0aw" path="res://conversation_button.tscn" id="2_0u07r"]
+[ext_resource type="PackedScene" path="res://conversation_button.tscn" id="2_0u07r"]
 
 [node name="TalkMenu" type="Label"]
 z_index = 50

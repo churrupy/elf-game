@@ -24,11 +24,8 @@ func update() -> void:
 		$ScrollContainer.get_node("VBoxContainer").add_child(new_label)
 
 func toggle_menu() -> void:
-	if visible:
-		visible = false
-	else:
-		update()
-		visible = true
+	visible = !visible
+	update()
 
 func close_menu() -> void:
 	visible = false

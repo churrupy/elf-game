@@ -106,6 +106,7 @@ offset_left = 240.0
 offset_top = 57.0
 offset_right = 296.0
 offset_bottom = 113.0
+focus_mode = 0
 icon = ExtResource("4_tuoab")
 
 [node name="WatchButton" type="Button" parent="."]
@@ -131,6 +132,7 @@ offset_left = 193.0
 offset_top = 60.0
 offset_right = 233.0
 offset_bottom = 91.0
+focus_mode = 0
 text = "Talk"
 
 [connection signal="pressed" from="Small/ExpandButton" to="." method="expand_menu"]
@@ -140,4 +142,4 @@ text = "Talk"
 [connection signal="pressed" from="JournalButton" to="." method="toggle_journal"]
 [connection signal="pressed" from="WatchButton" to="." method="watch_npc"]
 [connection signal="pressed" from="UnWatchButton" to="." method="unwatch_npc"]
-[connection signal="pressed" from="TalkButton" to="." method="open_talk_menu"]
+[connection signal="pressed" from="TalkButton" to="." method="toggle_talk_menu"]

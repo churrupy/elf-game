@@ -80,11 +80,13 @@ func open_journal() -> void:
 	SignalBus.update_journal.emit(DISPLAY_NPC)
 
 func toggle_journal() -> void:
-	SignalBus.toggle_journal.emit(DISPLAY_NPC)
+	SignalBus.toggle_journal.emit(DISPLAY_NPC.ID)
 
-func open_talk_menu() -> void:
-	SignalBus.open_talk_menu.emit(DISPLAY_NPC)
+# func open_talk_menu() -> void:
+# 	SignalBus.open_talk_menu.emit(DISPLAY_NPC)
 
+func toggle_talk_menu() -> void:
+	SignalBus.toggle_talk_menu.emit(DISPLAY_NPC)
 
 
 func watch_npc() -> void:

@@ -22,27 +22,11 @@ func _ready() -> void:
 	add_child(Map)
 	move_child(Map, 0)
 	add_child(NpcManager)
-	#move_child($DefaultMenu, 50)
 	NpcManager.show()
-	#Map.hide()
 	for child in get_children():
 		if "ENGINE" in child:
 			child.ENGINE = self
 	
-	#SignalBus.open_npc_menu.connect(open_npc_menu)
-	#SignalBus.keep_open_npc_menu.connect(keep_open_npc_menu)
-	#SignalBus.close_npc_menu.connect(close_npc_menu)
-	#SignalBus.try_close_npc_menu.connect(try_close_npc_menu)
-
-	SignalBus.open_talk_menu.connect(open_talk_menu)
-	SignalBus.close_talk_menu.connect(close_talk_menu)
-	SignalBus.toggle_talk_menu.connect(toggle_talk_menu)
-
-	SignalBus.open_journal.connect(open_journal)
-	SignalBus.close_journal.connect(close_journal)
-	SignalBus.update_journal.connect(update_journal)
-
-	SignalBus.toggle_journal.connect(toggle_journal)
 
 	var passable_locations: Array[Vector2] = Map.filter_passable_locations()
 	#var filtered_tiles: Array[TILE] = Utility.filter_reserved_tiles(passable_tiles)
@@ -116,14 +100,6 @@ func _process(_delta: float) -> void:
 #region ticks
 
 
-func _on_move_without_tick() -> void:
-	Map.tick()
-	set_nearby_npcs()
-	#update_nearby_npcs()
-
-
-
-
 func tick() -> void:
 	update_map_center()
 	print("")
@@ -132,7 +108,6 @@ func tick() -> void:
 	print("Ticks: ", Global.TICKS)
 	print("Focused on " + Global.FOCUS_TARGET + " at " + str(Global.FOCUS_LOCATION))
 	NpcManager.tick()
-	set_nearby_npcs()
 	update()
 
 
@@ -149,6 +124,7 @@ func update():
 	print("displaying npcs")
 	NpcManager.update()
 	update_player()
+	$HistoryMenu.update()
 	
 	
 	print("displaying defaultmenu")
@@ -202,64 +178,7 @@ func update_map_center():
 	Global.X_RANGE = [Global.FOCUS_LOCATION[0] - Constants.NUM_X_TILES/2, Global.FOCUS_LOCATION[0] + (Constants.NUM_X_TILES/2 + 1)]
 	Global.Y_RANGE = [Global.FOCUS_LOCATION[1] - Constants.NUM_Y_TILES/2, Global.FOCUS_LOCATION[1] + (Constants.NUM_Y_TILES/2 + 1)]
 
-
-func set_nearby_npcs() -> void:
-	Global.NEARBY_NPCS = []
-	Global.NEARBY_NPCS = NpcManager.get_nearby_npcs($Player.LOCATION)
 	
-#endregion
-
-
-
-
-func toggle_talk_menu(npc):
-	if $TalkMenu.visible:
-		close_talk_menu()
-	else:
-		open_talk_menu(npc)
-
-
-func open_talk_menu(npc):
-	$TalkMenu.MENU_NPC = npc
-	$TalkMenu.update()
-	$TalkMenu.show()
-
-func close_talk_menu():
-	$TalkMenu.hide()
-
-func open_journal():
-	$Journal.show()
-
-func close_journal():
-	$Journal.hide()
-
-func update_journal(topic):
-	$Journal.update_topic(topic)
-	$Journal.show()
-
-func toggle_journal(topic = null):
-	if $Journal.visible:
-		$Journal.hide()
-	else:
-		$Journal.update_topic(topic)
-		$Journal.show()
-
-
-#endregion
-
-#region tiles
-func match_tile_to_closest_adjacent(tile_list, npc_location):
-	# returns {target_tile: closest_neighbor}
-	var filtered_tiles = {}
-	for tile in tile_list:
-		var tile_c = Map.get_closest_adjacent_location(npc_location, tile)
-		if tile_c == null: continue
-		filtered_tiles[tile] = tile_c
-	return filtered_tiles
-
-
-#endregion
-
 
 #region debug
 func prettify_vector(v:Vector2) -> String:
@@ -276,7 +195,6 @@ func activate_free_cam() -> void:
 	else:
 		update_focus_target("player")
 		$FreeCamButton.text = "Free Cam"
-
 
 func toggle_history_menu() -> void:
 	$HistoryMenu.toggle_menu()
