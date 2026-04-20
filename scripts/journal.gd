@@ -42,11 +42,7 @@ func update() -> void:
 
 
 func update_all() -> void:
-	$Menu.get_node("Title").text = "Journal"
-
-	# navigation
-	# no navigation in update_all
-
+	update_title("Journal")
 
 	# entry
 	var options: Array[String] = [
@@ -62,23 +58,12 @@ func update_all() -> void:
 		$Menu.get_node("ScrollContainer").get_node("Entry").add_child(new_button)
 
 func update_all_npcs() -> void:
-	$Menu.get_node("Title").text = "NPCs"
+	update_title("NPCs")
 
-	# navigation
-	var options: Array[String] = [
+	var nav_list: Array[String] = [
 		"All",
 	]
-
-	for i in range(0,len(options)):
-		var option: String = options[i]
-		var nav_button: Button = Button.new()
-		nav_button.text = option
-		nav_button.connect("pressed", toggle_journal.bind(option))
-		$Menu.get_node("Navigation").add_child(nav_button)
-		if i != len(options) -1:
-			var label: Label = Label.new()
-			label.text = " > "
-			$Menu.get_node("Navigation").add_child(label)
+	update_navigation(nav_list)
 
 	for npc_id: String in Global.NPCS.keys():
 		var npc: NPC = Global.NPCS[npc_id]
@@ -88,60 +73,31 @@ func update_all_npcs() -> void:
 		$Menu.get_node("ScrollContainer").get_node("Entry").add_child(new_button)
 
 func update_all_topics() -> void:
-	$Menu.get_node("Title").text = "Topics"
+	update_title("Topics")
 
-	var options: Array[String] = [
+	var nav_list: Array[String] = [
 		"All",
 	]
+	update_navigation(nav_list)
 
-	for i in range(0,len(options)):
-		var option: String = options[i]
-		var nav_button: Button = Button.new()
-		nav_button.text = option
-		nav_button.connect("pressed", toggle_journal.bind(option))
-		$Menu.get_node("Navigation").add_child(nav_button)
-		if i != len(options) -1:
-			var label: Label = Label.new()
-			label.text = " > "
-			$Menu.get_node("Navigation").add_child(label)
 
 func update_all_traits() -> void:
-	$Menu.get_node("Title").text = "Traits"
+	update_title("Traits")
 
-	var options: Array[String] = [
+	var nav_list: Array[String] = [
 		"All",
 	]
-
-	for i in range(0,len(options)):
-		var option: String = options[i]
-		var nav_button: Button = Button.new()
-		nav_button.text = option
-		nav_button.connect("pressed", toggle_journal.bind(option))
-		$Menu.get_node("Navigation").add_child(nav_button)
-		if i != len(options) -1:
-			var label: Label = Label.new()
-			label.text = " > "
-			$Menu.get_node("Navigation").add_child(label)
+	update_navigation(nav_list)
 
 
 func update_entry() -> void:
-	$Menu.get_node("Title").text = CURRENT_ENTRY.capitalize()
+	update_title(CURRENT_ENTRY.capitalize())
 
-	var options: Array[String] = [
+	var nav_list: Array[String] = [
 		"All",
 		"Topics"
 	]
-
-	for i in range(0,len(options)):
-		var option: String = options[i]
-		var nav_button: Button = Button.new()
-		nav_button.text = option
-		nav_button.connect("pressed", toggle_journal.bind(option))
-		$Menu.get_node("Navigation").add_child(nav_button)
-		if i != len(options) -1:
-			var label: Label = Label.new()
-			label.text = " > "
-			$Menu.get_node("Navigation").add_child(label)
+	update_navigation(nav_list)
 
 	var new_label: Label = Label.new()
 	new_label.text = "Instert information about this topic here"
@@ -152,23 +108,14 @@ func update_npc() -> void:
 	# standard details
 	
 	var npc: NPC = Global.NPCS[CURRENT_ENTRY]
-	$Menu.get_node("Title").text = npc.NAME
+	update_title(npc.NAME)
 
-	var options: Array[String] = [
+	var nav_list: Array[String] = [
 		"All",
 		"NPCs"
 	]
+	update_navigation(nav_list)
 
-	for i in range(0,len(options)):
-		var option: String = options[i]
-		var nav_button: Button = Button.new()
-		nav_button.text = option
-		nav_button.connect("pressed", toggle_journal.bind(option))
-		$Menu.get_node("Navigation").add_child(nav_button)
-		if i != len(options) -1:
-			var label: Label = Label.new()
-			label.text = " > "
-			$Menu.get_node("Navigation").add_child(label)
 
 	var display_list: Array[String] = [
 		"ID: " + npc.ID,
@@ -214,7 +161,20 @@ func update_npc() -> void:
 		var impression_wiki: Wiki = npc.get_impression(checked_npc)
 		$Menu.get_node("ScrollContainer").get_node("Entry").add_child(impression_wiki)
 
+func update_title(title:String) -> void:
+	$Menu.get_node("Title").text = title
 
+func update_navigation(nav_list: Array[String]) -> void:
+	for i in range(0,len(nav_list)):
+		var option: String = nav_list[i]
+		var nav_button: Button = Button.new()
+		nav_button.text = option
+		nav_button.connect("pressed", toggle_journal.bind(option))
+		$Menu.get_node("Navigation").add_child(nav_button)
+		if i != len(nav_list) -1:
+			var label: Label = Label.new()
+			label.text = " > "
+			$Menu.get_node("Navigation").add_child(label)
 
 func toggle_journal(topic: String="") -> void:
 
