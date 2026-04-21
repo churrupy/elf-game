@@ -19,8 +19,6 @@ func _process(delta: float) -> void:
 	pass
 
 func update() -> void:
-	print("updating")
-	print(CURRENT_ENTRY)
 	for child in $Menu.get_node("ScrollContainer").get_node("Entry").get_children():
 		child.queue_free()
 
@@ -139,27 +137,40 @@ func update_npc() -> void:
 		$Menu.get_node("ScrollContainer").get_node("Entry").add_child(new_label)
 
 	# relationship details
-	for npc_id: String in npc.RELATIONSHIPS.keys():
-		var rel_list: Array = npc.RELATIONSHIPS[npc_id]
-		if len(rel_list) == 0: continue
+	# i'll have to rewrite this agaaaaain
 
-		var checked_npc:NPC = Global.NPCS[npc_id]
-
+	var impression_list: Array[Impression] = npc.get_all_impressions()
+	for impression: Impression in impression_list:
+		var target: NPC = impression.TARGET
 		var npc_button: Button = Button.new()
-		var rel_score: int = npc.get_opinion(npc_id)
-		npc_button.text = npc_id + " [" + str(rel_score) + "]"
+		npc_button.text = target.ID
 		$Menu.get_node("ScrollContainer").get_node("Entry").add_child(npc_button)
-		npc_button.connect("pressed", toggle_journal.bind(checked_npc.ID))
+		npc_button.connect("pressed", toggle_journal.bind(target.ID))
+
+		var new_wiki: Wiki = impression.to_wiki()
+		$Menu.get_node("ScrollContainer").get_node("Entry").add_child(new_wiki)
+
+	# for npc_id: String in npc.RELATIONSHIPS.keys():
+	# 	var rel_list: Array = npc.RELATIONSHIPS[npc_id]
+	# 	if len(rel_list) == 0: continue
+
+	# 	var checked_npc:NPC = Global.NPCS[npc_id]
+
+	# 	var npc_button: Button = Button.new()
+	# 	var rel_score: int = npc.get_opinion(npc_id)
+	# 	npc_button.text = npc_id + " [" + str(rel_score) + "]"
+	# 	$Menu.get_node("ScrollContainer").get_node("Entry").add_child(npc_button)
+	# 	npc_button.connect("pressed", toggle_journal.bind(checked_npc.ID))
 
 
-		var opinion: String = npc.get_opinion_string(npc_id)
-		var opinion_label: Label = Label.new()
-		opinion_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + opinion + "."
-		opinion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		$Menu.get_node("ScrollContainer").get_node("Entry").add_child(opinion_label)
+	# 	var opinion: String = npc.get_opinion_string(npc_id)
+	# 	var opinion_label: Label = Label.new()
+	# 	opinion_label.text = npc.NAME + " thinks that " + checked_npc.NAME + " is " + opinion + "."
+	# 	opinion_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# 	$Menu.get_node("ScrollContainer").get_node("Entry").add_child(opinion_label)
 
-		var impression_wiki: Wiki = npc.get_impression(checked_npc)
-		$Menu.get_node("ScrollContainer").get_node("Entry").add_child(impression_wiki)
+	# 	var impression_wiki: Wiki = npc.get_impression(checked_npc)
+	# 	$Menu.get_node("ScrollContainer").get_node("Entry").add_child(impression_wiki)
 
 func update_title(title:String) -> void:
 	$Menu.get_node("Title").text = title

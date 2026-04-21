@@ -46,9 +46,6 @@ func tick() -> ActionResult:
 
 func run() -> ActionResult:
 	
-	#print("*************", PHYSICAL_ACTION)
-	#flirt()
-
 	var res: ActionResult = ActionResult.new("running", null)
 
 	var nearby_npcs:Array[String] = ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)

@@ -35,11 +35,11 @@ func _to_string() -> String:
 func process_involvement(npc:NPC) -> void:
 	if npc in PARTICIPANTS:
 		npc.add_witness_report(self, "participant")
-	for p:NPC in PARTICIPANTS:
-		if p.ID not in npc.RELATIONSHIPS.keys():
-			return
-
-	npc.add_witness_report(self, "witness")
+	# for p:NPC in PARTICIPANTS:
+	# 	if p.ID not in npc.RELATIONSHIPS.keys():
+	# 		return
+	else:
+		npc.add_witness_report(self, "witness")
 
 func process_reaction_old(npc:NPC) -> void:
 	if npc in PARTICIPANTS: 
@@ -54,18 +54,21 @@ func process_reaction_old(npc:NPC) -> void:
 
 func includes_npc(target:NPC) -> bool:
 	return target in PARTICIPANTS
+
+func get_all_participants() -> Array[NPC]:
+	return PARTICIPANTS
 	
 
-func get_talk_menu_display_old() -> Wiki:
-	var p_list: Array[String] = ["[{0}]".format([TICK])]
-	for p:NPC in PARTICIPANTS:
-		var _str = "[[NPC:{0}]]".format([p.ID])
-		p_list.append(_str)
-	p_list.append("talk together")
-	var template_string: String = " ".join(p_list)
-	#var new_wiki: Wiki = Wiki.new(template_string)
-	var new_wiki: Wiki = Wiki.new()
-	return new_wiki
+# func get_talk_menu_display_old() -> Wiki:
+# 	var p_list: Array[String] = ["[{0}]".format([TICK])]
+# 	for p:NPC in PARTICIPANTS:
+# 		var _str = "[[NPC:{0}]]".format([p.ID])
+# 		p_list.append(_str)
+# 	p_list.append("talk together")
+# 	var template_string: String = " ".join(p_list)
+# 	#var new_wiki: Wiki = Wiki.new(template_string)
+# 	var new_wiki: Wiki = Wiki.new()
+# 	return new_wiki
 
 
 # func get_talk_menu_display() -> Wiki:
@@ -82,7 +85,7 @@ func get_talk_menu_display_old() -> Wiki:
 # 	template_list.append(new_bit)
 
 
-func get_talk_menu_display() -> Wiki:
+func to_wiki() -> Wiki:
 	var new_wiki: Wiki = Wiki.new()
 	new_wiki.add_to_wiki("[{0}]".format([TICK]))
 	for i in range(0, len(PARTICIPANTS)):

@@ -16,7 +16,6 @@ func _process(_delta:float) -> void:
 	for npc_id: String in OPEN_MENUS.keys():
 		var npc_menu: NpcMenuNode = OPEN_MENUS[npc_id]
 		if npc_id not in TEMP_NPCS and !npc_menu.HOLD_OPEN:
-			print("closing", npc_id)
 			npc_menu.close_npc_menu()
 			npc_menu.queue_free()
 			OPEN_MENUS.erase(npc_id)
@@ -27,13 +26,9 @@ func update():
 	var location_text: String = "[" + str(int(player_location[0])) + "," + str(int(player_location[1])) + "]"
 	$PlayerDetails.get_node("PCLocationLabel").text = location_text
 	$PlayerDetails.get_node("TickLabel").text = "T:" + str(Global.TICKS)
-	#var player_history = ENGINE.History.filter_by_npc("player")
-	#var player_history_list = ENGINE.History.history_to_string(player_history)
-	#var trunc_history = player_history_list.slice(-10, -1)
-	#trunc_history.reverse()
+
 			
 func open_npc_menus(npc_list:Array[String]) -> void:
-	#print(npc_list)
 	TEMP_NPCS = npc_list.duplicate()
 	for npc_id:String in npc_list:
 		if npc_id not in OPEN_MENUS.keys():
@@ -44,7 +39,6 @@ func open_npc_menus(npc_list:Array[String]) -> void:
 			$NearbyNpcsContainer.get_node("VBoxContainer").add_child(npc_menu)
 
 
-	#print(OPEN_MENUS)
 
 func hold_temp_menus() -> void:
 	for npc_id: String in TEMP_NPCS:

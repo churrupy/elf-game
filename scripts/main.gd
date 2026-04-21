@@ -17,8 +17,6 @@ var CAMERA: Camera = Camera.new()
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# set engine in children
-	#print($DefaultMenu.get_parent())
-	print("loading children")
 	add_child(Map)
 	move_child(Map, 0)
 	add_child(NpcManager)
@@ -48,7 +46,6 @@ func _process(_delta: float) -> void:
 
 	
 	if int(mouse_position[0]) in range(int(Constants.CENTER_PANEL_LOCATION[0]), int(Constants.CENTER_PANEL_LOCATION[0] + Constants.CENTER_PANEL_SIZE[0])):
-		#print("over map")
 		var location:Vector2 = Map.get_location_from_mouse(mouse_position)
 		$MouseTileLabel.text = prettify_vector(location)
 		if Map.is_in_line_of_sight($Player.LOCATION, location): 
@@ -125,15 +122,16 @@ func update():
 	NpcManager.update()
 	update_player()
 	$HistoryMenu.update()
-	
+	$TalkMenu.update()
+	$Journal.update()
 	
 	print("displaying defaultmenu")
 	$DefaultMenu.update()
-	if $TalkMenu.visible:
-		print("displaying talkmenu")
-		$TalkMenu.update()
-	if $Journal.visible:
-		$Journal.update()
+
+	# if $TalkMenu.visible:
+	# 	$TalkMenu.update()
+	# if $Journal.visible:
+	# 	$Journal.update()
 
 func update_player() -> void:
 	if Global.FOCUS_TARGET != "player":

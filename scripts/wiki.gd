@@ -35,5 +35,4 @@ func update_color(color: Color) -> void:
 
 
 func toggle_journal(topic: String) -> void:
-	print("updating journal")
 	SignalBus.toggle_journal.emit(topic)

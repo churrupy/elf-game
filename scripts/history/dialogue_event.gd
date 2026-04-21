@@ -63,33 +63,8 @@ func _to_string() -> String:
 	var display_string = " ".join(display_list)
 	return display_string
 
-func get_talk_menu_display_old() -> Wiki:
-	var opinion_dict:Dictionary = {
-		1: "praised [[TOPIC:{0}]]",
-		0: "commented on [[TOPIC:{0}]]",
-		-1: "mocked [[TOPIC:{0}]]",
-	}
 
-	var opinion_string: String
-	if OPINION > 0: 
-		opinion_string = opinion_dict[1]
-	elif OPINION == 0:
-		opinion_string = opinion_dict[0]
-	else:
-		opinion_string = opinion_dict[-1]
-
-	var template_list: Array[String] = [
-		"[{0}]".format([TICK]),
-		"[[NPC:{0}]]".format([SPEAKER.ID]),
-		opinion_string.format([TOPIC]),
-		"in a [[TONE:{0}]] tone.".format([TONE])
-	]
-	var template_string: String = " ".join(template_list)
-	#var new_wiki: Wiki = Wiki.new(template_string)
-	var new_wiki: Wiki = Wiki.new()
-	return new_wiki
-
-func get_talk_menu_display() -> Wiki:
+func to_wiki() -> Wiki:
 	var new_wiki: Wiki = Wiki.new()
 	new_wiki.add_to_wiki("[{0}]".format([TICK]))
 	new_wiki.add_to_wiki(SPEAKER.ID, "button", Color.WHITE, true)
@@ -120,30 +95,34 @@ func process_involvement(npc:NPC) -> void:
 	# creates a relationship memory (whatever i want to call that)
 	if npc == SPEAKER: 
 		npc.add_witness_report(self, "participant")
+	npc.add_witness_report(self, "witness")
 
-	var npc_opinion: int = npc.does_share_opinion(TOPIC, OPINION)
+	# var npc_opinion: int = npc.does_share_opinion(TOPIC, OPINION)
 
-	if npc_opinion == 0:
-		return
-	elif npc_opinion == 1:
-		# shares opinion
-		npc.add_witness_report(self, "witness")
+	# if npc_opinion == 0:
+	# 	return
+	# elif npc_opinion == 1:
+	# 	# shares opinion
+	# 	npc.add_witness_report(self, "witness")
 
-		var memory_id:String = "share like"
-		if OPINION < 0:
-			memory_id = "share dislike"
+	# 	var memory_id:String = "share like"
+	# 	if OPINION < 0:
+	# 		memory_id = "share dislike"
 		
-		npc.add_relationship_memory(SPEAKER, memory_id)
-	else:
-		#opposite opinions
-		#var report:WitnessReport = WitnessReport.new(npc, self, -1)
-		npc.add_witness_report(self, "witness")
+	# 	npc.add_relationship_memory(SPEAKER, memory_id)
+	# else:
+	# 	#opposite opinions
+	# 	#var report:WitnessReport = WitnessReport.new(npc, self, -1)
+	# 	npc.add_witness_report(self, "witness")
 
-		var memory_id:String = "likes something I hate"
-		if OPINION < 0:
-			memory_id = "hates something I like"
-		npc.add_relationship_memory(SPEAKER, memory_id)
+	# 	var memory_id:String = "likes something I hate"
+	# 	if OPINION < 0:
+	# 		memory_id = "hates something I like"
+	# 	npc.add_relationship_memory(SPEAKER, memory_id)
 
 func includes_npc(target:NPC) -> bool:
 	if target == SPEAKER: return true
 	return false
+
+func get_all_participants() -> Array[NPC]:
+	return [SPEAKER]

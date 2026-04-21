@@ -47,8 +47,8 @@ func get_display_string() -> String:
 	return _str
 
 
-func get_talk_menu_display() -> Wiki:
-	var new_wiki:Wiki = EVENT_WITNESSED.get_talk_menu_display()
+func to_wiki() -> Wiki:
+	var new_wiki:Wiki = EVENT_WITNESSED.to_wiki()
 	if SCORE > 0:
 		new_wiki.update_color(Color.GREEN)
 	elif SCORE < 0:

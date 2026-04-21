@@ -23,7 +23,7 @@ func update() -> void:
 	for child in $DialogueContainer_new.get_node("VBoxContainer").get_children():
 		child.queue_free()
 
-	var dialogue_list: Array[Wiki] = MENU_NPC.get_talk_menu_display()
+	var dialogue_list: Array[Wiki] = MENU_NPC.get_report_wikis()
 	for d: Wiki in dialogue_list:
 		$DialogueContainer_new.get_node("VBoxContainer").add_child(d)
 

@@ -1,6 +1,7 @@
 class_name SocialAction_new extends ACTION
 
 var RECENT_TOPIC:String
+var RESPONSE_REQUESTS: Array[EVENT]
 
 
 func _init(engine, owner: NPC, target: NPC=null) -> void:
@@ -50,6 +51,18 @@ func run() -> ActionResult:
 	# right now only people who're in conversation with them can hear them (no walkbys)
 	print("running social action")
 	var res: ActionResult = ActionResult.new("running")
+	for event: EVENT in RESPONSE_REQUESTS:
+		var response: String = event.process_response()
+		if response == "introduce":
+			print("introduction check")
+			print(OWNER)
+			print(event.SPEAKER)
+			ENGINE.History.add_introduce_event(OWNER, event.SPEAKER, "")
+		else:
+			continue
+		RESPONSE_REQUESTS = []
+		return res
+			
 	var witnesses: Array[String] = ENGINE.NpcManager.get_conversation_partners(OWNER)
 	if len(witnesses) == 0:
 		return res
@@ -67,10 +80,10 @@ func run() -> ActionResult:
 	OWNER.update_direction(average_direction)
 
 	
-	# if self not in witness memory, introduce self
+	# if don't know a witness, introduce self
 	for npc_id:String in witnesses:
 		var checked_npc: NPC = Global.NPCS[npc_id]
-		if OWNER.ID not in checked_npc.RELATIONSHIPS:
+		if !OWNER.knows_npc(checked_npc): 
 			# introduce self
 			var tone: String = "" # will fix this eventualllyyyyy
 			ENGINE.History.add_introduce_event(OWNER, checked_npc, tone)	

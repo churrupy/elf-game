@@ -236,13 +236,13 @@ func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
 	return true
 
 
-func filter_loc_in_direction(origin:Vector2, direction:Vector2) -> Array[Vector2]:
-	var filtered_loc: Array[Vector2]
-	for tile: TILE in TILES:
-		var checked_direction: Vector2 = origin.direction_to(tile.LOCATION)
-		if checked_direction == direction:
-			filtered_loc.append(tile.LOCATION)
-	return filtered_loc
+# func filter_loc_in_direction(origin:Vector2, direction:Vector2) -> Array[Vector2]:
+# 	var filtered_loc: Array[Vector2]
+# 	for tile: TILE in TILES:
+# 		var checked_direction: Vector2 = origin.direction_to(tile.LOCATION)
+# 		if checked_direction == direction:
+# 			filtered_loc.append(tile.LOCATION)
+# 	return filtered_loc
 
 func get_tiles_from_vector_list(vector_list: Array[Vector2]) -> Array[TILE]:
 	if len(vector_list) == 0:
