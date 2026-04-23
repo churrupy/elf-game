@@ -46,16 +46,7 @@ func process_involvement(npc:NPC) -> void:
 	else:
 		if npc == TARGET:
 			npc.requests_response(self)
-		#npc.learn_npc(SPEAKER)
 		npc.add_witness_report(self, "witness")
-	# if npc == TARGET:
-	# 	npc.add_witness_report(self, "witness")
-	# 	npc.requests_response(self)
-	# 	#npc.add_relationship_memory(SPEAKER, "introduce")
-	# elif SPEAKER.ID in npc.RELATIONSHIPS:
-	# 	if TARGET.ID in npc.RELATIONSHIPS:
-	# 		#var report:WitnessReport =  .new(npc, self, 1)
-	# 		npc.add_witness_report(self, "witness")
 
 func process_response() -> String:
 	# they all respond for now
@@ -68,22 +59,6 @@ func includes_npc(target:NPC) -> bool:
 func get_all_participants() -> Array[NPC]:
 	return [SPEAKER]
 
-
-
-# func get_talk_menu_display_old() -> Wiki:
-
-# 	var template_list: Array[String] = [
-# 		"[{0}]".format([TICK]),
-# 		"[[NPC:{0}]]".format([SPEAKER.ID]),
-# 		"introduced themselves to",
-# 		"[[NPC:{0}]]".format([TARGET.ID]),
-# 		"in a [[TONE:{0}]] tone.".format([TONE])
-# 	]
-
-# 	var template_string: String = " ".join(template_list)
-# 	#var new_wiki: Wiki = Wiki.new(template_string)
-# 	var new_wiki: Wiki = Wiki.new()
-# 	return new_wiki
 
 func to_wiki() -> Wiki:
 	var new_wiki: Wiki = Wiki.new()

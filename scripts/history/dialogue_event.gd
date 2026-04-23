@@ -97,28 +97,6 @@ func process_involvement(npc:NPC) -> void:
 		npc.add_witness_report(self, "participant")
 	npc.add_witness_report(self, "witness")
 
-	# var npc_opinion: int = npc.does_share_opinion(TOPIC, OPINION)
-
-	# if npc_opinion == 0:
-	# 	return
-	# elif npc_opinion == 1:
-	# 	# shares opinion
-	# 	npc.add_witness_report(self, "witness")
-
-	# 	var memory_id:String = "share like"
-	# 	if OPINION < 0:
-	# 		memory_id = "share dislike"
-		
-	# 	npc.add_relationship_memory(SPEAKER, memory_id)
-	# else:
-	# 	#opposite opinions
-	# 	#var report:WitnessReport = WitnessReport.new(npc, self, -1)
-	# 	npc.add_witness_report(self, "witness")
-
-	# 	var memory_id:String = "likes something I hate"
-	# 	if OPINION < 0:
-	# 		memory_id = "hates something I like"
-	# 	npc.add_relationship_memory(SPEAKER, memory_id)
 
 func includes_npc(target:NPC) -> bool:
 	if target == SPEAKER: return true

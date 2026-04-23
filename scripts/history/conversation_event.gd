@@ -35,21 +35,9 @@ func _to_string() -> String:
 func process_involvement(npc:NPC) -> void:
 	if npc in PARTICIPANTS:
 		npc.add_witness_report(self, "participant")
-	# for p:NPC in PARTICIPANTS:
-	# 	if p.ID not in npc.RELATIONSHIPS.keys():
-	# 		return
 	else:
 		npc.add_witness_report(self, "witness")
 
-func process_reaction_old(npc:NPC) -> void:
-	if npc in PARTICIPANTS: 
-		npc.add_witness_report(self, "participant")
-	# if npc knows everyone in participants, make a neutral witness report
-	for p:NPC in PARTICIPANTS:
-		if p.ID not in npc.RELATIONSHIPS.keys():
-			return
-
-	npc.add_witness_report(self, "witness")
 
 
 func includes_npc(target:NPC) -> bool:
@@ -58,32 +46,6 @@ func includes_npc(target:NPC) -> bool:
 func get_all_participants() -> Array[NPC]:
 	return PARTICIPANTS
 	
-
-# func get_talk_menu_display_old() -> Wiki:
-# 	var p_list: Array[String] = ["[{0}]".format([TICK])]
-# 	for p:NPC in PARTICIPANTS:
-# 		var _str = "[[NPC:{0}]]".format([p.ID])
-# 		p_list.append(_str)
-# 	p_list.append("talk together")
-# 	var template_string: String = " ".join(p_list)
-# 	#var new_wiki: Wiki = Wiki.new(template_string)
-# 	var new_wiki: Wiki = Wiki.new()
-# 	return new_wiki
-
-
-# func get_talk_menu_display() -> Wiki:
-# 	var template_list: Array[WikiBit]
-# 	for i in range(0, len(PARTICIPANTS)):
-# 		var npc: NPC = PARTICIPANTS[i]
-# 		var new_bit:WikiBit = WikiBit.new(npc.NAME, "button")
-# 		new_bit.IS_NPC = true
-# 		template_list.append(new_bit)
-# 		if i == len(PARTICIPANTS) -1:
-# 			new_bit = WikiBit.new("and")
-# 			template_list.append(new_bit)
-# 	var new_bit: WikiBit = WikiBit.new("talk together")
-# 	template_list.append(new_bit)
-
 
 func to_wiki() -> Wiki:
 	var new_wiki: Wiki = Wiki.new()

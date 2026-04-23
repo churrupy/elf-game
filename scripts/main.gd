@@ -128,10 +128,6 @@ func update():
 	print("displaying defaultmenu")
 	$DefaultMenu.update()
 
-	# if $TalkMenu.visible:
-	# 	$TalkMenu.update()
-	# if $Journal.visible:
-	# 	$Journal.update()
 
 func update_player() -> void:
 	if Global.FOCUS_TARGET != "player":
