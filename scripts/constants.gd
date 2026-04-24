@@ -393,3 +393,60 @@ const TILE_TEMPLATES = {
 
 
 #endregion
+
+
+
+
+#region Furniture
+var FURNITURE: Dictionary ={
+	"counter": {
+		"type": "h_surface",
+		"tags": ["container"],
+		"sprite": "bar.png",
+		"may_contain": [
+			"snack",
+			"beer"
+		]
+	},
+	"dance_floor": {
+		"type": "floor",
+		"tags": [],
+		"sprite": "dance_floor.png"
+	},
+	"table": {
+		"type": "h_surface",
+		"tags": [],
+		"sprite": "table.png"
+	},
+	"toilet": {
+		"type": "chair",
+		"tags": [],
+		"sprite": "toilet.png"
+	},
+	"wall": {
+		"type": "v_surface",
+		"tags": [],
+		"sprite": "wall.png"
+	},
+	
+
+}
+
+
+
+#endregion furniture
+var ITEM_TEMPLATES: Dictionary = {
+	"snack" : {
+		"nutrition": 5,
+		"tags": ["food"]
+	},
+	"beer": {
+		"nutrition": 1,
+		"tags": ["alcohol"]
+	}
+}
+
+#FoodManager
+#AlcoholManager
+
+#region items

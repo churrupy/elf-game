@@ -87,10 +87,10 @@ func _draw()->void:
 		draw_line(LOCATION, direction, HAIR_COLOR, 5.0)
 
 #region initialize
-func initialize(ID_COUNTER):
+func initialize():
 	GENDER = ["male", "female"].pick_random()
 	NAME = NAMES[GENDER].pick_random()
-	ID = NAME + str(ID_COUNTER)
+	ID = NAME + str(Global.get_counter())
 	STYLE = STYLES.pick_random()
 	EYE_COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))
 	HAIR_COLOR = Color(randf_range(0,1), randf_range(0,1), randf_range(0,1))

@@ -3,14 +3,24 @@ extends Node
 
 #var X_RANGE
 #var Y_RANGE
-var Map:MAP = MAP.new(self, "club")
+var Map:MAP
 #var History:Control
 var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
-var NpcManager:NPC_MANAGER = NPC_MANAGER.new(self)
+var NpcManager:NPC_MANAGER
 var CAMERA: Camera = Camera.new()
+var InventoryManager:INVENTORY_MANAGER = INVENTORY_MANAGER.new()
 
 
+#region gamestate data
+var ROOM: String = "club"
+var NUM_NPCS: int = 5
 
+#endregion gamestatedata
+
+
+func _init() -> void:
+	Map = MAP.new(self, ROOM)
+	NpcManager = NPC_MANAGER.new(self, NUM_NPCS)
 
 
 #region init
@@ -86,7 +96,7 @@ func _process(_delta: float) -> void:
 		var new_location: Vector2 = $Player.LOCATION + delta_direction
 		#print("new location", new_location)
 		#var new_location = [$Player.LOCATION[0] + delta_direction[0], $Player.LOCATION[1] + delta_direction[1]]
-		if !Map.is_impassable(new_location):
+		if Map.is_passable(new_location):
 			$Player.LOCATION = new_location
 			#$NpcMenu.unwatch_npc()
 			tick()
@@ -111,7 +121,7 @@ func tick() -> void:
 #endregion
 
 
-#region display
+#region updates
 
 func update():
 	print("updating map center")
@@ -173,6 +183,7 @@ func update_map_center():
 	Global.Y_RANGE = [Global.FOCUS_LOCATION[1] - Constants.NUM_Y_TILES/2, Global.FOCUS_LOCATION[1] + (Constants.NUM_Y_TILES/2 + 1)]
 
 	
+#endregion updates
 
 #region debug
 func prettify_vector(v:Vector2) -> String:
@@ -180,6 +191,22 @@ func prettify_vector(v:Vector2) -> String:
 
 
 #endregion
+
+func get_screen_index(loc:Vector2) -> Vector2:
+	var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(loc[0]))
+	var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(loc[1]))
+	return Vector2(x_index, y_index)
+
+func is_on_screen(object: Node) -> bool:
+	var location: Vector2 = object.LOCATION
+	var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(location[0]))
+	if x_index < 0:
+		return false
+	var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(location[1]))
+	if y_index < 0:
+		return false
+	return true
+
 
 
 func activate_free_cam() -> void:

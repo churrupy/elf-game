@@ -1,92 +1,13 @@
-extends ColorRect
-
-class_name MAP
+class_name MAP extends ColorRect
 
 var ENGINE
 var TILES: Array[TILE]
+var FURNITURE: Array[Furniture]
 var ROOM: String
+
 @export var tile_scene: PackedScene
-
-var TILES_TEMPLATES = {
-"club": {
-		"default": "empty",
-		"size": [3,3],
-		"special": {
-			# bar
-			[0,8]: "bar",
-			[1,8]: "bar",
-			[2,8]: "bar",
-			[3,8]: "bar",
-			[4,8]: "bar",
-
-			#[0,0]: "social_empty",
-			#[0,2]: "social_empty",
-			#[0,4]: "social_empty",
-			
-			#tables
-			[0,2]: "table",
-			[0,4]: "table",
-			[0,6]: "table",
-			
-			[2,2]: "dance_floor",
-			[2,3]: "dance_floor",
-			[2,4]: "dance_floor",
-			[2,5]: "dance_floor",
-
-			[3,2]: "dance_floor",
-			[3,3]: "dance_floor",
-			[3,4]: "dance_floor",
-			[3,5]: "dance_floor",
-
-			[4,2]: "dance_floor",
-			[4,3]: "dance_floor",
-			[4,4]: "dance_floor",
-			[4,5]: "dance_floor",
-
-			[5,2]: "dance_floor",
-			[5,3]: "dance_floor",
-			[5,4]: "dance_floor",
-			[5,5]: "dance_floor",
-
-			#divider wall
-			[7,0]: "wall",
-			[7,1]: "wall",
-			[7,2]: "wall",
-			[7,3]: "wall",
-			[7,4]: "wall",
-			[7,5]: "wall",
-			[7,6]: "wall",
-			[7,7]: "wall",
-
-
-
-			#toilets and stalls
-			[10,0]: "toilet",
-			[9,1]: "wall",
-			[10,1]: "wall",
-
-			[10,2]: "toilet",
-			[9,3]: "wall",
-			[10,3]: "wall",
-
-			[10,4]: "toilet",			
-			[9,5]: "wall",
-			[10,5]: "wall",
-
-			[10,6]: "toilet",
-			[9,7]: "wall",
-			[10,7]: "wall"
-		},
-		"ascii": '''
-[S][S][S][S]
-[S][D][D][B]
-[S][D][D][B]
-[S][S][B][B]
-	'''
-	}
-
-}
 	
+#region init
 
 func _init(engine, room) -> void:
 	ENGINE = engine
@@ -97,58 +18,102 @@ func _init(engine, room) -> void:
 	size = Constants.CENTER_PANEL_SIZE
 	global_position = Constants.CENTER_PANEL_LOCATION
 
-	var map_size: int = Constants.MAP_SIZE[0] * Constants.MAP_SIZE[1]
-	var room_data: Dictionary = TILES_TEMPLATES[ROOM]
-	var default_type: String = room_data["default"]
+	# var map_size: int = Constants.MAP_SIZE[0] * Constants.MAP_SIZE[1]
+	# var room_data: Dictionary = Rooms.TILES_TEMPLATES[ROOM]
+	# var default_type: String = room_data["default"]
 
-	var width: int = Constants.MAP_SIZE[0]
+	# var width: int = Constants.MAP_SIZE[0]
 
-	for i in range(0,map_size):
+	var room_data: Dictionary = Rooms.ROOM_TEMPLATES[ROOM]
+	var room_size: Vector2 = room_data["size"]
+	var room_area: int = room_size[0] * room_size[1]
+
+	var width:int = room_size[0]
+
+	for i in range(0,room_area):
 		var x:int = i%width
 		var y:int = i/width
 		var location: Vector2 = Vector2(x,y)
-		var tile:TILE = TILE.new(default_type, location)
+		var tile:TILE = TILE.new("empty", location)
 		TILES.append(tile)
+		ENGINE.InventoryManager.add_inventory(tile)
 
-	for loc: Array in room_data["special"]:
-		var type: String = room_data["special"][loc]
-		var index = (loc[1] * width) + loc[0]
-		TILES[index].TYPE = type
-		TILES[index].initialize()
+	for keyword: String in room_data["furniture"].keys():
+		var furniture_data: Array = room_data["furniture"][keyword]
+		for rect: Array in furniture_data:
+			var start_vector: Vector2 = rect[0]
+			var end_vector: Vector2 = rect[1]
+			for i in range(int(start_vector[0]), int(end_vector[0])+1):
+				for j in range(int(start_vector[1]), int(end_vector[1])+1):
+					var loc: Vector2 = Vector2(i,j)
+					var new_furniture: Furniture = Furniture.new(keyword, loc)
+					FURNITURE.append(new_furniture)
+					if "container" in new_furniture.DATA["tags"]:
+						ENGINE.InventoryManager.add_inventory(new_furniture)
+						for item_type: String in new_furniture.DATA["may_contain"]:
+							var amount:int = [0,1,2,3].pick_random()
+							for k in range(0,amount + 1):
+								var new_item:ITEM = ITEM.new(item_type)
+								ENGINE.InventoryManager.add_to_inventory(new_furniture, new_item)
+					
 
+
+	# for loc: Array in room_data["special"]:
+	# 	var type: String = room_data["special"][loc]
+	# 	var index = (loc[1] * width) + loc[0]
+	# 	TILES[index].TYPE = type
+	# 	TILES[index].initialize()
+
+
+#endregion init
 
 #region update
 
 func clear_tiles():
 	for child in get_children():
-		if child is TILE:
+		if child is TILE or child is Furniture:
 			remove_child(child)
 
 func update() -> void:
 	clear_tiles()
 	for tile: TILE in TILES:
 		#[var x: int, var y: int] = tile.LOCATION
-		
-		var x: int = tile.LOCATION[0]
-		var y: int = tile.LOCATION[1]
-		if x not in range(Global.X_RANGE[0], Global.X_RANGE[1]):
-			continue;
-		if y not in range(Global.Y_RANGE[0], Global.Y_RANGE[1]):
+
+		var screen_index: Vector2 = ENGINE.get_screen_index(tile.LOCATION)
+		if screen_index[0] < 0 or screen_index[1] < 0:
 			continue
 		
 		add_child(tile)
-		var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
-		var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
-		tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
-		tile.global_position[1] = y_index * Constants.TILE_SIZE
+		
+		tile.global_position[0] = (screen_index[0] * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
+		tile.global_position[1] = screen_index[1] * Constants.TILE_SIZE
 		
 		if is_in_line_of_sight(ENGINE.get_node("Player").LOCATION, tile.LOCATION):
 			#print(ENGINE.prettify_vector(tile.LOCATION), " is in line of sight")
 			tile.modulate = Color(1,1,0)
 		else: 
 			tile.modulate = Color(1,1,1)
+		
+		
+		# var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
+		# var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
+		# tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
+		# tile.global_position[1] = y_index * Constants.TILE_SIZE
+		
+		
 
 		#tile.show()
+
+	for furniture: Furniture in FURNITURE:
+		var screen_index: Vector2 = ENGINE.get_screen_index(furniture.LOCATION)
+
+		if screen_index[0] < 0 or screen_index[1] < 0:
+			continue
+		
+		add_child(furniture)
+
+		furniture.global_position[0] = (screen_index[0] * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
+		furniture.global_position[1] = screen_index[1] * Constants.TILE_SIZE
 			
 
 
@@ -198,9 +163,10 @@ func get_next_step(parent_dict: Dictionary, start: Vector2, end: Vector2) -> Vec
 #endregion pathfinding
 
 
-#region filters
+#region raypath
 
 func get_ray_path(origin: Vector2, target: Vector2) -> Array[Vector2]:
+	# gets all nodes between origin and target
 	var ray_path: Array[Vector2] = [origin]
 	var next_step: Vector2 = origin
 	var direction: Vector2 = origin.direction_to(target)
@@ -230,10 +196,14 @@ func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
 		return false
 	var ray_path: Array[Vector2] = get_ray_path(origin, target)
 	for v: Vector2 in ray_path:
-		var tile:TILE = get_tile(v)
-		if tile.TYPE == "wall":
+		if !is_loc_visible(v):
 			return false
+		# var tile:TILE = get_tile(v)
+		# if tile.TYPE == "wall":
+		# 	return false
 	return true
+
+#endregion raypath
 
 
 # func filter_loc_in_direction(origin:Vector2, direction:Vector2) -> Array[Vector2]:
@@ -244,42 +214,71 @@ func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
 # 			filtered_loc.append(tile.LOCATION)
 # 	return filtered_loc
 
-func get_tiles_from_vector_list(vector_list: Array[Vector2]) -> Array[TILE]:
-	if len(vector_list) == 0:
-		return TILES
-	var tile_list: Array[TILE]
-	for v: Vector2 in vector_list:
-		var tile: TILE = get_tile(v)
-		tile_list.append(tile)
-	return tile_list
+#region filters
+
+func is_passable(loc: Vector2) -> bool:
+	for furniture: Furniture in FURNITURE:
+		if furniture.LOCATION == loc:
+			var type: String = furniture.DATA["type"]
+			if "surface" in type: # h_surfance and v_surface are impassable
+				return false
+
+	return true
+
+func is_loc_visible(loc: Vector2) -> bool:
+	for furniture: Furniture in FURNITURE:
+		if furniture.LOCATION == loc:
+			var type: String = furniture.DATA["type"]
+			if type == "v_surface":
+				return false
+	return true
+
+func filter_passable_locations(v_list: Array[Vector2] = get_all_locations()) -> Array[Vector2]:
+	var passable_loc: Array[Vector2]
+	for v: Vector2 in v_list:
+		if is_passable(v):
+			passable_loc.append(v)
+	return passable_loc
+
+func get_all_locations() -> Array[Vector2]:
+	var loc_list: Array[Vector2]
+	for tile: TILE in TILES:
+		loc_list.append(tile.LOCATION)
+	return loc_list
 
 
-func filter_passable_locations(vector_list: Array[Vector2] = []) -> Array[Vector2]:
-	var tile_list: Array[TILE] = get_tiles_from_vector_list(vector_list)
-	var passable_locations: Array[Vector2]
-	for tile: TILE in tile_list:
-		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
-		if tile_data["impassable"] == false:
-			passable_locations.append(tile.LOCATION)
-	return passable_locations
+
+# func get_tiles_from_vector_list(vector_list: Array[Vector2]) -> Array[TILE]:
+# 	if len(vector_list) == 0:
+# 		return TILES
+# 	var tile_list: Array[TILE]
+# 	for v: Vector2 in vector_list:
+# 		var tile: TILE = get_tile(v)
+# 		tile_list.append(tile)
+# 	return tile_list
+
+
+# func filter_passable_locations_old(vector_list: Array[Vector2] = []) -> Array[Vector2]:
+# 	var tile_list: Array[TILE] = get_tiles_from_vector_list(vector_list)
+# 	var passable_locations: Array[Vector2]
+# 	for tile: TILE in tile_list:
+# 		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
+# 		if tile_data["impassable"] == false:
+# 			passable_locations.append(tile.LOCATION)
+# 	return passable_locations
+
+
+# func is_impassable_old(location: Vector2) -> bool:
+# 	var tile: TILE = get_tile(location)
+# 	if tile == null:
+# 		return true
+# 	var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
+# 	return tile_data["impassable"]
+
 
 
 
 #endregion filters
-
-#region checks
-
-func is_impassable(location: Vector2) -> bool:
-	var tile: TILE = get_tile(location)
-	if tile == null:
-		return true
-	var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
-	return tile_data["impassable"]
-
-
-
-
-#endregion
 
 
 #region utility
@@ -303,7 +302,7 @@ func get_neighbors(location: Vector2) -> Array[Vector2]:
 	for n: Vector2 in neighbors:
 		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]: continue
 		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]: continue
-		if is_impassable(n): continue
+		if !is_passable(n): continue
 		valid_neighbors.append(n)
 	var passable_locations: Array[Vector2] = filter_passable_locations(valid_neighbors)
 	return passable_locations
@@ -410,6 +409,7 @@ func get_location_from_mouse(loc: Vector2) -> Vector2:
 	return Vector2(x,y)
 
 func highlight_tile(loc: Vector2, highlight_color: Color) -> void:
+	#print("loc check", loc)
 	var tile: TILE = get_tile(loc)
 	tile.modulate = highlight_color
 

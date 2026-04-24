@@ -65,7 +65,8 @@ func check_orgasm() -> void:
 
 func determine_action(pose_data:Array) -> Array:
 	# holy shit this is bad lol
-	var action_list: Array = EncounterActions.POSES[pose_data]
+	#var action_list: Array = EncounterActions.POSES[pose_data]
+	var action_list: Array = []
 	var valid_actions: Array
 	for action: Array in action_list:
 		var owner_gender: String = OWNER.GENDER

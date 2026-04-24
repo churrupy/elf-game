@@ -8,6 +8,12 @@ var TICKS: int = 0
 var FOCUS_TARGET: String
 var FOCUS_LOCATION: Vector2
 
+var ID_COUNTER: int = 0
+
+func get_counter() -> int:
+    ID_COUNTER += 1
+    return ID_COUNTER
+
 
 
 #var SIDEBAR_SIZE = Vector2(300, Global.SCREEN_SIZE[1])

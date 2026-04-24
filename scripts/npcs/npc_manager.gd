@@ -6,12 +6,10 @@ var ENGINE
 var NPCS: Array[NPC]
 var Determinator: ActionDeterminator
 
-var ID_COUNTER: int = 0
-
-func _init(engine) -> void:
+func _init(engine, num_npcs:int) -> void:
 	ENGINE = engine
 	Determinator = ActionDeterminator.new(ENGINE)
-	for i: int in Constants.NUM_NPCS:
+	for i: int in num_npcs:
 		create_npc()
 	
 	
@@ -23,10 +21,10 @@ func create_npc() -> void:
 	var passable_locations: Array[Vector2] = ENGINE.Map.filter_passable_locations()
 	#var tile: TILE = ENGINE.Map.random_empty_tile()
 	npc.LOCATION = passable_locations.pick_random()
-	npc.initialize(ID_COUNTER)
-	ID_COUNTER += 1
+	npc.initialize()
 	NPCS.append(npc)
 	Global.NPCS[npc.ID] = npc
+	ENGINE.InventoryManager.add_inventory(npc)
 	
 	# initialize state stack
 	var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)

@@ -1,14 +1,13 @@
-extends TextureRect
+class_name TILE extends TextureRect
 
-class_name TILE
-
+var ID: String
 var TYPE: String
 var LOCATION: Vector2
-var INVENTORY: Array
 
 
 
 func _init(type: String, location: Vector2) -> void:
+	ID = "tile" + str(Global.get_counter())
 	TYPE = type
 	LOCATION = location
 	var initial_label: Label = Label.new()
@@ -18,10 +17,6 @@ func _init(type: String, location: Vector2) -> void:
 	add_child(initial_label)
 	#$TypeInitialLabel.text = TYPE.substr(0,6)
 	#$LocationLabel.text = str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))
-	var tile_data: Dictionary = Constants.TILE_TEMPLATES[TYPE]
-	texture = load("res://models/" + tile_data["png"])
-
-func initialize() -> void:
 	var tile_data: Dictionary = Constants.TILE_TEMPLATES[TYPE]
 	texture = load("res://models/" + tile_data["png"])
 
