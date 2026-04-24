@@ -45,65 +45,82 @@ func urgent_needs_filled_sequence(npc:NPC) -> STATUS:
 		#"energy"
 	]
 	for need: String in need_list:
-		var status = decide_refresh_needs_fallback(npc, need)
+		#var status = decide_refresh_needs_fallback(npc, need)
+		var status = refresh_needs(npc, need)
 		if status != STATUS.SUCCESS: return status
 	return STATUS.SUCCESS
 
-func decide_refresh_needs_fallback(npc:NPC, need:String) -> STATUS:
-	var node_list: Array[Callable] = [
-		need_urgent_cond,
-		#fill_need_sequence
-		fill_need_action
-	]
-
-	for node:Callable in node_list:
-		var status = node.call(npc,need)
-		if status != STATUS.FAILURE: return status
-	return STATUS.FAILURE
-
-func need_urgent_cond(npc:NPC, need:String) -> STATUS:
+func refresh_needs(npc:NPC, need:String) -> STATUS:
 	if npc.NEEDS[need] > 50:
 		return STATUS.SUCCESS
 	print("need is urgent: ", need)
-	return STATUS.FAILURE
 
-func fill_need_action(npc:NPC, need:String) -> STATUS:
 	var action_dict: Dictionary = {
 		"bladder": BladderAction,
 		"hunger": HungerAction,
 		#"energy": EnergyAction
 	}
-
+	
 	var new_action = action_dict[need].new(ENGINE, npc, null)
 	ENGINE.NpcManager.add_state(new_action)
 	return STATUS.RUNNING
 
-func fill_need_action_old(npc:NPC, need:String) -> STATUS:
-	var action_dict: Dictionary = {
-		"bladder": BladderAction,
-		"hunger": HungerAction,
-		#"energy": EnergyAction
-	}
-	var action_locations: Array[Vector2] = ENGINE.Map.find_action_locations(need)
-	var smallest_distance: float = 100
-	var closest_location: Vector2 = Vector2.INF
-	for loc: Vector2 in action_locations:
-		var distance: float = npc.LOCATION.distance_to(loc)
-		if distance <= smallest_distance:
-			smallest_distance = distance
-			closest_location = loc
-	if closest_location == Vector2.INF:
-		print("no valid tile found")
-		return STATUS.FAILURE
-	var tile:TILE = ENGINE.Map.get_tile(closest_location)
-	var new_action = action_dict[need].new(ENGINE, npc, tile)
-	# print(new_action)
-	# print(npc)
-	#var new_action = MoveAction.new(ENGINE, npc, tile, action)
-	#ENGINE.NpcManager.print_state(new_action)
-	ENGINE.NpcManager.add_state(new_action)
-	#print("adding move action")
-	return STATUS.RUNNING
+
+# func decide_refresh_needs_fallback(npc:NPC, need:String) -> STATUS:
+# 	var node_list: Array[Callable] = [
+# 		need_urgent_cond,
+# 		#fill_need_sequence
+# 		fill_need_action
+# 	]
+
+# 	for node:Callable in node_list:
+# 		var status = node.call(npc,need)
+# 		if status != STATUS.FAILURE: return status
+# 	return STATUS.FAILURE
+
+# func need_urgent_cond(npc:NPC, need:String) -> STATUS:
+# 	if npc.NEEDS[need] > 50:
+# 		return STATUS.SUCCESS
+# 	print("need is urgent: ", need)
+# 	return STATUS.FAILURE
+
+# func fill_need_action(npc:NPC, need:String) -> STATUS:
+# 	var action_dict: Dictionary = {
+# 		"bladder": BladderAction,
+# 		"hunger": HungerAction,
+# 		#"energy": EnergyAction
+# 	}
+
+# 	var new_action = action_dict[need].new(ENGINE, npc, null)
+# 	ENGINE.NpcManager.add_state(new_action)
+# 	return STATUS.RUNNING
+
+# func fill_need_action_old(npc:NPC, need:String) -> STATUS:
+# 	var action_dict: Dictionary = {
+# 		"bladder": BladderAction,
+# 		"hunger": HungerAction,
+# 		#"energy": EnergyAction
+# 	}
+# 	var action_locations: Array[Vector2] = ENGINE.Map.find_action_locations(need)
+# 	var smallest_distance: float = 100
+# 	var closest_location: Vector2 = Vector2.INF
+# 	for loc: Vector2 in action_locations:
+# 		var distance: float = npc.LOCATION.distance_to(loc)
+# 		if distance <= smallest_distance:
+# 			smallest_distance = distance
+# 			closest_location = loc
+# 	if closest_location == Vector2.INF:
+# 		print("no valid tile found")
+# 		return STATUS.FAILURE
+# 	var tile:TILE = ENGINE.Map.get_tile(closest_location)
+# 	var new_action = action_dict[need].new(ENGINE, npc, tile)
+# 	# print(new_action)
+# 	# print(npc)
+# 	#var new_action = MoveAction.new(ENGINE, npc, tile, action)
+# 	#ENGINE.NpcManager.print_state(new_action)
+# 	ENGINE.NpcManager.add_state(new_action)
+# 	#print("adding move action")
+# 	return STATUS.RUNNING
 
 #endregion urgent
 
