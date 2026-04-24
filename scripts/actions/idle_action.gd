@@ -25,13 +25,13 @@ func tick() -> ActionResult:
 	OWNER.decay_needs()
 	return result
 
-# func run_new() -> ActionResult:
-# 	print("running")
-# 	Determinator.determine_next_action(OWNER)
-# 	return ActionResult.new("running", null)
-
-
 func run() -> ActionResult:
+	print("running")
+	Determinator.determine_next_action(OWNER)
+	return ActionResult.new("running", null)
+
+
+func run_old() -> ActionResult:
 	print("running")
 	#var dialogue_string: String = OWNER.NAME + " is choosing a new action."
 	#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [], dialogue_string)

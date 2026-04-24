@@ -1,6 +1,7 @@
 class_name TILE extends TextureRect
 
 var ID: String
+var NAME: String
 var TYPE: String
 var LOCATION: Vector2
 
@@ -9,6 +10,7 @@ var LOCATION: Vector2
 func _init(type: String, location: Vector2) -> void:
 	ID = "tile" + str(Global.get_counter())
 	TYPE = type
+	NAME = "tile:" + str(location)
 	LOCATION = location
 	var initial_label: Label = Label.new()
 	var _str: String = TYPE.substr(0,6) + " " + str(int(LOCATION[0])) + "," + str(int(LOCATION[1]))

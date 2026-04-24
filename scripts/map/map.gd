@@ -36,7 +36,7 @@ func _init(engine, room) -> void:
 		var location: Vector2 = Vector2(x,y)
 		var tile:TILE = TILE.new("empty", location)
 		TILES.append(tile)
-		ENGINE.InventoryManager.add_inventory(tile)
+		ENGINE.InventoryManager.create_inventory(tile)
 
 	for keyword: String in room_data["furniture"].keys():
 		var furniture_data: Array = room_data["furniture"][keyword]
@@ -49,12 +49,15 @@ func _init(engine, room) -> void:
 					var new_furniture: Furniture = Furniture.new(keyword, loc)
 					FURNITURE.append(new_furniture)
 					if "container" in new_furniture.DATA["tags"]:
-						ENGINE.InventoryManager.add_inventory(new_furniture)
+						ENGINE.InventoryManager.create_inventory(new_furniture)
+						var tile: TILE = get_tile(loc)
+						ENGINE.InventoryManager.remove_inventory(tile) # i'll try to figure out a better way to do this
 						for item_type: String in new_furniture.DATA["may_contain"]:
 							var amount:int = [0,1,2,3].pick_random()
 							for k in range(0,amount + 1):
 								var new_item:ITEM = ITEM.new(item_type)
 								ENGINE.InventoryManager.add_to_inventory(new_furniture, new_item)
+
 					
 
 
@@ -246,6 +249,34 @@ func get_all_locations() -> Array[Vector2]:
 		loc_list.append(tile.LOCATION)
 	return loc_list
 
+func filter_closest_interactable_locations(start_loc: Vector2, loc_list: Array[Vector2]) -> Array[Vector2]:
+	# takes in a list of target locations, determines if that location is interactable on-location, and if not, then find the closest interactable location to the start location
+	var return_list: Array[Vector2] 
+	for loc: Vector2 in loc_list:
+		var passable: bool = is_passable(loc)
+		if passable:
+			return_list.append(loc)
+		else:
+			var new_loc: Vector2 = get_closest_adjacent_location(start_loc, loc)
+			if new_loc == Vector2.INF:
+				continue
+			return_list.append(new_loc)
+	
+	return return_list
+
+func filter_closest_interactable_locations_dict(start_loc:Vector2, loc_list:Array[Vector2]) -> Dictionary:
+	# returns {closest_loc: target_loc}
+	var return_dict: Dictionary
+	for loc: Vector2 in loc_list:
+		var passable: bool = is_passable(loc)
+		if passable:
+			return_dict[loc] = loc
+		else:
+			var new_loc: Vector2 = get_closest_adjacent_location(start_loc, loc)
+			if new_loc == Vector2.INF:
+				continue
+			return_dict[new_loc] = loc
+	return return_dict
 
 
 # func get_tiles_from_vector_list(vector_list: Array[Vector2]) -> Array[TILE]:
@@ -412,5 +443,18 @@ func highlight_tile(loc: Vector2, highlight_color: Color) -> void:
 	#print("loc check", loc)
 	var tile: TILE = get_tile(loc)
 	tile.modulate = highlight_color
+
+func get_furniture(id:String) -> Furniture:
+	for furn: Furniture in FURNITURE:
+		if furn.ID == id: return furn
+	return null
+
+func get_furniture_or_tile(id:String) -> Node:
+	# tries to return furniture with id, if not return tile with id
+	for furn: Furniture in FURNITURE:
+		if furn.ID == id: return furn
+	for tile: TILE in TILES:
+		if tile.ID == id: return tile
+	return null
 
 #endregion utility

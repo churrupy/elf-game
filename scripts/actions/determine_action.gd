@@ -22,6 +22,10 @@ func _init(engine) -> void:
 	ENGINE = engine
 
 func determine_next_action(npc:NPC) -> STATUS:
+	# all leaf nodes should push an action onto the stack
+	# this should only ever return STATUS.RUNNING
+	# i should probably fix that at some point but WHATEVERRRRR
+	# fallback
 	var node_list: Array[Callable] = [
 		urgent_needs_filled_sequence,
 		nonurgent_needs_filled_fallback
@@ -69,6 +73,17 @@ func fill_need_action(npc:NPC, need:String) -> STATUS:
 		"hunger": HungerAction,
 		#"energy": EnergyAction
 	}
+
+	var new_action = action_dict[need].new(ENGINE, npc, null)
+	ENGINE.NpcManager.add_state(new_action)
+	return STATUS.RUNNING
+
+func fill_need_action_old(npc:NPC, need:String) -> STATUS:
+	var action_dict: Dictionary = {
+		"bladder": BladderAction,
+		"hunger": HungerAction,
+		#"energy": EnergyAction
+	}
 	var action_locations: Array[Vector2] = ENGINE.Map.find_action_locations(need)
 	var smallest_distance: float = 100
 	var closest_location: Vector2 = Vector2.INF
@@ -82,8 +97,8 @@ func fill_need_action(npc:NPC, need:String) -> STATUS:
 		return STATUS.FAILURE
 	var tile:TILE = ENGINE.Map.get_tile(closest_location)
 	var new_action = action_dict[need].new(ENGINE, npc, tile)
-	print(new_action)
-	print(npc)
+	# print(new_action)
+	# print(npc)
 	#var new_action = MoveAction.new(ENGINE, npc, tile, action)
 	#ENGINE.NpcManager.print_state(new_action)
 	ENGINE.NpcManager.add_state(new_action)

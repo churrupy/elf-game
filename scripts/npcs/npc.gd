@@ -37,10 +37,10 @@ var DISLIKES: Array[String]
 
 
 var NEEDS: Dictionary = {
-	"hunger": 90.0,
+	"hunger": 40.0,
 	"energy": 90.0,
 	"release": 90.0,
-	"social": 50.0,
+	"social": 90.0,
 	"fun": 90.0,
 	"bladder": 90.0,
 	"arousal": 0.0
@@ -379,3 +379,13 @@ func update_direction(new_direction:Vector2) -> void:
 		return # retain original direction
 		#direction_text = "X"
 	DIRECTION_LABEL.text = direction_text
+
+
+
+#region actions
+func consume(item:ITEM) -> void:
+	print(NAME, " is consuming ", item)
+	NEEDS["hunger"] += item.DATA["nutrition"]
+
+
+#endregion actions

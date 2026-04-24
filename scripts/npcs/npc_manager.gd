@@ -24,7 +24,7 @@ func create_npc() -> void:
 	npc.initialize()
 	NPCS.append(npc)
 	Global.NPCS[npc.ID] = npc
-	ENGINE.InventoryManager.add_inventory(npc)
+	ENGINE.InventoryManager.create_inventory(npc)
 	
 	# initialize state stack
 	var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)
@@ -133,7 +133,8 @@ func update() -> void:
 		# highlight reserved tile
 		var current_action: ACTION = npc.STATE_STACK[-1]
 		var reserved_loc: Vector2 = current_action.LOCATION
-		ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
+		if reserved_loc != Vector2.INF:
+			ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
 
 
 func broadcast_event(event:EVENT) -> void:

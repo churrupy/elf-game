@@ -8,7 +8,7 @@ var Map:MAP
 var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
 var NpcManager:NPC_MANAGER
 var CAMERA: Camera = Camera.new()
-var InventoryManager:INVENTORY_MANAGER = INVENTORY_MANAGER.new()
+var InventoryManager:INVENTORY_MANAGER = INVENTORY_MANAGER.new(self)
 
 
 #region gamestate data
@@ -60,6 +60,8 @@ func _process(_delta: float) -> void:
 		$MouseTileLabel.text = prettify_vector(location)
 		if Map.is_in_line_of_sight($Player.LOCATION, location): 
 			$MouseTileLabel.text += " **"
+
+		InventoryManager.print_inventory_at_location(location)
 
 		var new_npcs: Array[String] = NpcManager.get_npc_from_location(location)
 		$DefaultMenu.open_npc_menus(new_npcs)

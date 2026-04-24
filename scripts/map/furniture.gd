@@ -13,3 +13,11 @@ func _init(keyword:String, loc:Vector2) -> void:
 	texture = load("res://models/" + DATA["sprite"])
 
 	
+func _to_string() -> String:
+	var str_list: Array[String] = [
+		"Furniture:",
+		NAME,
+		"at",
+		str(LOCATION)
+	]
+	return " ".join(str_list)

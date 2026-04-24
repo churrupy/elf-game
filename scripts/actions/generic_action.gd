@@ -7,7 +7,6 @@ var TARGET: Node # maybe Array[Container]? to accomodate furniture/items
 var LOCATION: Vector2 # this tile gets reserved by owner
 var COUNTDOWN: int
 var SCORE: int = 0
-var STATUS: String
 
 var CHATTABLE: bool = true
 
@@ -86,7 +85,6 @@ func step_towards_location() -> void:
 func recheck_can_do_action():
 	# what an awful bandaid lol
 	if !can_do_action():
-		STATUS = "finish"
 		OWNER.decay_needs()
 		return false
 	return true
@@ -119,7 +117,7 @@ func update_moving_location():
 	if LOCATION not in neighbors:
 		var free_tile = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, LOCATION)
 		if free_tile == null:
-			STATUS = "finish"
+			pass
 		else:
 			LOCATION = free_tile
 

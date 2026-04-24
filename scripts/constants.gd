@@ -437,11 +437,11 @@ var FURNITURE: Dictionary ={
 #endregion furniture
 var ITEM_TEMPLATES: Dictionary = {
 	"snack" : {
-		"nutrition": 5,
+		"nutrition": 10,
 		"tags": ["food"]
 	},
 	"beer": {
-		"nutrition": 1,
+		"nutrition": 5,
 		"tags": ["alcohol"]
 	}
 }

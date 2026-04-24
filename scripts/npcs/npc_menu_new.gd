@@ -34,6 +34,8 @@ func _ready() -> void:
 	display_string.append(_str)
 	_str = "Current Action: " + str(DISPLAY_NPC.STATE_STACK.back())
 	display_string.append(_str)
+	_str = "Inventory: " + str(ENGINE.InventoryManager.get_inventory_of(DISPLAY_NPC.ID))
+	display_string.append(_str)
 	_str = "Facing: " + ENGINE.prettify_vector(DISPLAY_NPC.DIRECTION)
 	display_string.append(_str)
 

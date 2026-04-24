@@ -28,7 +28,7 @@ func update():
 	$PlayerDetails.get_node("TickLabel").text = "T:" + str(Global.TICKS)
 
 			
-func open_npc_menus(npc_list:Array[String]) -> void:
+func open_npc_menus_old(npc_list:Array[String]) -> void:
 	TEMP_NPCS = npc_list.duplicate()
 	for npc_id:String in npc_list:
 		if npc_id not in OPEN_MENUS.keys():
@@ -37,6 +37,21 @@ func open_npc_menus(npc_list:Array[String]) -> void:
 			npc_menu.initialize(ENGINE, npc)
 			OPEN_MENUS[npc_id] = npc_menu
 			$NearbyNpcsContainer.get_node("VBoxContainer").add_child(npc_menu)
+
+func open_npc_menus(npc_list:Array[String]) -> void:
+	TEMP_NPCS = npc_list.duplicate()
+	for id:String in npc_list:
+		if id in OPEN_MENUS.keys(): continue
+		if id in Global.NPCS.keys():
+			var npc:NPC = Global.NPCS[id]
+			var npc_menu:NpcMenuNode = npc_menus.instantiate()
+			npc_menu.initialize(ENGINE, npc)
+			OPEN_MENUS[id] = npc_menu
+			$NearbyNpcsContainer.get_node("VBoxContainer").add_child(npc_menu)
+		# else:
+		# 	# assume if not npc, then is furniture for now
+		# 	var furniture: Furniture = ENGINE.Map.get_furniture(id)
+
 
 
 
