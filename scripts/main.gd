@@ -9,6 +9,7 @@ var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
 var NpcManager:NPC_MANAGER
 var CAMERA: Camera = Camera.new()
 var InventoryManager:INVENTORY_MANAGER = INVENTORY_MANAGER.new(self)
+var GroupManager:GROUP_MANAGER = GROUP_MANAGER.new(self)
 
 
 #region gamestate data
@@ -42,13 +43,15 @@ func _ready() -> void:
 	update_focus_target("player")
 
 	$TalkMenu.hide()
-	tick()
+	GroupManager.print_groups()
+	#tick()
 
 #endregion
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
+	
 	
 	# mouse control
 	var mouse_position: Vector2 = get_viewport().get_mouse_position()
@@ -61,7 +64,7 @@ func _process(_delta: float) -> void:
 		if Map.is_in_line_of_sight($Player.LOCATION, location): 
 			$MouseTileLabel.text += " **"
 
-		InventoryManager.print_inventory_at_location(location)
+		#InventoryManager.print_inventory_at_location(location)
 
 		var new_npcs: Array[String] = NpcManager.get_npc_from_location(location)
 		$DefaultMenu.open_npc_menus(new_npcs)
@@ -110,13 +113,16 @@ func _process(_delta: float) -> void:
 
 
 func tick() -> void:
+	
 	update_map_center()
 	print("")
 	print("ticking...")
+	
 	Global.TICKS += 1
 	print("Ticks: ", Global.TICKS)
 	print("Focused on " + Global.FOCUS_TARGET + " at " + str(Global.FOCUS_LOCATION))
 	NpcManager.tick()
+	GroupManager.print_groups()
 	update()
 
 

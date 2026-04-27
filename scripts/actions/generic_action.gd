@@ -94,7 +94,7 @@ func tick() -> ActionResult:
 	if OWNER.LOCATION != LOCATION:
 		#var ACTION_CLASS: GDScript = Constants.ACTION_ID["MoveAction"]
 		var tile: TILE = ENGINE.Map.get_tile(LOCATION)
-		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, ID)
+		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, self)
 		return ActionResult.new("add", new_action)
 		#return ["add", new_action]
 	if !can_do_action():
@@ -259,7 +259,14 @@ func chitchat_old() -> void:
 
 
 func _to_string():
-	return ID + " to " + str(TARGET) + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")"
+	var str_list:Array[String] = [
+		"[ACTION]",
+		#"[{0}]".format([Global.TICKS]),
+		OWNER.NAME,
+		"is",
+		ID
+	]
+	return " ".join(str_list)
 
 func refresh_needs(need:String) -> void:
 	var refresh_rate: float = Constants.NEED_REFRESH_RATES[need]

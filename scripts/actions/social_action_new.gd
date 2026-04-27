@@ -1,7 +1,7 @@
 class_name SocialAction_new extends ACTION
 
 var RECENT_TOPIC:String
-var RESPONSE_REQUESTS: Array[EVENT]
+var RESPONSE_REQUESTS: Array[EVENT] = []
 
 
 func _init(engine, owner: NPC, target: NPC=null) -> void:
@@ -40,38 +40,43 @@ func tick() -> ActionResult:
 		#res = ["end", null]
 	elif OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		res.STATUS = "add"
-		res.NEW_ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, ID)
+		res.NEW_ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, self)
 	else:
 		res = run()
 	OWNER.decay_needs()
 	return res
 
-
 func run() -> ActionResult:
-	# right now only people who're in conversation with them can hear them (no walkbys)
-	print("running social action")
 	var res: ActionResult = ActionResult.new("running")
-	for event: EVENT in RESPONSE_REQUESTS:
-		var response: String = event.process_response()
-		if response == "introduce":
-			print("introduction check")
-			print(OWNER)
-			print(event.SPEAKER)
-			ENGINE.History.add_introduce_event(OWNER, event.SPEAKER, "")
-		else:
-			continue
-		RESPONSE_REQUESTS = []
-		return res
-			
-	var witnesses: Array[String] = ENGINE.NpcManager.get_conversation_partners(OWNER)
-	if len(witnesses) == 0:
+	if !ENGINE.GroupManager.is_conversing(OWNER):
+		# hop into a group
+		var nearby_npcs:Array[NPC] = ENGINE.NpcManager.filter_nearby_npcs(OWNER)
+		var available_npcs:Array[NPC] = ENGINE.NpcManager.filter_available_npcs(nearby_npcs)
+		if len(available_npcs) == 0:
+			print("no available npcs to talk to")
+			return res
+		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
+		impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
+
+		var chosen_npc:NPC = impressions[0].TARGET
+		var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
+		#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
+		ENGINE.NpcManager.add_state(new_action)
 		return res
 
-	# figure out what direction npc should face
+	
+
+	# do talking stuff
+	var owner_group: GROUP = ENGINE.GroupManager.get_group(OWNER)
+	ENGINE.History.add_conversation_event(owner_group)
+	var group_participants: Array[NPC] = owner_group.PARTICIPANTS
+
+	# update_direction
 	var average_vector: Vector2 = Vector2.ZERO
 	var npc_counter:int = 0
-	for npc_id:String in witnesses:
-		var npc:NPC = Global.NPCS[npc_id]
+	for npc:NPC in group_participants:
+		if npc == OWNER: continue
+		#var npc:NPC = Global.NPCS[npc_id]
 		var direction:Vector2 = npc.LOCATION - OWNER.LOCATION
 		average_vector += direction
 		npc_counter += 1
@@ -79,35 +84,109 @@ func run() -> ActionResult:
 	var average_direction: Vector2 = Vector2(average_vector[0]/npc_counter, average_vector[1]/npc_counter)
 	OWNER.update_direction(average_direction)
 
-	
-	# if don't know a witness, introduce self
-	for npc_id:String in witnesses:
-		var checked_npc: NPC = Global.NPCS[npc_id]
-		if !OWNER.knows_npc(checked_npc): 
-			# introduce self
-			var tone: String = "" # will fix this eventualllyyyyy
-			ENGINE.History.add_introduce_event(OWNER, checked_npc, tone)	
-			#ENGINE.History.add_event(OWNER.ID, "introduce", npc_id)
-			return res
+	# process responses
+	for event:EVENT in RESPONSE_REQUESTS:
+		var response: String = event.process_response()
+		if response == "introduce":
+			# creates stupid infinite loop right now booooooo
+			# need to separate introducing self and prompting the other person into two different categories
+			print("introduction response: ", OWNER, event.SPEAKER)
+			var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
+			if added:
+				RESPONSE_REQUESTS = []
+				return res
+	RESPONSE_REQUESTS = []
 
-	# if any witnesses npc has not interacted with in x ticks, greet them
-	'''
-	figure this out later
-	'''
-	# then talk about topics
-	var new_topic: String = Dialogue.get_next_topic(RECENT_TOPIC)
+	# introduce self
+	for npc:NPC in group_participants:
+		if npc == OWNER: continue
+		if !OWNER.knows_npc(npc): 
+			# introduce self
+			print("introducing")
+			var added1:bool = ENGINE.History.add_statement_event(OWNER, npc)	
+			var added2:bool = ENGINE.History.add_prompt_event(OWNER, npc)
+			if added1 and added2:
+				return res
+
+	print("TALKING")
+
+	#var current_topic: String = owner_group.CURRENT_TOPIC
+	var new_topic: String = Dialogue.get_next_topic(owner_group.CURRENT_TOPIC)
 	var opinion: int = OWNER.OPINIONS[new_topic]
-	RECENT_TOPIC = new_topic
-	var params: Dictionary = {
-		"topic": new_topic,
-		"opinion": opinion
-	}
+	#RECENT_TOPIC = new_topic
+	owner_group.CURRENT_TOPIC = new_topic
+	# var params: Dictionary = {
+	# 	"topic": new_topic,
+	# 	"opinion": opinion
+	# }
 	#ENGINE.History.add_event(OWNER.ID, "converse", "", params)
 	ENGINE.History.add_dialogue_event(OWNER, new_topic, opinion)
 	refresh_needs("social")
 
-
 	return res
+
+
+# func run_old() -> ActionResult:
+# 	# right now only people who're in conversation with them can hear them (no walkbys)
+# 	print("running social action")
+# 	var res: ActionResult = ActionResult.new("running")
+# 	for event: EVENT in RESPONSE_REQUESTS:
+# 		var response: String = event.process_response()
+# 		if response == "introduce":
+# 			print("introduction check")
+# 			print(OWNER)
+# 			print(event.SPEAKER)
+# 			ENGINE.History.add_introduce_event(OWNER, event.SPEAKER, "")
+# 		else:
+# 			continue
+# 		RESPONSE_REQUESTS = []
+# 		#return res
+			
+# 	var witnesses: Array[String] = ENGINE.NpcManager.get_conversation_partners(OWNER)
+# 	if len(witnesses) == 0:
+# 		return res
+
+# 	# figure out what direction npc should face
+# 	var average_vector: Vector2 = Vector2.ZERO
+# 	var npc_counter:int = 0
+# 	for npc_id:String in witnesses:
+# 		var npc:NPC = Global.NPCS[npc_id]
+# 		var direction:Vector2 = npc.LOCATION - OWNER.LOCATION
+# 		average_vector += direction
+# 		npc_counter += 1
+	
+# 	var average_direction: Vector2 = Vector2(average_vector[0]/npc_counter, average_vector[1]/npc_counter)
+# 	OWNER.update_direction(average_direction)
+
+	
+# 	# if don't know a witness, introduce self
+# 	for npc_id:String in witnesses:
+# 		var checked_npc: NPC = Global.NPCS[npc_id]
+# 		if !OWNER.knows_npc(checked_npc): 
+# 			# introduce self
+# 			var tone: String = "" # will fix this eventualllyyyyy
+# 			ENGINE.History.add_introduce_event(OWNER, checked_npc, tone)	
+# 			#ENGINE.History.add_event(OWNER.ID, "introduce", npc_id)
+# 			return res
+
+# 	# if any witnesses npc has not interacted with in x ticks, greet them
+# 	'''
+# 	figure this out later
+# 	'''
+# 	# then talk about topics
+# 	var new_topic: String = Dialogue.get_next_topic(RECENT_TOPIC)
+# 	var opinion: int = OWNER.OPINIONS[new_topic]
+# 	RECENT_TOPIC = new_topic
+# 	var params: Dictionary = {
+# 		"topic": new_topic,
+# 		"opinion": opinion
+# 	}
+# 	#ENGINE.History.add_event(OWNER.ID, "converse", "", params)
+# 	ENGINE.History.add_dialogue_event(OWNER, new_topic, opinion)
+# 	refresh_needs("social")
+
+
+# 	return res
 
 
 

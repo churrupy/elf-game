@@ -8,10 +8,10 @@ func _init(owner:Node) -> void:
 	OWNER = owner
 
 func get_all_tags() -> Array[String]:
-	print(OWNER)
+	#print(OWNER)
 	var tag_list: Array[String]
 	for item: ITEM in ITEMS:
-		print(item)
+		#print(item)
 		tag_list += item.TAGS
 	return tag_list
 

@@ -36,7 +36,7 @@ func tick() -> ActionResult:
 		#res = ["end", null]
 	elif OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		res.STATUS = "add"
-		res.NEW_ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, ID)
+		res.NEW_ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, self)
 	else:
 		res = run()
 	OWNER.decay_needs()

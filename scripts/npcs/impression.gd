@@ -5,6 +5,7 @@ var TARGET: NPC
 
 var ATTRACTIVE: int = 0
 var OPINIONS: Dictionary[String, int]
+var SCORE: int = 0
 
 func _init(owner: NPC, target: NPC) -> void:
 	OWNER = owner
@@ -18,8 +19,10 @@ func to_wiki() -> Wiki:
 		new_wiki.add_to_wiki("is")
 		if ATTRACTIVE == 1:
 			new_wiki.add_to_wiki("attractive", "label", Color.GREEN)
+			SCORE += 1
 		elif ATTRACTIVE == -1:
 			new_wiki.add_to_wiki("unattractive", "label", Color.RED)
+			SCORE -= 1
 		new_wiki.add_to_wiki("and")
 	var likes: Array[String]
 	var dislikes: Array[String]
@@ -37,8 +40,10 @@ func to_wiki() -> Wiki:
 			var target_opinion = OPINIONS[op]
 			if owner_opinion == target_opinion:
 				new_wiki.add_to_wiki(op, "button", Color.GREEN)
+				SCORE += 1
 			elif owner_opinion + target_opinion == 0:
 				new_wiki.add_to_wiki(op, "button", Color.RED)
+				SCORE -= 1
 			else:
 				new_wiki.add_to_wiki(op, "button", Color.WHITE)
 
@@ -49,8 +54,10 @@ func to_wiki() -> Wiki:
 			var target_opinion = OPINIONS[op]
 			if owner_opinion == target_opinion:
 				new_wiki.add_to_wiki(op, "button", Color.GREEN)
+				SCORE += 1
 			elif owner_opinion + target_opinion == 0:
 				new_wiki.add_to_wiki(op, "button", Color.RED)
+				SCORE -= 1
 			else:
 				new_wiki.add_to_wiki(op, "button", Color.WHITE)
 	

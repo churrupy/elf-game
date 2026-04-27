@@ -251,18 +251,18 @@ func get_all_locations() -> Array[Vector2]:
 
 func filter_closest_interactable_locations(start_loc: Vector2, loc_list: Array[Vector2]) -> Array[Vector2]:
 	# takes in a list of target locations, determines if that location is interactable on-location, and if not, then find the closest interactable location to the start location
-	var return_list: Array[Vector2] 
+	var res_list: Array[Vector2] 
 	for loc: Vector2 in loc_list:
 		var passable: bool = is_passable(loc)
 		if passable:
-			return_list.append(loc)
+			res_list.append(loc)
 		else:
 			var new_loc: Vector2 = get_closest_adjacent_location(start_loc, loc)
 			if new_loc == Vector2.INF:
 				continue
-			return_list.append(new_loc)
+			res_list.append(new_loc)
 	
-	return return_list
+	return res_list
 
 func filter_closest_interactable_locations_dict(start_loc:Vector2, loc_list:Array[Vector2]) -> Dictionary:
 	# returns {closest_loc: target_loc}

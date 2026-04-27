@@ -1,6 +1,6 @@
-class_name IntroductionEvent extends EVENT
+class_name PromptEvent extends EVENT
 
-var SPEAKER: NPC
+var SPEAKER:NPC
 var TARGET:NPC
 var TONE:String
 
@@ -13,8 +13,7 @@ func _init(speaker:NPC, target:NPC, tone:String = "neutral") -> void:
 	HEARABLE = true
 	LOCATION = speaker.LOCATION
 	TYPE = "converse"
-	generate_tags()   
-
+	generate_tags()
 
 func generate_tags() -> void:
 	TAGS.append(TONE)
@@ -22,7 +21,7 @@ func generate_tags() -> void:
 
 func is_equal(other_event: EVENT) -> bool:
 	if self == other_event: return true
-	if other_event is not IntroductionEvent: return false
+	if other_event is not PromptEvent: return false
 	if SPEAKER != other_event.SPEAKER: return false
 	if TARGET != other_event.TARGET: return false
 	return true
@@ -31,25 +30,28 @@ func _to_string() -> String:
 	var display_list: Array[String] = [
 		"[{0}]".format([TICK]),
 		SPEAKER.NAME,
-		"introduces themselves to",
+		"asks",
 		TARGET.NAME,
-		"in a {0} tone.".format([TONE])
+		"their name"
 	]
+
+	if TONE != "":
+		display_list += [
+			"in a {0} tone.".format([TONE])		
+		]
 
 	var display_string:String = " ".join(display_list)
 	return display_string
 
 func process_involvement(npc:NPC) -> void:
 	if npc == SPEAKER:
-		npc.add_witness_report(self, "participant") 
+		npc.add_witness_report(self, "participant")
 	else:
 		if npc == TARGET:
 			npc.requests_response(self)
 		npc.add_witness_report(self, "witness")
 
 func process_response() -> String:
-	# they all respond for now
-	# eventually figure out when someone will ignore a response request
 	return "introduce"
 
 func includes_npc(target:NPC) -> bool:
@@ -58,14 +60,16 @@ func includes_npc(target:NPC) -> bool:
 func get_all_participants() -> Array[NPC]:
 	return [SPEAKER]
 
-
 func to_wiki() -> Wiki:
 	var new_wiki: Wiki = Wiki.new()
 	new_wiki.add_to_wiki("[{0}]".format([TICK]))
 	new_wiki.add_to_wiki(SPEAKER.ID, "button", Color.WHITE, true)
-	new_wiki.add_to_wiki("introduces themselves to")
+	new_wiki.add_to_wiki("asks")
 	new_wiki.add_to_wiki(TARGET.ID, "button", Color.WHITE, true)
-	new_wiki.add_to_wiki("in a")
-	new_wiki.add_to_wiki(TONE, "button")
-	new_wiki.add_to_wiki("tone")
+	new_wiki.add_to_wiki("their name")
+	
+	if TONE != "":
+		new_wiki.add_to_wiki("in a")
+		new_wiki.add_to_wiki(TONE, "button")
+		new_wiki.add_to_wiki("tone")
 	return new_wiki

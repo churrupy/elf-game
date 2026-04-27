@@ -32,7 +32,7 @@ func get_inventory_of(id:String) -> INVENTORY:
 	return null
 
 func add_to_inventory(owner: Node, item: ITEM) -> void:
-	print("adding", item, "to", owner.NAME, "'s inventory")
+	#print("adding", item, "to", owner.NAME, "'s inventory")
 	var inventory: INVENTORY = get_inventory_of(owner.ID)
 	inventory.ITEMS.append(item)
 
@@ -62,10 +62,10 @@ func get_first_tagged_from_inventory(owner:Node, tag:String) -> ITEM:
 
 func inventory_has(owner:Node, tag:String) -> bool:
 	var inventory = get_inventory_of(owner.ID)
-	print(inventory)
-	print(inventory.ITEMS)
+	#print(inventory)
+	#print(inventory.ITEMS)
 	for item: ITEM in inventory.ITEMS:
-		print(item)
+		#print(item)
 		if tag in item.TAGS:
 			return true
 	return false
@@ -97,7 +97,7 @@ func get_inventory_at_location(loc:Vector2) -> INVENTORY:
 	else:
 		# multiple 
 		# also shouldn't happen but i'm less confident in it
-		print(inventory_list)
+		#print(inventory_list)
 		push_error("Multiple inventories at ", ENGINE.prettify_vector(loc))
 		return null
 
@@ -105,47 +105,47 @@ func get_inventory_at_location(loc:Vector2) -> INVENTORY:
 func filter_inventories_by_tag(tag:String) -> Array[INVENTORY]:
 	# doesn't check npc inventories because that's pickpocketing
 	# i'll figure out how I want to properly deal with this later
-	var return_list: Array[INVENTORY]
+	var res_list: Array[INVENTORY]
 	for inventory:INVENTORY in INVENTORIES:
 		if inventory.OWNER is NPC: continue
 		var tag_list: Array[String] = inventory.get_all_tags()
 		if tag in tag_list:
-			return_list.append(inventory)
-	return return_list
+			res_list.append(inventory)
+	return res_list
 
 
 func filter_locations_by_tag(tag:String, loc_list:Array[Vector2] = get_inventory_locations()) -> Array[Vector2]:
 	# only returns tile/furniture inventory locations
-	var return_list: Array[Vector2]
+	var res_list: Array[Vector2]
 	for loc:Vector2 in loc_list:
 		var inventory: INVENTORY = get_inventory_at_location(loc)
 		var tags: Array[String] = inventory.get_all_tags()
 		if tag in tags:
-			return_list.append(loc)
-	return return_list
+			res_list.append(loc)
+	return res_list
 
 
 func get_inventory_locations(inv_list:Array[INVENTORY] = INVENTORIES) -> Array[Vector2]:
 	# immobile inventories only
-	var return_list: Array[Vector2]
+	var res_list: Array[Vector2]
 	for inventory:INVENTORY in inv_list:
 		if inventory.OWNER is NPC: continue
-		return_list.append(inventory.OWNER.LOCATION)
-	return return_list
+		res_list.append(inventory.OWNER.LOCATION)
+	return res_list
 
 
 func print_inventory_at_location(loc: Vector2) -> void:
 	# immobile inventories only
 	var inventory: INVENTORY = get_inventory_at_location(loc)
-	print(inventory)
+	#print(inventory)
 
 func get_locations_of_tag(tag:String) -> Array[Vector2]:
 	var inventories: Array[INVENTORY] = filter_inventories_by_tag(tag)
-	var return_list: Array[Vector2]
+	var res_list: Array[Vector2]
 	for inventory:INVENTORY in inventories:
 		var loc: Vector2 = inventory.OWNER.LOCATION
-		return_list.append(loc)
-	return return_list
+		res_list.append(loc)
+	return res_list
 	
 
 

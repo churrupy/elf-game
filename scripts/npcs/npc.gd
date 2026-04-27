@@ -37,7 +37,7 @@ var DISLIKES: Array[String]
 
 
 var NEEDS: Dictionary = {
-	"hunger": 40.0,
+	"hunger": 90.0,
 	"energy": 90.0,
 	"release": 90.0,
 	"social": 90.0,
@@ -175,31 +175,33 @@ func _to_string():
 func knows_npc(target:NPC) -> bool:
 	for report: WitnessReport in MEMORIES:
 		var event:EVENT = report.EVENT_WITNESSED
-		if event is not IntroductionEvent: continue
+		if event is not StatementEvent: continue
 		if event.SPEAKER == target: return true
 	return false
 
 func filter_memories_by_npc(target:NPC, report_list: Array[WitnessReport] = MEMORIES) -> Array[WitnessReport]:
-	var return_list: Array[WitnessReport]
+	var res_list: Array[WitnessReport]
 	for report: WitnessReport in MEMORIES:
 		if report.includes_npc(target):
-			return_list.append(report)
-	return return_list
+			res_list.append(report)
+	return res_list
 
 func filter_memories_by_event(event: EVENT, report_list: Array[WitnessReport] = MEMORIES) -> Array[WitnessReport]:
-	var return_list: Array[WitnessReport]
+	var res_list: Array[WitnessReport]
 	for report: WitnessReport in MEMORIES:
 		if report.EVENT_WITNESSED == event:
-			return_list.append(report)
-	return return_list
+			res_list.append(report)
+	return res_list
 
 func get_report_wikis(report_list: Array[WitnessReport] = MEMORIES) -> Array[Wiki]:
 	var wiki_list: Array[Wiki]
 	for report:WitnessReport in report_list:
-		wiki_list.append(report.to_wiki())
+		var new_wiki: Wiki = report.to_wiki()
+		if new_wiki != null:
+			wiki_list.append(report.to_wiki())
 	return wiki_list
 
-func get_all_witnessed_npcs(report_list: Array[WitnessReport] = MEMORIES) -> Array[NPC]:
+func get_all_witnessed_npcs(report_list:Array[WitnessReport] = MEMORIES) -> Array[NPC]:
 	# returns all npcs that self has witnessed
 	var npc_list: Array[NPC]
 	for report: WitnessReport in report_list:
@@ -235,13 +237,22 @@ func get_impression_of_npc(npc:NPC) -> Impression:
 
 	return impression
 
-func get_all_impressions() -> Array[Impression]:
+func get_all_impressions_old() -> Array[Impression]:
 	var witnessed_npcs: Array[NPC] = get_all_witnessed_npcs()
 	var impression_list: Array[Impression]
 	for w:NPC in witnessed_npcs:
 		var new_impression: Impression = get_impression_of_npc(w)
 		impression_list.append(new_impression)
 	return impression_list
+
+func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
+	if npc_list == []:
+		npc_list = get_all_witnessed_npcs()
+	var res_list:Array[Impression]
+	for npc:NPC in npc_list:
+		var impression: Impression = get_impression_of_npc(npc)
+		res_list.append(impression)
+	return res_list
 
 #endregion memories
 

@@ -25,6 +25,7 @@ func create_npc() -> void:
 	NPCS.append(npc)
 	Global.NPCS[npc.ID] = npc
 	ENGINE.InventoryManager.create_inventory(npc)
+	ENGINE.GroupManager.create_group(npc)
 	
 	# initialize state stack
 	var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)
@@ -42,10 +43,10 @@ func tick() -> void:
 
 
 		var current_action: ACTION = npc.STATE_STACK.back()
-		print (current_action)
+		print ("current_action: ", current_action)
 
 		var result: ActionResult = current_action.tick()
-		print(result)
+		#print(result)
 
 		if result.STATUS == "add":
 			current_action.suspend_state()
@@ -63,7 +64,8 @@ func tick() -> void:
 		elif result.STATUS == "end":
 			current_action.exit_state()
 			npc.STATE_STACK.pop_back()
-			var old_action:ACTION = npc.STATE_STACK[-1]
+			print(npc.STATE_STACK)
+			var old_action:ACTION = npc.STATE_STACK.back()
 			old_action.resume_state()
 			'''
 			var new_action:ACTION = current_action.exit_state()
@@ -75,27 +77,43 @@ func tick() -> void:
 			else:
 				var next_action: ACTION = npc.STATE_STACK.back()
 				next_action.resume_state()
-			'''				
+			'''		
+		elif result.STATUS == "clear":
+			current_action.exit_state()
+			print("clearing " + npc.NAME + "'s actions")
+			var idle_action:IdleAction = npc.STATE_STACK[0]
+			npc.STATE_STACK = [idle_action]
+
 		else:
 			# state continues running
 			#assumes result is ["running", null]
 			pass
+
+		# this setup seems weird lol
+		current_action = npc.STATE_STACK.back()
+		
 		if current_action.CHATTABLE:
 			var _res: ActionResult = npc.SOCIAL_ACTION.run()
+
+		current_action = npc.STATE_STACK.back()
+		print("new action: ", current_action)
+		#print(npc.STATE_STACK)
+		
 		#npc.decay_needs()
 
 
 func add_state(new_action:ACTION) -> void:
-	print(new_action)
+	#print(new_action)
 	var npc = new_action.OWNER
 	var current_action: ACTION = npc.STATE_STACK.back()
 	current_action.suspend_state()
 	new_action.enter_state()
 	npc.STATE_STACK.append(new_action)
 
-func add_state_new(new_action: ACTION) -> void:
-	var npc = new_action.OWNER
-	npc.CURRENT_ACTION = new_action
+# func add_state_new(new_action: ACTION) -> void:
+# 	var npc = new_action.OWNER
+# 	npc.CURRENT_ACTION = new_action
+	
 
 func update() -> void:
 	# updates display, does not tick npcs
@@ -158,6 +176,31 @@ func filter_reserved_locations(loc_list: Array[Vector2]) -> Array[Vector2]:
 		if is_reserved(loc): continue
 		free_loc.append(loc)
 	return free_loc
+
+func filter_nearby_npcs(origin:NPC, npc_list: Array[NPC] = NPCS) -> Array[NPC]:
+	# should probably change this to taking in a location instead of an npc lol
+	# BUT NOT RIGHT NOW
+	var res_list: Array[NPC]
+	var max_distance: float = 100.0 # sure
+	for npc:NPC in npc_list:
+		if npc == origin: continue
+		var distance: float = origin.LOCATION.distance_to(npc.LOCATION)
+		if distance < max_distance:
+			res_list.append(npc)
+	return res_list
+
+
+func filter_available_npcs(npc_list:Array[NPC] = NPCS) -> Array[NPC]:
+	var res_list: Array[NPC]
+	for npc:NPC in npc_list:
+		if is_chattable(npc):
+			res_list.append(npc)
+	return res_list
+
+
+func is_chattable(npc:NPC) -> bool:
+	var current_action: ACTION = npc.STATE_STACK[-1]
+	return current_action.CHATTABLE
 
 
 #endregion filters
