@@ -20,14 +20,14 @@ func _init(engine) -> void:
 func generate_list(_origin:Vector2, radius:int) -> LOCATION_FILTER:
 	# will create a rectangle
 	origin = _origin
-	print("generating list")
-	print(origin, distance)
+	#print("generating list")
+	#print(origin, distance)
 	for i in range(int(origin[0])-radius, int(origin[0])+radius+1):
 		if i < 0 or i >= Constants.MAP_SIZE[0]: continue
 		for j in range(int(origin[1])-radius, int(origin[1])+radius+1):
 			if j < 0 or j >= Constants.MAP_SIZE[1]: continue
 			loc_list.append(Vector2(i,j))
-	print("neighbors:", loc_list)
+	#print("neighbors:", loc_list)
 	return self
 
 

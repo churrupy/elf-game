@@ -39,18 +39,21 @@ func score() -> void:
 		return
 	LOCATION = closest_location
 
+# func tick() -> ActionResult:
+# 	var res:ActionResult = ActionResult.new("running", null)
+# 	if !can_do_action():
+# 		res.STATUS = "end"
+# 		#res = ["end", null]
+# 	elif OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+# 		res.STATUS = "add"
+# 		res.NEW_ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, self)
+# 	else:
+# 		res = run()
+# 	OWNER.decay_needs()
+# 	return res
+
 func tick() -> ActionResult:
-	var res:ActionResult = ActionResult.new("running", null)
-	if !can_do_action():
-		res.STATUS = "end"
-		#res = ["end", null]
-	elif OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
-		res.STATUS = "add"
-		res.NEW_ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, self)
-	else:
-		res = run()
-	OWNER.decay_needs()
-	return res
+	return run()
 
 func run() -> ActionResult:
 	var status: STATUS = determine_next_action()

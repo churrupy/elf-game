@@ -420,7 +420,7 @@ var FURNITURE: Dictionary ={
 	},
 	"toilet": {
 		"type": "chair",
-		"tags": [],
+		"tags": ["fill_bladder"],
 		"sprite": "toilet.png"
 	},
 	"wall": {

@@ -256,7 +256,6 @@ func filter_closest_interactable_locations_dict(start_loc:Vector2, loc_list:Arra
 	return return_dict
 
 
-
 #endregion filters
 
 
@@ -400,10 +399,10 @@ func highlight_tile(loc: Vector2, highlight_color: Color) -> void:
 	var tile: TILE = get_tile(loc)
 	tile.modulate = highlight_color
 
-func get_furniture(id:String) -> Furniture:
-	for furn: Furniture in FURNITURE:
-		if furn.ID == id: return furn
-	return null
+# func get_furniture(id:String) -> Furniture:
+# 	for furn: Furniture in FURNITURE:
+# 		if furn.ID == id: return furn
+# 	return null
 
 func get_furniture_or_tile(id:String) -> Node:
 	# tries to return furniture with id, if not return tile with id

@@ -2,7 +2,7 @@ class_name MoveAction extends ACTION
 
 var MOVING_FOR:ACTION
 
-func _init(engine, owner: NPC, target: TILE, moving_for:ACTION) -> void:
+func _init(engine, owner: NPC, target: Node, moving_for:ACTION) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "move"
