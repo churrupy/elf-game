@@ -18,11 +18,14 @@ func tick() -> ActionResult:
 
 func run() -> ActionResult:
 	# check if target is still available
-	var target_list:Array[NPC] = [TARGET]
-	var available_npcs:Array[NPC] = ENGINE.NpcManager.filter_available_npcs(target_list)
-	if len(available_npcs) == 0:
+	var target_action:ACTION = TARGET.STATE_STACK[-1]
+	if !target_action.CHATTABLE:
 		print("npc now unavailable")
 		return ActionResult.new("end")
+	# var available_npcs:Array[NPC] = ENGINE.NpcManager.filter_available_npcs([TARGET])
+	# if len(available_npcs) == 0:
+	# 	print("npc now unavailable")
+	# 	return ActionResult.new("end")
 
 	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		#print("moving to npc")

@@ -48,10 +48,10 @@ func tick() -> ActionResult:
 
 func run() -> ActionResult:
 	var res: ActionResult = ActionResult.new("running")
+
 	if !ENGINE.GroupManager.is_conversing(OWNER):
-		# hop into a group
-		var nearby_npcs:Array[NPC] = ENGINE.NpcManager.filter_nearby_npcs(OWNER)
-		var available_npcs:Array[NPC] = ENGINE.NpcManager.filter_available_npcs(nearby_npcs)
+		var filter:NPC_FILTER = NPC_FILTER.new().set_list(ENGINE.NpcManager.NPCS).in_range_of(OWNER.LOCATION, 10).is_available().is_not([OWNER])
+		var available_npcs:Array[NPC] = filter.run_filter()
 		if len(available_npcs) == 0:
 			print("no available npcs to talk to")
 			return res
@@ -63,7 +63,6 @@ func run() -> ActionResult:
 		#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
 		ENGINE.NpcManager.add_state(new_action)
 		return res
-
 	
 
 	# do talking stuff

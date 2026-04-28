@@ -18,9 +18,15 @@ func _process(_delta: float) -> void:
 
 func create_npc() -> void:
 	var npc: NPC = NPC.new()
-	var passable_locations: Array[Vector2] = ENGINE.Map.filter_passable_locations()
-	#var tile: TILE = ENGINE.Map.random_empty_tile()
-	npc.LOCATION = passable_locations.pick_random()
+	#var passable_locations: Array[Vector2] = ENGINE.Map.filter_passable_locations()
+
+	# I want to use this one VVV but NpcManager isn't finished being constructed when being called, so maybe i'll figure out somehow to get around that
+	#var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list().is_passable().is_available()
+	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list().is_passable()
+	var filtered_locations:Array[Vector2] = loc_filter.run_filter()
+
+
+	npc.LOCATION = filtered_locations.pick_random()
 	npc.initialize()
 	NPCS.append(npc)
 	Global.NPCS[npc.ID] = npc
@@ -31,8 +37,7 @@ func create_npc() -> void:
 	var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)
 	npc.STATE_STACK.append(new_action)
 	npc.SOCIAL_ACTION = SocialAction_new.new(ENGINE, npc)
-	
-	#ENGINE.History.add_event(npc.ID, "created", npc.LOCATION)
+
 
 
 func tick() -> void:
@@ -51,33 +56,20 @@ func tick() -> void:
 		if result.STATUS == "add":
 			current_action.suspend_state()
 			result.NEW_ACTION.enter_state()
-			#var new_action:ACTION = result[1]
-			#new_action.enter_state()
 			npc.STATE_STACK.append(result.NEW_ACTION)
+
 		elif result.STATUS == "replace":
 			current_action.exit_state()
 			npc.STATE_STACK.pop_back()
-			#var new_action:ACTION = result[1]
-			#new_action.enter_state()
 			result.NEW_ACTION.enter_state()
 			npc.STATE_STACK.append(result.NEW_ACTION)
+
 		elif result.STATUS == "end":
 			current_action.exit_state()
 			npc.STATE_STACK.pop_back()
-			print(npc.STATE_STACK)
 			var old_action:ACTION = npc.STATE_STACK.back()
 			old_action.resume_state()
-			'''
-			var new_action:ACTION = current_action.exit_state()
-			
-			npc.STATE_STACK.pop_back()
-			if new_action != null:
-				new_action.enter_state()
-				npc.STATE_STACK.append(new_action)
-			else:
-				var next_action: ACTION = npc.STATE_STACK.back()
-				next_action.resume_state()
-			'''		
+
 		elif result.STATUS == "clear":
 			current_action.exit_state()
 			print("clearing " + npc.NAME + "'s actions")
@@ -110,11 +102,6 @@ func add_state(new_action:ACTION) -> void:
 	new_action.enter_state()
 	npc.STATE_STACK.append(new_action)
 
-# func add_state_new(new_action: ACTION) -> void:
-# 	var npc = new_action.OWNER
-# 	npc.CURRENT_ACTION = new_action
-	
-
 func update() -> void:
 	# updates display, does not tick npcs
 	print("updating npc manager")
@@ -129,24 +116,21 @@ func update() -> void:
 		if y_index < 0:
 			continue
 
-		#if npc.ID in ENGINE.HOVER_NPCS:
-			#npc.sprite_hover()
-		#else:
-			#npc.sprite_hoveroff()
-
 		add_child(npc)
 		npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
 		npc.global_position[1] = y_index * Constants.TILE_SIZE
 		npc.global_position = npc.global_position + Vector2(Constants.TILE_SIZE/2, Constants.TILE_SIZE/2)
 		npc.show()
-		var can_see_npcs: Array[String] = can_see(npc)
-		var looking_at: Array[Vector2]
-		for npc_id:String in can_see_npcs:
-			var checked_npc:NPC = Global.NPCS[npc_id]
-			looking_at.append(checked_npc.LOCATION)
-		npc.LOOKING_AT = looking_at
+
+		# draws line between npc and the other npcs it can see (that are close by)
+		# does not show ALL other npcs an npc can see, just the close ones
+		var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(npc.LOCATION, 2).in_arc_of(npc.DIRECTION)
+		var can_see_npcs:Array[NPC] = filter.run_filter()
+		npc.LOOKING_AT = []
+		for checked_npc:NPC in can_see_npcs:
+			npc.LOOKING_AT.append(checked_npc.LOCATION)
 		npc.queue_redraw()
-			#draw_line(npc.position, checked_npc.position, Color.WHITE, -1.0)
+
 
 		# highlight reserved tile
 		var current_action: ACTION = npc.STATE_STACK[-1]
@@ -154,20 +138,26 @@ func update() -> void:
 		if reserved_loc != Vector2.INF:
 			ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
 
-
 func broadcast_event(event:EVENT) -> void:
-	# within hearing distance
+	var _witnesses:Array[NPC]
+
 	if event.HEARABLE:
-		var nearby_npcs: Array[String] = get_nearby_npcs(event.LOCATION)
-		for npc_id:String in nearby_npcs:
-			var npc:NPC = Global.NPCS[npc_id]
-			event.process_involvement(npc)
-	# can be seen by
-	if event.SEEABLE:
-		for npc:NPC in NPCS:
-			if can_see_location(npc, event.LOCATION):
-				event.process_involvement(npc)
+		var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(event.LOCATION, 2)
+		var hearing_npcs:Array[NPC] = filter.run_filter()
+		_witnesses += hearing_npcs
 	
+	if event.SEEABLE:
+		var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(event.LOCATION, 10).looking_at()
+		var seeing_npcs:Array[NPC] = filter.run_filter()
+		_witnesses += seeing_npcs
+
+	var witness_list:Array[NPC]
+	for npc:NPC in _witnesses:
+		if npc not in witness_list:
+			event.process_involvement(npc)
+			witness_list.append(npc)
+
+
 
 #region filters
 func filter_reserved_locations(loc_list: Array[Vector2]) -> Array[Vector2]:
@@ -177,30 +167,13 @@ func filter_reserved_locations(loc_list: Array[Vector2]) -> Array[Vector2]:
 		free_loc.append(loc)
 	return free_loc
 
-func filter_nearby_npcs(origin:NPC, npc_list: Array[NPC] = NPCS) -> Array[NPC]:
-	# should probably change this to taking in a location instead of an npc lol
-	# BUT NOT RIGHT NOW
-	var res_list: Array[NPC]
-	var max_distance: float = 100.0 # sure
-	for npc:NPC in npc_list:
-		if npc == origin: continue
-		var distance: float = origin.LOCATION.distance_to(npc.LOCATION)
-		if distance < max_distance:
-			res_list.append(npc)
-	return res_list
 
-
-func filter_available_npcs(npc_list:Array[NPC] = NPCS) -> Array[NPC]:
-	var res_list: Array[NPC]
-	for npc:NPC in npc_list:
-		if is_chattable(npc):
-			res_list.append(npc)
-	return res_list
-
-
-func is_chattable(npc:NPC) -> bool:
-	var current_action: ACTION = npc.STATE_STACK[-1]
-	return current_action.CHATTABLE
+func is_reserved(location: Vector2) -> bool:
+	for npc:NPC in NPCS:
+		var current_action:ACTION = npc.STATE_STACK.back()
+		if current_action.LOCATION == location:
+			return true
+	return false
 
 
 #endregion filters
@@ -256,18 +229,14 @@ func is_available(npc: NPC) -> bool:
 	return true
 
 
-func is_reserved(location: Vector2) -> bool:
-	for npc:NPC in NPCS:
-		var current_action:ACTION = npc.STATE_STACK.back()
-		if current_action.LOCATION == location:
-			return true
-	return false
+
 
 
 #region vector2
 
 
 func get_nearby_npcs(location: Vector2) -> Array[String]:
+	#will eventually delete this
 	var nearby_npcs: Array[String]
 	for npc: NPC in NPCS:
 		if int(npc.LOCATION[0]) not in range(location[0]-1, location[0]+2): continue
@@ -285,47 +254,26 @@ func get_npc_from_location(location: Vector2) -> Array[String]:
 
 #endregion
 
-func get_conversation_partners(npc:NPC) -> Array[String]:
-	# will eventually be around the Conversation Center
-	var nearby_npcs: Array[String] = get_nearby_npcs(npc.LOCATION)
-	var npc_index: int = nearby_npcs.find(npc.ID)
-	if npc_index > -1:
-		nearby_npcs.pop_at(npc_index)
-	# filters out people who are moving
-	var conversation_partners: Array[String]
-	for npc_id: String in nearby_npcs:
-		if npc_id == npc.ID: continue
-		var checked_npc:NPC = Global.NPCS[npc_id]
-		var current_action: ACTION = checked_npc.STATE_STACK[-1]
-		if current_action is MoveAction: continue # if they're moving they're not part of the conversation
-		conversation_partners.append(npc_id)
-
-	return conversation_partners
 
 
-func can_see_location(npc:NPC, loc:Vector2) -> bool:
-	#only checks angle, not distance right now
-	# ALSO doesn't take into consideration whether stuff is visually in the way lol
-	# this will be hella changed in the future i bet lol
+func can_see(npc:NPC) -> Array[NPC]:
+	var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(npc.LOCATION, 10).in_arc_of(npc.DIRECTION)
+	var result_list:Array[NPC] = filter.run_filter()
+	return result_list
 
-	var direction: Vector2 = npc.LOCATION.direction_to(loc) # checking if looking in the correct direction
-	if direction.dot(npc.DIRECTION) > -0.5:
-		if ENGINE.Map.is_in_line_of_sight(npc.LOCATION, loc):
-			return true
-	
-	return false
-
-
-func can_see(npc:NPC) -> Array[String]:
-	var nearby_npcs: Array[String] = get_nearby_npcs(npc.LOCATION)
-	var can_see_list: Array[String]
-	for npc_id:String in nearby_npcs:
-		if npc_id == npc.ID: continue
-		var checked_npc:NPC = Global.NPCS[npc_id]
-		var direction = npc.LOCATION.direction_to(checked_npc.LOCATION)
-		if direction.dot(npc.DIRECTION)> -0.5:
-			can_see_list.append(npc_id)
-	return can_see_list
 
 
 #endregion utility
+
+
+#region convert
+func get_npc_names(npc_list:Array[NPC]=NPCS) -> Array[String]:
+	# HUH BLUH BLUH HOW DOES ECS WORK BLU BLUH
+	var result_list:Array[String]
+	for npc:NPC in npc_list:
+		result_list.append(npc.NAME)
+	return result_list
+
+
+
+#endregion

@@ -39,8 +39,9 @@ func _ready() -> void:
 	_str = "Facing: " + ENGINE.prettify_vector(DISPLAY_NPC.DIRECTION)
 	display_string.append(_str)
 
-	var can_see_list: Array[String] = ENGINE.NpcManager.can_see(DISPLAY_NPC)
-	_str = "Looking At: " + ", ".join(can_see_list)
+	var _can_see_npc_list: Array[NPC] = ENGINE.NpcManager.can_see(DISPLAY_NPC)
+	var _can_see_names:Array[String] = ENGINE.NpcManager.get_npc_names(_can_see_npc_list)
+	_str = "Looking At: " + ", ".join(_can_see_names)
 	display_string.append(_str)
 
 	_str = "Current Topic: " + str(DISPLAY_NPC.SOCIAL_ACTION.RECENT_TOPIC)

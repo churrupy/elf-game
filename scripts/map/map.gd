@@ -61,13 +61,6 @@ func _init(engine, room) -> void:
 					
 
 
-	# for loc: Array in room_data["special"]:
-	# 	var type: String = room_data["special"][loc]
-	# 	var index = (loc[1] * width) + loc[0]
-	# 	TILES[index].TYPE = type
-	# 	TILES[index].initialize()
-
-
 #endregion init
 
 #region update
@@ -97,15 +90,6 @@ func update() -> void:
 		else: 
 			tile.modulate = Color(1,1,1)
 		
-		
-		# var x_index = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(x)
-		# var y_index = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(y)
-		# tile.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
-		# tile.global_position[1] = y_index * Constants.TILE_SIZE
-		
-		
-
-		#tile.show()
 
 	for furniture: Furniture in FURNITURE:
 		var screen_index: Vector2 = ENGINE.get_screen_index(furniture.LOCATION)
@@ -209,14 +193,6 @@ func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
 #endregion raypath
 
 
-# func filter_loc_in_direction(origin:Vector2, direction:Vector2) -> Array[Vector2]:
-# 	var filtered_loc: Array[Vector2]
-# 	for tile: TILE in TILES:
-# 		var checked_direction: Vector2 = origin.direction_to(tile.LOCATION)
-# 		if checked_direction == direction:
-# 			filtered_loc.append(tile.LOCATION)
-# 	return filtered_loc
-
 #region filters
 
 func is_passable(loc: Vector2) -> bool:
@@ -236,12 +212,12 @@ func is_loc_visible(loc: Vector2) -> bool:
 				return false
 	return true
 
-func filter_passable_locations(v_list: Array[Vector2] = get_all_locations()) -> Array[Vector2]:
-	var passable_loc: Array[Vector2]
-	for v: Vector2 in v_list:
-		if is_passable(v):
-			passable_loc.append(v)
-	return passable_loc
+# func filter_passable_locations(v_list: Array[Vector2] = get_all_locations()) -> Array[Vector2]:
+# 	var passable_loc: Array[Vector2]
+# 	for v: Vector2 in v_list:
+# 		if is_passable(v):
+# 			passable_loc.append(v)
+# 	return passable_loc
 
 func get_all_locations() -> Array[Vector2]:
 	var loc_list: Array[Vector2]
@@ -279,64 +255,43 @@ func filter_closest_interactable_locations_dict(start_loc:Vector2, loc_list:Arra
 	return return_dict
 
 
-# func get_tiles_from_vector_list(vector_list: Array[Vector2]) -> Array[TILE]:
-# 	if len(vector_list) == 0:
-# 		return TILES
-# 	var tile_list: Array[TILE]
-# 	for v: Vector2 in vector_list:
-# 		var tile: TILE = get_tile(v)
-# 		tile_list.append(tile)
-# 	return tile_list
-
-
-# func filter_passable_locations_old(vector_list: Array[Vector2] = []) -> Array[Vector2]:
-# 	var tile_list: Array[TILE] = get_tiles_from_vector_list(vector_list)
-# 	var passable_locations: Array[Vector2]
-# 	for tile: TILE in tile_list:
-# 		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
-# 		if tile_data["impassable"] == false:
-# 			passable_locations.append(tile.LOCATION)
-# 	return passable_locations
-
-
-# func is_impassable_old(location: Vector2) -> bool:
-# 	var tile: TILE = get_tile(location)
-# 	if tile == null:
-# 		return true
-# 	var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
-# 	return tile_data["impassable"]
-
-
-
 
 #endregion filters
 
 
 #region utility
 
-func get_neighbors(location: Vector2) -> Array[Vector2]:
+func get_neighbors(loc:Vector2) -> Array[Vector2]:
+	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(loc, 1).is_passable()
+	var result_list:Array[Vector2] = loc_filter.run_filter()
+	return result_list
 
-	var neighbors: Array[Vector2] = [
-		# adjacent
-		location + Vector2(1,0),
-		location + Vector2(-1,0),
-		location + Vector2(0,1),
-		location + Vector2(0,-1),
-		# diaglonals
-		location + Vector2(1,1),
-		location + Vector2(1,-1),
-		location + Vector2(-1,1),
-		location + Vector2(-1,-1)
-	]
+# func get_neighbors_old(location: Vector2) -> Array[Vector2]:
 
-	var valid_neighbors: Array[Vector2]
-	for n: Vector2 in neighbors:
-		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]: continue
-		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]: continue
-		if !is_passable(n): continue
-		valid_neighbors.append(n)
-	var passable_locations: Array[Vector2] = filter_passable_locations(valid_neighbors)
-	return passable_locations
+# 	var neighbors: Array[Vector2] = [
+# 		# adjacent
+# 		location + Vector2(1,0),
+# 		location + Vector2(-1,0),
+# 		location + Vector2(0,1),
+# 		location + Vector2(0,-1),
+# 		# diaglonals
+# 		location + Vector2(1,1),
+# 		location + Vector2(1,-1),
+# 		location + Vector2(-1,1),
+# 		location + Vector2(-1,-1)
+# 	]
+
+# 	var valid_neighbors: Array[Vector2]
+# 	for n: Vector2 in neighbors:
+# 		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]: continue
+# 		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]: continue
+# 		if !is_passable(n): continue
+# 		valid_neighbors.append(n)
+
+# 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list(neighbors).is_passable()
+# 	var passable_locations:Array[Vector2] = loc_filter.run_filter()
+# 	#var passable_locations: Array[Vector2] = filter_passable_locations(valid_neighbors)
+# 	return passable_locations
 
 
 
@@ -416,19 +371,19 @@ func get_available_poses_for_tile(location: Vector2) -> Array:
 	return Constants.POSE_CLASS[pose_class]
 
 
-func get_direction(from:Vector2, to:Vector2) -> String:
-	if from.distance_to(to) >=2:
-		push_error("spots too far apart!")
-		return ""
+# func get_direction(from:Vector2, to:Vector2) -> String:
+# 	if from.distance_to(to) >=2:
+# 		push_error("spots too far apart!")
+# 		return ""
 		
-	if from[1] < to[1]:
-		return "down"
-	elif from[1] > to[1]:
-		return "up"
-	elif from[0] < to[0]:
-		return "right"
-	else:
-		return "left"
+# 	if from[1] < to[1]:
+# 		return "down"
+# 	elif from[1] > to[1]:
+# 		return "up"
+# 	elif from[0] < to[0]:
+# 		return "right"
+# 	else:
+# 		return "left"
 
 func get_location_from_mouse(loc: Vector2) -> Vector2:
 	loc = Vector2(loc[0]-Constants.CENTER_PANEL_LOCATION[0], loc[1])
@@ -457,4 +412,31 @@ func get_furniture_or_tile(id:String) -> Node:
 		if tile.ID == id: return tile
 	return null
 
+
 #endregion utility
+
+
+#region vectors
+# func get_range(origin:Vector2, distance:int) -> Array[Vector2]:
+# 	# gets all tiles around origin within distance from origin
+# 	var result_list:Array[Vector2]
+# 	for i in range(origin[0]-distance, origin[0] + distance + 1):
+# 		for j in range(origin[1]-distance, origin[1] + distance + 1):
+# 			var new_vector:Vector2 = Vector2(i,j)
+# 			if origin.distance_to(new_vector) <= distance:
+# 				result_list.append(new_vector)
+
+# 	return result_list
+
+# func get_range_direction(origin:Vector2, distance:int, direction:Vector2) -> Array[Vector2]:
+# 	var in_range:Array[Vector2] = get_range(origin, distance)
+# 	var result_list:Array[Vector2]
+# 	for v:Vector2 in in_range:
+# 		var checked_direction:Vector2 = origin.direction_to(v)
+# 		var dot:float = checked_direction.dot(direction)
+# 		if dot > -0.5:
+# 			result_list.append(v)
+# 	return result_list
+
+
+#endregion vectors

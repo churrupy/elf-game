@@ -37,7 +37,10 @@ func _ready() -> void:
 			child.ENGINE = self
 	
 
-	var passable_locations: Array[Vector2] = Map.filter_passable_locations()
+	#var passable_locations: Array[Vector2] = Map.filter_passable_locations()
+	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(self).set_list().is_passable()
+	var passable_locations:Array[Vector2] = loc_filter.run_filter()
+
 	#var filtered_tiles: Array[TILE] = Utility.filter_reserved_tiles(passable_tiles)
 	$Player.LOCATION = passable_locations.pick_random()
 	update_focus_target("player")
