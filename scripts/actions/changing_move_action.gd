@@ -20,6 +20,7 @@ func tick() -> ActionResult:
 func run() -> ActionResult:
 	print("trying to move to ", TARGET.NAME)
 	if OWNER.LOCATION.distance_to(TARGET.LOCATION) <= 1.5:
+		print("at location")
 		return ActionResult.new("end", null)
 
 	# check if target is still available
@@ -43,6 +44,7 @@ func run() -> ActionResult:
 		LOCATION = new_location
 
 	ENGINE.GroupManager.leave_group(OWNER)
+
 	var old_location: Vector2 = OWNER.LOCATION 
 	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	if next_step == Vector2.INF:

@@ -20,7 +20,6 @@ config/icon="res://icon.svg"
 Constants="*res://scripts/constants.gd"
 Global="*res://scripts/global.gd"
 SignalBus="*res://scripts/SignalBus.gd"
-Utility="*res://scripts/utility.gd"
 Dialogue="*res://scripts/dialogue.gd"
 Rooms="*res://scripts/data/rooms.gd"
 

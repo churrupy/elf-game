@@ -3,6 +3,12 @@ class_name SocialAction_new extends ACTION
 var RECENT_TOPIC:String
 var RESPONSE_REQUESTS: Array[EVENT] = []
 
+enum STATUS {
+	RUNNING,
+	FAILURE,
+	SUCCESS
+}
+
 
 func _init(engine, owner: NPC, target: NPC=null) -> void:
 	# no scoring needed for this
@@ -47,82 +53,86 @@ func tick() -> ActionResult:
 	return res
 
 func run() -> ActionResult:
-	var res: ActionResult = ActionResult.new("running")
+	var status: STATUS = determine_next_action()
+	if status == STATUS.RUNNING:
+		refresh_needs("social")
+	return ActionResult.new("running")
 
-	if !ENGINE.GroupManager.is_conversing(OWNER):
-		var filter:NPC_FILTER = NPC_FILTER.new().set_list(ENGINE.NpcManager.NPCS).in_range_of(OWNER.LOCATION, 10).is_available().is_not([OWNER])
-		var available_npcs:Array[NPC] = filter.run_filter()
-		if len(available_npcs) == 0:
-			print("no available npcs to talk to")
-			return res
-		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
-		impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
+# func run_old() -> ActionResult:
+# 	var res: ActionResult = ActionResult.new("running")
 
-		var chosen_npc:NPC = impressions[0].TARGET
-		var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
-		#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
-		ENGINE.NpcManager.add_state(new_action)
-		return res
+# 	if !ENGINE.GroupManager.is_conversing(OWNER):
+# 		var filter:NPC_FILTER = NPC_FILTER.new().set_list(ENGINE.NpcManager.NPCS).in_range_of(OWNER.LOCATION, 10).is_available().is_not([OWNER])
+# 		var available_npcs:Array[NPC] = filter.run_filter()
+# 		if len(available_npcs) == 0:
+# 			print("no available npcs to talk to")
+# 			return res
+# 		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
+# 		impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
+
+# 		var chosen_npc:NPC = impressions[0].TARGET
+# 		var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
+# 		#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
+# 		ENGINE.NpcManager.add_state(new_action)
+# 		return res
 	
+
+# 	# process responses
+# 	for event:EVENT in RESPONSE_REQUESTS:
+# 		var response: String = event.process_response()
+# 		if response == "introduce":
+# 			# creates stupid infinite loop right now booooooo
+# 			# need to separate introducing self and prompting the other person into two different categories
+# 			print("introduction response: ", OWNER, event.SPEAKER)
+# 			var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
+# 			if added:
+# 				RESPONSE_REQUESTS = []
+# 				return res
+# 	RESPONSE_REQUESTS = []
+
+# 	# introduce self
+# 	for npc:NPC in group_participants:
+# 		if npc == OWNER: continue
+# 		if !OWNER.knows_npc(npc): 
+# 			# introduce self
+# 			print("introducing")
+# 			var added1:bool = ENGINE.History.add_statement_event(OWNER, npc)	
+# 			var added2:bool = ENGINE.History.add_prompt_event(OWNER, npc)
+# 			if added1 and added2:
+# 				return res
+
+# 	var continue:bool = ENGINE.GroupManager.introduce_self(OWNER)
+# 	if !continue:
+# 		return res
+# 	ENGINE.GroupManager.respond_to_topic(OWNER)
 
 	# do talking stuff
-	var owner_group: GROUP = ENGINE.GroupManager.get_group(OWNER)
-	ENGINE.History.add_conversation_event(owner_group)
-	var group_participants: Array[NPC] = owner_group.PARTICIPANTS
+	# var owner_group: GROUP = ENGINE.GroupManager.get_group(OWNER)
+	# ENGINE.History.add_conversation_event(owner_group)
+	# var group_participants: Array[NPC] = owner_group.PARTICIPANTS
 
 	# update_direction
-	var average_vector: Vector2 = Vector2.ZERO
-	var npc_counter:int = 0
-	for npc:NPC in group_participants:
-		if npc == OWNER: continue
-		#var npc:NPC = Global.NPCS[npc_id]
-		var direction:Vector2 = npc.LOCATION - OWNER.LOCATION
-		average_vector += direction
-		npc_counter += 1
+	# var average_vector: Vector2 = Vector2.ZERO
+	# var npc_counter:int = 0
+	# for npc:NPC in group_participants:
+	# 	if npc == OWNER: continue
+	# 	#var npc:NPC = Global.NPCS[npc_id]
+	# 	var direction:Vector2 = npc.LOCATION - OWNER.LOCATION
+	# 	average_vector += direction
+	# 	npc_counter += 1
 	
-	var average_direction: Vector2 = Vector2(average_vector[0]/npc_counter, average_vector[1]/npc_counter)
-	OWNER.update_direction(average_direction)
+	# var average_direction: Vector2 = Vector2(average_vector[0]/npc_counter, average_vector[1]/npc_counter)
+	# OWNER.update_direction(average_direction)
 
-	# process responses
-	for event:EVENT in RESPONSE_REQUESTS:
-		var response: String = event.process_response()
-		if response == "introduce":
-			# creates stupid infinite loop right now booooooo
-			# need to separate introducing self and prompting the other person into two different categories
-			print("introduction response: ", OWNER, event.SPEAKER)
-			var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
-			if added:
-				RESPONSE_REQUESTS = []
-				return res
-	RESPONSE_REQUESTS = []
+	
 
-	# introduce self
-	for npc:NPC in group_participants:
-		if npc == OWNER: continue
-		if !OWNER.knows_npc(npc): 
-			# introduce self
-			print("introducing")
-			var added1:bool = ENGINE.History.add_statement_event(OWNER, npc)	
-			var added2:bool = ENGINE.History.add_prompt_event(OWNER, npc)
-			if added1 and added2:
-				return res
-
-	print("TALKING")
-
-	#var current_topic: String = owner_group.CURRENT_TOPIC
-	var new_topic: String = Dialogue.get_next_topic(owner_group.CURRENT_TOPIC)
-	var opinion: int = OWNER.OPINIONS[new_topic]
-	#RECENT_TOPIC = new_topic
-	owner_group.CURRENT_TOPIC = new_topic
-	# var params: Dictionary = {
-	# 	"topic": new_topic,
-	# 	"opinion": opinion
-	# }
-	#ENGINE.History.add_event(OWNER.ID, "converse", "", params)
-	ENGINE.History.add_dialogue_event(OWNER, new_topic, opinion)
-	refresh_needs("social")
-
-	return res
+	# var new_topic: String = Dialogue.get_next_topic(owner_group.CURRENT_TOPIC)
+	# var opinion: int = OWNER.OPINIONS[new_topic]
+	# owner_group.CURRENT_TOPIC = new_topic
+	# ENGINE.History.add_dialogue_event(OWNER, new_topic, opinion)
+	#refresh_needs("social")
+#
+	#return res
 
 
 # func run_old() -> ActionResult:
@@ -239,3 +249,64 @@ func flirt_old() -> Array:
 		ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
 	return ["running", null]
 	
+
+
+func determine_next_action() -> STATUS:
+	# sequence
+	var node_list: Array[Callable] = [
+		clear_responses,
+		join_group,
+		know_everyone,
+		respond_to_topic
+	]
+
+	for node: Callable in node_list:
+		#print("calling", node)
+		var status: STATUS = node.call()
+		if status != STATUS.SUCCESS: return status
+	return STATUS.SUCCESS
+
+func clear_responses() -> STATUS:
+	for event:EVENT in RESPONSE_REQUESTS:
+		var response: String = event.process_response()
+		if response == "introduce":
+			# creates stupid infinite loop right now booooooo
+			# need to separate introducing self and prompting the other person into two different categories
+			print("introduction response: ", OWNER, event.SPEAKER)
+			var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
+			if added:
+				RESPONSE_REQUESTS = []
+				return STATUS.FAILURE
+	RESPONSE_REQUESTS = []
+	return STATUS.SUCCESS
+
+
+func join_group() -> STATUS:
+	if ENGINE.GroupManager.is_conversing(OWNER):
+		return STATUS.SUCCESS
+	else:
+		var filter:NPC_FILTER = NPC_FILTER.new().set_list(ENGINE.NpcManager.NPCS).in_range_of(OWNER.LOCATION, 10).is_available().is_not([OWNER])
+		var available_npcs:Array[NPC] = filter.run_filter()
+		if len(available_npcs) == 0:
+			print("no available npcs to talk to")
+			return STATUS.FAILURE
+		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
+		impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
+
+		var chosen_npc:NPC = impressions[0].TARGET
+		var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
+		#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
+		ENGINE.NpcManager.add_state(new_action)
+		return STATUS.FAILURE
+
+
+func know_everyone() -> STATUS:
+	var knows_everyone:bool = ENGINE.GroupManager.introduce_self(OWNER)
+	if knows_everyone:
+		return STATUS.SUCCESS
+	else:
+		return STATUS.FAILURE
+
+func respond_to_topic() -> STATUS:
+	ENGINE.GroupManager.respond_to_topic(OWNER)
+	return STATUS.RUNNING

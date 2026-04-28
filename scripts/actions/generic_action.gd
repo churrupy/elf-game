@@ -27,11 +27,12 @@ func enter_state():
 	pass
 
 func exit_state() -> ACTION:
-	if PHYSICAL_ACTION != "":
-		var new_action:ACTION = SocialAction.new(ENGINE, OWNER, TARGET)
-		new_action.PHYSICAL_ACTION = PHYSICAL_ACTION
-		return new_action
 	return null
+	#if PHYSICAL_ACTION != "":
+		#var new_action:ACTION = SocialAction.new(ENGINE, OWNER, TARGET)
+		#new_action.PHYSICAL_ACTION = PHYSICAL_ACTION
+		#return new_action
+	#return null
 
 func suspend_state():
 	pass

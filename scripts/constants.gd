@@ -180,13 +180,13 @@ var PORTRAIT_TEMPLATES = {
 var CLASS_TEMPLATES = {
 	"GenericAction": ACTION,
 	#"TileAction": TileAction,
-	"SocialAction": SocialAction,
+	#"SocialAction": SocialAction,
 	"SeduceAction": SeduceAction
 }
 
 var ACTION_ID: Dictionary = {
 	"IdleAction": IdleAction,
-	"SocialAction": SocialAction,
+	#"SocialAction": SocialAction,
 	"SeduceAction": SeduceAction,
 	"HungerAction": HungerAction,
 	"BladderAction": BladderAction,

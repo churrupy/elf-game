@@ -42,7 +42,8 @@ func create_npc() -> void:
 
 func tick() -> void:
 	for npc:NPC in NPCS:
-		print ("ticking: ", npc.NAME)
+		print("")
+		print ("***** ", npc.NAME, " *****")
 
 		
 
@@ -189,7 +190,7 @@ func get_npc(npc_id:String) ->NPC:
 
 func get_all_npc_actions(checked_npc: NPC) -> Array[ACTION]:
 	var action_classes: Array[RefCounted] = [
-		SocialAction, 
+		#SocialAction, 
 		#"FlirtAction", 
 		#SeduceAction
 	]

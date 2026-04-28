@@ -111,6 +111,7 @@ func update() -> void:
 func step_towards_location(end: Vector2, start: Vector2) -> Vector2:
 	#pathfinding
 	if start == end:
+		print("trying to pathfind to current location")
 		push_error("Trying to pathfind to current location")
 		return start # shouldn't happen but who knows
 

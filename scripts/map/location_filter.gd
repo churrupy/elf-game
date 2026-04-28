@@ -9,7 +9,7 @@ var filtered_list:Array[Vector2]
 var origin:Vector2 = Vector2.INF
 var direction:Vector2 = Vector2.INF
 
-var distance:int
+var distance:float = 1.5 # one tile away
 
 var be_available:bool = false
 var be_passable:bool = false
@@ -18,15 +18,16 @@ func _init(engine) -> void:
 	ENGINE = engine
 
 func generate_list(_origin:Vector2, radius:int) -> LOCATION_FILTER:
-	# radius is an int for calculation, NOT a distance for vector math
 	# will create a rectangle
-	origin = origin
-	#distance = distance
+	origin = _origin
+	print("generating list")
+	print(origin, distance)
 	for i in range(int(origin[0])-radius, int(origin[0])+radius+1):
 		if i < 0 or i >= Constants.MAP_SIZE[0]: continue
 		for j in range(int(origin[1])-radius, int(origin[1])+radius+1):
 			if j < 0 or j >= Constants.MAP_SIZE[1]: continue
 			loc_list.append(Vector2(i,j))
+	print("neighbors:", loc_list)
 	return self
 
 
@@ -37,7 +38,7 @@ func set_list(_loc_list:Array[Vector2] = []) -> LOCATION_FILTER:
 		loc_list = _loc_list
 	return self
 
-func in_range_of(_origin:Vector2, _distance:int) -> LOCATION_FILTER:
+func in_range_of(_origin:Vector2, _distance:float) -> LOCATION_FILTER:
 	origin=_origin
 	distance=_distance
 	return self

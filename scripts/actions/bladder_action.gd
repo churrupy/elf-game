@@ -24,6 +24,9 @@ func score() -> void:
 
 
 func run() -> ActionResult:
+	
+
+
 	print("toileting")
 	refresh_needs("bladder")
 	#ENGINE.History.add_event(OWNER.ID, "toileted")
