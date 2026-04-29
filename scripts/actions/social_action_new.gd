@@ -17,8 +17,8 @@ func _init(engine, owner: NPC, target: NPC=null) -> void:
 	ID = "converse"
 	#super._init(engine, owner, target)
 
-func can_do_action() -> bool:
-	return ENGINE.NpcManager.is_available(TARGET)
+# func can_do_action() -> bool:
+# 	return ENGINE.NpcManager.is_available(TARGET)
 
 func score() -> void:
 	# score based on need
@@ -273,8 +273,6 @@ func clear_responses() -> STATUS:
 	for event:EVENT in RESPONSE_REQUESTS:
 		var response: String = event.process_response()
 		if response == "introduce":
-			# creates stupid infinite loop right now booooooo
-			# need to separate introducing self and prompting the other person into two different categories
 			print("introduction response: ", OWNER, event.SPEAKER)
 			var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
 			if added:
@@ -295,12 +293,18 @@ func join_group() -> STATUS:
 			return STATUS.FAILURE
 		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
 		impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
-
-		var chosen_npc:NPC = impressions[0].TARGET
-		var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
-		#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
-		ENGINE.NpcManager.add_state(new_action)
-		return STATUS.FAILURE
+		for imp:Impression in impressions:
+			var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(OWNER.LOCATION, imp.TARGET)
+			if interactable_location != Vector2.INF:
+				var chosen_npc:NPC = imp.TARGET
+				var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
+				new_action.LOCATION = interactable_location
+				#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
+				ENGINE.NpcManager.add_state(new_action)
+				return STATUS.RUNNING
+	
+	# might leave site at this point
+	return STATUS.RUNNING
 
 
 func know_everyone() -> STATUS:

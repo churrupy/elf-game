@@ -317,6 +317,28 @@ func get_closest_adjacent_location(start_location: Vector2, target_location: Vec
 	return closest_tile
 
 
+func get_closest_interactable_location(start_location:Vector2, target:Node) -> Vector2:
+	var adjacent:bool = false
+
+	if target is NPC:
+		adjacent = true
+	elif target is Furniture:
+		if "surface" in target.DATA["type"]:
+			adjacent = true
+
+	var filter:LOCATION_FILTER
+	if adjacent:
+		filter = LOCATION_FILTER.new(ENGINE).generate_list(target.LOCATION,1).is_passable().is_available().is_not(target.LOCATION)
+	else:
+		filter = LOCATION_FILTER.new(ENGINE).set_list([target.LOCATION]).is_available()
+
+	var neighbors:Array[Vector2] = filter.run_filter()
+	if len(neighbors) == 0:
+		return Vector2.INF
+	
+	neighbors.sort_custom(func(a,b): start_location.distance_to(b) < start_location.distance_to(a))
+	return neighbors[0]
+
 
 
 func get_tile(location: Vector2) -> TILE:

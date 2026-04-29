@@ -6,7 +6,10 @@ func _init(engine, owner: NPC, target: Node, moving_for:ACTION) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "move"
-	LOCATION = target.LOCATION
+	ENGINE = engine
+	OWNER = owner
+	TARGET = target
+	#LOCATION = target.LOCATION
 	MOVING_FOR = moving_for
 	CHATTABLE = moving_for.CHATTABLE
 	super._init(engine, owner, target)
@@ -35,12 +38,60 @@ func tick() -> ActionResult:
 # 	ENGINE.History.add_event(OWNER.ID, "moves")
 # 	return "continue"
 
+func update_location() -> bool:
+	var adjacent: bool = false
+	if TARGET is NPC:
+		adjacent = true
+	elif TARGET is Furniture:
+		if "surface" in TARGET.DATA["type"]:
+			adjacent = true
+	
+	if adjacent:
+		# print("######### adjacent check")
+		# print(OWNER.LOCATION)
+		# print(TARGET.LOCATION)
+		var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(TARGET.LOCATION,1).is_passable().is_available().is_not(TARGET.LOCATION)
+		var neighbors:Array[Vector2] = filter.run_filter()
+		if len(neighbors) == 0:
+			return false
+			# how to get it to communicate with BT that there's no available spots to do this right now??
+		
+		neighbors.sort_custom(func(a,b):OWNER.LOCATION.distance_to(b) > OWNER.LOCATION.distance_to(a))
+		LOCATION = neighbors[0]
+		print(LOCATION)
+	else:
+		LOCATION = TARGET.LOCATION
+
+	print("###########location check")
+	print(LOCATION)
+
+	return true
+
 
 func run() -> ActionResult:
+
+	if LOCATION == Vector2.INF:
+		# determine whether we have to be on location or next to location
+		var possible:bool = update_location()
+		if !possible:
+			return ActionResult.new("clear")
+		ENGINE.GroupManager.leave_group(OWNER)
+
+
 	if OWNER.LOCATION == LOCATION:
 		return ActionResult.new("end", null)
 		#return ["end", null]
-	ENGINE.GroupManager.leave_group(OWNER)
+
+	if TARGET is NPC:
+		var target_action:ACTION = TARGET.STATE_STACK[-1]
+		if !target_action.CHATTABLE:
+			print("npc now unavailable")
+			return ActionResult.new("clear")
+
+	# check if target has moved
+	if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+		update_location()
+	
 	var old_location: Vector2 = OWNER.LOCATION
 	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	if next_step == Vector2.INF:
@@ -54,12 +105,6 @@ func run() -> ActionResult:
 		#print("new direction", new_direction)
 		OWNER.update_direction(new_direction)
 		ENGINE.History.add_move_event(OWNER)
-
-
-		#var new_direction:String = ENGINE.Map.get_direction(old_location, next_step)
-		#if new_direction != "":
-	#		OWNER.update_direction(new_direction)
-
 	
 	#ENGINE.History.add_event(OWNER.ID, "moves")
 	return ActionResult.new("running", null)

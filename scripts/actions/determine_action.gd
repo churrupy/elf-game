@@ -25,7 +25,7 @@ func determine_next_action(npc:NPC) -> STATUS:
 	# all leaf nodes should push an action onto the stack
 	# this should only ever return STATUS.RUNNING
 	# i should probably fix that at some point but WHATEVERRRRR
-	# fallback
+	# sequence
 	var node_list: Array[Callable] = [
 		urgent_needs_filled_sequence,
 		nonurgent_needs_filled_fallback
@@ -33,37 +33,96 @@ func determine_next_action(npc:NPC) -> STATUS:
 	for node: Callable in node_list:
 		#print("calling", node)
 		var status: STATUS = node.call(npc)
-		if status != STATUS.FAILURE: return status
-	return STATUS.FAILURE
+		if status != STATUS.SUCCESS: return status
+	return STATUS.SUCCESS
 
 #region urgent
 
 func urgent_needs_filled_sequence(npc:NPC) -> STATUS:
-	var need_list: Array[String] = [
-		"bladder", 
-		"hunger", 
-		#"energy"
+	var node_list:Array[Callable] = [
+		fill_bladder,
+		fill_hunger
 	]
-	for need: String in need_list:
-		#var status = decide_refresh_needs_fallback(npc, need)
-		var status = refresh_needs(npc, need)
+
+	for node:Callable in node_list:
+		var status:STATUS = node.call(npc)
 		if status != STATUS.SUCCESS: return status
 	return STATUS.SUCCESS
 
-func refresh_needs(npc:NPC, need:String) -> STATUS:
-	if npc.NEEDS[need] > 50:
+func fill_bladder(npc:NPC) -> STATUS:
+	if npc.NEEDS["bladder"] > 50:
 		return STATUS.SUCCESS
-	#print("need is urgent: ", need)
 
-	var action_dict: Dictionary = {
-		"bladder": BladderAction,
-		"hunger": HungerAction,
-		#"energy": EnergyAction
-	}
+	var filter:FURNITURE_FILTER = FURNITURE_FILTER.new(ENGINE).set_list().has_tag("fill_bladder").is_available()
+	var toilets:Array[Furniture] = filter.run_filter()
+	if len(toilets) == 0:
+		# no available toilets
+		# wait until a toilet opens up
+		# can still converse, but won't do anything else until a toilet is free
+		return STATUS.RUNNING
+
+	toilets.sort_custom(func(a,b): npc.LOCATION.distance_to(b.LOCATION) < npc.LOCATION.distance_to(a.LOCATION))
+	var chosen_toilet:Furniture = toilets[0]
+	print("chosen location: ", chosen_toilet.LOCATION)
 	
-	var new_action = action_dict[need].new(ENGINE, npc, null)
+	var new_action:BladderAction = BladderAction.new(ENGINE, npc, chosen_toilet)
 	ENGINE.NpcManager.add_state(new_action)
 	return STATUS.RUNNING
+
+	
+func fill_hunger(npc:NPC) -> STATUS:
+	if npc.NEEDS["hunger"] > 50:
+		return STATUS.SUCCESS
+
+	var filter:INVENTORY_FILTER = INVENTORY_FILTER.new(ENGINE).set_list().has_tag("food").in_range_of(npc.LOCATION, 10).include_owner(npc)
+	var food_locations:Array[INVENTORY] = filter.run_filter()
+	# if len(food_locations) == 0:
+	# 	#probably leave site
+	# 	return STATUS.RUNNING
+
+	food_locations.sort_custom(func(a,b): npc.LOCATION.distance_to(b.OWNER.LOCATION) < npc.LOCATION.distance_to(a.OWNER.LOCATION))
+	for loc:INVENTORY in food_locations:
+		var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(npc.LOCATION, loc.OWNER)
+		if interactable_location != Vector2.INF:
+			var new_action:HungerAction = HungerAction.new(ENGINE, npc, loc.OWNER)
+			new_action.LOCATION = interactable_location
+			ENGINE.NpcManager.add_state(new_action)
+			return STATUS.RUNNING
+
+	# probably leave site at this point
+	return STATUS.RUNNING
+	
+
+	
+
+	
+
+# func urgent_needs_filled_sequence(npc:NPC) -> STATUS:
+# 	var need_list: Array[String] = [
+# 		"bladder", 
+# 		"hunger", 
+# 		#"energy"
+# 	]
+# 	for need: String in need_list:
+# 		#var status = decide_refresh_needs_fallback(npc, need)
+# 		var status = refresh_needs(npc, need)
+# 		if status != STATUS.SUCCESS: return status
+# 	return STATUS.SUCCESS
+
+# func refresh_needs(npc:NPC, need:String) -> STATUS:
+# 	if npc.NEEDS[need] > 50:
+# 		return STATUS.SUCCESS
+# 	#print("need is urgent: ", need)
+
+# 	var action_dict: Dictionary = {
+# 		"bladder": BladderAction,
+# 		"hunger": HungerAction,
+# 		#"energy": EnergyAction
+# 	}
+	
+# 	var new_action = action_dict[need].new(ENGINE, npc, null)
+# 	ENGINE.NpcManager.add_state(new_action)
+# 	return STATUS.RUNNING
 
 
 # func decide_refresh_needs_fallback(npc:NPC, need:String) -> STATUS:

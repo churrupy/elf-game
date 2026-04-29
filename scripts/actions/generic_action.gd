@@ -4,7 +4,7 @@ var ENGINE
 var ID: String
 var OWNER: NPC
 var TARGET: Node # maybe Array[Container]? to accomodate furniture/items
-var LOCATION: Vector2 # this tile gets reserved by owner
+var LOCATION: Vector2 = Vector2.INF # this tile gets reserved by owner
 var COUNTDOWN: int
 var SCORE: int = 0
 

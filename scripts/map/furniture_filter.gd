@@ -59,7 +59,7 @@ func run_filter() -> Array[Furniture]:
 
 		if len(tags) > 0:
 			var matched:bool = true
-			var f_tags:Array = furn.DATA["tags"]
+			var f_tags:Array  = furn.DATA["tags"]
 			for tag:String in tags:
 				if tag not in f_tags: 
 					matched = false

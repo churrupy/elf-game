@@ -1,5 +1,6 @@
 class_name BladderAction extends ACTION
 
+var POSSIBLE:bool = true
 
 enum STATUS {
 	RUNNING,
@@ -7,30 +8,33 @@ enum STATUS {
 	SUCCESS
 }
 
-func _init(engine, owner:NPC, target:TILE) -> void:
+func _init(engine, owner:NPC, target:Node) -> void:
 	ENGINE = engine
 	OWNER = owner
 	TARGET = target
 	ID = "use toilet"
 	CHATTABLE = false
+	LOCATION = target.LOCATION
+	print("BLADDER LOCATION", LOCATION)
 	#super._init(engine, owner, target)
 
-func score() -> void:
-	# sets ACTION.LOCATION as well
-	SCORE += 10 # bladder bonus for urgent needs
-	var need: int = OWNER.NEEDS["bladder"]
-	SCORE += 100 - need
+
+# func score() -> void:
+# 	# sets ACTION.LOCATION as well
+# 	SCORE += 10 # bladder bonus for urgent needs
+# 	var need: int = OWNER.NEEDS["bladder"]
+# 	SCORE += 100 - need
 
 
 
-	var is_impassable: bool = ENGINE.Map.is_impassable(TARGET.LOCATION)
-	var is_reserved: bool = ENGINE.NpcManager.is_reserved(TARGET.LOCATION)
-	if is_impassable or is_reserved:
-		SCORE = -100
-		return
-	LOCATION = TARGET.LOCATION
+# 	var is_impassable: bool = ENGINE.Map.is_impassable(TARGET.LOCATION)
+# 	var is_reserved: bool = ENGINE.NpcManager.is_reserved(TARGET.LOCATION)
+# 	if is_impassable or is_reserved:
+# 		SCORE = -100
+# 		return
+# 	LOCATION = TARGET.LOCATION
 
-	SCORE -= OWNER.LOCATION.distance_to(LOCATION)
+# 	SCORE -= OWNER.LOCATION.distance_to(LOCATION)
 
 func tick() -> ActionResult:
 	return run()
@@ -113,27 +117,35 @@ func determine_next_action() -> STATUS:
 	return STATUS.SUCCESS
 
 func go_to_toilet() -> STATUS:
-	
-	var filter:FURNITURE_FILTER = FURNITURE_FILTER.new(ENGINE).set_list().has_tag("fill_bladder").at_location(OWNER.LOCATION)
-	var toilets:Array[Furniture] = filter.run_filter()
-	if len(toilets) > 0:
+
+	if OWNER.LOCATION == LOCATION:
 		return STATUS.SUCCESS
+	else:
+		var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self)
+		new_action.LOCATION = LOCATION
+		ENGINE.NpcManager.add_state(new_action)
+		return STATUS.RUNNING
+	
+	# var filter:FURNITURE_FILTER = FURNITURE_FILTER.new(ENGINE).set_list().has_tag("fill_bladder").at_location(OWNER.LOCATION)
+	# var toilets:Array[Furniture] = filter.run_filter()
+	# if len(toilets) > 0:
+	# 	return STATUS.SUCCESS
 
-	print("moving to toilet")
-	filter = FURNITURE_FILTER.new(ENGINE).set_list().in_range_of(OWNER.LOCATION, 20).is_available().has_tag("fill_bladder")
-	toilets = filter.run_filter()
-	if len(toilets) == 0:
-		print("no toilets for some reason")
-		return STATUS.FAILURE
+	# print("moving to toilet")
+	# filter = FURNITURE_FILTER.new(ENGINE).set_list().in_range_of(OWNER.LOCATION, 20).is_available().has_tag("fill_bladder")
+	# toilets = filter.run_filter()
+	# if len(toilets) == 0:
+	# 	print("no toilets for some reason")
+	# 	return STATUS.FAILURE
 
-	toilets.sort_custom(func(a,b):OWNER.LOCATION.distance_to(b.LOCATION) < OWNER.LOCATION.distance_to(a.LOCATION))
-	var chosen_toilet:Furniture = toilets[0]
-	print("chosen_toilet", chosen_toilet)
+	# toilets.sort_custom(func(a,b):OWNER.LOCATION.distance_to(b.LOCATION) < OWNER.LOCATION.distance_to(a.LOCATION))
+	# var chosen_toilet:Furniture = toilets[0]
+	# print("chosen_toilet", chosen_toilet)
 
 
-	var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, chosen_toilet, self)
-	ENGINE.NpcManager.add_state(new_action)
-	return STATUS.RUNNING
+	# var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, chosen_toilet, self)
+	# ENGINE.NpcManager.add_state(new_action)
+	# return STATUS.RUNNING
 
 func use_toilet() -> STATUS:
 	print("toileting")

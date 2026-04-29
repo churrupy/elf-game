@@ -44,6 +44,7 @@ func tick() -> void:
 	for npc:NPC in NPCS:
 		print("")
 		print ("***** ", npc.NAME, " *****")
+		#print_reserved_locations()
 
 		
 
@@ -110,6 +111,16 @@ func update() -> void:
 		remove_child(child)
 	
 	for npc: NPC in NPCS:
+
+		# highlight reserved tile
+		var current_action: ACTION = npc.STATE_STACK.back()
+		var reserved_loc: Vector2 = current_action.LOCATION
+		if reserved_loc != Vector2.INF:
+			print(reserved_loc)
+			ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
+		else:
+			print("infinite vector")
+
 		var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
 		if x_index < 0:
 			continue
@@ -133,11 +144,8 @@ func update() -> void:
 		npc.queue_redraw()
 
 
-		# highlight reserved tile
-		var current_action: ACTION = npc.STATE_STACK[-1]
-		var reserved_loc: Vector2 = current_action.LOCATION
-		if reserved_loc != Vector2.INF:
-			ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
+		
+	print_reserved_locations()
 
 func broadcast_event(event:EVENT) -> void:
 	var _witnesses:Array[NPC]
@@ -175,6 +183,11 @@ func is_reserved(location: Vector2) -> bool:
 		if current_action.LOCATION == location:
 			return true
 	return false
+
+func print_reserved_locations() -> void:
+	for npc:NPC in NPCS:
+		var current_action:ACTION = npc.STATE_STACK.back()
+		print(ENGINE.prettify_vector(current_action.LOCATION))
 
 
 #endregion filters

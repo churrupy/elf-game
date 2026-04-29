@@ -6,14 +6,14 @@ enum STATUS {
 	SUCCESS
 }
 
-func _init(engine, owner: NPC, target:TILE = null) -> void:
+func _init(engine, owner: NPC, target:Node) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "snack"
 	ENGINE = engine
 	OWNER = owner
-	TARGET = null
-	LOCATION = Vector2.INF
+	TARGET = target
+	#LOCATION = Vector2.INF
 	CHATTABLE = false
 	#super._init(engine, owner, target)
 
@@ -122,42 +122,58 @@ func determine_next_action() -> STATUS:
 		if status != STATUS.SUCCESS: return status
 	return STATUS.SUCCESS
 
-
 func get_food() -> STATUS:
-	var has_food: bool = ENGINE.InventoryManager.inventory_has(OWNER, "food")
-	if has_food:
-		TARGET = OWNER #keep them in place? probably don't need this any more lol
+	if OWNER == TARGET:
 		LOCATION = OWNER.LOCATION
 		CHATTABLE = true
 		return STATUS.SUCCESS
-	#return STATUS.FAILURE
 
-	var item_inventories: Array[INVENTORY] = ENGINE.InventoryManager.filter_inventories_by_tag("food")
-	if len(item_inventories) == 0:
-		# no items in room, npc will have to move out of room to fulfill action
-		return STATUS.FAILURE
-
-	var item_locations: Array[Vector2] = ENGINE.InventoryManager.get_inventory_locations(item_inventories)
-	#print("locations of tag")
-	#print(item_locations)
-	if OWNER.LOCATION in item_locations:
-		#item is on floor on OWNER's tile
+	elif OWNER.LOCATION == LOCATION:
 		pickup_item(OWNER.LOCATION)
-		return STATUS.RUNNING #so they don't pickup and eat on the same tick
+		return STATUS.RUNNING
 
-	var closest_dict: Dictionary = ENGINE.Map.filter_closest_interactable_locations_dict(OWNER.LOCATION, item_locations)
-	if OWNER.LOCATION in closest_dict.keys():
-		pickup_item(closest_dict[OWNER.LOCATION])
-		return STATUS.RUNNING #so they don't pickup and eat on the same tick
+	else:
+		var new_action: MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self)
+		new_action.LOCATION = LOCATION
+		ENGINE.NpcManager.add_state(new_action)
+		return STATUS.RUNNING
 
-	var loc_list: Array = closest_dict.keys()
-	loc_list.sort_custom(func(a,b): OWNER.LOCATION.distance_to(b) < OWNER.LOCATION.distance_to(a))
 
-	var target_location: Vector2 = loc_list[0]
-	var tile: TILE = ENGINE.Map.get_tile(target_location)
-	var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, self)
-	ENGINE.NpcManager.add_state(new_action)
-	return STATUS.RUNNING
+# func get_food() -> STATUS:
+# 	var has_food: bool = ENGINE.InventoryManager.inventory_has(OWNER, "food")
+# 	if has_food:
+# 		TARGET = OWNER #keep them in place? probably don't need this any more lol
+# 		LOCATION = OWNER.LOCATION
+# 		CHATTABLE = true
+# 		return STATUS.SUCCESS
+# 	#return STATUS.FAILURE
+
+# 	var item_inventories: Array[INVENTORY] = ENGINE.InventoryManager.filter_inventories_by_tag("food")
+# 	if len(item_inventories) == 0:
+# 		# no items in room, npc will have to move out of room to fulfill action
+# 		return STATUS.FAILURE
+
+# 	var item_locations: Array[Vector2] = ENGINE.InventoryManager.get_inventory_locations(item_inventories)
+# 	#print("locations of tag")
+# 	#print(item_locations)
+# 	if OWNER.LOCATION in item_locations:
+# 		#item is on floor on OWNER's tile
+# 		pickup_item(OWNER.LOCATION)
+# 		return STATUS.RUNNING #so they don't pickup and eat on the same tick
+
+# 	var closest_dict: Dictionary = ENGINE.Map.filter_closest_interactable_locations_dict(OWNER.LOCATION, item_locations)
+# 	if OWNER.LOCATION in closest_dict.keys():
+# 		pickup_item(closest_dict[OWNER.LOCATION])
+# 		return STATUS.RUNNING #so they don't pickup and eat on the same tick
+
+# 	var loc_list: Array = closest_dict.keys()
+# 	loc_list.sort_custom(func(a,b): OWNER.LOCATION.distance_to(b) < OWNER.LOCATION.distance_to(a))
+
+# 	var target_location: Vector2 = loc_list[0]
+# 	var tile: TILE = ENGINE.Map.get_tile(target_location)
+# 	var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, self)
+# 	ENGINE.NpcManager.add_state(new_action)
+# 	return STATUS.RUNNING
 
 func eat_food() -> STATUS:
 	var inventory: INVENTORY = ENGINE.InventoryManager.get_inventory_of(OWNER.ID)

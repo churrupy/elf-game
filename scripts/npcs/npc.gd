@@ -42,7 +42,7 @@ var NEEDS: Dictionary = {
 	"release": 90.0,
 	"social": 90.0,
 	"fun": 90.0,
-	"bladder": 40.0,
+	"bladder": 90.0,
 	"arousal": 0.0
 }
 
@@ -237,13 +237,13 @@ func get_impression_of_npc(npc:NPC) -> Impression:
 
 	return impression
 
-func get_all_impressions_old() -> Array[Impression]:
-	var witnessed_npcs: Array[NPC] = get_all_witnessed_npcs()
-	var impression_list: Array[Impression]
-	for w:NPC in witnessed_npcs:
-		var new_impression: Impression = get_impression_of_npc(w)
-		impression_list.append(new_impression)
-	return impression_list
+# func get_all_impressions_old() -> Array[Impression]:
+# 	var witnessed_npcs: Array[NPC] = get_all_witnessed_npcs()
+# 	var impression_list: Array[Impression]
+# 	for w:NPC in witnessed_npcs:
+# 		var new_impression: Impression = get_impression_of_npc(w)
+# 		impression_list.append(new_impression)
+# 	return impression_list
 
 func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
 	if npc_list == []:

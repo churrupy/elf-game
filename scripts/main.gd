@@ -54,7 +54,7 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
-	
+	#print(Global.FOCUS_TARGET)
 	
 	# mouse control
 	var mouse_position: Vector2 = get_viewport().get_mouse_position()
@@ -117,7 +117,6 @@ func _process(_delta: float) -> void:
 
 func tick() -> void:
 	
-	update_map_center()
 	print("")
 	print("ticking...")
 	
@@ -167,7 +166,7 @@ func update_player() -> void:
 
 
 func update_focus_target(new_target: String) -> void:
-	print("updating focus target")
+	print("updating focus target:", new_target)
 	Global.FOCUS_TARGET = new_target
 	var target_object
 	if new_target == "cam":
@@ -221,6 +220,7 @@ func is_on_screen(object: Node) -> bool:
 
 
 func activate_free_cam() -> void:
+	print("focus target:", Global.FOCUS_TARGET)
 	if Global.FOCUS_TARGET != "cam":
 		update_focus_target("cam")
 		$FreeCamButton.text = "Stop Free Cam"

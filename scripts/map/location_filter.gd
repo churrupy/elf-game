@@ -57,6 +57,9 @@ func is_passable() -> LOCATION_FILTER:
 	be_passable = true
 	return self
 
+func is_not(loc:Vector2) -> LOCATION_FILTER:
+	is_not_list.append(loc)
+	return self
 
 
 
