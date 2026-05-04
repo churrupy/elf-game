@@ -37,8 +37,8 @@ func _to_string() -> String:
 		names.append(p.NAME)
 	if len(names) > 1:
 		names[-1] = "and " + names[-1]
-	print(names)
-	print(OWNER)
+	#print(names)
+	#print(OWNER)
 	var str_list:Array[String] = [
 		"[{0}]".format([Global.TICKS]),
 		OWNER.NAME,

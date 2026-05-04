@@ -35,6 +35,58 @@ var ROOM_TEMPLATES: Dictionary = {
 
 }
 
+var ROOM_TEMPLATES_new: Dictionary = {
+
+"club": {
+	"size": Vector2(11,10),
+	"rooms": {
+		"public_bathroom": [Vector2(7,-1)]
+	},
+	"doors": {
+
+	},
+	"furniture": {
+		"counter": [
+				[Vector2(0,8), Vector2(4,8)]
+			],
+			"dance_floor": [
+				[Vector2(2,2), Vector2(5,5)]
+			],
+			"table": [
+				[Vector2(0,2), Vector2(0,2)],
+				[Vector2(0,4), Vector2(0,4)],
+				[Vector2(0,6), Vector2(0,6)]
+			],
+	}
+},
+"public_bathroom": {
+	"size": Vector2(4,10),
+	"walls": true,
+	"rooms": {
+		"toilet_stall": [
+			Vector2(2,0),
+			Vector2(2,2),
+			Vector2(2,4),
+			Vector2(2,6)
+		],
+	},
+	"doors": [Vector2(0,9)],
+	"furniture": {}
+},
+"toilet_stall": {
+	"size": Vector2(2,2),
+	"rooms":{},
+	"walls": true,
+	"doors": [Vector2(0,1)],
+	"furniture": {
+		"toilet":[
+			[Vector2(1,1), Vector2(1,1)]
+		]
+	}
+}
+
+}
+
 var TILES_TEMPLATES: Dictionary = {
 "club": {
 		"default": "empty",

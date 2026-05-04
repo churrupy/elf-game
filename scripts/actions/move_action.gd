@@ -62,8 +62,8 @@ func update_location() -> bool:
 	else:
 		LOCATION = TARGET.LOCATION
 
-	print("###########location check")
-	print(LOCATION)
+	#print("###########location check")
+	#print(LOCATION)
 
 	return true
 

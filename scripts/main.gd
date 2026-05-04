@@ -46,7 +46,7 @@ func _ready() -> void:
 	update_focus_target("player")
 
 	$TalkMenu.hide()
-	GroupManager.print_groups()
+	#GroupManager.print_groups()
 	#tick()
 
 #endregion
