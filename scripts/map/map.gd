@@ -198,6 +198,39 @@ func update() -> void:
 
 #region pathfinding
 
+func get_pathfind_path(end:Vector2, start:Vector2) -> Array[Vector2]:
+	#pathfinding
+	# pathfinds backwards from target location
+	# i don't remember why i set up it up that way lol
+	var result_list:Array[Vector2]
+	if start == end:
+		print("trying to pathfind to current location")
+		push_error("Trying to pathfind to current location")
+		return result_list
+
+	var queue: Array[Vector2] = [start]
+	var visited: Array[Vector2] = [start]
+	var parent_dict: Dictionary = {}
+
+	var current: Vector2
+
+	while len(queue) > 0:
+		current = queue.pop_front()
+		if current == end:
+			result_list.append(current)
+			while current != start:
+				current = parent_dict[current]
+				result_list.append(current)
+			return result_list
+		for neighbor in get_neighbors(current):
+			if neighbor in visited:
+				continue
+			visited.append(neighbor)
+			queue.append(neighbor)
+			parent_dict[neighbor] = current
+	push_error("pathfind fail")
+	return result_list
+
 func step_towards_location(end: Vector2, start: Vector2) -> Vector2:
 	#pathfinding
 	if start == end:
@@ -507,7 +540,6 @@ func get_location_from_mouse(loc: Vector2) -> Vector2:
 	return Vector2(x,y)
 
 func highlight_tile(loc: Vector2, highlight_color: Color) -> void:
-	#print("loc check", loc)
 	var tile: TILE = get_tile(loc)
 	tile.modulate = highlight_color
 

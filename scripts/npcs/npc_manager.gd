@@ -116,7 +116,7 @@ func update() -> void:
 		var current_action: ACTION = npc.STATE_STACK.back()
 		var reserved_loc: Vector2 = current_action.LOCATION
 		if reserved_loc != Vector2.INF:
-			print(reserved_loc)
+			#print(reserved_loc)
 			ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
 		else:
 			print("infinite vector")
@@ -145,7 +145,7 @@ func update() -> void:
 
 
 		
-	print_reserved_locations()
+	#print_reserved_locations()
 
 func broadcast_event(event:EVENT) -> void:
 	var _witnesses:Array[NPC]

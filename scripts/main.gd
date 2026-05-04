@@ -124,7 +124,7 @@ func tick() -> void:
 	print("Ticks: ", Global.TICKS)
 	print("Focused on " + Global.FOCUS_TARGET + " at " + str(Global.FOCUS_LOCATION))
 	NpcManager.tick()
-	GroupManager.print_groups()
+	#GroupManager.print_groups()
 	update()
 
 

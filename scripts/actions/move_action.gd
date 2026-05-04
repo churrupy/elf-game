@@ -1,6 +1,7 @@
 class_name MoveAction extends ACTION
 
 var MOVING_FOR:ACTION
+var PATH: Array[Vector2]
 
 func _init(engine, owner: NPC, target: Node, moving_for:ACTION) -> void:
 	# i hope this works lol
@@ -62,6 +63,8 @@ func update_location() -> bool:
 	else:
 		LOCATION = TARGET.LOCATION
 
+	PATH = []
+
 	#print("###########location check")
 	#print(LOCATION)
 
@@ -91,20 +94,35 @@ func run() -> ActionResult:
 	# check if target has moved
 	if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		update_location()
-	
-	var old_location: Vector2 = OWNER.LOCATION
-	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
-	if next_step == Vector2.INF:
-		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
-		print("teleporting...")
-		OWNER.LOCATION = LOCATION
-	else:
-		OWNER.LOCATION = next_step
 
-		var new_direction: Vector2 = next_step - old_location
-		#print("new direction", new_direction)
-		OWNER.update_direction(new_direction)
-		ENGINE.History.add_move_event(OWNER)
+	if len(PATH) == 0:
+		PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
+		if len(PATH) == 0:
+			print("no valid path")
+			return ActionResult.new("clear")
+
+	var old_location:Vector2 = OWNER.LOCATION
+	var next_step:Vector2 = PATH.pop_front()
+	OWNER.LOCATION = next_step
+	
+	var new_direction:Vector2 = next_step - old_location
+	OWNER.update_direction(new_direction)
+	ENGINE.History.add_move_event(OWNER)
+
+	
+	# var old_location: Vector2 = OWNER.LOCATION
+	# var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
+	# if next_step == Vector2.INF:
+	# 	push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
+	# 	print("teleporting...")
+	# 	OWNER.LOCATION = LOCATION
+	# else:
+	# 	OWNER.LOCATION = next_step
+
+	# 	var new_direction: Vector2 = next_step - old_location
+	# 	#print("new direction", new_direction)
+	# 	OWNER.update_direction(new_direction)
+	# 	ENGINE.History.add_move_event(OWNER)
 	
 	#ENGINE.History.add_event(OWNER.ID, "moves")
 	return ActionResult.new("running", null)
