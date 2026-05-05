@@ -3,6 +3,7 @@ class_name ROOM extends RefCounted
 var TYPE:String
 var DATA:Dictionary
 var SUBROOMS:Array[ROOM]
+var DOOR_LIST:Array[DOOR]
 
 var LOCATION:Vector2
 var SIZE:Vector2
@@ -33,6 +34,11 @@ func in_room(loc:Vector2) -> ROOM:
 		return self
 	return null
 
+func is_secured() -> bool:
+	for door:DOOR in DOOR_LIST:
+		if door.opened: return false
+
+	return true
 
 
 func _to_string() -> String:

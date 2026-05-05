@@ -17,37 +17,6 @@ func _init(engine, owner: NPC, target:Node) -> void:
 	CHATTABLE = false
 	#super._init(engine, owner, target)
 
-# func score() -> void:
-# 	# sets ACTION.LOCATION as well
-# 	SCORE += 10 # hunger bonus for urgent needs
-# 	var hunger: int = OWNER.NEEDS["hunger"]
-# 	SCORE += 100 - hunger
-
-# 	var is_impassable: bool = ENGINE.Map.is_impassable(TARGET.LOCATION)
-# 	var is_reserved: bool = ENGINE.NpcManager.is_reserved(TARGET.LOCATION)
-# 	if is_impassable or is_reserved:
-# 		if !can_do_off_tile: 
-# 			SCORE = -100
-# 			return
-# 		var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
-# 		if closest_location == Vector2.INF:
-# 			# no closest location found
-# 			SCORE = -100
-# 			return
-# 		LOCATION = closest_location
-# 	else:
-# 		LOCATION = TARGET.LOCATION
-
-# 	SCORE -= OWNER.LOCATION.distance_to(LOCATION)
-
-# func tick() -> ActionResult:
-# 	if LOCATION == null:
-# 		determine_target_fallback()
-# 		return ActionResult.new("running", null)
-# 	elif OWNER.LOCATION != LOCATION:
-# 		var new_action: MoveAction = MoveAction.new(ENGINE, OWNER, LOCATION, "hunger")
-# 		return ActionResult.new("add", new_action)
-# 	else:
 
 
 func tick() -> ActionResult:
@@ -71,8 +40,36 @@ func tick() -> ActionResult:
 # 	return ActionResult.new("running", null)
 # 	#return ["running", null]
 
-
 func run() -> ActionResult:
+
+	if ENGINE.InventoryManager.inventory_has(OWNER, "food"):
+		var food_item:ITEM = ENGINE.InventoryManager.pop_inventory_first_tagged(OWNER, "food")
+		OWNER.consume(food_item)
+		ENGINE.InventoryManager.remove_from_inventory(OWNER, food_item)
+		food_item.queue_free()
+		return ActionResult.new("end")
+	
+	var filter:INVENTORY_FILTER = INVENTORY_FILTER.new(ENGINE).set_list().in_range_of(OWNER.LOCATION).has_tag("food")
+	var filtered_inventories:Array[INVENTORY] = filter.run_filter()
+	if len(filtered_inventories) > 0:
+		var chosen_inventory:INVENTORY = filtered_inventories.pick_random()
+		var food_item:ITEM = ENGINE.InventoryManager.pop_inventory_first_tagged(chosen_inventory.OWNER, "food")
+		ENGINE.InventoryManager.add_to_inventory(OWNER, food_item)
+		return ActionResult.new("running")
+
+	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	filter = INVENTORY_FILTER.new(ENGINE).set_list().is_in_room(current_room).has_tag("food")
+	filtered_inventories = filter.run_filter()
+	if len(filtered_inventories) > 0:
+		var chosen_inventory:INVENTORY = filtered_inventories.pick_random()
+		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER, chosen_inventory.OWNER, self).set_location()
+		return ActionResult.new("add", move_action)
+
+	print("no valid eating actions")
+	print("need to figure out how to check this and move on to the next option if possible")
+	return ActionResult.new("clear")
+
+func run_old() -> ActionResult:
 	var action_status: STATUS = determine_next_action()
 	if action_status == STATUS.SUCCESS:
 		return ActionResult.new("end", null)
@@ -129,12 +126,15 @@ func get_food() -> STATUS:
 		return STATUS.SUCCESS
 
 	elif OWNER.LOCATION == LOCATION:
-		pickup_item(OWNER.LOCATION)
+		pickup_item(TARGET.LOCATION)
 		return STATUS.RUNNING
 
 	else:
-		var new_action: MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self)
-		new_action.LOCATION = LOCATION
+		var new_action: MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self).set_location()
+		# moveaction determines target location
+		# takes into consideration whether npc should be on tile, or adjacent to tile
+		LOCATION = new_action.LOCATION
+		#new_action.LOCATION = LOCATION
 		ENGINE.NpcManager.add_state(new_action)
 		return STATUS.RUNNING
 
@@ -185,10 +185,13 @@ func eat_food() -> STATUS:
 
 
 func pickup_item(loc: Vector2) -> void:
+	print("picking up")
 	var inventory: INVENTORY = ENGINE.InventoryManager.get_inventory_at_location(loc)
 	#print(inventory)
 	var item:ITEM = ENGINE.InventoryManager.pop_inventory_first_tagged(inventory.OWNER, "food")
+	print(item)
 	ENGINE.InventoryManager.add_to_inventory(OWNER, item)
+	print("inventory: ", ENGINE.InventoryManager.get_inventory_of(OWNER.ID))
 
 
 
@@ -250,6 +253,3 @@ func pickup_item(loc: Vector2) -> void:
 # 	var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, self)
 # 	ENGINE.NpcManager.add_state(new_action)
 # 	return STATUS.RUNNING
-
-
-

@@ -344,51 +344,39 @@ const POSE_CLASS = {
 	"HSurfacePoses": ["standing"],
 	"VSurfacePoses": ["standing"]
 }
-const TILE_TEMPLATES = {
+const TILE_TEMPLATES:Dictionary = {
 	"empty": {
-		"actions": [],
-		"impassable": false,
-		"png": "tile.png",
-		"poses": "EmptyPoses"
+		"tags": ["floor"],
+		"sprite": "tile.png",
 	},
-	"social_empty": {
-		"actions": [],
-		"impassable": false,
-		"png": "tile.png",
-		"poses": "EmptyPoses"
+	"counter": {
+		"tags": ["h_surface"],
+		"sprite": "bar.png",
+		"may_contain": [
+			"snack",
+			"beer"
+		]
 	},
 	"dance_floor": {
-		"actions": ["dance"],
-		"impassable": false,
-		"png": "dance_floor.png",
-		"poses": "EmptyPoses"
+		"tags": ["floor"],
+		"sprite": "dance_floor.png"
 	},
-	"toilet":  {
-		"actions": ["use toilet", "bladder"],
-		"impassable": false,
-		"encounter_location": true,
-		"png": "toilet.png",
-		"poses": "ChairPoses"
-	},
-	"bar": {
-		"actions": ["drink", "snack", "hunger"],
-		"impassable": true,
-		"png": "bar.png",
-		"poses": "HSurfacePoses"
+	"door": {
+		"tags": ["door"],
+		"sprite": "door_top.png"
 	},
 	"table": {
-		"actions": [],
-		"impassable": true,
-		"png": "table.png",
-		"poses": "HSurfacePoses"
+		"tags": ["h_surface"],
+		"sprite": "table.png"
 	},
+	"toilet":  {
+		"tags": ["chair", "fill_bladder"],
+		"sprite": "toilet.png"
+	},	
 	"wall": {
-		"actions": [],
-		"impassable": true,
-		"png": "wall.png",
-		"poses": "VSurfacePoses"
+		"tags": ["v_surface"],
+		"sprite": "wall.png"
 	}
-
 }
 
 
@@ -428,6 +416,11 @@ var FURNITURE: Dictionary ={
 		"tags": [],
 		"sprite": "wall.png"
 	},
+	"door": {
+		"type": "v_surface",
+		"tags": [],
+		"sprite": "door_top.png"
+	}
 	
 
 }

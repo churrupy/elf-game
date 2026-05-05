@@ -11,6 +11,8 @@ func _init(keyword:String, loc:Vector2) -> void:
 	LOCATION = loc
 	DATA = Constants.FURNITURE[keyword]
 	texture = load("res://models/" + DATA["sprite"])
+	#print(keyword)
+	#print(texture)
 
 	
 func _to_string() -> String:

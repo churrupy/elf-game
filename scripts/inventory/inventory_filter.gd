@@ -12,6 +12,7 @@ var distance:float
 var location:Vector2 = Vector2.INF
 
 var tags:Array[String]
+var target_room:ROOM
 
 var check_npcs:bool = false
 
@@ -25,13 +26,14 @@ func set_list(_inventory_list:Array[INVENTORY] = []) -> INVENTORY_FILTER:
 		inventory_list = _inventory_list
 	return self
 
-func in_range_of(_origin:Vector2, _distance:float) -> INVENTORY_FILTER:
+func in_range_of(_origin:Vector2, _distance:float=1.5) -> INVENTORY_FILTER:
 	origin=_origin
 	distance=_distance
 	return self
 
-func is_in_room() -> void:
-	pass #placeholder
+func is_in_room(_room:ROOM) -> INVENTORY_FILTER:
+	target_room = _room
+	return self
 
 func has_tag(_tag:String) -> INVENTORY_FILTER:
 	tags.append(_tag)
@@ -71,6 +73,10 @@ func run_filter() -> Array[INVENTORY]:
 			if origin != Vector2.INF:
 				if origin.distance_to(inventory.OWNER.LOCATION) > distance:
 					continue
+
+		if target_room != null:
+			var inv_room:ROOM = ENGINE.Map.get_room(inventory.OWNER.LOCATION)
+			if inv_room != target_room: continue
 		
 		if len(tags) > 0:
 			var matched:bool = false

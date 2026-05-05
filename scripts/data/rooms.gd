@@ -40,7 +40,7 @@ var ROOM_TEMPLATES_new: Dictionary = {
 "club": {
 	"size": Vector2(11,10),
 	"rooms": {
-		"public_bathroom": [Vector2(7,-1)]
+		"public_bathroom": [Vector2(7,0)]
 	},
 	"doors": {
 
@@ -70,7 +70,7 @@ var ROOM_TEMPLATES_new: Dictionary = {
 			Vector2(2,6)
 		],
 	},
-	"doors": [Vector2(0,9)],
+	"doors": [Vector2(0,8)],
 	"furniture": {}
 },
 "toilet_stall": {

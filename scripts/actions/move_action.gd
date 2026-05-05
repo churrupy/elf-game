@@ -3,6 +3,9 @@ class_name MoveAction extends ACTION
 var MOVING_FOR:ACTION
 var PATH: Array[Vector2]
 
+var secure:bool = false
+var room_to_secure:ROOM
+
 func _init(engine, owner: NPC, target: Node, moving_for:ACTION) -> void:
 	# i hope this works lol
 	# no scoring needed for this
@@ -15,6 +18,24 @@ func _init(engine, owner: NPC, target: Node, moving_for:ACTION) -> void:
 	CHATTABLE = moving_for.CHATTABLE
 	super._init(engine, owner, target)
 	ENGINE.GroupManager.leave_group(owner)
+
+
+#region builder
+func set_location(loc:Vector2 = Vector2.INF) -> MoveAction:
+	# builder function
+	if loc == Vector2.INF:
+		update_location()
+	else:
+		LOCATION = loc
+	return self
+
+func secure_room() -> MoveAction:
+	# builder function
+	room_to_secure = ENGINE.Map.get_room(LOCATION)
+	return self
+
+
+#endregion builder
 
 func tick() -> ActionResult:
 	var result: ActionResult = run()
@@ -43,8 +64,8 @@ func update_location() -> bool:
 	var adjacent: bool = false
 	if TARGET is NPC:
 		adjacent = true
-	elif TARGET is Furniture:
-		if "surface" in TARGET.DATA["type"]:
+	elif TARGET is TILE:
+		if "h_surface" in TARGET.DATA["tags"] or "v_surface" in TARGET.DATA["tags"]:
 			adjacent = true
 	
 	if adjacent:
@@ -82,7 +103,7 @@ func run() -> ActionResult:
 
 
 	if OWNER.LOCATION == LOCATION:
-		return ActionResult.new("end", null)
+		return ActionResult.new("end")
 		#return ["end", null]
 
 	if TARGET is NPC:
@@ -109,6 +130,13 @@ func run() -> ActionResult:
 	OWNER.update_direction(new_direction)
 	ENGINE.History.add_move_event(OWNER)
 
+	if room_to_secure != null:
+		# does not currently wait for other npcs
+		var npc_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+		if npc_room == room_to_secure:
+			if !room_to_secure.is_secured():
+				var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER, room_to_secure, MOVING_FOR)
+				return ActionResult.new("add", new_action)
 	
 	# var old_location: Vector2 = OWNER.LOCATION
 	# var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
@@ -133,7 +161,7 @@ func run() -> ActionResult:
 # 	return "Moving for " + MOVING_FOR + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")" + "Score: " + str(SCORE)
 
 
-func _to_string():
+func _to_string() -> String:
 	var str_list:Array[String] = [
 		"[ACTION]",
 		#"[{0}]".format([Global.TICKS]),

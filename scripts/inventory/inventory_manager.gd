@@ -47,6 +47,8 @@ func pop_inventory_first_tagged(owner:Node, tag:String) -> ITEM:
 	var inventory: INVENTORY = get_inventory_of(owner.ID)
 	var chosen_item: ITEM = get_first_tagged_from_inventory(owner, tag)
 	if chosen_item == null:
+		print("tag:", tag)
+		print(get_inventory_of(owner.ID))
 		print("CRASH!")
 	remove_from_inventory(owner, chosen_item)
 	return chosen_item
@@ -72,7 +74,10 @@ func inventory_has(owner:Node, tag:String) -> bool:
 
 
 
-
+func update_inventory_owner(new_owner:Node) -> void:
+	# i can't believe how i stumbled into how stupid this is lol
+	var inventory:INVENTORY = get_inventory_of(new_owner.ID) # should have the same id
+	inventory.OWNER = new_owner
 
 
 
@@ -150,3 +155,10 @@ func get_locations_of_tag(tag:String) -> Array[Vector2]:
 
 
 #endregion tile/furniture
+
+
+func _to_string() -> String:
+	var display_list:Array[String]
+	for inv:INVENTORY in INVENTORIES:
+		display_list.append(str(inv))
+	return " ".join(display_list)

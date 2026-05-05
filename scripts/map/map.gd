@@ -5,6 +5,7 @@ var TILES: Array[TILE]
 var FURNITURE: Array[Furniture]
 #var ROOM: String
 var ROOM_LIST:Array[ROOM]
+var MAP_SIZE:Vector2
 
 @export var tile_scene: PackedScene
 	
@@ -21,6 +22,7 @@ func _init(engine, room) -> void:
 
 	var room_data: Dictionary = Rooms.ROOM_TEMPLATES_new[room]
 	var room_size: Vector2 = room_data["size"]
+	MAP_SIZE = room_size
 	var room_area: int = room_size[0] * room_size[1]
 
 	var width:int = room_size[0]
@@ -29,66 +31,169 @@ func _init(engine, room) -> void:
 		var x:int = i%width
 		var y:int = i/width
 		var location: Vector2 = Vector2(x,y)
-		var tile:TILE = TILE.new("empty", location)
+		var tile:TILE = TILE.new(location)
 		TILES.append(tile)
 		ENGINE.InventoryManager.create_inventory(tile)
 
 	create_room(room)
 
-func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
-	print("creating room: ", type)
-	var room_data: Dictionary = Rooms.ROOM_TEMPLATES_new[type]
-	var new_room:ROOM = ROOM.new(type, top_left, room_data["size"])
+	print(ENGINE.InventoryManager)
 
+func get_walls(size:Vector2) -> Array[Vector2]:
+	# walls are included in room size
+	var wall_list:Array[Vector2]
+
+	for i in range(0,size[0]):
+		wall_list.append(Vector2(i,0))
+		wall_list.append(Vector2(i,size[1]-1))
+	for j in range(0,size[1]):
+		wall_list.append(Vector2(0,j))
+		wall_list.append(Vector2(size[0]-1,j))
+
+	return wall_list
+
+func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
+	# tiles are all created at this point
+	var room_data:Dictionary = Rooms.ROOM_TEMPLATES_new[type]
+	var new_room:ROOM = ROOM.new(type, top_left, room_data["size"])
 
 	if "walls" in room_data:
 		var size:Vector2 = room_data["size"]
-		for i in range(0,size[0]):
-			var y_values:Array[int]
-			if i == 0 or i == size[0]:
-				y_values.assign(range(0, size[1]+1))
+		var wall_list:Array[Vector2] = get_walls(size)
+		#print(wall_list)
+
+		for relative_loc:Vector2 in wall_list:
+			var loc = relative_loc + top_left
+			var tile:TILE = get_tile(loc)
+			#print(loc)
+			#print(tile)
+			if relative_loc in room_data["doors"]:
+				# make a door
+				# doors never on a corner
+				#tile.update_type("door")
+				var wall:String
+				if relative_loc[0] == 0:
+					wall = "left"
+				elif relative_loc[0] == size[0]:
+					wall = "right"
+				elif relative_loc[1] == 0:
+					wall = "top"
+				elif relative_loc[1] == size[1]:
+					wall = "bottom"
+				var new_door:DOOR = DOOR.new(loc, tile, wall)
+				# set new door
+				var width:int = MAP_SIZE[0]
+				var index:int = (loc[1] * width) + loc[0]
+				TILES[index] = new_door
+ 				#FURNITURE.append(new_door) #i'll figure out something related to this
+				new_room.DOOR_LIST.append(new_door)
+				ENGINE.InventoryManager.update_inventory_owner(new_door)
+			
 			else:
-				y_values = [0,size[1]]
+				tile.update_type("wall")
 
-			for j in y_values:
-				var relative_loc:Vector2 = Vector2(i,j)
-				if relative_loc in room_data["doors"]: continue
-				var loc:Vector2 = relative_loc + top_left
-				var new_furniture: Furniture = Furniture.new("wall", loc)
-				FURNITURE.append(new_furniture)
-
-	# create furniture
-	for keyword: String in room_data["furniture"].keys():
-		var furniture_data: Array = room_data["furniture"][keyword]
-		for rect: Array in furniture_data:
-			var start_vector: Vector2 = rect[0]
-			var end_vector: Vector2 = rect[1]
+	for tile_type:String in room_data["furniture"].keys():
+		var tile_data:Array = room_data["furniture"][tile_type]
+		for rect:Array in tile_data:
+			var start_vector:Vector2 = rect[0]
+			var end_vector:Vector2 = rect[1]
 			for i in range(int(start_vector[0]), int(end_vector[0])+1):
 				for j in range(int(start_vector[1]), int(end_vector[1])+1):
-					var loc: Vector2 = Vector2(i,j) + top_left
-					var new_furniture: Furniture = Furniture.new(keyword, loc)
-					FURNITURE.append(new_furniture)
-					if "container" in new_furniture.DATA["tags"]:
-						ENGINE.InventoryManager.create_inventory(new_furniture)
-						var tile: TILE = get_tile(loc)
-						ENGINE.InventoryManager.remove_inventory(tile) # i'll try to figure out a better way to do this
-						for item_type: String in new_furniture.DATA["may_contain"]:
+					var loc:Vector2 = Vector2(i,j) + top_left
+					var tile:TILE = get_tile(loc)
+					tile.update_type(tile_type)
+					if "may_contain" in tile.DATA:
+						for item_type:String in tile.DATA["may_contain"]:
 							var amount:int = [0,1,2,3].pick_random()
-							for k in range(0,amount + 1):
+							for k in range(0,amount+1):
 								var new_item:ITEM = ITEM.new(item_type)
-								ENGINE.InventoryManager.add_to_inventory(new_furniture, new_item)
+								ENGINE.InventoryManager.add_to_inventory(tile, new_item)
 
-	# create subrooms
 	for room_type:String in room_data["rooms"].keys():
-		print(room_type)
 		for relative_location:Vector2 in room_data["rooms"][room_type]:
-			var exact_location: Vector2 = top_left + relative_location
-			var new_subroom:ROOM = create_room(room_type, exact_location)
+			var loc:Vector2 = relative_location + top_left
+			var new_subroom:ROOM = create_room(room_type, loc)
 			new_room.SUBROOMS.append(new_subroom)
-
+		
 	ROOM_LIST.append(new_room)
 
 	return new_room
+
+		
+
+
+# func create_room_old(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
+# 	print("creating room: ", type)
+# 	var room_data: Dictionary = Rooms.ROOM_TEMPLATES_new[type]
+# 	var new_room:ROOM = ROOM.new(type, top_left, room_data["size"])
+
+
+# 	if "walls" in room_data:
+# 		var size:Vector2 = room_data["size"]
+# 		for i in range(0,size[0]):
+# 			var y_values:Array[int]
+# 			if i == 0 or i == size[0]:
+# 				y_values.assign(range(0, size[1]+1))
+# 			else:
+# 				y_values = [0,size[1]]
+
+# 			for j in y_values:
+# 				var relative_loc:Vector2 = Vector2(i,j)
+# 				var loc:Vector2 = relative_loc + top_left
+# 				if relative_loc in room_data["doors"]: 
+# 					# make a door
+# 					# figure out which wall we're on
+# 					# we'll never be on a corner
+# 					var wall:String
+# 					if i == 0:
+# 						wall = "left"
+# 					elif i == size[0]:
+# 						wall = "right"
+# 					elif j == 0:
+# 						wall = "top"
+# 					elif j == size[1]:
+# 						wall = "bottom"
+# 					var new_door:DOOR = DOOR.new(loc, wall)
+# 					FURNITURE.append(new_door)
+# 					new_room.DOOR_LIST.append(new_door)
+# 				else:
+# 					# make a wall
+					
+# 					var new_furniture: Furniture = Furniture.new("wall", loc)
+# 					FURNITURE.append(new_furniture)
+
+# 	# create furniture
+# 	for keyword: String in room_data["furniture"].keys():
+# 		var furniture_data: Array = room_data["furniture"][keyword]
+# 		for rect: Array in furniture_data:
+# 			var start_vector: Vector2 = rect[0]
+# 			var end_vector: Vector2 = rect[1]
+# 			for i in range(int(start_vector[0]), int(end_vector[0])+1):
+# 				for j in range(int(start_vector[1]), int(end_vector[1])+1):
+# 					var loc: Vector2 = Vector2(i,j) + top_left
+# 					var new_furniture: Furniture = Furniture.new(keyword, loc)
+# 					FURNITURE.append(new_furniture)
+# 					if "container" in new_furniture.DATA["tags"]:
+# 						ENGINE.InventoryManager.create_inventory(new_furniture)
+# 						var tile: TILE = get_tile(loc)
+# 						ENGINE.InventoryManager.remove_inventory(tile) # i'll try to figure out a better way to do this
+# 						for item_type: String in new_furniture.DATA["may_contain"]:
+# 							var amount:int = [0,1,2,3].pick_random()
+# 							for k in range(0,amount + 1):
+# 								var new_item:ITEM = ITEM.new(item_type)
+# 								ENGINE.InventoryManager.add_to_inventory(new_furniture, new_item)
+
+# 	# create subrooms
+# 	for room_type:String in room_data["rooms"].keys():
+# 		print(room_type)
+# 		for relative_location:Vector2 in room_data["rooms"][room_type]:
+# 			var exact_location: Vector2 = top_left + relative_location
+# 			var new_subroom:ROOM = create_room(room_type, exact_location)
+# 			new_room.SUBROOMS.append(new_subroom)
+
+# 	ROOM_LIST.append(new_room)
+
+# 	return new_room
 
 
 
@@ -181,16 +286,20 @@ func update() -> void:
 
 		
 
-	for furniture: Furniture in FURNITURE:
-		var screen_index: Vector2 = ENGINE.get_screen_index(furniture.LOCATION)
+	# for furniture: Furniture in FURNITURE:
+	# 	var screen_index: Vector2 = ENGINE.get_screen_index(furniture.LOCATION)
 
-		if screen_index[0] < 0 or screen_index[1] < 0:
-			continue
+	# 	if screen_index[0] < 0 or screen_index[1] < 0:
+	# 		continue
+
+	# 	# if furniture is DOOR:
+	# 	# 	print("DOOR ALERT")
+	# 	# 	print(furniture.texture)
 		
-		add_child(furniture)
+	# 	add_child(furniture)
 
-		furniture.global_position[0] = (screen_index[0] * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
-		furniture.global_position[1] = screen_index[1] * Constants.TILE_SIZE
+	# 	furniture.global_position[0] = (screen_index[0] * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
+	# 	furniture.global_position[1] = screen_index[1] * Constants.TILE_SIZE
 			
 
 
@@ -319,22 +428,43 @@ func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
 
 #region filters
 
-func is_passable(loc: Vector2) -> bool:
-	for furniture: Furniture in FURNITURE:
-		if furniture.LOCATION == loc:
-			var type: String = furniture.DATA["type"]
-			if "surface" in type: # h_surfance and v_surface are impassable
-				return false
-
+func is_passable(loc:Vector2) -> bool:
+#var index: int = (loc[1] * width) + loc[0]
+	var tile:TILE = get_tile(loc)
+	var tags:Array = tile.DATA["tags"]
+	if "h_surface" in tags or "v_surface" in tags:
+		return false
 	return true
 
-func is_loc_visible(loc: Vector2) -> bool:
-	for furniture: Furniture in FURNITURE:
-		if furniture.LOCATION == loc:
-			var type: String = furniture.DATA["type"]
-			if type == "v_surface":
-				return false
+func is_loc_visible(loc:Vector2) -> bool:
+	var tile:TILE = get_tile(loc)
+	var tags:Array = tile.DATA["tags"]
+	if "v_surface" in tags:
+		return false
 	return true
+
+# func is_passable_old(loc: Vector2) -> bool:
+# 	for furniture: Furniture in FURNITURE:
+# 		if furniture.LOCATION == loc:
+# 			if furniture is DOOR:
+# 				if furniture.opened: 
+# 					return true
+# 				else:
+# 					return false
+# 			else:
+# 				var type: String = furniture.DATA["type"]
+# 				if "surface" in type: # h_surfance and v_surface are impassable
+# 					return false
+
+# 	return true
+
+# func is_loc_visible(loc: Vector2) -> bool:
+# 	for furniture: Furniture in FURNITURE:
+# 		if furniture.LOCATION == loc:
+# 			var type: String = furniture.DATA["type"]
+# 			if type == "v_surface":
+# 				return false
+# 	return true
 
 # func filter_passable_locations(v_list: Array[Vector2] = get_all_locations()) -> Array[Vector2]:
 # 	var passable_loc: Array[Vector2]
@@ -462,13 +592,18 @@ func get_closest_interactable_location(start_location:Vector2, target:Node) -> V
 	neighbors.sort_custom(func(a,b): start_location.distance_to(b) < start_location.distance_to(a))
 	return neighbors[0]
 
+func get_tile(loc:Vector2) -> TILE:
+	var width:int = MAP_SIZE[0]
+	var index:int = (loc[1] * width) + loc[0]
+	var tile:TILE = TILES[index]
+	return tile
 
 
-func get_tile(location: Vector2) -> TILE:
-	for tile: TILE in TILES:
-		if tile.LOCATION == location:
-			return tile
-	return null
+# func get_tile_old(location: Vector2) -> TILE:
+# 	for tile: TILE in TILES:
+# 		if tile.LOCATION == location:
+# 			return tile
+# 	return null
 
 func random_empty_tile() -> TILE:
 	for tile:TILE in TILES:
@@ -552,13 +687,13 @@ func highlight_tile(loc: Vector2, highlight_color: Color) -> void:
 # 		if furn.ID == id: return furn
 # 	return null
 
-func get_furniture_or_tile(id:String) -> Node:
-	# tries to return furniture with id, if not return tile with id
-	for furn: Furniture in FURNITURE:
-		if furn.ID == id: return furn
-	for tile: TILE in TILES:
-		if tile.ID == id: return tile
-	return null
+# func get_furniture_or_tile(id:String) -> Node:
+# 	# tries to return furniture with id, if not return tile with id
+# 	for furn: Furniture in FURNITURE:
+# 		if furn.ID == id: return furn
+# 	for tile: TILE in TILES:
+# 		if tile.ID == id: return tile
+# 	return null
 
 
 func get_room(loc:Vector2) -> ROOM:
