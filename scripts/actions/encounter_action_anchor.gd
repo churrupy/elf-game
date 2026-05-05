@@ -9,7 +9,7 @@ func _init(engine, owner: NPC, target: TILE) -> void:
 	# no scoring needed for this
 	ID = "encounter"
 	LOCATION = target.LOCATION
-	super._init(engine, owner, target)
+	super._init(engine, owner)
 
 
 func run() -> ActionResult:

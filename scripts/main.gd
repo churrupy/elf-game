@@ -14,7 +14,7 @@ var GroupManager:GROUP_MANAGER = GROUP_MANAGER.new(self)
 
 #region gamestate data
 var ROOM: String = "club"
-var NUM_NPCS: int = 1
+var NUM_NPCS: int = 5
 
 #endregion gamestatedata
 

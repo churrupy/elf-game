@@ -77,9 +77,9 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 				elif relative_loc[0] == size[0]:
 					wall = "right"
 				elif relative_loc[1] == 0:
-					wall = "top"
+					wall = "up"
 				elif relative_loc[1] == size[1]:
-					wall = "bottom"
+					wall = "down"
 				var new_door:DOOR = DOOR.new(loc, tile, wall)
 				# set new door
 				var width:int = MAP_SIZE[0]

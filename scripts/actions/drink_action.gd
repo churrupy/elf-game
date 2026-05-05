@@ -2,7 +2,7 @@ class_name DrinkAction extends ACTION
 
 func _init(engine, owner:NPC, target:TILE) -> void:
 	ID = "drink"
-	super._init(engine, owner, target)
+	super._init(engine, owner)
 
 func score() -> void:
 	# sets ACTION.LOCATION as well

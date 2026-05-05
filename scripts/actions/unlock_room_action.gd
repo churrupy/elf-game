@@ -4,17 +4,29 @@ var MOVING_FOR:ACTION
 var PATH: Array[Vector2]
 var TARGET_ROOM:ROOM
 
-func _init(engine, owner:NPC, target:ROOM, moving_for:ACTION) -> void:
+func _init(engine, owner:NPC) -> void:
 	ID = "move"
 	ENGINE = engine
 	OWNER = owner
-	TARGET_ROOM = target
+	#TARGET_ROOM = target
 	#TARGET = target
 	#LOCATION = target.LOCATION
-	MOVING_FOR = moving_for
-	CHATTABLE = moving_for.CHATTABLE
+	#MOVING_FOR = moving_for
+	#CHATTABLE = moving_for.CHATTABLE
 	#super._init(engine, owner, target)
 	#ENGINE.GroupManager.leave_group(owner)
+
+
+func room_to_unlock(_room:ROOM) -> UnlockRoomAction:
+	TARGET_ROOM = _room
+	return self
+
+func calling_action(moving_for:ACTION) -> UnlockRoomAction:
+	MOVING_FOR = moving_for
+	CHATTABLE = moving_for.CHATTABLE
+	return self
+
+	
 
 func tick() -> ActionResult:
 	var result:ActionResult = run()
@@ -27,8 +39,9 @@ func run() -> ActionResult:
 			if OWNER.LOCATION == door.LOCATION:
 				door.open()
 			else:
-				var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, door, self).set_location(door.LOCATION)
-				return ActionResult.new("add", new_action)
+				#var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, door, self).set_location(door.LOCATION)
+				var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(door).calling_action(MOVING_FOR)
+				return ActionResult.new("add", move_action)
 	return ActionResult.new("end")
 
 func _to_string() -> String:

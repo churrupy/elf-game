@@ -2,7 +2,7 @@ class_name DanceAction extends ACTION
 
 func _init(engine, owner:NPC, target:TILE) -> void:
 	ID = "dance"
-	super._init(engine, owner, target)
+	super._init(engine, owner)
 
 func score() -> void:
 	# sets ACTION.LOCATION as well

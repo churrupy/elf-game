@@ -6,27 +6,41 @@ var PATH: Array[Vector2]
 var secure:bool = false
 var room_to_secure:ROOM
 
-func _init(engine, owner: NPC, target: Node, moving_for:ACTION) -> void:
-	# i hope this works lol
-	# no scoring needed for this
+func _init(engine, owner:NPC) -> void:
 	ID = "move"
 	ENGINE = engine
 	OWNER = owner
-	TARGET = target
-	#LOCATION = target.LOCATION
-	MOVING_FOR = moving_for
-	CHATTABLE = moving_for.CHATTABLE
-	super._init(engine, owner, target)
-	ENGINE.GroupManager.leave_group(owner)
+
+
+
+#func _init(engine, owner: NPC) -> void:
+	## i hope this works lol
+	## no scoring needed for this
+	#ID = "move"
+	#ENGINE = engine
+	#OWNER = owner
+	##TARGET = target
+	##LOCATION = target.LOCATION
+	##MOVING_FOR = moving_for
+	##CHATTABLE = moving_for.CHATTABLE
+	##super._init(engine, owner, target)
+	#ENGINE.GroupManager.leave_group(owner)
 
 
 #region builder
-func set_location(loc:Vector2 = Vector2.INF) -> MoveAction:
-	# builder function
-	if loc == Vector2.INF:
-		update_location()
-	else:
-		LOCATION = loc
+func set_target(target:Node) -> MoveAction:
+	TARGET = target
+	update_location()
+	return self
+
+func calling_action(moving_for:ACTION) -> MoveAction:
+	MOVING_FOR = moving_for
+	CHATTABLE = moving_for.CHATTABLE
+	return self
+
+func set_location(loc:Vector2) -> MoveAction:
+	# for if there's no set target
+	LOCATION = loc
 	return self
 
 func secure_room() -> MoveAction:
@@ -94,27 +108,28 @@ func update_location() -> bool:
 
 func run() -> ActionResult:
 
-	if LOCATION == Vector2.INF:
-		# determine whether we have to be on location or next to location
-		var possible:bool = update_location()
-		if !possible:
-			return ActionResult.new("clear")
-		ENGINE.GroupManager.leave_group(OWNER)
+	# if LOCATION == Vector2.INF:
+	# 	# determine whether we have to be on location or next to location
+	# 	var possible:bool = update_location()
+	# 	if !possible:
+	# 		return ActionResult.new("clear")
+	# 	ENGINE.GroupManager.leave_group(OWNER)
 
 
 	if OWNER.LOCATION == LOCATION:
 		return ActionResult.new("end")
 		#return ["end", null]
 
-	if TARGET is NPC:
-		var target_action:ACTION = TARGET.STATE_STACK[-1]
-		if !target_action.CHATTABLE:
-			print("npc now unavailable")
-			return ActionResult.new("clear")
+	if TARGET != null:
+		if TARGET is NPC:
+			var target_action:ACTION = TARGET.STATE_STACK[-1]
+			if !target_action.CHATTABLE:
+				print("npc now unavailable")
+				return ActionResult.new("clear")
 
-	# check if target has moved
-	if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
-		update_location()
+		# check if target has moved
+		if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+			update_location()
 
 	if len(PATH) == 0:
 		PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
@@ -135,7 +150,8 @@ func run() -> ActionResult:
 		var npc_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
 		if npc_room == room_to_secure:
 			if !room_to_secure.is_secured():
-				var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER, room_to_secure, MOVING_FOR)
+				#var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER, room_to_secure, MOVING_FOR)
+				var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER).room_to_secure(room_to_secure).calling_action(MOVING_FOR)
 				return ActionResult.new("add", new_action)
 	
 	# var old_location: Vector2 = OWNER.LOCATION
@@ -153,7 +169,7 @@ func run() -> ActionResult:
 	# 	ENGINE.History.add_move_event(OWNER)
 	
 	#ENGINE.History.add_event(OWNER.ID, "moves")
-	return ActionResult.new("running", null)
+	return ActionResult.new("running")
 	#return ["running", null]
 
 

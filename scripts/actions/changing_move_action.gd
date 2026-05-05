@@ -10,7 +10,7 @@ func _init(engine, owner:NPC, target:NPC, moving_for:ACTION) -> void:
 	MOVING_FOR = moving_for
 	COUNTDOWN = 3
 	CHATTABLE = MOVING_FOR.CHATTABLE
-	super._init(engine, owner, target)
+	super._init(engine, owner)
 
 func tick() -> ActionResult:
 	var result: ActionResult = run()

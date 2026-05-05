@@ -27,6 +27,11 @@ func update():
 	$PlayerDetails.get_node("PCLocationLabel").text = location_text
 	$PlayerDetails.get_node("TickLabel").text = "T:" + str(Global.TICKS)
 
+	# update side menus
+	for child in $NearbyNpcsContainer.get_node("VBoxContainer").get_children():
+		if "update" in child:
+			child.update()
+
 			
 func open_npc_menus_old(npc_list:Array[String]) -> void:
 	TEMP_NPCS = npc_list.duplicate()

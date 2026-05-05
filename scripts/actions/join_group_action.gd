@@ -29,7 +29,8 @@ func run() -> ActionResult:
 
 	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		#print("moving to npc")
-		var move_action: MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self).set_location(LOCATION)
+		#var move_action: MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self).set_location(LOCATION)
+		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(TARGET).calling_action(self)
 		#move_action.LOCATION = LOCATION
 		return ActionResult.new("add", move_action)
 	else:

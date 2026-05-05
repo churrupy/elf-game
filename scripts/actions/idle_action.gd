@@ -9,7 +9,7 @@ func _init(engine, owner: NPC, target: Node, determinator: ActionDeterminator) -
 	ID = "idle"
 	LOCATION = owner.LOCATION
 	Determinator = determinator
-	super._init(engine, owner, target)
+	super._init(engine, owner)
 
 func resume_state():
 	pass

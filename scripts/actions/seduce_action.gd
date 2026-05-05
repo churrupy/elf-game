@@ -4,7 +4,7 @@ func _init(engine, owner: NPC, target: NPC) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "seduce"
-	super._init(engine, owner, target)
+	super._init(engine, owner)
 
 func can_do_action() -> bool:
 	return ENGINE.NpcManager.is_available(TARGET)

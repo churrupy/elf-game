@@ -44,7 +44,7 @@ var NEEDS: Dictionary[String, float] = {
 	"social": 90.0,
 	"fun": 90.0,
 	#"bladder": randf_range(40.0, 90.0),
-	"bladder": 90.0,
+	"bladder": 40.0,
 	"arousal": 0.0
 }
 

@@ -25,6 +25,14 @@ func _ready() -> void:
 
 	$NameLabel.text = DISPLAY_NPC.NAME
 
+	update()
+
+
+func update() -> void:
+	print("UPDATING SIDE MENU")
+	for child in $Large.get_node("DetailContainer").get_children():
+		child.queue_free()
+
 	var display_string = []
 	var _str = "Id: " + DISPLAY_NPC.ID
 	display_string.append(_str)
@@ -53,9 +61,6 @@ func _ready() -> void:
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		new_label.custom_minimum_size = Vector2(Constants.LEFT_PANEL_SIZE[0], 30)
 		$Large.get_node("DetailContainer").add_child(new_label)
-
-
-
 	
 
 func _process(_delta:float) -> void:

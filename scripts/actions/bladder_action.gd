@@ -53,14 +53,14 @@ func run() -> ActionResult:
 		if !npc_room.is_secured():
 			return ActionResult.new("end")
 		else:
-			var new_action:UnlockRoomAction = UnlockRoomAction.new(ENGINE, OWNER, npc_room, self)
+			var new_action:UnlockRoomAction = UnlockRoomAction.new(ENGINE, OWNER).room_to_unlock(npc_room).calling_action(self)
 			return ActionResult.new("add", new_action)
 	else:
 		if OWNER.LOCATION == LOCATION:
 			refresh_needs("bladder")
 			return ActionResult.new("running")
 		else:
-			var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self).set_location(LOCATION).secure_room()
+			var new_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(TARGET).calling_action(self).secure_room()
 			return ActionResult.new("add", new_action)
 			
 	#return ActionResult.new("running")
@@ -122,27 +122,27 @@ func run() -> ActionResult:
 
 
 
-func determine_next_action() -> STATUS:
-	# sequence
-	var node_list: Array[Callable] = [
-		go_to_toilet,
-		use_toilet,
-		unlock_room
-	]
+# func determine_next_action() -> STATUS:
+# 	# sequence
+# 	var node_list: Array[Callable] = [
+# 		go_to_toilet,
+# 		use_toilet,
+# 		unlock_room
+# 	]
 
-	for node:Callable in node_list:
-		var status:STATUS = node.call()
-		if status != STATUS.SUCCESS: return status
-	return STATUS.SUCCESS
+# 	for node:Callable in node_list:
+# 		var status:STATUS = node.call()
+# 		if status != STATUS.SUCCESS: return status
+# 	return STATUS.SUCCESS
 
-func go_to_toilet() -> STATUS:
+# func go_to_toilet() -> STATUS:
 
-	if OWNER.LOCATION == LOCATION:
-		return STATUS.SUCCESS
-	else:
-		var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self).set_location(LOCATION).secure_room()
-		ENGINE.NpcManager.add_state(new_action)
-		return STATUS.RUNNING
+# 	if OWNER.LOCATION == LOCATION:
+# 		return STATUS.SUCCESS
+# 	else:
+# 		var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self).set_location(LOCATION).secure_room()
+# 		ENGINE.NpcManager.add_state(new_action)
+# 		return STATUS.RUNNING
 	
 	# var filter:FURNITURE_FILTER = FURNITURE_FILTER.new(ENGINE).set_list().has_tag("fill_bladder").at_location(OWNER.LOCATION)
 	# var toilets:Array[Furniture] = filter.run_filter()
@@ -165,17 +165,17 @@ func go_to_toilet() -> STATUS:
 	# ENGINE.NpcManager.add_state(new_action)
 	# return STATUS.RUNNING
 
-func use_toilet() -> STATUS:
-	print("toileting")
-	refresh_needs("bladder")
-	if OWNER.NEEDS["bladder"] >= 95:
-		return STATUS.SUCCESS
-	return STATUS.RUNNING
+# func use_toilet() -> STATUS:
+# 	print("toileting")
+# 	refresh_needs("bladder")
+# 	if OWNER.NEEDS["bladder"] >= 95:
+# 		return STATUS.SUCCESS
+# 	return STATUS.RUNNING
 
-func unlock_room() -> STATUS:
-	var npc_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
-	if npc_room.is_secured():
-		var new_action:UnlockRoomAction = UnlockRoomAction.new(ENGINE, OWNER, npc_room, self)
-		ENGINE.NpcManager.add_state(new_action)
-		return STATUS.RUNNING
-	return STATUS.SUCCESS
+# func unlock_room() -> STATUS:
+# 	var npc_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+# 	if npc_room.is_secured():
+# 		var new_action:UnlockRoomAction = UnlockRoomAction.new(ENGINE, OWNER, npc_room, self)
+# 		ENGINE.NpcManager.add_state(new_action)
+# 		return STATUS.RUNNING
+# 	return STATUS.SUCCESS

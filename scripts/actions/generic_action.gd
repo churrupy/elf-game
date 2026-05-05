@@ -3,8 +3,9 @@ class_name ACTION extends RefCounted
 var ENGINE
 var ID: String
 var OWNER: NPC
-var TARGET: Node # maybe Array[Container]? to accomodate furniture/items
-var LOCATION: Vector2 = Vector2.INF # this tile gets reserved by owner
+
+var TARGET: Node 
+var LOCATION: Vector2 = Vector2.INF 
 var COUNTDOWN: int
 var SCORE: int = 0
 
@@ -15,10 +16,10 @@ var POSE:String = "standing"
 var PHYSICAL_ACTION:String = ""
 
 
-func _init(engine, owner: NPC, target: Node) -> void:
+func _init(engine, owner: NPC) -> void:
 	ENGINE = engine
 	OWNER = owner
-	TARGET = target
+	#TARGET = target
 	var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
 	COUNTDOWN = action_data["duration"]
 	score()
@@ -49,116 +50,79 @@ func can_do_action() -> bool:
 	return true
 
 
-func score_old() -> void:
-	pass
-	#extends
-	# score based on need
-	var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
-	var need: String = action_data["need"]
-	SCORE += 100-OWNER.NEEDS[need]
-	if need in ["hunger", "energy"]:
-		SCORE += 10 # bonus for urgent needs
-
-
-	# score based on distance
-	SCORE -= OWNER.LOCATION.distance_to(LOCATION)
-	'''
-	total_x = abs(OWNER.LOCATION[0]- LOCATION[0])
-	total_y = abs(OWNER.LOCATION[1] - LOCATION[1])
-	SCORE -= (total_x + total_y)
-	'''
-
-
-'''
-func step_towards_location() -> void:
-	#var old_location: Vector2 = OWNER.LOCATION
-	var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
-	if next_step == Vector2.INF:
-		push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
-		print("teleporting...")
-		OWNER.LOCATION = LOCATION
-		#ENGINE.History.add_event(OWNER.ID, "moved to", LOCATION)
-	else:
-		OWNER.LOCATION = next_step
-		#ENGINE.History.add_event(OWNER.ID, "moved to", LOCATION)
-'''
-
-func recheck_can_do_action():
-	# what an awful bandaid lol
-	if !can_do_action():
-		OWNER.decay_needs()
-		return false
-	return true
-
-
 func tick() -> ActionResult:
-	if OWNER.LOCATION != LOCATION:
-		#var ACTION_CLASS: GDScript = Constants.ACTION_ID["MoveAction"]
-		var tile: TILE = ENGINE.Map.get_tile(LOCATION)
-		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, self)
-		return ActionResult.new("add", new_action)
-		#return ["add", new_action]
-	if !can_do_action():
-		return ActionResult.new("end", null)
-		#return ["end", null]
-	# recheck can-do-action, so we don't interrupt other people's actions
-	#var result:ActionResult = ActionResult.new("running", null)
 	var result:ActionResult = run()
 	OWNER.decay_needs()
 	return result
 
+# func tick() -> ActionResult:
+# 	if OWNER.LOCATION != LOCATION:
+# 		#var ACTION_CLASS: GDScript = Constants.ACTION_ID["MoveAction"]
+# 		var tile: TILE = ENGINE.Map.get_tile(LOCATION)
+# 		var new_action: ACTION = MoveAction.new(ENGINE, OWNER, tile, self)
+# 		return ActionResult.new("add", new_action)
+# 		#return ["add", new_action]
+# 	if !can_do_action():
+# 		return ActionResult.new("end", null)
+# 		#return ["end", null]
+# 	# recheck can-do-action, so we don't interrupt other people's actions
+# 	#var result:ActionResult = ActionResult.new("running", null)
+# 	var result:ActionResult = run()
+# 	OWNER.decay_needs()
+# 	return result
+
 func run() -> ActionResult:
 	# extends
-	return ActionResult.new("running", null)
+	return ActionResult.new("running")
 	#return ["running", null]
 	
 
-func update_moving_location():
-	var neighbors = ENGINE.Map.get_neighbors(LOCATION)
-	if LOCATION not in neighbors:
-		var free_tile = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, LOCATION)
-		if free_tile == null:
-			pass
-		else:
-			LOCATION = free_tile
+# func update_moving_location():
+# 	var neighbors = ENGINE.Map.get_neighbors(LOCATION)
+# 	if LOCATION not in neighbors:
+# 		var free_tile = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, LOCATION)
+# 		if free_tile == null:
+# 			pass
+# 		else:
+# 			LOCATION = free_tile
 
 
-func witnesses_hear(action_id: String) -> void:
-	var witnesses: Array[String] = [OWNER.ID]
-	if TARGET is NPC:
-		witnesses += TARGET.ID
+# func witnesses_hear(action_id: String) -> void:
+# 	var witnesses: Array[String] = [OWNER.ID]
+# 	if TARGET is NPC:
+# 		witnesses += TARGET.ID
 
-	witnesses += ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)
+# 	witnesses += ENGINE.NpcManager.get_nearby_npcs(OWNER.LOCATION)
 
-	if LOCATION != TARGET.LOCATION:
-		witnesses += ENGINE.NpcManager.get_nearby_npcs(LOCATION)
+# 	if LOCATION != TARGET.LOCATION:
+# 		witnesses += ENGINE.NpcManager.get_nearby_npcs(LOCATION)
 
-	var temp_dict: Dictionary  = {}
-	for w: String in witnesses:
-		temp_dict[w] = 0
-	witnesses = temp_dict.keys()
+# 	var temp_dict: Dictionary  = {}
+# 	for w: String in witnesses:
+# 		temp_dict[w] = 0
+# 	witnesses = temp_dict.keys()
 
-	if len(witnesses) == 0:
-		return
+# 	if len(witnesses) == 0:
+# 		return
 
-	for npc_id: String in witnesses:
-		pass
-		#ENGINE.History.add_event("", action_id, LOCATION, witnesses)
+# 	for npc_id: String in witnesses:
+# 		pass
+# 		#ENGINE.History.add_event("", action_id, LOCATION, witnesses)
 
 
-func chitchat() -> void:
-	#flirt()
-	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
-	OWNER.RECENT_TOPIC = new_topic
-	OWNER.SOCIAL_ACTION.RECENT_TOPIC = new_topic
-	var opinion:int = OWNER.OPINIONS[new_topic]
-	var params:Dictionary = {
-		"topic": new_topic,
-		"opinion": opinion
-	}
-	ENGINE.History.add_event(OWNER.ID, "converse", "", params)
+# func chitchat() -> void:
+# 	#flirt()
+# 	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
+# 	OWNER.RECENT_TOPIC = new_topic
+# 	OWNER.SOCIAL_ACTION.RECENT_TOPIC = new_topic
+# 	var opinion:int = OWNER.OPINIONS[new_topic]
+# 	var params:Dictionary = {
+# 		"topic": new_topic,
+# 		"opinion": opinion
+# 	}
+# 	ENGINE.History.add_event(OWNER.ID, "converse", "", params)
 
-	refresh_needs("social")
+# 	refresh_needs("social")
 
 func flirt() -> void:
 	# deal with being target of escalation
@@ -213,49 +177,49 @@ func flirt() -> void:
 			ENGINE.History.add_event(OWNER.ID, PHYSICAL_ACTION, TARGET.ID)
 
 
-func chitchat_old() -> void:
-	var center_of_conversation: Vector2 = LOCATION
+# func chitchat_old() -> void:
+# 	var center_of_conversation: Vector2 = LOCATION
 
-	var witnesses: Array[String] = ENGINE.NpcManager.get_nearby_npcs(center_of_conversation)
+# 	var witnesses: Array[String] = ENGINE.NpcManager.get_nearby_npcs(center_of_conversation)
 
-	#var witnesses: Array[String] = ENGINE.get_npcs_in_range(center_of_conversation)
+# 	#var witnesses: Array[String] = ENGINE.get_npcs_in_range(center_of_conversation)
 
-	if len(witnesses) < 2:
-		# owner is also in witness list
-		center_of_conversation = OWNER.LOCATION
-		witnesses = ENGINE.NpcManager.get_nearby_npcs(center_of_conversation)
+# 	if len(witnesses) < 2:
+# 		# owner is also in witness list
+# 		center_of_conversation = OWNER.LOCATION
+# 		witnesses = ENGINE.NpcManager.get_nearby_npcs(center_of_conversation)
 
-	if len(witnesses) < 2:
-		# don't talk to self
-		return
+# 	if len(witnesses) < 2:
+# 		# don't talk to self
+# 		return
 
-	witnesses.erase(OWNER.ID)
+# 	witnesses.erase(OWNER.ID)
 
-	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
-	OWNER.RECENT_TOPIC = new_topic
-	OWNER.SOCIAL_ACTION.RECENT_TOPIC = new_topic
-	var opinion: int = OWNER.OPINIONS[new_topic]
-	var op_str: String = OWNER.NAME + ": " + '"' + new_topic.capitalize() + " are "
-	if opinion >= 3:
-		op_str+= "great!"
-	elif opinion >= 0:
-		op_str += "okay."
-	elif opinion >= -3:
-		op_str += "lame."
-	else:
-		op_str += "terrible!"
-	op_str += '"'
-	#ENGINE.History.add_event(OWNER.ID, "converse", center_of_conversation, witnesses, op_str)
+# 	var new_topic: String = Dialogue.get_next_topic(OWNER.RECENT_TOPIC)
+# 	OWNER.RECENT_TOPIC = new_topic
+# 	OWNER.SOCIAL_ACTION.RECENT_TOPIC = new_topic
+# 	var opinion: int = OWNER.OPINIONS[new_topic]
+# 	var op_str: String = OWNER.NAME + ": " + '"' + new_topic.capitalize() + " are "
+# 	if opinion >= 3:
+# 		op_str+= "great!"
+# 	elif opinion >= 0:
+# 		op_str += "okay."
+# 	elif opinion >= -3:
+# 		op_str += "lame."
+# 	else:
+# 		op_str += "terrible!"
+# 	op_str += '"'
+# 	#ENGINE.History.add_event(OWNER.ID, "converse", center_of_conversation, witnesses, op_str)
 
-	refresh_needs("social")
+# 	refresh_needs("social")
 
-	for npc_id: String in witnesses:
-		if npc_id == OWNER.ID:
-			continue
-		var npc = Global.NPCS[npc_id]
-		var impression: String = npc.hear_topic(OWNER.ID, new_topic, opinion)
-		var _str: String = npc.NAME + " was " + impression + " with that statement."
-		#ENGINE.History.add_event(npc_id, "converse", center_of_conversation, [OWNER.ID], _str)
+# 	for npc_id: String in witnesses:
+# 		if npc_id == OWNER.ID:
+# 			continue
+# 		var npc = Global.NPCS[npc_id]
+# 		var impression: String = npc.hear_topic(OWNER.ID, new_topic, opinion)
+# 		var _str: String = npc.NAME + " was " + impression + " with that statement."
+# 		#ENGINE.History.add_event(npc_id, "converse", center_of_conversation, [OWNER.ID], _str)
 
 
 

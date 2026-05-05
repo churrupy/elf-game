@@ -12,7 +12,7 @@ const GENDER_TEMPLATES: Dictionary = {
 
 func _init(engine, owner: NPC, target: NPC) -> void:
 	ID = "encounter"
-	super._init(engine, owner, target)
+	super._init(engine, owner)
 	# no scoring needed
 	# LOCATION has to be manually set by whatever is initializing this class
 

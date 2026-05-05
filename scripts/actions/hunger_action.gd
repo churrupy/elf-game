@@ -42,6 +42,7 @@ func tick() -> ActionResult:
 
 func run() -> ActionResult:
 
+	# if owner has food in inventory
 	if ENGINE.InventoryManager.inventory_has(OWNER, "food"):
 		var food_item:ITEM = ENGINE.InventoryManager.pop_inventory_first_tagged(OWNER, "food")
 		OWNER.consume(food_item)
@@ -49,6 +50,7 @@ func run() -> ActionResult:
 		food_item.queue_free()
 		return ActionResult.new("end")
 	
+	# if owner is standing close to something that has food in their inventory
 	var filter:INVENTORY_FILTER = INVENTORY_FILTER.new(ENGINE).set_list().in_range_of(OWNER.LOCATION).has_tag("food")
 	var filtered_inventories:Array[INVENTORY] = filter.run_filter()
 	if len(filtered_inventories) > 0:
@@ -57,28 +59,32 @@ func run() -> ActionResult:
 		ENGINE.InventoryManager.add_to_inventory(OWNER, food_item)
 		return ActionResult.new("running")
 
+	# if owner is in the same room as something that has food in their inventory
 	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
 	filter = INVENTORY_FILTER.new(ENGINE).set_list().is_in_room(current_room).has_tag("food")
 	filtered_inventories = filter.run_filter()
 	if len(filtered_inventories) > 0:
 		var chosen_inventory:INVENTORY = filtered_inventories.pick_random()
-		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER, chosen_inventory.OWNER, self).set_location()
+		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(chosen_inventory.OWNER).calling_action(self)
 		return ActionResult.new("add", move_action)
 
-	print("no valid eating actions")
-	print("need to figure out how to check this and move on to the next option if possible")
-	return ActionResult.new("clear")
+	var new_action:LeaveRoomAction = LeaveRoomAction.new(ENGINE, OWNER).set_location().calling_action(self)
+	return ActionResult.new("add", new_action)
 
-func run_old() -> ActionResult:
-	var action_status: STATUS = determine_next_action()
-	if action_status == STATUS.SUCCESS:
-		return ActionResult.new("end", null)
-	elif action_status == STATUS.RUNNING:
-		return ActionResult.new("running", null)
-	else:
-		# STATUS.FAILURE
-		# this is when options to eat are not on the map, but no one can leave the map yet so whatever
-		return ActionResult.new("running", null)
+	# print("no valid eating actions")
+	# print("need to figure out how to check this and move on to the next option if possible")
+	# return ActionResult.new("clear")
+
+# func run_old() -> ActionResult:
+# 	var action_status: STATUS = determine_next_action()
+# 	if action_status == STATUS.SUCCESS:
+# 		return ActionResult.new("end", null)
+# 	elif action_status == STATUS.RUNNING:
+# 		return ActionResult.new("running", null)
+# 	else:
+# 		# STATUS.FAILURE
+# 		# this is when options to eat are not on the map, but no one can leave the map yet so whatever
+# 		return ActionResult.new("running", null)
 
 
 # func determine_target_fallback() -> STATUS:
@@ -107,36 +113,36 @@ func run_old() -> ActionResult:
 # 	return STATUS.FAILURE
 
 
-func determine_next_action() -> STATUS:
-	# sequence
-	var node_list:Array[Callable] = [
-		get_food,
-		eat_food,
-	]
+# func determine_next_action() -> STATUS:
+# 	# sequence
+# 	var node_list:Array[Callable] = [
+# 		get_food,
+# 		eat_food,
+# 	]
 
-	for node:Callable in node_list:
-		var status:STATUS = node.call()
-		if status != STATUS.SUCCESS: return status
-	return STATUS.SUCCESS
+# 	for node:Callable in node_list:
+# 		var status:STATUS = node.call()
+# 		if status != STATUS.SUCCESS: return status
+# 	return STATUS.SUCCESS
 
-func get_food() -> STATUS:
-	if OWNER == TARGET:
-		LOCATION = OWNER.LOCATION
-		CHATTABLE = true
-		return STATUS.SUCCESS
+# func get_food() -> STATUS:
+# 	if OWNER == TARGET:
+# 		LOCATION = OWNER.LOCATION
+# 		CHATTABLE = true
+# 		return STATUS.SUCCESS
 
-	elif OWNER.LOCATION == LOCATION:
-		pickup_item(TARGET.LOCATION)
-		return STATUS.RUNNING
+# 	elif OWNER.LOCATION == LOCATION:
+# 		pickup_item(TARGET.LOCATION)
+# 		return STATUS.RUNNING
 
-	else:
-		var new_action: MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self).set_location()
-		# moveaction determines target location
-		# takes into consideration whether npc should be on tile, or adjacent to tile
-		LOCATION = new_action.LOCATION
-		#new_action.LOCATION = LOCATION
-		ENGINE.NpcManager.add_state(new_action)
-		return STATUS.RUNNING
+# 	else:
+# 		var new_action: MoveAction = MoveAction.new(ENGINE, OWNER, TARGET, self).set_location()
+# 		# moveaction determines target location
+# 		# takes into consideration whether npc should be on tile, or adjacent to tile
+# 		LOCATION = new_action.LOCATION
+# 		#new_action.LOCATION = LOCATION
+# 		ENGINE.NpcManager.add_state(new_action)
+# 		return STATUS.RUNNING
 
 
 # func get_food() -> STATUS:
@@ -175,13 +181,13 @@ func get_food() -> STATUS:
 # 	ENGINE.NpcManager.add_state(new_action)
 # 	return STATUS.RUNNING
 
-func eat_food() -> STATUS:
-	var inventory: INVENTORY = ENGINE.InventoryManager.get_inventory_of(OWNER.ID)
-	var food_item:ITEM = ENGINE.InventoryManager.pop_inventory_first_tagged(OWNER, "food")
-	OWNER.consume(food_item)
-	ENGINE.InventoryManager.remove_from_inventory(OWNER, food_item)
-	food_item.queue_free()
-	return STATUS.SUCCESS
+# func eat_food() -> STATUS:
+# 	var inventory: INVENTORY = ENGINE.InventoryManager.get_inventory_of(OWNER.ID)
+# 	var food_item:ITEM = ENGINE.InventoryManager.pop_inventory_first_tagged(OWNER, "food")
+# 	OWNER.consume(food_item)
+# 	ENGINE.InventoryManager.remove_from_inventory(OWNER, food_item)
+# 	food_item.queue_free()
+# 	return STATUS.SUCCESS
 
 
 func pickup_item(loc: Vector2) -> void:
