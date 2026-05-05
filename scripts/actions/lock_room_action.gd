@@ -8,13 +8,6 @@ func _init(engine, owner:NPC) -> void:
 	ID = "move"
 	ENGINE = engine
 	OWNER = owner
-	#TARGET_ROOM = target
-	#TARGET = target
-	#LOCATION = target.LOCATION
-	#MOVING_FOR = moving_for
-	#CHATTABLE = moving_for.CHATTABLE
-	#super._init(engine, owner, target)
-	#ENGINE.GroupManager.leave_group(owner)
 
 func room_to_secure(_room:ROOM) -> LockRoomAction:
 	TARGET_ROOM = _room
@@ -36,7 +29,6 @@ func run() -> ActionResult:
 			if OWNER.LOCATION == door.LOCATION:
 				door.close()
 			else:
-				#var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, door, self).set_location(door.LOCATION)
 				var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(door).calling_action(self)
 				return ActionResult.new("add", move_action)
 	return ActionResult.new("end")

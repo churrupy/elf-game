@@ -40,8 +40,9 @@ func tick() -> ActionResult:
 	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		#var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
 		#var tile: TILE = ENGINE.Map.get_tile(closest_location)
-		var new_action: ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, self)
-		return ActionResult.new("add", new_action)
+		#var new_action: ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, self)
+		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(TARGET).calling_action(self)
+		return ActionResult.new("add", move_action)
 		#return ["add", new_action]
 	
 	var result: ActionResult = run()

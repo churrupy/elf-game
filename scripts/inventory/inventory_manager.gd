@@ -107,28 +107,6 @@ func get_inventory_at_location(loc:Vector2) -> INVENTORY:
 		return null
 
 
-func filter_inventories_by_tag(tag:String) -> Array[INVENTORY]:
-	# doesn't check npc inventories because that's pickpocketing
-	# i'll figure out how I want to properly deal with this later
-	var res_list: Array[INVENTORY]
-	for inventory:INVENTORY in INVENTORIES:
-		if inventory.OWNER is NPC: continue
-		var tag_list: Array[String] = inventory.get_all_tags()
-		if tag in tag_list:
-			res_list.append(inventory)
-	return res_list
-
-
-func filter_locations_by_tag(tag:String, loc_list:Array[Vector2] = get_inventory_locations()) -> Array[Vector2]:
-	# only returns tile/furniture inventory locations
-	var res_list: Array[Vector2]
-	for loc:Vector2 in loc_list:
-		var inventory: INVENTORY = get_inventory_at_location(loc)
-		var tags: Array[String] = inventory.get_all_tags()
-		if tag in tags:
-			res_list.append(loc)
-	return res_list
-
 
 func get_inventory_locations(inv_list:Array[INVENTORY] = INVENTORIES) -> Array[Vector2]:
 	# immobile inventories only
@@ -144,14 +122,6 @@ func print_inventory_at_location(loc: Vector2) -> void:
 	var inventory: INVENTORY = get_inventory_at_location(loc)
 	#print(inventory)
 
-func get_locations_of_tag(tag:String) -> Array[Vector2]:
-	var inventories: Array[INVENTORY] = filter_inventories_by_tag(tag)
-	var res_list: Array[Vector2]
-	for inventory:INVENTORY in inventories:
-		var loc: Vector2 = inventory.OWNER.LOCATION
-		res_list.append(loc)
-	return res_list
-	
 
 
 #endregion tile/furniture

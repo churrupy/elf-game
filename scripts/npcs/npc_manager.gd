@@ -46,9 +46,6 @@ func tick() -> void:
 		print ("***** ", npc.NAME, " *****")
 		#print_reserved_locations()
 
-		
-
-
 		var current_action: ACTION = npc.STATE_STACK.back()
 		print ("current_action: ", current_action)
 
@@ -169,12 +166,12 @@ func broadcast_event(event:EVENT) -> void:
 
 
 #region filters
-func filter_reserved_locations(loc_list: Array[Vector2]) -> Array[Vector2]:
-	var free_loc: Array[Vector2]
-	for loc: Vector2 in loc_list:
-		if is_reserved(loc): continue
-		free_loc.append(loc)
-	return free_loc
+# func filter_reserved_locations(loc_list: Array[Vector2]) -> Array[Vector2]:
+# 	var free_loc: Array[Vector2]
+# 	for loc: Vector2 in loc_list:
+# 		if is_reserved(loc): continue
+# 		free_loc.append(loc)
+# 	return free_loc
 
 
 func is_reserved(location: Vector2) -> bool:
@@ -201,22 +198,22 @@ func get_npc(npc_id:String) ->NPC:
 			return npc
 	return null
 
-func get_all_npc_actions(checked_npc: NPC) -> Array[ACTION]:
-	var action_classes: Array[RefCounted] = [
-		#SocialAction, 
-		#"FlirtAction", 
-		#SeduceAction
-	]
-	var all_actions: Array[ACTION]
-	for npc_id: String in Global.NPCS.keys():
-		if npc_id == checked_npc.ID: continue
-		var npc:NPC = Global.NPCS[npc_id]
-		if !is_available(npc): continue
-		for ACTION_CLASS:RefCounted in action_classes:
-			#var ACTION_CLASS: GDScript = Constants.ACTION_ID[action_class_id]
-			var new_action: ACTION = ACTION_CLASS.new(ENGINE, checked_npc, npc)
-			all_actions.append(new_action)
-	return all_actions
+# func get_all_npc_actions(checked_npc: NPC) -> Array[ACTION]:
+# 	var action_classes: Array[RefCounted] = [
+# 		#SocialAction, 
+# 		#"FlirtAction", 
+# 		#SeduceAction
+# 	]
+# 	var all_actions: Array[ACTION]
+# 	for npc_id: String in Global.NPCS.keys():
+# 		if npc_id == checked_npc.ID: continue
+# 		var npc:NPC = Global.NPCS[npc_id]
+# 		if !is_available(npc): continue
+# 		for ACTION_CLASS:RefCounted in action_classes:
+# 			#var ACTION_CLASS: GDScript = Constants.ACTION_ID[action_class_id]
+# 			var new_action: ACTION = ACTION_CLASS.new(ENGINE, checked_npc, npc)
+# 			all_actions.append(new_action)
+# 	return all_actions
 
 func get_attraction(npc_id:String, target_npc_id:String) -> int:
 	return 1 # for testing
@@ -228,19 +225,19 @@ func get_attraction(npc_id:String, target_npc_id:String) -> int:
 	#var other_style = other_npc.STYLE
 	#return OPINIONS[other_style]
 
-func is_available(npc: NPC) -> bool:
-	# returns whether the npc is available for interactions
-	var current_action: ACTION = npc.STATE_STACK.back()
-	var current_action_id: String = current_action.ID
-	if current_action_id == "move":
-		current_action_id = current_action.MOVING_FOR
-	var busy_actions: Array[String] = [
-		"use toilet",
-		"encounter"
-	]
-	if current_action_id in busy_actions: #have no idea if this will work
-		return false
-	return true
+# func is_available(npc: NPC) -> bool:
+# 	# returns whether the npc is available for interactions
+# 	var current_action: ACTION = npc.STATE_STACK.back()
+# 	var current_action_id: String = current_action.ID
+# 	if current_action_id == "move":
+# 		current_action_id = current_action.MOVING_FOR
+# 	var busy_actions: Array[String] = [
+# 		"use toilet",
+# 		"encounter"
+# 	]
+# 	if current_action_id in busy_actions: #have no idea if this will work
+# 		return false
+# 	return true
 
 
 
@@ -249,14 +246,14 @@ func is_available(npc: NPC) -> bool:
 #region vector2
 
 
-func get_nearby_npcs(location: Vector2) -> Array[String]:
-	#will eventually delete this
-	var nearby_npcs: Array[String]
-	for npc: NPC in NPCS:
-		if int(npc.LOCATION[0]) not in range(location[0]-1, location[0]+2): continue
-		if int(npc.LOCATION[1]) not in range(location[1]-1, location[1]+2): continue
-		nearby_npcs.append(npc.ID)
-	return nearby_npcs
+# func get_nearby_npcs(location: Vector2) -> Array[String]:
+# 	#will eventually delete this
+# 	var nearby_npcs: Array[String]
+# 	for npc: NPC in NPCS:
+# 		if int(npc.LOCATION[0]) not in range(location[0]-1, location[0]+2): continue
+# 		if int(npc.LOCATION[1]) not in range(location[1]-1, location[1]+2): continue
+# 		nearby_npcs.append(npc.ID)
+# 	return nearby_npcs
 
 
 func get_npc_from_location(location: Vector2) -> Array[String]:
@@ -270,10 +267,10 @@ func get_npc_from_location(location: Vector2) -> Array[String]:
 
 
 
-func can_see(npc:NPC) -> Array[NPC]:
-	var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(npc.LOCATION, 10).in_arc_of(npc.DIRECTION)
-	var result_list:Array[NPC] = filter.run_filter()
-	return result_list
+# func can_see(npc:NPC) -> Array[NPC]:
+# 	var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(npc.LOCATION, 10).in_arc_of(npc.DIRECTION)
+# 	var result_list:Array[NPC] = filter.run_filter()
+# 	return result_list
 
 
 

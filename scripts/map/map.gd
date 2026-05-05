@@ -2,7 +2,7 @@ class_name MAP extends ColorRect
 
 var ENGINE
 var TILES: Array[TILE]
-var FURNITURE: Array[Furniture]
+#var FURNITURE: Array[Furniture]
 #var ROOM: String
 var ROOM_LIST:Array[ROOM]
 var MAP_SIZE:Vector2
@@ -255,7 +255,7 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 
 func clear_tiles():
 	for child in get_children():
-		if child is TILE or child is Furniture:
+		if child is TILE:
 			remove_child(child)
 
 func update() -> void:
@@ -575,8 +575,8 @@ func get_closest_interactable_location(start_location:Vector2, target:Node) -> V
 
 	if target is NPC:
 		adjacent = true
-	elif target is Furniture:
-		if "surface" in target.DATA["type"]:
+	elif target is TILE:
+		if "h_surface" in target.DATA["tags"] or "v_surface" in target.DATA["tags"]:
 			adjacent = true
 
 	var filter:LOCATION_FILTER

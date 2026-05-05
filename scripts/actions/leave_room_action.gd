@@ -7,10 +7,6 @@ func _init(engine, owner:NPC) -> void:
 	ID = "move"
 	ENGINE = engine
 	OWNER = owner
-	#TARGET = target
-	#MOVING_FOR = moving_for
-	#CHATTABLE = moving_for.CHATTABLE
-	#ENGINE.GroupManager.leave_group(owner)
 
 func calling_action(moving_for:ACTION) -> LeaveRoomAction:
 	MOVING_FOR = moving_for
@@ -50,7 +46,6 @@ func tick() -> ActionResult:
 func run() -> ActionResult:
 	if OWNER.LOCATION == LOCATION:
 		return ActionResult.new("end")
-	
-	#var move_action:MoveAction = MoveAction.new(ENGINE, OWNER, null, MOVING_FOR).set_location(LOCATION)
+
 	var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_location(LOCATION).calling_action(MOVING_FOR)
 	return ActionResult.new("add", move_action)
