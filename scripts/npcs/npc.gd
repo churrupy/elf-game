@@ -402,3 +402,12 @@ func consume(item:ITEM) -> void:
 
 
 #endregion actions
+
+func get_reserved_locations() -> Array[Vector2]:
+	var result_list:Array[Vector2]
+	if len(STATE_STACK) == 1:
+		return [STATE_STACK[0].LOCATION]
+	for action:ACTION in STATE_STACK:
+		if action is IdleAction: continue
+		result_list.append(action.LOCATION)
+	return result_list

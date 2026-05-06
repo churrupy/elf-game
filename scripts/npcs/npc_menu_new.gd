@@ -40,6 +40,8 @@ func update() -> void:
 	display_string.append(_str)
 	_str = "Current Location: " + ENGINE.prettify_vector(DISPLAY_NPC.LOCATION)
 	display_string.append(_str)
+	_str = "Currently Reserved: " + ENGINE.prettify_vector(ENGINE.NpcManager.get_reserved_tile(DISPLAY_NPC))
+	display_string.append(_str)
 	_str = "Current Action: " + str(DISPLAY_NPC.STATE_STACK.back())
 	display_string.append(_str)
 	_str = "Inventory: " + str(ENGINE.InventoryManager.get_inventory_of(DISPLAY_NPC.ID))
@@ -47,7 +49,10 @@ func update() -> void:
 	_str = "Facing: " + ENGINE.prettify_vector(DISPLAY_NPC.DIRECTION)
 	display_string.append(_str)
 
-	var _can_see_npc_list: Array[NPC] = ENGINE.NpcManager.can_see(DISPLAY_NPC)
+	var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().in_range_of(DISPLAY_NPC.LOCATION, 1.5).in_arc_of(DISPLAY_NPC.DIRECTION)
+	var _can_see_npc_list:Array[NPC] = filter.run_filter()
+
+	#var _can_see_npc_list: Array[NPC] = ENGINE.NpcManager.can_see(DISPLAY_NPC)
 	var _can_see_names:Array[String] = ENGINE.NpcManager.get_npc_names(_can_see_npc_list)
 	_str = "Looking At: " + ", ".join(_can_see_names)
 	display_string.append(_str)

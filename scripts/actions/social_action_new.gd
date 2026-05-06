@@ -286,7 +286,7 @@ func join_group() -> STATUS:
 	if ENGINE.GroupManager.is_conversing(OWNER):
 		return STATUS.SUCCESS
 	else:
-		var filter:NPC_FILTER = NPC_FILTER.new().set_list(ENGINE.NpcManager.NPCS).in_range_of(OWNER.LOCATION, 10).is_available().is_not([OWNER])
+		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(ENGINE.NpcManager.NPCS).in_range_of(OWNER.LOCATION, 10).is_available().is_not([OWNER])
 		var available_npcs:Array[NPC] = filter.run_filter()
 		if len(available_npcs) == 0:
 			print("no available npcs to talk to")

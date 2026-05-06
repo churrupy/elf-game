@@ -24,6 +24,18 @@ func tick() -> ActionResult:
 	return result
 
 func run() -> ActionResult:
+	# shoo out other npcs
+	var filter: NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_in_room(TARGET_ROOM).is_not([OWNER])
+	var npcs_in_room:Array[NPC] = filter.run_filter()
+	if len(npcs_in_room) > 0:
+		for npc:NPC in npcs_in_room:
+			var current_action = npc.STATE_STACK.back()
+			if current_action is not LeaveRoomAction:
+				var leave_action:LeaveRoomAction = LeaveRoomAction.new(ENGINE, npc).set_location().calling_action(self)
+				ENGINE.NpcManager.add_state(leave_action)
+		return ActionResult.new("running")
+	
+	# lock doors
 	for door:DOOR in TARGET_ROOM.DOOR_LIST:
 		if door.opened:
 			if OWNER.LOCATION == door.LOCATION:
@@ -31,7 +43,7 @@ func run() -> ActionResult:
 			else:
 				var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(door).calling_action(self)
 				return ActionResult.new("add", move_action)
-	return ActionResult.new("end")
+	return ActionResult.new("continue")
 
 
 func _to_string() -> String:

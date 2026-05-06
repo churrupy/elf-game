@@ -117,7 +117,7 @@ func run() -> ActionResult:
 
 
 	if OWNER.LOCATION == LOCATION:
-		return ActionResult.new("end")
+		return ActionResult.new("continue")
 		#return ["end", null]
 
 	if TARGET != null:
@@ -131,19 +131,22 @@ func run() -> ActionResult:
 		if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 			update_location()
 
-	if len(PATH) == 0:
-		PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
-		if len(PATH) == 0:
-			print("no valid path")
-			return ActionResult.new("clear")
+	# if len(PATH) == 0:
+	# 	# if path becomes invalid, they'll just teleport through things *sob*
+	# 	PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
+	# 	if len(PATH) == 0:
+	# 		print("no valid path")
+	# 		return ActionResult.new("clear")
 
 	var old_location:Vector2 = OWNER.LOCATION
-	var next_step:Vector2 = PATH.pop_front()
+	#var next_step:Vector2 = PATH.pop_front()
+	var next_step:Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	OWNER.LOCATION = next_step
 	
 	var new_direction:Vector2 = next_step - old_location
 	OWNER.update_direction(new_direction)
 	ENGINE.History.add_move_event(OWNER)
+	print("moving from ", old_location, " to ", next_step)
 
 	if room_to_secure != null:
 		# does not currently wait for other npcs
@@ -154,28 +157,8 @@ func run() -> ActionResult:
 				var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER).room_to_secure(room_to_secure).calling_action(MOVING_FOR)
 				return ActionResult.new("add", new_action)
 	
-	# var old_location: Vector2 = OWNER.LOCATION
-	# var next_step: Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
-	# if next_step == Vector2.INF:
-	# 	push_error("pathfinding: no valid path found, teleporting ", OWNER, " to target location")
-	# 	print("teleporting...")
-	# 	OWNER.LOCATION = LOCATION
-	# else:
-	# 	OWNER.LOCATION = next_step
 
-	# 	var new_direction: Vector2 = next_step - old_location
-	# 	#print("new direction", new_direction)
-	# 	OWNER.update_direction(new_direction)
-	# 	ENGINE.History.add_move_event(OWNER)
-	
-	#ENGINE.History.add_event(OWNER.ID, "moves")
 	return ActionResult.new("running")
-	#return ["running", null]
-
-
-# func _to_string():
-# 	return "Moving for " + MOVING_FOR + str(LOCATION) + "(T:" + str(COUNTDOWN) + ")" + "Score: " + str(SCORE)
-
 
 func _to_string() -> String:
 	var str_list:Array[String] = [

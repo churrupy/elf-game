@@ -70,6 +70,10 @@ func run_filter() -> Array[TILE]:
 		if be_available:
 			if ENGINE.NpcManager.is_reserved(tile.LOCATION): continue
 
+		if target_room != null:
+			var tile_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
+			if tile_room != target_room: continue
+
 		filtered_list.append(tile)
 
 	return filtered_list

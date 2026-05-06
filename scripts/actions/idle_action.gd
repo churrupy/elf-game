@@ -11,8 +11,12 @@ func _init(engine, owner: NPC, target: Node, determinator: ActionDeterminator) -
 	Determinator = determinator
 	super._init(engine, owner)
 
+func start_state():
+	LOCATION = OWNER.LOCATION
+
 func resume_state():
-	pass
+	LOCATION = OWNER.LOCATION
+	#pass
 	#var result: ActionResult = run()
 	#ENGINE.NpcManager.add_state(result.NEW_ACTION)
 
@@ -20,7 +24,7 @@ func can_do_action() -> bool:
 	return true
 
 func tick() -> ActionResult:
-	LOCATION = OWNER.LOCATION
+	#LOCATION = OWNER.LOCATION
 	var result:ActionResult = run()
 	OWNER.decay_needs()
 	return result

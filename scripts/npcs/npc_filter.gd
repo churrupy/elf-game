@@ -1,5 +1,7 @@
 class_name NPC_FILTER extends RefCounted
 
+var ENGINE
+
 var npc_list:Array[NPC]
 var is_not_list:Array[NPC] = []
 
@@ -11,11 +13,15 @@ var direction:Vector2 = Vector2.INF
 var distance:int
 var is_looking_at:bool = false
 var be_available:bool = false
+var target_room:ROOM
 
 var filtered_list:Array[NPC]
 
 
-func set_list(_npc_list:Array[NPC]) -> NPC_FILTER:
+func _init(engine) -> void:
+	ENGINE = engine
+
+func set_list(_npc_list:Array[NPC] = ENGINE.NpcManager.NPCS) -> NPC_FILTER:
 	npc_list = _npc_list
 	return self
 
@@ -52,7 +58,9 @@ func is_not(_is_not_list:Array[NPC]) -> NPC_FILTER:
 	is_not_list = _is_not_list
 	return self
 
-
+func is_in_room(_room:ROOM) -> NPC_FILTER:
+	target_room = _room
+	return self
 
 
 func run_filter() -> Array[NPC]:
@@ -86,6 +94,10 @@ func run_filter() -> Array[NPC]:
 			var current_action: ACTION = npc.STATE_STACK[-1]
 			if !current_action.CHATTABLE:
 				continue
+
+		if target_room != null:
+			var npc_room:ROOM = ENGINE.Map.get_room(npc.LOCATION)
+			if npc_room != target_room: continue
 
 		filtered_list.append(npc)
 	#print(filtered_list)

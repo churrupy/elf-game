@@ -29,7 +29,6 @@ func in_room(loc:Vector2) -> ROOM:
 		for sub:ROOM in SUBROOMS:
 			var result_room:ROOM = sub.in_room(loc)
 			if result_room != null:
-				print("returning", result_room)
 				return result_room
 		return self
 	return null

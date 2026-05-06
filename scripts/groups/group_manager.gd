@@ -52,6 +52,8 @@ func join_npc(joiner:NPC, joinee:NPC) -> void:
 	#old_group.queue_free()
 	ENGINE.History.add_join_event(joiner, new_group)
 
+	
+
 
 
 func leave_group(leaver:NPC) -> void:

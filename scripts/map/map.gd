@@ -432,6 +432,9 @@ func is_passable(loc:Vector2) -> bool:
 #var index: int = (loc[1] * width) + loc[0]
 	var tile:TILE = get_tile(loc)
 	var tags:Array = tile.DATA["tags"]
+	if "door" in tags:
+		if tile.opened: return true
+		else: return false
 	if "h_surface" in tags or "v_surface" in tags:
 		return false
 	return true
@@ -439,6 +442,9 @@ func is_passable(loc:Vector2) -> bool:
 func is_loc_visible(loc:Vector2) -> bool:
 	var tile:TILE = get_tile(loc)
 	var tags:Array = tile.DATA["tags"]
+	if "door" in tags:
+		if tile.opened: return true
+		else: return false
 	if "v_surface" in tags:
 		return false
 	return true
@@ -700,7 +706,6 @@ func get_room(loc:Vector2) -> ROOM:
 	for room:ROOM in ROOM_LIST:
 		var result_room:ROOM = room.in_room(loc)
 		if result_room != null:
-			print("returning", result_room)
 			return result_room
 
 	push_error("Room not found, IMPOSSIBLE", loc)

@@ -39,49 +39,59 @@ func create_npc() -> void:
 	npc.SOCIAL_ACTION = SocialAction_new.new(ENGINE, npc)
 
 
-
 func tick() -> void:
 	for npc:NPC in NPCS:
 		print("")
 		print ("***** ", npc.NAME, " *****")
-		#print_reserved_locations()
 
-		var current_action: ACTION = npc.STATE_STACK.back()
-		print ("current_action: ", current_action)
+		var continuing:bool = true
 
-		var result: ActionResult = current_action.tick()
-		#print(result)
+		while continuing:
+			continuing = false
+			var current_action:ACTION = npc.STATE_STACK.back()
+			print ("current_action: ", current_action)
 
-		if result.STATUS == "add":
-			current_action.suspend_state()
-			result.NEW_ACTION.enter_state()
-			npc.STATE_STACK.append(result.NEW_ACTION)
+			var result:ActionResult = current_action.tick()
 
-		elif result.STATUS == "replace":
-			current_action.exit_state()
-			npc.STATE_STACK.pop_back()
-			result.NEW_ACTION.enter_state()
-			npc.STATE_STACK.append(result.NEW_ACTION)
+			if result.STATUS == "add":
+				current_action.suspend_state()
+				result.NEW_ACTION.enter_state()
+				npc.STATE_STACK.append(result.NEW_ACTION)
 
-		elif result.STATUS == "end":
-			current_action.exit_state()
-			npc.STATE_STACK.pop_back()
-			var old_action:ACTION = npc.STATE_STACK.back()
-			old_action.resume_state()
+			elif result.STATUS == "replace":
+				current_action.exit_state()
+				npc.STATE_STACK.pop_back()
+				result.NEW_ACTION.enter_state()
+				npc.STATE_STACK.append(result.NEW_ACTION)
 
-		elif result.STATUS == "clear":
-			current_action.exit_state()
-			print("clearing " + npc.NAME + "'s actions")
-			var idle_action:IdleAction = npc.STATE_STACK[0]
-			npc.STATE_STACK = [idle_action]
+			elif result.STATUS == "end":
+				current_action.exit_state()
+				npc.STATE_STACK.pop_back()
+				var old_action:ACTION = npc.STATE_STACK.back()
+				old_action.resume_state()
 
-		else:
-			# state continues running
-			#assumes result is ["running", null]
-			pass
+			elif result.STATUS == "continue":
+				#bonus turn
+				current_action.exit_state()
+				npc.STATE_STACK.pop_back()
+				var old_action:ACTION = npc.STATE_STACK.back()
+				old_action.resume_state()
+				continuing = true
+				print("continuing")
+
+			elif result.STATUS == "clear":
+				current_action.exit_state()
+				print("clearing " + npc.NAME + "'s actions")
+				var idle_action:IdleAction = npc.STATE_STACK[0]
+				npc.STATE_STACK = [idle_action]
+
+			else:
+				# state continues running
+				#assumes result is ["running", null]
+				pass
 
 		# this setup seems weird lol
-		current_action = npc.STATE_STACK.back()
+		var current_action = npc.STATE_STACK.back()
 		
 		if current_action.CHATTABLE:
 			var _res: ActionResult = npc.SOCIAL_ACTION.run()
@@ -91,6 +101,60 @@ func tick() -> void:
 		#print(npc.STATE_STACK)
 		
 		#npc.decay_needs()
+
+
+
+# func tick_old() -> void:
+# 	for npc:NPC in NPCS:
+# 		print("")
+# 		print ("***** ", npc.NAME, " *****")
+# 		#print_reserved_locations()
+
+# 		var current_action: ACTION = npc.STATE_STACK.back()
+# 		print ("current_action: ", current_action)
+
+# 		var result: ActionResult = current_action.tick()
+# 		#print(result)
+
+# 		if result.STATUS == "add":
+# 			current_action.suspend_state()
+# 			result.NEW_ACTION.enter_state()
+# 			npc.STATE_STACK.append(result.NEW_ACTION)
+
+# 		elif result.STATUS == "replace":
+# 			current_action.exit_state()
+# 			npc.STATE_STACK.pop_back()
+# 			result.NEW_ACTION.enter_state()
+# 			npc.STATE_STACK.append(result.NEW_ACTION)
+
+# 		elif result.STATUS == "end":
+# 			current_action.exit_state()
+# 			npc.STATE_STACK.pop_back()
+# 			var old_action:ACTION = npc.STATE_STACK.back()
+# 			old_action.resume_state()
+
+# 		elif result.STATUS == "clear":
+# 			current_action.exit_state()
+# 			print("clearing " + npc.NAME + "'s actions")
+# 			var idle_action:IdleAction = npc.STATE_STACK[0]
+# 			npc.STATE_STACK = [idle_action]
+
+# 		else:
+# 			# state continues running
+# 			#assumes result is ["running", null]
+# 			pass
+
+# 		# this setup seems weird lol
+# 		current_action = npc.STATE_STACK.back()
+		
+# 		if current_action.CHATTABLE:
+# 			var _res: ActionResult = npc.SOCIAL_ACTION.run()
+
+# 		current_action = npc.STATE_STACK.back()
+# 		print("new action: ", current_action)
+# 		#print(npc.STATE_STACK)
+		
+# 		#npc.decay_needs()
 
 
 func add_state(new_action:ACTION) -> void:
@@ -133,7 +197,7 @@ func update() -> void:
 
 		# draws line between npc and the other npcs it can see (that are close by)
 		# does not show ALL other npcs an npc can see, just the close ones
-		var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(npc.LOCATION, 2).in_arc_of(npc.DIRECTION)
+		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(NPCS).in_range_of(npc.LOCATION, 2).in_arc_of(npc.DIRECTION)
 		var can_see_npcs:Array[NPC] = filter.run_filter()
 		npc.LOOKING_AT = []
 		for checked_npc:NPC in can_see_npcs:
@@ -148,12 +212,12 @@ func broadcast_event(event:EVENT) -> void:
 	var _witnesses:Array[NPC]
 
 	if event.HEARABLE:
-		var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(event.LOCATION, 2)
+		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(NPCS).in_range_of(event.LOCATION, 2)
 		var hearing_npcs:Array[NPC] = filter.run_filter()
 		_witnesses += hearing_npcs
 	
 	if event.SEEABLE:
-		var filter:NPC_FILTER = NPC_FILTER.new().set_list(NPCS).in_range_of(event.LOCATION, 10).looking_at()
+		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(NPCS).in_range_of(event.LOCATION, 10).looking_at()
 		var seeing_npcs:Array[NPC] = filter.run_filter()
 		_witnesses += seeing_npcs
 
@@ -175,16 +239,26 @@ func broadcast_event(event:EVENT) -> void:
 
 
 func is_reserved(location: Vector2) -> bool:
-	for npc:NPC in NPCS:
-		var current_action:ACTION = npc.STATE_STACK.back()
-		if current_action.LOCATION == location:
-			return true
-	return false
+	var reserved_list:Array[Vector2] = get_reserved_locations()
+	return location in reserved_list
+
+	# for npc:NPC in NPCS:
+	# 	var current_action:ACTION = npc.STATE_STACK.back()
+	# 	if current_action.LOCATION == location:
+	# 		return true
+	# return false
 
 func print_reserved_locations() -> void:
 	for npc:NPC in NPCS:
 		var current_action:ACTION = npc.STATE_STACK.back()
 		print(ENGINE.prettify_vector(current_action.LOCATION))
+
+func get_reserved_locations() -> Array[Vector2]:
+	var result_list:Array[Vector2] = []
+	for npc:NPC in NPCS:
+		var npc_list:Array[Vector2] = npc.get_reserved_locations()
+		result_list += npc_list
+	return result_list
 
 
 #endregion filters
@@ -285,6 +359,8 @@ func get_npc_names(npc_list:Array[NPC]=NPCS) -> Array[String]:
 		result_list.append(npc.NAME)
 	return result_list
 
-
+func get_reserved_tile(npc:NPC) -> Vector2:
+	var current_action:ACTION = npc.STATE_STACK.back()
+	return current_action.LOCATION
 
 #endregion

@@ -26,7 +26,7 @@ func calling_action(moving_for:ACTION) -> UnlockRoomAction:
 	CHATTABLE = moving_for.CHATTABLE
 	return self
 
-	
+
 
 func tick() -> ActionResult:
 	var result:ActionResult = run()
@@ -42,7 +42,7 @@ func run() -> ActionResult:
 				#var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, door, self).set_location(door.LOCATION)
 				var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(door).calling_action(MOVING_FOR)
 				return ActionResult.new("add", move_action)
-	return ActionResult.new("end")
+	return ActionResult.new("continue")
 
 func _to_string() -> String:
 	var str_list:Array[String] = [
