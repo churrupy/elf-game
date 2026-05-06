@@ -66,11 +66,6 @@ func update() -> void:
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		new_label.custom_minimum_size = Vector2(Constants.LEFT_PANEL_SIZE[0], 30)
 		$Large.get_node("DetailContainer").add_child(new_label)
-	
-
-func _process(_delta:float) -> void:
-	pass
-
 
 func close_npc_menu() -> void:
 	DISPLAY_NPC.GLOW_SPRITE.hide()

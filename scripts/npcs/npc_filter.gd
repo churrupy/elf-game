@@ -43,7 +43,7 @@ func looking_at(_target:Vector2=Vector2.INF) -> NPC_FILTER:
 		target=_target
 	return self
 
-func is_on(_location:Vector2=Vector2.INF) -> NPC_FILTER:
+func at_location(_location:Vector2=Vector2.INF) -> NPC_FILTER:
 	if _location != Vector2.INF:
 		location = _location
 	else:

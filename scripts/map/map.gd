@@ -604,6 +604,10 @@ func get_tile(loc:Vector2) -> TILE:
 	var tile:TILE = TILES[index]
 	return tile
 
+func get_tile_from_id(id:String) -> TILE:
+	for tile:TILE in TILES:
+		if tile.ID == id: return tile
+	return null
 
 # func get_tile_old(location: Vector2) -> TILE:
 # 	for tile: TILE in TILES:

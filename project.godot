@@ -22,6 +22,7 @@ Global="*res://scripts/global.gd"
 SignalBus="*res://scripts/SignalBus.gd"
 Dialogue="*res://scripts/dialogue.gd"
 Rooms="*res://scripts/data/rooms.gd"
+Modes="*res://scripts/modes.gd"
 
 [display]
 

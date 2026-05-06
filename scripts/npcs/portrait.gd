@@ -1,6 +1,4 @@
-extends Control
-
-class_name Portrait
+class_name Portrait extends Control
 
 var BG: ColorRect = ColorRect.new()
 var HAIR: TextureRect = TextureRect.new()
@@ -23,10 +21,6 @@ func _ready() -> void:
 	add_child(NOSE)
 	add_child(MOUTH)
 	add_child(BANGS)
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
 
 
 func update(npc:NPC) -> void:

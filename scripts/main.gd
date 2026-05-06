@@ -13,15 +13,19 @@ var GroupManager:GROUP_MANAGER = GROUP_MANAGER.new(self)
 
 
 #region gamestate data
-var ROOM: String = "club"
-var NUM_NPCS: int = 5
+var MODE:String = "club"
+# var ROOM: String = "club"
+# var NUM_NPCS: int = 5
+var ROOM:String
+var NUM_NPCS:int
 
 #endregion gamestatedata
 
 
 func _init() -> void:
-	Map = MAP.new(self, ROOM)
-	NpcManager = NPC_MANAGER.new(self, NUM_NPCS)
+	var mode_data:Dictionary = Modes.MODES[MODE]
+	Map = MAP.new(self, mode_data["room"])
+	NpcManager = NPC_MANAGER.new(self, mode_data["num_npcs"])
 
 
 #region init
@@ -69,12 +73,22 @@ func _process(_delta: float) -> void:
 
 		#InventoryManager.print_inventory_at_location(location)
 
-		var new_npcs: Array[String] = NpcManager.get_npc_from_location(location)
-		$DefaultMenu.open_npc_menus(new_npcs)
+		# var loc_npcs: Array[String] = NpcManager.get_npc_from_location(location)
+		# $DefaultMenu.open_menus(loc_npcs)
+
+		# if Input.is_action_just_pressed("mouse_click"):
+		# 	# $DefaultMenu.hold_temp_menus()
+		# 	$DefaultMenu.hold_menus(loc_npcs)
+		
+		var loc_items:Array = get_all_at_location(location)
+		var loc_ids:Array[String]
+		loc_ids.assign(loc_items.map(func(a): return a.ID))
+		# var loc_ids:Array = loc_items.map(func(a): return a.ID)
+
+		$DefaultMenu.open_menus(loc_ids)
 
 		if Input.is_action_just_pressed("mouse_click"):
-			$DefaultMenu.hold_temp_menus()
-		
+			$DefaultMenu.hold_menus(loc_ids)
 
 	if Input.is_action_just_pressed("auto_tick"):
 		tick()
@@ -230,3 +244,17 @@ func activate_free_cam() -> void:
 
 func toggle_history_menu() -> void:
 	$HistoryMenu.toggle_menu()
+
+
+func get_all_at_location(loc:Vector2) -> Array:
+	var all_items:Array
+	
+	var filter = NPC_FILTER.new(self).set_list().at_location(loc)
+	var filtered_items:Array = filter.run_filter()
+	all_items += filtered_items
+
+	filter = TILE_FILTER.new(self).set_list().at_location(loc).not_empty()
+	filtered_items = filter.run_filter()
+	all_items += filtered_items
+
+	return all_items

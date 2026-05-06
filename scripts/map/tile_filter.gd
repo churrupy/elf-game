@@ -14,6 +14,7 @@ var tags:Array[String] = []
 var target_room:ROOM
 
 var be_available:bool = false
+var can_be_empty:bool = true
 
 func _init(engine) -> void:
 	ENGINE = engine
@@ -46,9 +47,15 @@ func at_location(loc:Vector2) -> TILE_FILTER:
 	location = loc
 	return self
 
+func not_empty() -> TILE_FILTER:
+	can_be_empty = false
+	return self
+
 func run_filter() -> Array[TILE]:
 	for tile:TILE in tile_list:
 		if tile in is_not_list: continue
+		if !can_be_empty:
+			if tile.TYPE == "empty": continue
 
 		if location != Vector2.INF:
 			if tile.LOCATION != location:
