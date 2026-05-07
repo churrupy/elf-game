@@ -74,7 +74,7 @@ var ROOM_TEMPLATES_new: Dictionary = {
 	"furniture": {}
 },
 "toilet_stall": {
-	"size": Vector2(2,2),
+	"size": Vector2(3,3),
 	"rooms":{},
 	"walls": true,
 	"doors": [Vector2(0,1)],

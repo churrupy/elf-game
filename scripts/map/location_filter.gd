@@ -32,10 +32,10 @@ func generate_list(_origin:Vector2, radius:int) -> LOCATION_FILTER:
 
 
 func set_list(_loc_list:Array[Vector2] = []) -> LOCATION_FILTER:
-	if len(loc_list) == 0:
+	if len(_loc_list) == 0:
 		loc_list = ENGINE.Map.get_all_locations()
 	else:
-		loc_list = _loc_list
+		loc_list = _loc_list.duplicate()
 	return self
 
 func in_range_of(_origin:Vector2, _distance:float) -> LOCATION_FILTER:

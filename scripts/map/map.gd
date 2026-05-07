@@ -58,6 +58,7 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 	var new_room:ROOM = ROOM.new(type, top_left, room_data["size"])
 
 	if "walls" in room_data:
+		
 		var size:Vector2 = room_data["size"]
 		var wall_list:Array[Vector2] = get_walls(size)
 		#print(wall_list)
@@ -65,9 +66,9 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 		for relative_loc:Vector2 in wall_list:
 			var loc = relative_loc + top_left
 			var tile:TILE = get_tile(loc)
-			#print(loc)
 			#print(tile)
 			if relative_loc in room_data["doors"]:
+				# print(loc)
 				# make a door
 				# doors never on a corner
 				#tile.update_type("door")

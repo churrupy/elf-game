@@ -51,6 +51,7 @@ func secure_room() -> MoveAction:
 
 #endregion builder
 
+
 func tick() -> ActionResult:
 	var result: ActionResult = run()
 	OWNER.decay_needs()
@@ -125,22 +126,34 @@ func run() -> ActionResult:
 			var target_action:ACTION = TARGET.STATE_STACK[-1]
 			if !target_action.CHATTABLE:
 				print("npc now unavailable")
-				return ActionResult.new("clear")
+				return ActionResult.new("continue")
 
 		# check if target has moved
 		if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 			update_location()
 
-	# if len(PATH) == 0:
-	# 	# if path becomes invalid, they'll just teleport through things *sob*
-	# 	PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
-	# 	if len(PATH) == 0:
-	# 		print("no valid path")
-	# 		return ActionResult.new("clear")
+	if len(PATH) == 0:
+		# if path becomes invalid, they'll just teleport through things *sob*
+		PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
+		if len(PATH) == 0:
+			print("no valid path")
+			return ActionResult.new("continue") #end move action and reassess goal
+
+	# check that visible steps are still valid
+	var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list(PATH).in_range_of(OWNER.LOCATION, 10).in_arc_of(OWNER.DIRECTION)
+	var visible_loc:Array[Vector2] = filter.run_filter()
+	filter = LOCATION_FILTER.new(ENGINE).set_list(visible_loc).is_passable()
+	var passable_loc:Array[Vector2] = filter.run_filter()
+	if len(visible_loc) != len(passable_loc):
+		# if not all visible steps are passable
+		print("path became invalid")
+		return ActionResult.new("continue")
+		
+	
 
 	var old_location:Vector2 = OWNER.LOCATION
-	#var next_step:Vector2 = PATH.pop_front()
-	var next_step:Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
+	var next_step:Vector2 = PATH.pop_front()
+	# var next_step:Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	OWNER.LOCATION = next_step
 	
 	var new_direction:Vector2 = next_step - old_location
