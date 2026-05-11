@@ -38,14 +38,14 @@ var DISLIKES: Array[String]
 
 
 var NEEDS: Dictionary[String, float] = {
-	#"hunger": randf_range(40.0, 90.0),
-	"hunger": 40.0,
+	"hunger": randf_range(40.0, 90.0),
+	# "hunger": 40.0,
 	"energy": 90.0,
 	"release": 90.0,
 	"social": 90.0,
 	"fun": 90.0,
-	#"bladder": randf_range(40.0, 90.0),
-	"bladder": 40.0,
+	"bladder": randf_range(40.0, 90.0),
+	# "bladder": 40.0,
 	"arousal": 0.0
 }
 
@@ -476,6 +476,9 @@ func update_direction(new_direction:Vector2) -> void:
 func consume(item:ITEM) -> void:
 	print(NAME, " is consuming ", item)
 	NEEDS["hunger"] += item.DATA["nutrition"]
+
+func add_response(_action:ACTION) -> void:
+	SOCIAL_ACTION.RESPONSE_REQUESTS.append(_action)
 
 
 #endregion actions

@@ -1,7 +1,8 @@
 class_name SocialAction_new extends ACTION
 
 var RECENT_TOPIC:String
-var RESPONSE_REQUESTS: Array[EVENT] = []
+# var RESPONSE_REQUESTS: Array[EVENT] = []
+var RESPONSE_REQUESTS:Array[ACTION] = []
 
 enum STATUS {
 	RUNNING,
@@ -20,24 +21,24 @@ func _init(engine, owner: NPC, target: NPC=null) -> void:
 # func can_do_action() -> bool:
 # 	return ENGINE.NpcManager.is_available(TARGET)
 
-func score() -> void:
-	# score based on need
-	var need: int = OWNER.NEEDS["social"]
-	SCORE += 100 - need
+# func score() -> void:
+# 	# score based on need
+# 	var need: int = OWNER.NEEDS["social"]
+# 	SCORE += 100 - need
 
-	# score based on preference
-	if OWNER == TARGET:
-		SCORE = -100
-		return
-	SCORE += get_opinion()
-	if OWNER.NEEDS["release"] < 50 or OWNER.NEEDS["arousal"] > 30:
-		SCORE += get_attraction()
+# 	# score based on preference
+# 	if OWNER == TARGET:
+# 		SCORE = -100
+# 		return
+# 	SCORE += get_opinion()
+# 	if OWNER.NEEDS["release"] < 50 or OWNER.NEEDS["arousal"] > 30:
+# 		SCORE += get_attraction()
 
-	var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
-	if closest_location == Vector2.INF:
-		SCORE = -100
-		return
-	LOCATION = closest_location
+# 	var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
+# 	if closest_location == Vector2.INF:
+# 		SCORE = -100
+# 		return
+# 	LOCATION = closest_location
 
 # func tick() -> ActionResult:
 # 	var res:ActionResult = ActionResult.new("running", null)
@@ -270,16 +271,25 @@ func determine_next_action() -> STATUS:
 	return STATUS.SUCCESS
 
 func clear_responses() -> STATUS:
-	for event:EVENT in RESPONSE_REQUESTS:
-		var response: String = event.process_response()
-		if response == "introduce":
-			print("introduction response: ", OWNER, event.SPEAKER)
-			# var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
-			#if added:
-				#RESPONSE_REQUESTS = []
-				#return STATUS.FAILURE
-	RESPONSE_REQUESTS = []
+	for _action:ACTION in RESPONSE_REQUESTS:
+		var new_action:ACTION = _action.process_response(OWNER)
+		if new_action != null:
+			ENGINE.NpcManager.add_state(new_action)
+			RESPONSE_REQUESTS = [] # clear all responses/don't bank responses
+			return STATUS.RUNNING
 	return STATUS.SUCCESS
+
+# func clear_responses() -> STATUS:
+# 	for event:EVENT in RESPONSE_REQUESTS:
+# 		var response: String = event.process_response()
+# 		if response == "introduce":
+# 			print("introduction response: ", OWNER, event.SPEAKER)
+# 			# var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
+# 			#if added:
+# 				#RESPONSE_REQUESTS = []
+# 				#return STATUS.FAILURE
+# 	RESPONSE_REQUESTS = []
+# 	return STATUS.SUCCESS
 
 
 func join_group() -> STATUS:
@@ -297,7 +307,8 @@ func join_group() -> STATUS:
 			var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(OWNER.LOCATION, imp.TARGET)
 			if interactable_location != Vector2.INF:
 				var chosen_npc:NPC = imp.TARGET
-				var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
+				var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER).set_target(chosen_npc)
+				# var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
 				new_action.LOCATION = interactable_location
 				#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
 				ENGINE.NpcManager.add_state(new_action)
@@ -306,13 +317,30 @@ func join_group() -> STATUS:
 	# might leave site at this point
 	return STATUS.RUNNING
 
-
 func know_everyone() -> STATUS:
-	var knows_everyone:bool = ENGINE.GroupManager.introduce_self(OWNER)
-	if knows_everyone:
-		return STATUS.SUCCESS
-	else:
-		return STATUS.FAILURE
+	var group:GROUP = ENGINE.GroupManager.get_group(OWNER)
+	for npc:NPC in group.PARTICIPANTS:
+		if npc == OWNER: continue
+		if !OWNER.knows_npc(npc):
+			IntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
+			PromptIntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
+			# var new_action:ACTION = IntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
+			# ENGINE.NpcManager.add_state(new_action)
+			# ENGINE.History.add_event(new_action)
+			# new_action = PromptIntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
+			# ENGINE.History.add_event(new_action)
+			return STATUS.RUNNING
+
+	return STATUS.SUCCESS
+
+
+
+#func know_everyone() -> STATUS:
+	#var knows_everyone:bool = ENGINE.GroupManager.introduce_self(OWNER)
+	#if knows_everyone:
+		#return STATUS.SUCCESS
+	#else:
+		#return STATUS.FAILURE
 
 func respond_to_topic() -> STATUS:
 	ENGINE.GroupManager.respond_to_topic(OWNER)

@@ -252,6 +252,7 @@ func get_nodes() -> Array[String]:
 	return nodes
 
 
+
 func get_opinion():
 	# dummy function
 	return 0
@@ -268,18 +269,36 @@ func get_attraction() -> int:
 	#return OWNER.OPINIONS[other_style]
 	return 0
 
-func is_joinable() -> bool:
-	var action_data = Constants.ACTION_TEMPLATES[ID]
-	return action_data["joinable"]
+# func is_joinable() -> bool:
+# 	var action_data = Constants.ACTION_TEMPLATES[ID]
+# 	return action_data["joinable"]
 
-func is_conversable() -> bool:
-	var action_data = Constants.ACTION_TEMPLATES[ID]
-	if "conversable" in action_data: return false
-	return true
+# func is_conversable() -> bool:
+# 	var action_data = Constants.ACTION_TEMPLATES[ID]
+# 	if "conversable" in action_data: return false
+# 	return true
 
-func can_do_off_tile() -> bool:
-	var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
-	return action_data["do_off_tile"]
+# func can_do_off_tile() -> bool:
+# 	var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
+# 	return action_data["do_off_tile"]
 
 
 #endregion
+
+
+#region new action functions
+func get_room() -> ROOM:
+	var room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	return room
+
+func is_equal(_event:EVENT_new) -> bool:
+	# use this for non-ongoing events
+	return false 
+
+func get_role(npc:NPC) -> String:
+	if npc == OWNER:
+		return "participant"
+	else:
+		return "witness"
+
+#endregion new action functions

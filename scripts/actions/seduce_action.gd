@@ -14,23 +14,23 @@ func can_do_action() -> bool:
 
 
 
-func score() -> void:
+# func score() -> void:
 	
-	var need: int = OWNER.NEEDS["release"]
-	SCORE += 100 - need
+# 	var need: int = OWNER.NEEDS["release"]
+# 	SCORE += 100 - need
 	
-	# score based on preference
-	if OWNER == TARGET:
-		SCORE = -100
-		return
-	SCORE += get_opinion()
-	SCORE += get_attraction()
+# 	# score based on preference
+# 	if OWNER == TARGET:
+# 		SCORE = -100
+# 		return
+# 	SCORE += get_opinion()
+# 	SCORE += get_attraction()
 
-	var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
-	if closest_location == Vector2.INF:
-		SCORE = -100
-		return
-	LOCATION = closest_location
+# 	var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
+# 	if closest_location == Vector2.INF:
+# 		SCORE = -100
+# 		return
+# 	LOCATION = closest_location
 
 
 func tick() -> ActionResult:

@@ -1,7 +1,7 @@
 class_name HISTORY_CLASS extends Control
 
 var ENGINE
-var HISTORY: Array[EVENT]
+var HISTORY: Array[EVENT_new]
 
 
 func _init(engine):
@@ -16,7 +16,7 @@ func add_event() -> void:
 	pass
 
 func create_event(_action:ACTION) -> void:
-	var existing_event:EVENT = get_existing_event(_action)
+	var existing_event:EVENT_new = get_existing_event(_action)
 	if existing_event != null:
 		# do something
 		existing_event.END_TICK = Global.TICKS
@@ -28,8 +28,8 @@ func create_event(_action:ACTION) -> void:
 	
 	broadcast_action(_action)
 
-func get_existing_event(_action:ACTION) -> EVENT:
-	for event:EVENT in HISTORY:
+func get_existing_event(_action:ACTION) -> EVENT_new:
+	for event:EVENT_new in HISTORY:
 		if _action.is_equal(event): return event
 	return null
 
@@ -166,9 +166,9 @@ func does_event_exist(actor_id:String, action_id:String, target_id:String) -> in
 	
 
 
-func event_strings(history_list:Array[EVENT] = HISTORY) -> Array[String]:
+func event_strings(history_list:Array[EVENT_new] = HISTORY) -> Array[String]:
 	var display_list:Array[String]
-	for event:EVENT in history_list:
+	for event:EVENT_new in history_list:
 		display_list.append(str(event))
 	return display_list
 

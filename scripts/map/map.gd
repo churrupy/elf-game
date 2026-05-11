@@ -36,35 +36,22 @@ func _init(engine, room) -> void:
 		ENGINE.InventoryManager.create_inventory(tile)
 		# print(tile)
 
-	print_map()
+	# print_map()
 
 	create_room(room)
 
-	print_map()
-	for r:ROOM in ROOM_LIST:
-		print("")
-		print(r, " subrooms:")
-		for r1:ROOM in r.SUBROOMS:
-			r1.print_info()
-			print(get_room(r1.LOCATION))
-	# for r:ROOM in ROOM_LIST:
-	# 	r.print_info()
+	# print_map()
 
-	# for t:TILE in TILES:
-	# 	print(t.LOCATION, get_room(t.LOCATION))
-
-	# print(ENGINE.InventoryManager)
-
-func get_walls(size:Vector2) -> Array[Vector2]:
+func get_walls(_size:Vector2) -> Array[Vector2]:
 	# walls are included in room size
 	var wall_list:Array[Vector2]
 
-	for i in range(0,size[0]):
+	for i in range(0,_size[0]):
 		wall_list.append(Vector2(i,0))
-		wall_list.append(Vector2(i,size[1]-1))
-	for j in range(0,size[1]):
+		wall_list.append(Vector2(i,_size[1]-1))
+	for j in range(0,_size[1]):
 		wall_list.append(Vector2(0,j))
-		wall_list.append(Vector2(size[0]-1,j))
+		wall_list.append(Vector2(_size[0]-1,j))
 
 	return wall_list
 
@@ -82,14 +69,14 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 
 	if "walls" in room_data:
 		print("creating walls for ", type)
-		var size:Vector2 = room_data["size"]
-		var wall_list:Array[Vector2] = get_walls(size)
+		var _size:Vector2 = room_data["size"]
+		var wall_list:Array[Vector2] = get_walls(_size)
 		#print(wall_list)
 
 		for relative_loc:Vector2 in wall_list:
 			var loc = relative_loc + top_left
 			if !is_inside_map(loc): continue # remove this to make map loop
-			print(loc)
+			# print(loc)
 			var tile:TILE = get_tile(loc)
 			#print(tile)
 			if relative_loc in room_data["doors"]:
@@ -100,11 +87,11 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 				var wall:String
 				if relative_loc[0] == 0:
 					wall = "left"
-				elif relative_loc[0] == size[0]:
+				elif relative_loc[0] == _size[0]:
 					wall = "right"
 				elif relative_loc[1] == 0:
 					wall = "up"
-				elif relative_loc[1] == size[1]:
+				elif relative_loc[1] == _size[1]:
 					wall = "down"
 				var new_door:DOOR = DOOR.new(loc, tile, wall)
 				# set new door
@@ -475,36 +462,6 @@ func is_loc_visible(loc:Vector2) -> bool:
 		return false
 	return true
 
-# func is_passable_old(loc: Vector2) -> bool:
-# 	for furniture: Furniture in FURNITURE:
-# 		if furniture.LOCATION == loc:
-# 			if furniture is DOOR:
-# 				if furniture.opened: 
-# 					return true
-# 				else:
-# 					return false
-# 			else:
-# 				var type: String = furniture.DATA["type"]
-# 				if "surface" in type: # h_surfance and v_surface are impassable
-# 					return false
-
-# 	return true
-
-# func is_loc_visible(loc: Vector2) -> bool:
-# 	for furniture: Furniture in FURNITURE:
-# 		if furniture.LOCATION == loc:
-# 			var type: String = furniture.DATA["type"]
-# 			if type == "v_surface":
-# 				return false
-# 	return true
-
-# func filter_passable_locations(v_list: Array[Vector2] = get_all_locations()) -> Array[Vector2]:
-# 	var passable_loc: Array[Vector2]
-# 	for v: Vector2 in v_list:
-# 		if is_passable(v):
-# 			passable_loc.append(v)
-# 	return passable_loc
-
 func get_all_locations() -> Array[Vector2]:
 	var loc_list: Array[Vector2]
 	for tile: TILE in TILES:
@@ -550,34 +507,6 @@ func get_neighbors(loc:Vector2) -> Array[Vector2]:
 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(loc, 1).is_passable()
 	var result_list:Array[Vector2] = loc_filter.run_filter()
 	return result_list
-
-# func get_neighbors_old(location: Vector2) -> Array[Vector2]:
-
-# 	var neighbors: Array[Vector2] = [
-# 		# adjacent
-# 		location + Vector2(1,0),
-# 		location + Vector2(-1,0),
-# 		location + Vector2(0,1),
-# 		location + Vector2(0,-1),
-# 		# diaglonals
-# 		location + Vector2(1,1),
-# 		location + Vector2(1,-1),
-# 		location + Vector2(-1,1),
-# 		location + Vector2(-1,-1)
-# 	]
-
-# 	var valid_neighbors: Array[Vector2]
-# 	for n: Vector2 in neighbors:
-# 		if n[0] < 0 or n[0] >= Constants.MAP_SIZE[0]: continue
-# 		if n[1] < 0 or n[1] >= Constants.MAP_SIZE[1]: continue
-# 		if !is_passable(n): continue
-# 		valid_neighbors.append(n)
-
-# 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list(neighbors).is_passable()
-# 	var passable_locations:Array[Vector2] = loc_filter.run_filter()
-# 	#var passable_locations: Array[Vector2] = filter_passable_locations(valid_neighbors)
-# 	return passable_locations
-
 
 
 func get_closest_adjacent_location(start_location: Vector2, target_location: Vector2) -> Vector2:
@@ -635,11 +564,6 @@ func get_tile_from_id(id:String) -> TILE:
 		if tile.ID == id: return tile
 	return null
 
-# func get_tile_old(location: Vector2) -> TILE:
-# 	for tile: TILE in TILES:
-# 		if tile.LOCATION == location:
-# 			return tile
-# 	return null
 
 func random_empty_tile() -> TILE:
 	for tile:TILE in TILES:
@@ -687,19 +611,6 @@ func get_available_poses_for_tile(location: Vector2) -> Array:
 	return Constants.POSE_CLASS[pose_class]
 
 
-# func get_direction(from:Vector2, to:Vector2) -> String:
-# 	if from.distance_to(to) >=2:
-# 		push_error("spots too far apart!")
-# 		return ""
-		
-# 	if from[1] < to[1]:
-# 		return "down"
-# 	elif from[1] > to[1]:
-# 		return "up"
-# 	elif from[0] < to[0]:
-# 		return "right"
-# 	else:
-# 		return "left"
 
 func get_location_from_mouse(loc: Vector2) -> Vector2:
 	loc = Vector2(loc[0]-Constants.CENTER_PANEL_LOCATION[0], loc[1])
@@ -714,23 +625,6 @@ func highlight_tile(loc: Vector2, highlight_color: Color) -> void:
 	var tile: TILE = get_tile(loc)
 	tile.modulate = highlight_color
 
-# func highlight_room(loc:Vector2, highlight_color:Color) -> void:
-# 	var target_room:ROOM = get_room(loc)
-
-
-# func get_furniture(id:String) -> Furniture:
-# 	for furn: Furniture in FURNITURE:
-# 		if furn.ID == id: return furn
-# 	return null
-
-# func get_furniture_or_tile(id:String) -> Node:
-# 	# tries to return furniture with id, if not return tile with id
-# 	for furn: Furniture in FURNITURE:
-# 		if furn.ID == id: return furn
-# 	for tile: TILE in TILES:
-# 		if tile.ID == id: return tile
-# 	return null
-
 
 func get_room(loc:Vector2) -> ROOM:
 	for room:ROOM in ROOM_LIST:
@@ -742,35 +636,10 @@ func get_room(loc:Vector2) -> ROOM:
 	print("Room not found:", loc)
 	return null
 
-#endregion utility
-
-
-#region vectors
-# func get_range(origin:Vector2, distance:int) -> Array[Vector2]:
-# 	# gets all tiles around origin within distance from origin
-# 	var result_list:Array[Vector2]
-# 	for i in range(origin[0]-distance, origin[0] + distance + 1):
-# 		for j in range(origin[1]-distance, origin[1] + distance + 1):
-# 			var new_vector:Vector2 = Vector2(i,j)
-# 			if origin.distance_to(new_vector) <= distance:
-# 				result_list.append(new_vector)
-
-# 	return result_list
-
-# func get_range_direction(origin:Vector2, distance:int, direction:Vector2) -> Array[Vector2]:
-# 	var in_range:Array[Vector2] = get_range(origin, distance)
-# 	var result_list:Array[Vector2]
-# 	for v:Vector2 in in_range:
-# 		var checked_direction:Vector2 = origin.direction_to(v)
-# 		var dot:float = checked_direction.dot(direction)
-# 		if dot > -0.5:
-# 			result_list.append(v)
-# 	return result_list
-
-
-#endregion vectors
-
 
 func print_map() -> void:
 	for tile:TILE in TILES:
 		print(tile)
+
+
+#endregion utility
