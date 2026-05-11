@@ -49,9 +49,6 @@ func join_npc(joiner:NPC, joinee:NPC) -> void:
 		var direction:Vector2 = center - npc.LOCATION
 		npc.update_direction(direction)
 	
-	#old_group.queue_free()
-	#ENGINE.History.add_join_event(joiner, new_group)
-
 	
 
 
@@ -75,31 +72,6 @@ func leave_group(leaver:NPC) -> void:
 	GROUPS[leaver.ID] = new_group
 	#ENGINE.History.add_leave_event(leaver,new_group)
 
-func introduce_self(speaker:NPC) -> bool:
-	# returns true if speaker knows everyone
-	var group:GROUP = get_group(speaker)
-	for npc:NPC in group.PARTICIPANTS:
-		if !speaker.knows_npc(npc):
-			var added1:bool = ENGINE.History.add_statement_event(speaker, npc)	
-			var added2:bool = ENGINE.History.add_prompt_event(speaker, npc)
-			if added1 and added2: return false
-			break
-	return true
-
-
-
-func respond_to_topic(speaker:NPC) -> void:
-	# add conversation event
-	print("responding to topic")
-	var group:GROUP = get_group(speaker)
-	#ENGINE.History.add_conversation_event(group)
-
-	var new_topic: String = Dialogue.get_next_topic(group.CURRENT_TOPIC)
-	var opinion: int = speaker.OPINIONS[new_topic]
-	group.CURRENT_TOPIC = new_topic
-	#ENGINE.History.add_dialogue_event(speaker, new_topic, opinion)
-
-	
 
 #region debug
 func print_groups() -> void:

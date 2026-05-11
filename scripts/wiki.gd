@@ -27,6 +27,9 @@ func add_to_wiki(string: String, type:String="label", color:Color=Color.WHITE, i
 			new_button.connect("pressed", toggle_journal.bind(string))
 		add_child(new_button)
 
+func add_wiki_to_wiki(new_wiki:Wiki) -> void:
+	for child in new_wiki.get_children():
+		add_child(child)
 
 func update_color(color: Color) -> void:
 	COLOR = color

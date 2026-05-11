@@ -308,9 +308,7 @@ func join_group() -> STATUS:
 			if interactable_location != Vector2.INF:
 				var chosen_npc:NPC = imp.TARGET
 				var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER).set_target(chosen_npc)
-				# var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER, chosen_npc)
 				new_action.LOCATION = interactable_location
-				#ENGINE.GroupManager.join_npc(OWNER, chosen_npc)
 				ENGINE.NpcManager.add_state(new_action)
 				return STATUS.RUNNING
 	
@@ -324,24 +322,13 @@ func know_everyone() -> STATUS:
 		if !OWNER.knows_npc(npc):
 			IntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
 			PromptIntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
-			# var new_action:ACTION = IntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
-			# ENGINE.NpcManager.add_state(new_action)
-			# ENGINE.History.add_event(new_action)
-			# new_action = PromptIntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
-			# ENGINE.History.add_event(new_action)
 			return STATUS.RUNNING
 
 	return STATUS.SUCCESS
 
 
 
-#func know_everyone() -> STATUS:
-	#var knows_everyone:bool = ENGINE.GroupManager.introduce_self(OWNER)
-	#if knows_everyone:
-		#return STATUS.SUCCESS
-	#else:
-		#return STATUS.FAILURE
-
 func respond_to_topic() -> STATUS:
-	ENGINE.GroupManager.respond_to_topic(OWNER)
+	OpineAction.new(ENGINE, OWNER).create_event()
+	# ENGINE.GroupManager.respond_to_topic(OWNER)
 	return STATUS.RUNNING

@@ -196,7 +196,7 @@ func get_impression_of_npc(npc:NPC) -> Impression:
 	elif npc.STYLE in DISLIKES:
 		impression.ATTRACTIVE = -1
 
-	var filter:MEMORY_FILTER = MEMORY_FILTER.new(self).must_have_npc(npc)
+	var filter:MEMORY_FILTER = MEMORY_FILTER.new().set_owner(self).must_have_npc(npc)
 	var memories:Array[MEMORY] = filter.run_filter()
 
 	for memory:MEMORY in memories:
@@ -334,43 +334,6 @@ func get_existing_memory(_action:ACTION) -> MEMORY:
 		if _action.is_equal(memory): return memory
 	return null
 
-
-#func add_witness_report(event: EVENT, role: String) -> void:
-	#if is_report_in_memory(event): return
-	#var report:WitnessReport = WitnessReport.new(self, event, role)
-	#MEMORIES.append(report)
-
-
-
-
-#func is_report_in_memory(event:EVENT) -> bool:
-	#for m: WitnessReport in MEMORIES:
-		#if m.EVENT_WITNESSED.is_equal(event):
-			#m.update_ticks()
-			#return true
-	#return false
-
-#func add_relationship_memory(speaker:NPC, memory_id: String) -> void:
-	#if speaker == self: return
-	#if is_memory_in_relationship(speaker, memory_id): return
-	#var relationship_memory: RelationshipMemory = RelationshipMemory.new(self, speaker, memory_id)
-	#if speaker.ID not in RELATIONSHIPS:
-		#RELATIONSHIPS[speaker.ID] = []
-	#RELATIONSHIPS[speaker.ID].append(relationship_memory)
-
-
-#func is_memory_in_relationship(speaker:NPC, memory_id: String) -> bool:
-	#var npc_id: String = speaker.ID
-	#if npc_id not in RELATIONSHIPS:
-		#return false
-	#for mem: RelationshipMemory in RELATIONSHIPS[npc_id]:
-		#if mem.TARGET == speaker:
-			#if mem.MEMORY_ID == memory_id:
-				#mem.update_ticks()
-				#return true
-	#return false
-
-
 func requests_response(event:EVENT) -> void:
 	# adds event to RESPONSE_REQUEST list in SocialAction
 	SOCIAL_ACTION.RESPONSE_REQUESTS.append(event)
@@ -479,6 +442,9 @@ func consume(item:ITEM) -> void:
 
 func add_response(_action:ACTION) -> void:
 	SOCIAL_ACTION.RESPONSE_REQUESTS.append(_action)
+
+func react_to_memory_list(mem_list:Array[MEMORY]) -> String:
+	return "likes"
 
 
 #endregion actions

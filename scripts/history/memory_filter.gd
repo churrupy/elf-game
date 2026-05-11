@@ -14,9 +14,13 @@ var action_type:String
 var filtered_list:Array[MEMORY]
 
 
-func _init(owner:NPC) -> void:
-	OWNER = owner
+func _init() -> void:
+	pass
+
+func set_owner(_owner:NPC) -> MEMORY_FILTER:
+	OWNER = _owner
 	memory_list = OWNER.MEMORIES
+	return self
 
 func must_have_npc(npc:NPC) -> MEMORY_FILTER:
 	mandatory_npcs.append(npc)
@@ -51,3 +55,7 @@ func run_filter() -> Array[MEMORY]:
 		filtered_list.append(mem)
 
 	return filtered_list
+
+
+func _to_string() -> String:
+	return "filter string here"

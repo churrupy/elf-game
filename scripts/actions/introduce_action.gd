@@ -48,11 +48,3 @@ func get_involved_npcs() -> Array[NPC]:
 	# if group changes then this no longer works :(
 	# i'll have to fix that
 	return npc_list
-
-
-# func get_role(npc:NPC) -> String:
-# 	if npc == OWNER:
-# 		return "participant"
-# 	else:
-# 		return "witness"
-

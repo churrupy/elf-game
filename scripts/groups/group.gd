@@ -1,12 +1,13 @@
 class_name GROUP extends RefCounted
 
 var PARTICIPANTS: Array[NPC]
-var CURRENT_TOPIC: String = ""
+var CURRENT_TOPIC:MEMORY_FILTER
 
 
 func _init(first_owner:NPC) -> void:
 	PARTICIPANTS.append(first_owner)
 	sort()
+	CURRENT_TOPIC = MEMORY_FILTER.new()
 
 func _to_string() -> String:
 	var location: Vector2 = get_location()
