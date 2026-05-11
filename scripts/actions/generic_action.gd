@@ -10,6 +10,8 @@ var COUNTDOWN: int
 var SCORE: int = 0
 
 var CHATTABLE: bool = true
+var SEEABLE:bool = false
+var HEARABLE:bool = false
 
 
 var POSE:String = "standing"

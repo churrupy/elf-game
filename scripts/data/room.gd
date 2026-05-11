@@ -1,5 +1,6 @@
 class_name ROOM extends RefCounted
 
+var ID:String
 var TYPE:String
 var DATA:Dictionary
 var SUBROOMS:Array[ROOM]
@@ -10,19 +11,31 @@ var SIZE:Vector2
 
 
 func _init(type:String, loc:Vector2, size:Vector2) -> void:
+	ID = type + str(Global.get_counter())
 	DATA = Rooms.ROOM_TEMPLATES_new[type]
 	TYPE = type
 	LOCATION = loc
 	SIZE = size
 
 func is_in_room(loc:Vector2) -> bool:
-	var local_loc: Vector2 = LOCATION + SIZE
-	if int(loc[0]) not in range(int(LOCATION[0]), int(local_loc[0]+1)):
+	# check doors first cause i made this too complicated
+	for d:DOOR in DOOR_LIST:
+		if d.LOCATION == loc: return true
+
+	var top_left:Vector2
+	var bottom_right:Vector2
+	if "walls" in DATA:
+		top_left = LOCATION + Vector2.ONE
+		bottom_right = top_left + (SIZE - Vector2(2,2))
+	else:
+		top_left = LOCATION
+		bottom_right = LOCATION + SIZE
+
+	if int(loc[0]) not in range(int(top_left[0]), int(bottom_right[0]+1)):
 		return false
-	if int(loc[1]) not in range(int(LOCATION[1]), int(local_loc[1]+1)):
+	if int(loc[1]) not in range(int(top_left[1]), int(bottom_right[1]+1)):
 		return false
 	return true
-
 
 func in_room(loc:Vector2) -> ROOM:
 	if is_in_room(loc):
@@ -41,4 +54,14 @@ func is_secured() -> bool:
 
 
 func _to_string() -> String:
-	return TYPE
+	return ID
+
+func print_info() -> void:
+	var display_list:Array[String] = [
+		ID,
+		"; Location: ",
+		str(LOCATION),
+		"; Size: ",
+		str(SIZE)
+	]
+	print("".join(display_list))

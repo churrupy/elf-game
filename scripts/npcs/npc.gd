@@ -29,7 +29,8 @@ var RECENT_TOPIC: String
 var STYLE: String
 var OPINIONS: Dictionary = {}
 #var RELATIONSHIPS: Dictionary[String, Impression] = {}
-var MEMORIES: Array[WitnessReport]
+# var MEMORIES: Array[WitnessReport]
+var MEMORIES: Array[MEMORY]
 
 var TAGS: Array[String]
 var LIKES: Array[String]
@@ -174,45 +175,19 @@ func _to_string():
 
 #region MEMORIES
 
+func get_known_npcs() -> Array[NPC]:
+	var known_npcs:Array[NPC]
+	for memory:MEMORY in MEMORIES:
+		var action:ACTION = memory.EVENT_ACTION
+		var involved_npcs:Array[NPC] = action.get_involved_npcs()
+		for npc:NPC in involved_npcs:
+			if npc not in known_npcs:
+				known_npcs.append(npc)
+	return known_npcs
+
 func knows_npc(target:NPC) -> bool:
-	for report: WitnessReport in MEMORIES:
-		var event:EVENT = report.EVENT_WITNESSED
-		if event is not StatementEvent: continue
-		if event.SPEAKER == target: return true
-	return false
-
-func filter_memories_by_npc(target:NPC, report_list: Array[WitnessReport] = MEMORIES) -> Array[WitnessReport]:
-	var res_list: Array[WitnessReport]
-	for report: WitnessReport in MEMORIES:
-		if report.includes_npc(target):
-			res_list.append(report)
-	return res_list
-
-func filter_memories_by_event(event: EVENT, report_list: Array[WitnessReport] = MEMORIES) -> Array[WitnessReport]:
-	var res_list: Array[WitnessReport]
-	for report: WitnessReport in MEMORIES:
-		if report.EVENT_WITNESSED == event:
-			res_list.append(report)
-	return res_list
-
-func get_report_wikis(report_list: Array[WitnessReport] = MEMORIES) -> Array[Wiki]:
-	var wiki_list: Array[Wiki]
-	for report:WitnessReport in report_list:
-		var new_wiki: Wiki = report.to_wiki()
-		if new_wiki != null:
-			wiki_list.append(report.to_wiki())
-	return wiki_list
-
-func get_all_witnessed_npcs(report_list:Array[WitnessReport] = MEMORIES) -> Array[NPC]:
-	# returns all npcs that self has witnessed
-	var npc_list: Array[NPC]
-	for report: WitnessReport in report_list:
-		var event: EVENT = report.EVENT_WITNESSED
-		var participants: Array[NPC] = event.get_all_participants()
-		for p:NPC in participants:
-			if p not in npc_list:
-				npc_list.append(p)
-	return npc_list
+	var known_npcs:Array[NPC] = get_known_npcs()
+	return target in known_npcs
 
 func get_impression_of_npc(npc:NPC) -> Impression:
 	var impression: Impression = Impression.new(self, npc)
@@ -221,23 +196,108 @@ func get_impression_of_npc(npc:NPC) -> Impression:
 	elif npc.STYLE in DISLIKES:
 		impression.ATTRACTIVE = -1
 
-	var npc_reports: Array[WitnessReport] = filter_memories_by_npc(npc)
-	# just do likes for now
-	for report: WitnessReport in npc_reports:
-		var event: EVENT = report.EVENT_WITNESSED
-		if event is DialogueEvent:
-			# has topic opinions in it
-			if event.TOPIC in impression.OPINIONS.keys():
-				# check that opinion is the same
-				if impression.OPINIONS[event.TOPIC] == event.OPINION:
-					pass
-				else:
-					# opinion is different somehow
-					pass
-			else:
-				impression.OPINIONS[event.TOPIC] = event.OPINION
+	var filter:MEMORY_FILTER = MEMORY_FILTER.new(self).must_have_npc(npc)
+	var memories:Array[MEMORY] = filter.run_filter()
 
+	for memory:MEMORY in memories:
+		# fucking something
+		pass
 	return impression
+
+func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
+	if len(npc_list) == 0:
+		npc_list = get_known_npcs()
+	var impression_list:Array[Impression]
+	
+	for npc:NPC in npc_list:
+		var impression:Impression = get_impression_of_npc(npc)
+		impression_list.append(impression)
+	return impression_list
+
+	# var npc_reports: Array[WitnessReport] = filter_memories_by_npc(npc)
+	# # just do likes for now
+	# for report: WitnessReport in npc_reports:
+	# 	var event: EVENT = report.EVENT_WITNESSED
+	# 	if event is DialogueEvent:
+	# 		# has topic opinions in it
+	# 		if event.TOPIC in impression.OPINIONS.keys():
+	# 			# check that opinion is the same
+	# 			if impression.OPINIONS[event.TOPIC] == event.OPINION:
+	# 				pass
+	# 			else:
+	# 				# opinion is different somehow
+	# 				pass
+	# 		else:
+	# 			impression.OPINIONS[event.TOPIC] = event.OPINION
+
+	# return impression_list
+
+
+# func knows_npc(target:NPC) -> bool:
+# 	for report: WitnessReport in MEMORIES:
+# 	for memory:MEMORY in MEMORIES:
+# 		var event:EVENT = report.EVENT_WITNESSED
+# 		if event is not StatementEvent: continue
+# 		if event.SPEAKER == target: return true
+# 	return false
+
+#func filter_memories_by_npc(target:NPC, report_list: Array[WitnessReport] = MEMORIES) -> Array[WitnessReport]:
+	#var res_list: Array[WitnessReport]
+	#for report: WitnessReport in MEMORIES:
+		#if report.includes_npc(target):
+			#res_list.append(report)
+	#return res_list
+#
+#func filter_memories_by_event(event: EVENT, report_list: Array[WitnessReport] = MEMORIES) -> Array[WitnessReport]:
+	#var res_list: Array[WitnessReport]
+	#for report: WitnessReport in MEMORIES:
+		#if report.EVENT_WITNESSED == event:
+			#res_list.append(report)
+	#return res_list
+#
+#func get_report_wikis(report_list: Array[WitnessReport] = MEMORIES) -> Array[Wiki]:
+	#var wiki_list: Array[Wiki]
+	#for report:WitnessReport in report_list:
+		#var new_wiki: Wiki = report.to_wiki()
+		#if new_wiki != null:
+			#wiki_list.append(report.to_wiki())
+	#return wiki_list
+
+#func get_all_witnessed_npcs(report_list:Array[WitnessReport] = MEMORIES) -> Array[NPC]:
+	## returns all npcs that self has witnessed
+	#var npc_list: Array[NPC]
+	#for report: WitnessReport in report_list:
+		#var event: EVENT = report.EVENT_WITNESSED
+		#var participants: Array[NPC] = event.get_all_participants()
+		#for p:NPC in participants:
+			#if p not in npc_list:
+				#npc_list.append(p)
+	#return npc_list
+
+#func get_impression_of_npc(npc:NPC) -> Impression:
+	#var impression: Impression = Impression.new(self, npc)
+	#if npc.STYLE in LIKES:
+		#impression.ATTRACTIVE = 1
+	#elif npc.STYLE in DISLIKES:
+		#impression.ATTRACTIVE = -1
+#
+	#var npc_reports: Array[WitnessReport] = filter_memories_by_npc(npc)
+	## just do likes for now
+	#for report: WitnessReport in npc_reports:
+		#var event: EVENT = report.EVENT_WITNESSED
+		#if event is DialogueEvent:
+			## has topic opinions in it
+			#if event.TOPIC in impression.OPINIONS.keys():
+				## check that opinion is the same
+				#if impression.OPINIONS[event.TOPIC] == event.OPINION:
+					#pass
+				#else:
+					## opinion is different somehow
+					#pass
+			#else:
+				#impression.OPINIONS[event.TOPIC] = event.OPINION
+#
+	#return impression
 
 # func get_all_impressions_old() -> Array[Impression]:
 # 	var witnessed_npcs: Array[NPC] = get_all_witnessed_npcs()
@@ -247,36 +307,48 @@ func get_impression_of_npc(npc:NPC) -> Impression:
 # 		impression_list.append(new_impression)
 # 	return impression_list
 
-func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
-	if npc_list == []:
-		npc_list = get_all_witnessed_npcs()
-	var res_list:Array[Impression]
-	for npc:NPC in npc_list:
-		var impression: Impression = get_impression_of_npc(npc)
-		res_list.append(impression)
-	return res_list
+#func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
+	#if npc_list == []:
+		#npc_list = get_all_witnessed_npcs()
+	#var res_list:Array[Impression]
+	#for npc:NPC in npc_list:
+		#var impression: Impression = get_impression_of_npc(npc)
+		#res_list.append(impression)
+	#return res_list
 
 #endregion memories
 
 #region relationships
 
+func create_memory(_action:ACTION) -> void:
+	var existing_memory:MEMORY = get_existing_memory(_action)
+	if existing_memory != null:
+		existing_memory.END_TICK = Global.TICKS
+	else:
+		var role:String = _action.get_role(self)
+		var new_memory:MEMORY = MEMORY.new(_action, self)
+		MEMORIES.append(new_memory)
+
+func get_existing_memory(_action:ACTION) -> MEMORY:
+	for memory:MEMORY in MEMORIES:
+		if _action.is_equal(memory): return memory
+	return null
+
+
+#func add_witness_report(event: EVENT, role: String) -> void:
+	#if is_report_in_memory(event): return
+	#var report:WitnessReport = WitnessReport.new(self, event, role)
+	#MEMORIES.append(report)
 
 
 
 
-func add_witness_report(event: EVENT, role: String) -> void:
-	if is_report_in_memory(event): return
-	var report:WitnessReport = WitnessReport.new(self, event, role)
-	MEMORIES.append(report)
-
-
-
-func is_report_in_memory(event:EVENT) -> bool:
-	for m: WitnessReport in MEMORIES:
-		if m.EVENT_WITNESSED.is_equal(event):
-			m.update_ticks()
-			return true
-	return false
+#func is_report_in_memory(event:EVENT) -> bool:
+	#for m: WitnessReport in MEMORIES:
+		#if m.EVENT_WITNESSED.is_equal(event):
+			#m.update_ticks()
+			#return true
+	#return false
 
 #func add_relationship_memory(speaker:NPC, memory_id: String) -> void:
 	#if speaker == self: return
@@ -323,36 +395,36 @@ func get_opinion_string(npc_id: String) -> String:
 	else:
 		return "awful"
 
-func get_impression(other_npc: NPC) -> Wiki:
-	var new_wiki: Wiki = Wiki.new()
-	new_wiki.add_to_wiki("{0} thinks".format([NAME]))
-	new_wiki.add_to_wiki(other_npc.ID, "button", Color.WHITE, true)
-	new_wiki.add_to_wiki("is")
-	if other_npc.STYLE in LIKES:
-		new_wiki.add_to_wiki("attractive", "label", Color.GREEN)
-	elif other_npc.STYLE in DISLIKES:
-		new_wiki.add_to_wiki("unattractive", "label", Color.RED)
-	
-	for report: WitnessReport in MEMORIES:
-		if report.includes_npc(other_npc):
-			for reaction: String in report.REACTIONS.keys():
-				if report.REACTIONS[reaction] > 0:
-					new_wiki.add_to_wiki(reaction, "button", Color.GREEN)
-				elif report.REACTIONS[reaction] == 0:
-					new_wiki.add_to_wiki(reaction, "button", Color.WHITE)
-				elif report.REACTIONS[reaction]< 0:
-					new_wiki.add_to_wiki(reaction, "button", Color.RED)
-
-	return new_wiki
-
-	
+#func get_impression(other_npc: NPC) -> Wiki:
+	#var new_wiki: Wiki = Wiki.new()
+	#new_wiki.add_to_wiki("{0} thinks".format([NAME]))
+	#new_wiki.add_to_wiki(other_npc.ID, "button", Color.WHITE, true)
+	#new_wiki.add_to_wiki("is")
+	#if other_npc.STYLE in LIKES:
+		#new_wiki.add_to_wiki("attractive", "label", Color.GREEN)
+	#elif other_npc.STYLE in DISLIKES:
+		#new_wiki.add_to_wiki("unattractive", "label", Color.RED)
+	#
+	#for report: WitnessReport in MEMORIES:
+		#if report.includes_npc(other_npc):
+			#for reaction: String in report.REACTIONS.keys():
+				#if report.REACTIONS[reaction] > 0:
+					#new_wiki.add_to_wiki(reaction, "button", Color.GREEN)
+				#elif report.REACTIONS[reaction] == 0:
+					#new_wiki.add_to_wiki(reaction, "button", Color.WHITE)
+				#elif report.REACTIONS[reaction]< 0:
+					#new_wiki.add_to_wiki(reaction, "button", Color.RED)
+#
+	#return new_wiki
 
 	
-func get_dialogues() -> Array[String]:
-	var dialogue_list: Array[String]
-	for report:WitnessReport in MEMORIES:
-		dialogue_list.append(report.get_display_string())
-	return dialogue_list
+
+	
+#func get_dialogues() -> Array[String]:
+	#var dialogue_list: Array[String]
+	#for report:WitnessReport in MEMORIES:
+		#dialogue_list.append(report.get_display_string())
+	#return dialogue_list
 
 
 func does_share_opinion(topic: String, opinion: int) -> int:
@@ -370,6 +442,11 @@ func get_attraction(other_npc: NPC) -> int:
 	#return 100 #for testing
 	var other_style = other_npc.STYLE
 	return OPINIONS[other_style]
+
+func print_state_stack() -> void:
+	print("printing stack")
+	for action:ACTION in STATE_STACK:
+		print(action)
 
 
 #endregion relationships

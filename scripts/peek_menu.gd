@@ -112,7 +112,7 @@ func init_portrait() -> void:
 
 
 func update() -> void:
-	print("Updating peek menu")
+	#print("Updating peek menu")
 
 	# for child in $Large.get_node("DetailContainer").get_children():
 	# 	child.queue_free()
@@ -167,12 +167,30 @@ func update_tile() -> void:
 
 	SNAP.push_paragraph(ALIGNMENT)
 	SNAP.push_bold()
-	SNAP.add_text("Inventory: ")
+	SNAP.add_text("Room: ")
 	SNAP.pop()
+	var room:ROOM = ENGINE.Map.get_room(FOCUS.LOCATION)
+	SNAP.add_text(str(room))
+	SNAP.pop()
+
+
+	# SNAP.push_paragraph(ALIGNMENT)
+	# SNAP.push_bold()
+	# SNAP.add_text("Inventory: ")
+	# SNAP.pop()
 	
-	var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(FOCUS.ID)
-	SNAP.add_text(str(inventory))
+	# var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(FOCUS.ID)
+	# SNAP.add_text(str(inventory))
+	# SNAP.pop()
+
+	var reserved_by:Array[NPC] = ENGINE.NpcManager.is_reserved_by(FOCUS.LOCATION)
+	SNAP.push_paragraph(ALIGNMENT)
+	SNAP.push_bold()
+	SNAP.add_text("Reserved by :")
 	SNAP.pop()
+	SNAP.add_text(", ".join(reserved_by))
+	SNAP.pop()
+
 
 
 	# add_child(SNAP)
@@ -264,7 +282,8 @@ func close_menu() -> void:
 	# FOCUS.GLOW_SPRITE.hide()
 	HOLD_OPEN = false
 	WATCH = false
-	ENGINE.update_focus_target("player")
+	if Global.FOCUS_TARGET == FOCUS.ID:
+		ENGINE.update_focus_target("player")
 
 func toggle_expand() -> void:
 	if EXPANDED:

@@ -12,7 +12,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-func update() -> void:
+func update_old() -> void:
 	for child in $ScrollContainer.get_node("VBoxContainer").get_children():
 		child.queue_free()
 
@@ -20,6 +20,18 @@ func update() -> void:
 		var new_label: Label = Label.new()
 		new_label.custom_minimum_size = Vector2(250,0)
 		new_label.text = str(event)
+		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		$ScrollContainer.get_node("VBoxContainer").add_child(new_label)
+
+func update() -> void:
+	for child in $ScrollContainer.get_node("VBoxContainer").get_children():
+		child.queue_free()
+
+	var event_list:Array[String] = ENGINE.History.event_strings()
+	for str:String in event_list:
+		var new_label:Label = Label.new()
+		new_label.custom_minimum_size = Vector2(250,0)
+		new_label.text = str
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$ScrollContainer.get_node("VBoxContainer").add_child(new_label)
 

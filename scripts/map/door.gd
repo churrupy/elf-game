@@ -23,6 +23,7 @@ func _init(loc:Vector2, tile:TILE, _wall:String) -> void:
 	#print(texture)
 	ID = tile.ID
 	NAME = tile.NAME
+	TYPE = "door"
 	LOCATION = loc
 	DATA = Constants.FURNITURE["door"]
 	add_loc_label()

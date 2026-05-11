@@ -43,6 +43,7 @@ func tick() -> void:
 	for npc:NPC in NPCS:
 		print("")
 		print ("***** ", npc.NAME, " *****")
+		npc.print_state_stack()
 
 		var continuing:bool = true
 
@@ -362,5 +363,13 @@ func get_npc_names(npc_list:Array[NPC]=NPCS) -> Array[String]:
 func get_reserved_tile(npc:NPC) -> Vector2:
 	var current_action:ACTION = npc.STATE_STACK.back()
 	return current_action.LOCATION
+
+func is_reserved_by(loc:Vector2) -> Array[NPC]:
+	var result_list:Array[NPC]
+	for npc:NPC in NPCS:
+		var npc_list:Array[Vector2] = npc.get_reserved_locations()
+		if loc in npc_list:
+			result_list.append(npc)
+	return result_list
 
 #endregion

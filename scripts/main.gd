@@ -180,6 +180,7 @@ func update_player() -> void:
 
 
 func update_focus_target(new_target: String) -> void:
+	print("UPDATING FOCUS")
 	print("updating focus target:", new_target)
 	Global.FOCUS_TARGET = new_target
 	var target_object

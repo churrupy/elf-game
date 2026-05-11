@@ -6,10 +6,12 @@ var PATH: Array[Vector2]
 var secure:bool = false
 var room_to_secure:ROOM
 
+
 func _init(engine, owner:NPC) -> void:
 	ID = "move"
 	ENGINE = engine
 	OWNER = owner
+	SEEABLE = true
 
 
 
@@ -158,7 +160,8 @@ func run() -> ActionResult:
 	
 	var new_direction:Vector2 = next_step - old_location
 	OWNER.update_direction(new_direction)
-	ENGINE.History.add_move_event(OWNER)
+	# ENGINE.History.add_move_event(OWNER)
+	ENGINE.History.create_event(self)
 	print("moving from ", old_location, " to ", next_step)
 
 	if room_to_secure != null:
@@ -175,10 +178,38 @@ func run() -> ActionResult:
 
 func _to_string() -> String:
 	var str_list:Array[String] = [
-		"[ACTION]",
+		# "[ACTION]",
 		#"[{0}]".format([Global.TICKS]),
 		OWNER.NAME,
 		"is moving for",
 		MOVING_FOR.ID
 	]
 	return " ".join(str_list)
+
+func get_involved_npcs() -> Array[NPC]:
+	return [OWNER]
+
+func get_room() -> ROOM:
+	var room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	return room
+
+
+func is_equal(_event:EVENT_new) -> bool:
+	var other_action:ACTION = _event.EVENT_ACTION
+	if other_action is not MoveAction: return false
+	if other_action.OWNER != OWNER: return false
+	var current_room:ROOM = get_room()
+	if _event.EVENT_ROOM != current_room: return false
+
+	# if it's been long enough since event happened for action to be processed as a new action
+	var tick_range:int = 100
+	if _event.END_TICK + tick_range < Global.TICKS:
+		return false
+
+	return true
+
+func get_role(npc:NPC) -> String:
+	if npc == OWNER:
+		return "participant"
+	else:
+		return "witness"

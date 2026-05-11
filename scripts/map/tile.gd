@@ -48,4 +48,4 @@ func update_type(new_type:String="empty") -> void:
 
 
 func _to_string():
-	return "Tile: " + str(LOCATION)
+	return "Tile: " + TYPE + " at " + str(LOCATION)

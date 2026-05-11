@@ -34,10 +34,26 @@ func _init(engine, room) -> void:
 		var tile:TILE = TILE.new(location)
 		TILES.append(tile)
 		ENGINE.InventoryManager.create_inventory(tile)
+		# print(tile)
+
+	print_map()
 
 	create_room(room)
 
-	print(ENGINE.InventoryManager)
+	print_map()
+	for r:ROOM in ROOM_LIST:
+		print("")
+		print(r, " subrooms:")
+		for r1:ROOM in r.SUBROOMS:
+			r1.print_info()
+			print(get_room(r1.LOCATION))
+	# for r:ROOM in ROOM_LIST:
+	# 	r.print_info()
+
+	# for t:TILE in TILES:
+	# 	print(t.LOCATION, get_room(t.LOCATION))
+
+	# print(ENGINE.InventoryManager)
 
 func get_walls(size:Vector2) -> Array[Vector2]:
 	# walls are included in room size
@@ -52,19 +68,28 @@ func get_walls(size:Vector2) -> Array[Vector2]:
 
 	return wall_list
 
+func is_inside_map(loc:Vector2) -> bool:
+	if loc[0] < 0 or loc[0] >= MAP_SIZE[0]:
+		return false
+	if loc[1] < 0 or loc[1] >= MAP_SIZE[1]:
+		return false
+	return true
+
 func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 	# tiles are all created at this point
 	var room_data:Dictionary = Rooms.ROOM_TEMPLATES_new[type]
 	var new_room:ROOM = ROOM.new(type, top_left, room_data["size"])
 
 	if "walls" in room_data:
-		
+		print("creating walls for ", type)
 		var size:Vector2 = room_data["size"]
 		var wall_list:Array[Vector2] = get_walls(size)
 		#print(wall_list)
 
 		for relative_loc:Vector2 in wall_list:
 			var loc = relative_loc + top_left
+			if !is_inside_map(loc): continue # remove this to make map loop
+			print(loc)
 			var tile:TILE = get_tile(loc)
 			#print(tile)
 			if relative_loc in room_data["doors"]:
@@ -744,3 +769,8 @@ func get_room(loc:Vector2) -> ROOM:
 
 
 #endregion vectors
+
+
+func print_map() -> void:
+	for tile:TILE in TILES:
+		print(tile)

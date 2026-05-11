@@ -97,16 +97,16 @@ func toggle_talk_menu() -> void:
 	SignalBus.toggle_talk_menu.emit(DISPLAY_NPC)
 
 
-func watch_npc() -> void:
-	WATCH = true
-	HOLD_OPEN = true
-	ENGINE.update_focus_target(DISPLAY_NPC.ID)
-	$WatchButton.hide()
-	$UnWatchButton.show()
+# func watch_npc() -> void:
+# 	WATCH = true
+# 	HOLD_OPEN = true
+# 	ENGINE.update_focus_target(DISPLAY_NPC.ID)
+# 	$WatchButton.hide()
+# 	$UnWatchButton.show()
 
 
-func unwatch_npc() -> void:
-	WATCH = false
-	ENGINE.update_focus_target("player")
-	$UnWatchButton.hide()
-	$WatchButton.show()
+# func unwatch_npc() -> void:
+# 	WATCH = false
+# 	ENGINE.update_focus_target("player")
+# 	$UnWatchButton.hide()
+# 	$WatchButton.show()

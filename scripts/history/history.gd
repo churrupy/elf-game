@@ -3,62 +3,98 @@ class_name HISTORY_CLASS extends Control
 var ENGINE
 var HISTORY: Array[EVENT]
 
-var CONVERSABLES: Array[String] = [
-	"converse",
-	"flirt"
-]
 
 func _init(engine):
 	ENGINE = engine
+
+func add_event() -> void:
+	# steps
+	# create event
+	# populate event information
+	# check that event doesn't already exist
+	# add event
+	pass
+
+func create_event(_action:ACTION) -> void:
+	var existing_event:EVENT = get_existing_event(_action)
+	if existing_event != null:
+		# do something
+		existing_event.END_TICK = Global.TICKS
+	else:
+		var new_event:EVENT_new = EVENT_new.new(_action)
+		#var current_room:ROOM = ENGINE.Map.get_room(new_event.LOCATION)
+		#new_event.ROOM = current_room
+		HISTORY.append(new_event)
+	
+	broadcast_action(_action)
+
+func get_existing_event(_action:ACTION) -> EVENT:
+	for event:EVENT in HISTORY:
+		if _action.is_equal(event): return event
+	return null
+
 	
 
-func _ready() -> void:
-	pass
+func broadcast_action(_action:ACTION) -> void:
+	var _witnesses:Array[NPC]
 
+	if _action.HEARABLE:
+		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().in_range_of(_action.OWNER.LOCATION, 2)
+		var hearing_npcs:Array[NPC] = filter.run_filter()
+		_witnesses += hearing_npcs
+	
+	if _action.SEEABLE:
+		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().in_range_of(_action.OWNER.LOCATION, 10).looking_at()
+		var seeing_npcs:Array[NPC] = filter.run_filter()
+		_witnesses += seeing_npcs
 
-func _process(delta:float):
-	pass
+	var witness_list:Array[NPC]
+	for npc:NPC in _witnesses:
+		if npc not in witness_list:
+			npc.create_memory(_action)
+			# event.process_involvement(npc)
+			witness_list.append(npc)
 
 #region add event
 # god i gotta fix this somehow
 
-func add_statement_event(speaker:NPC, target:NPC=null, tone:String = "") -> bool:
-	var statement_event:StatementEvent = StatementEvent.new(speaker, target, tone)
-	var added:bool = add_event(statement_event)
-	if !added: return false
+#func add_statement_event(speaker:NPC, target:NPC=null, tone:String = "") -> bool:
+	#var statement_event:StatementEvent = StatementEvent.new(speaker, target, tone)
+	#var added:bool = add_event(statement_event)
+	#if !added: return false
+#
+	#ENGINE.NpcManager.broadcast_event(statement_event)
+	#return true
+#
+#func add_prompt_event(speaker:NPC, target:NPC, tone:String = "") -> bool:
+	#var prompt_event:PromptEvent = PromptEvent.new(speaker, target, tone)
+	#var added:bool = add_event(prompt_event)
+	#if !added: return false
+#
+	#ENGINE.NpcManager.broadcast_event(prompt_event)
+	#return true
 
-	ENGINE.NpcManager.broadcast_event(statement_event)
-	return true
-
-func add_prompt_event(speaker:NPC, target:NPC, tone:String = "") -> bool:
-	var prompt_event:PromptEvent = PromptEvent.new(speaker, target, tone)
-	var added:bool = add_event(prompt_event)
-	if !added: return false
-
-	ENGINE.NpcManager.broadcast_event(prompt_event)
-	return true
-
-func add_introduce_event(speaker: NPC, target: NPC, tone: String = "") -> void:
-	#add_conversation_event(speaker)
-
-	var introduction_event: IntroductionEvent = IntroductionEvent.new(speaker, target, tone)
-	add_event(introduction_event)
-
-	#HISTORY.append(introduction_event)
-	ENGINE.NpcManager.broadcast_event(introduction_event)
-
-func add_dialogue_event(speaker: NPC, topic:String, opinion:int, tone:String="") -> void:
-	#add_conversation_event(speaker)
-	print("dialogue event being added")
-	var dialogue_event: DialogueEvent = DialogueEvent.new(speaker, topic, opinion, tone) 
-	add_event(dialogue_event)
-	#HISTORY.append(dialogue_event)
-	ENGINE.NpcManager.broadcast_event(dialogue_event)
-
-func add_conversation_event(group:GROUP) -> void:
-	var conversation_event:ConversationEvent = ConversationEvent.new(group)
-	add_event(conversation_event)
-	ENGINE.NpcManager.broadcast_event(conversation_event)
+#func add_introduce_event(speaker: NPC, target: NPC, tone: String = "") -> void:
+	##add_conversation_event(speaker)
+#
+	#var introduction_event: IntroductionEvent = IntroductionEvent.new(speaker, target, tone)
+	#add_event(introduction_event)
+#
+	##HISTORY.append(introduction_event)
+	#ENGINE.NpcManager.broadcast_event(introduction_event)
+#
+#func add_dialogue_event(speaker: NPC, topic:String, opinion:int, tone:String="") -> void:
+	##add_conversation_event(speaker)
+	#print("dialogue event being added")
+	#var dialogue_event: DialogueEvent = DialogueEvent.new(speaker, topic, opinion, tone) 
+	#add_event(dialogue_event)
+	##HISTORY.append(dialogue_event)
+	#ENGINE.NpcManager.broadcast_event(dialogue_event)
+#
+#func add_conversation_event(group:GROUP) -> void:
+	#var conversation_event:ConversationEvent = ConversationEvent.new(group)
+	#add_event(conversation_event)
+	#ENGINE.NpcManager.broadcast_event(conversation_event)
 
 # func add_conversation_event(event) -> void:
 # 	# will eventually update to take the center of conversation, not the speaker
@@ -74,25 +110,25 @@ func add_conversation_event(group:GROUP) -> void:
 # 	add_event(conversation_event)
 # 	ENGINE.NpcManager.broadcast_event(conversation_event)
 
-func add_join_event(npc:NPC, group:GROUP) -> void:
-	var join_event:JoinEvent = JoinEvent.new(npc, group)
-	add_event(join_event)
-	ENGINE.NpcManager.broadcast_event(join_event)
+#func add_join_event(npc:NPC, group:GROUP) -> void:
+	#var join_event:JoinEvent = JoinEvent.new(npc, group)
+	#add_event(join_event)
+	#ENGINE.NpcManager.broadcast_event(join_event)
+#
+#func add_leave_event(npc:NPC, group:GROUP) -> void:
+	#pass
+#
+#func add_move_event(owner:NPC) -> void:
+	#var move_event:MoveEvent = MoveEvent.new(owner)
+	#add_event(move_event)
+	#ENGINE.NpcManager.broadcast_event(move_event)
 
-func add_leave_event(npc:NPC, group:GROUP) -> void:
-	pass
-
-func add_move_event(owner:NPC) -> void:
-	var move_event:MoveEvent = MoveEvent.new(owner)
-	add_event(move_event)
-	ENGINE.NpcManager.broadcast_event(move_event)
-
-func add_event(event: EVENT) -> bool:
-	# checks if event is already in list
-	for checked_event: EVENT in HISTORY:
-		if checked_event.is_equal(event): return false
-	HISTORY.append(event)
-	return true
+#func add_event(event: EVENT) -> bool:
+	## checks if event is already in list
+	#for checked_event: EVENT in HISTORY:
+		#if checked_event.is_equal(event): return false
+	#HISTORY.append(event)
+	#return true
 
 #endregion add events
 
@@ -128,6 +164,13 @@ func does_event_exist(actor_id:String, action_id:String, target_id:String) -> in
 	var event_index:int = HISTORY.find_custom(func(event): return event.ACTOR==actor_id and event.ACTION_ID == action_id and event.TARGET == target_id)
 	return event_index
 	
+
+
+func event_strings(history_list:Array[EVENT] = HISTORY) -> Array[String]:
+	var display_list:Array[String]
+	for event:EVENT in history_list:
+		display_list.append(str(event))
+	return display_list
 
 func history_to_string(history_list: Array =[]) -> Array:
 	if history_list == []:

@@ -50,7 +50,7 @@ func join_npc(joiner:NPC, joinee:NPC) -> void:
 		npc.update_direction(direction)
 	
 	#old_group.queue_free()
-	ENGINE.History.add_join_event(joiner, new_group)
+	#ENGINE.History.add_join_event(joiner, new_group)
 
 	
 
@@ -73,7 +73,7 @@ func leave_group(leaver:NPC) -> void:
 
 	var new_group = GROUP.new(leaver)
 	GROUPS[leaver.ID] = new_group
-	ENGINE.History.add_leave_event(leaver,new_group)
+	#ENGINE.History.add_leave_event(leaver,new_group)
 
 func introduce_self(speaker:NPC) -> bool:
 	# returns true if speaker knows everyone
@@ -92,12 +92,12 @@ func respond_to_topic(speaker:NPC) -> void:
 	# add conversation event
 	print("responding to topic")
 	var group:GROUP = get_group(speaker)
-	ENGINE.History.add_conversation_event(group)
+	#ENGINE.History.add_conversation_event(group)
 
 	var new_topic: String = Dialogue.get_next_topic(group.CURRENT_TOPIC)
 	var opinion: int = speaker.OPINIONS[new_topic]
 	group.CURRENT_TOPIC = new_topic
-	ENGINE.History.add_dialogue_event(speaker, new_topic, opinion)
+	#ENGINE.History.add_dialogue_event(speaker, new_topic, opinion)
 
 	
 

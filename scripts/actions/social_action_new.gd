@@ -202,55 +202,55 @@ func run() -> ActionResult:
 
 
 
-func flirt_old() -> Array:
-	var impression = TARGET.hear_flirt(OWNER.ID)
-	'''
-	if !ENGINE.NpcManager.is_available(TARGET):
-		impression = 0
-	'''
-	if impression == "pleased":
-		# flirt accepted, try to find location
-		# look for new location that has at least one adjacent open tile for encounter
-		var locations: Array[Vector2] = ENGINE.Map.find_action_locations("encounter")
-		locations = ENGINE.NpcManager.filter_reserved_locations(locations) # returns list
+# func flirt_old() -> Array:
+# 	var impression = TARGET.hear_flirt(OWNER.ID)
+# 	'''
+# 	if !ENGINE.NpcManager.is_available(TARGET):
+# 		impression = 0
+# 	'''
+# 	if impression == "pleased":
+# 		# flirt accepted, try to find location
+# 		# look for new location that has at least one adjacent open tile for encounter
+# 		var locations: Array[Vector2] = ENGINE.Map.find_action_locations("encounter")
+# 		locations = ENGINE.NpcManager.filter_reserved_locations(locations) # returns list
 
-		for loc: Vector2 in locations:
-			# target in this action is node
-			var closest_loc: Vector2 = ENGINE.Map.get_closest_adjacent_location(TARGET.LOCATION, loc)
-			if closest_loc == Vector2.INF: continue # no valid adjacent tiles
+# 		for loc: Vector2 in locations:
+# 			# target in this action is node
+# 			var closest_loc: Vector2 = ENGINE.Map.get_closest_adjacent_location(TARGET.LOCATION, loc)
+# 			if closest_loc == Vector2.INF: continue # no valid adjacent tiles
 
-			var dialogue_string: String = OWNER.NAME + " tried to seduce " + TARGET.NAME
-			ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
+# 			var dialogue_string: String = OWNER.NAME + " tried to seduce " + TARGET.NAME
+# 			#ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
 
-			dialogue_string = TARGET.NAME + " accepted the proposition!"
-			ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
+# 			dialogue_string = TARGET.NAME + " accepted the proposition!"
+# 			#ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
 
-			# create new action for the both of them
-			# right now seduction TARGET is the anchor and the OWNER is the node, but i'll figure out how I want to arrange that later
+# 			# create new action for the both of them
+# 			# right now seduction TARGET is the anchor and the OWNER is the node, but i'll figure out how I want to arrange that later
 
-			var tile: TILE = ENGINE.Map.get_tile(loc)
-			var new_action:ACTION = EncounterActionAnchor.new(ENGINE, TARGET, tile)
-			ENGINE.NpcManager.add_state(new_action)
+# 			var tile: TILE = ENGINE.Map.get_tile(loc)
+# 			var new_action:ACTION = EncounterActionAnchor.new(ENGINE, TARGET, tile)
+# 			ENGINE.NpcManager.add_state(new_action)
 
-			new_action = EncounterActionNode.new(ENGINE, OWNER, TARGET)
-			new_action.LOCATION = closest_loc
+# 			new_action = EncounterActionNode.new(ENGINE, OWNER, TARGET)
+# 			new_action.LOCATION = closest_loc
 
-			return ["replace", new_action] # lol at having a class explicitly to start new states, and returning via a result like a schlub
+# 			return ["replace", new_action] # lol at having a class explicitly to start new states, and returning via a result like a schlub
 		
-		# seduce accepted but no valid locations turns it into a flirt
+# 		# seduce accepted but no valid locations turns it into a flirt
 
-		var dialogue_string: String = OWNER.NAME + " flirted with " + TARGET.NAME
-		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
-		dialogue_string = TARGET.NAME + " was " + impression + " about being flirted with."
-		ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
+# 		var dialogue_string: String = OWNER.NAME + " flirted with " + TARGET.NAME
+# 		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
+# 		dialogue_string = TARGET.NAME + " was " + impression + " about being flirted with."
+# 		ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
 		
-	else:
-		# seduce denied
-		var dialogue_string: String = OWNER.NAME + " flirted with " + TARGET.NAME
-		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
-		dialogue_string = TARGET.NAME + " was annoyed about being flirted with."
-		ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
-	return ["running", null]
+# 	else:
+# 		# seduce denied
+# 		var dialogue_string: String = OWNER.NAME + " flirted with " + TARGET.NAME
+# 		ENGINE.History.add_event(OWNER.ID, "converse", OWNER.LOCATION, [TARGET.ID], dialogue_string)
+# 		dialogue_string = TARGET.NAME + " was annoyed about being flirted with."
+# 		ENGINE.History.add_event(TARGET.ID, "converse", TARGET.LOCATION, [OWNER.ID], dialogue_string)
+# 	return ["running", null]
 	
 
 
@@ -274,10 +274,10 @@ func clear_responses() -> STATUS:
 		var response: String = event.process_response()
 		if response == "introduce":
 			print("introduction response: ", OWNER, event.SPEAKER)
-			var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
-			if added:
-				RESPONSE_REQUESTS = []
-				return STATUS.FAILURE
+			# var added:bool = ENGINE.History.add_statement_event(OWNER, event.SPEAKER)
+			#if added:
+				#RESPONSE_REQUESTS = []
+				#return STATUS.FAILURE
 	RESPONSE_REQUESTS = []
 	return STATUS.SUCCESS
 
