@@ -38,8 +38,8 @@ var DISLIKES: Array[String]
 
 
 var NEEDS: Dictionary[String, float] = {
-	"hunger": randf_range(40.0, 90.0),
-	# "hunger": 40.0,
+	# "hunger": randf_range(40.0, 90.0),
+	"hunger": 40.0,
 	"energy": 90.0,
 	"release": 90.0,
 	"social": 90.0,
@@ -71,7 +71,7 @@ var LOOKING_AT: Array[Vector2]
 #endregion sprite
 
 #region actions
-var EVENT_QUEUE: Array[EVENT]
+# var EVENT_QUEUE: Array[EVENT]
 
 var STATE_STACK: Array[ACTION] = []
 var SOCIAL_ACTION: SocialAction_new
@@ -334,9 +334,9 @@ func get_existing_memory(_action:ACTION) -> MEMORY:
 		if _action.is_equal(memory): return memory
 	return null
 
-func requests_response(event:EVENT) -> void:
-	# adds event to RESPONSE_REQUEST list in SocialAction
-	SOCIAL_ACTION.RESPONSE_REQUESTS.append(event)
+# func requests_response(event:EVENT) -> void:
+# 	# adds event to RESPONSE_REQUEST list in SocialAction
+# 	SOCIAL_ACTION.RESPONSE_REQUESTS.append(event)
 
 func get_opinion(tag: String) -> int:
 	if tag in LIKES: return 1

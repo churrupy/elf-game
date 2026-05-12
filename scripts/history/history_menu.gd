@@ -1,5 +1,7 @@
 extends Control
 
+# class_name HistoryMenu
+
 var ENGINE
 
 
@@ -12,16 +14,16 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-func update_old() -> void:
-	for child in $ScrollContainer.get_node("VBoxContainer").get_children():
-		child.queue_free()
-
-	for event:EVENT in ENGINE.History.HISTORY:
-		var new_label: Label = Label.new()
-		new_label.custom_minimum_size = Vector2(250,0)
-		new_label.text = str(event)
-		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		$ScrollContainer.get_node("VBoxContainer").add_child(new_label)
+#func update_old() -> void:
+	#for child in $ScrollContainer.get_node("VBoxContainer").get_children():
+		#child.queue_free()
+#
+	#for event:EVENT in ENGINE.History.HISTORY:
+		#var new_label: Label = Label.new()
+		#new_label.custom_minimum_size = Vector2(250,0)
+		#new_label.text = str(event)
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#$ScrollContainer.get_node("VBoxContainer").add_child(new_label)
 
 func update() -> void:
 	for child in $ScrollContainer.get_node("VBoxContainer").get_children():

@@ -56,11 +56,12 @@ func _init(engine, owner: NPC, target: NPC=null) -> void:
 func tick() -> ActionResult:
 	return run()
 
-func run() -> ActionResult:
+func run_old() -> ActionResult:
 	var status: STATUS = determine_next_action()
 	if status == STATUS.RUNNING:
 		refresh_needs("social")
 	return ActionResult.new("running")
+
 
 # func run_old() -> ActionResult:
 # 	var res: ActionResult = ActionResult.new("running")

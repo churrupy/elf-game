@@ -4,11 +4,11 @@ class_name NPC_MANAGER
 
 var ENGINE
 var NPCS: Array[NPC]
-var Determinator: ActionDeterminator
+#var Determinator: ActionDeterminator
 
 func _init(engine, num_npcs:int) -> void:
 	ENGINE = engine
-	Determinator = ActionDeterminator.new(ENGINE)
+	#Determinator = ActionDeterminator.new(ENGINE)
 	for i: int in num_npcs:
 		create_npc()
 	
@@ -34,10 +34,10 @@ func create_npc() -> void:
 	ENGINE.GroupManager.create_group(npc)
 	
 	# initialize state stack
-	var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)
+	#var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)
+	var new_action:ACTION = IdleAction.new(ENGINE, npc)
 	npc.STATE_STACK.append(new_action)
 	npc.SOCIAL_ACTION = SocialAction_new.new(ENGINE, npc)
-
 
 func tick() -> void:
 	for npc:NPC in NPCS:
@@ -53,6 +53,70 @@ func tick() -> void:
 			print ("current_action: ", current_action)
 
 			var result:ActionResult = current_action.tick()
+
+			if result.STATUS == "add":
+				current_action.suspend_state()
+				result.NEW_ACTION.enter_state()
+				npc.STATE_STACK.append(result.NEW_ACTION)
+
+			elif result.STATUS == "replace":
+				current_action.exit_state()
+				npc.STATE_STACK.pop_back()
+				result.NEW_ACTION.enter_state()
+				npc.STATE_STACK.append(result.NEW_ACTION)
+
+			elif result.STATUS == "end":
+				current_action.exit_state()
+				npc.STATE_STACK.pop_back()
+				var old_action:ACTION = npc.STATE_STACK.back()
+				old_action.resume_state()
+
+			elif result.STATUS == "continue":
+				#bonus turn
+				current_action.exit_state()
+				npc.STATE_STACK.pop_back()
+				var old_action:ACTION = npc.STATE_STACK.back()
+				old_action.resume_state()
+				continuing = true
+				print("continuing")
+
+			elif result.STATUS == "clear":
+				current_action.exit_state()
+				print("clearing " + npc.NAME + "'s actions")
+				var idle_action:IdleAction = npc.STATE_STACK[0]
+				npc.STATE_STACK = [idle_action]
+
+			else:
+				# state continues running
+				#assumes result is ["running", null]
+				pass
+
+		# this setup seems weird lol
+		var current_action = npc.STATE_STACK.back()
+		
+		if current_action.CHATTABLE:
+			var _res: ActionResult = npc.SOCIAL_ACTION.run()
+
+		current_action = npc.STATE_STACK.back()
+		print("new action: ", current_action)
+
+func tick_old() -> void:
+	for npc:NPC in NPCS:
+		print("")
+		print ("***** ", npc.NAME, " *****")
+		npc.print_state_stack()
+
+		var continuing:bool = true
+
+		while continuing:
+			continuing = false
+			var current_action:ACTION = npc.STATE_STACK.back()
+			print ("current_action: ", current_action)
+
+			var result:ActionResult = current_action.tick()
+
+			if result.CONTINUE:
+				continuing = true
 
 			if result.STATUS == "add":
 				current_action.suspend_state()
@@ -209,24 +273,24 @@ func update() -> void:
 		
 	#print_reserved_locations()
 
-func broadcast_event(event:EVENT) -> void:
-	var _witnesses:Array[NPC]
+# func broadcast_event(event:EVENT) -> void:
+# 	var _witnesses:Array[NPC]
 
-	if event.HEARABLE:
-		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(NPCS).in_range_of(event.LOCATION, 2)
-		var hearing_npcs:Array[NPC] = filter.run_filter()
-		_witnesses += hearing_npcs
+# 	if event.HEARABLE:
+# 		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(NPCS).in_range_of(event.LOCATION, 2)
+# 		var hearing_npcs:Array[NPC] = filter.run_filter()
+# 		_witnesses += hearing_npcs
 	
-	if event.SEEABLE:
-		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(NPCS).in_range_of(event.LOCATION, 10).looking_at()
-		var seeing_npcs:Array[NPC] = filter.run_filter()
-		_witnesses += seeing_npcs
+# 	if event.SEEABLE:
+# 		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(NPCS).in_range_of(event.LOCATION, 10).looking_at()
+# 		var seeing_npcs:Array[NPC] = filter.run_filter()
+# 		_witnesses += seeing_npcs
 
-	var witness_list:Array[NPC]
-	for npc:NPC in _witnesses:
-		if npc not in witness_list:
-			event.process_involvement(npc)
-			witness_list.append(npc)
+# 	var witness_list:Array[NPC]
+# 	for npc:NPC in _witnesses:
+# 		if npc not in witness_list:
+# 			event.process_involvement(npc)
+# 			witness_list.append(npc)
 
 
 

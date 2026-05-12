@@ -1,24 +1,22 @@
 class_name IdleAction extends ACTION
 
 # this class does determine_action
-var Determinator: ActionDeterminator
+#var Determinator: ActionDeterminator
 
-func _init(engine, owner: NPC, target: Node, determinator: ActionDeterminator) -> void:
+#func _init(engine, owner: NPC, target: Node, determinator: ActionDeterminator) -> void:
+func _innit(engine, owner:NPC) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "idle"
 	LOCATION = owner.LOCATION
-	Determinator = determinator
+	#Determinator = determinator
 	super._init(engine, owner)
 
-func start_state():
+func start_state() -> void:
 	LOCATION = OWNER.LOCATION
 
-func resume_state():
+func resume_state() -> void:
 	LOCATION = OWNER.LOCATION
-	#pass
-	#var result: ActionResult = run()
-	#ENGINE.NpcManager.add_state(result.NEW_ACTION)
 
 func can_do_action() -> bool:
 	return true
@@ -29,10 +27,42 @@ func tick() -> ActionResult:
 	OWNER.decay_needs()
 	return result
 
+# func run() -> ActionResult:
+# 	var action_list:Array[GDScript] = [
+# 		BladderAction,
+# 		HungerAction,
+# 		# FunAction,
+# 		# SocialAction,
+# 	]
+
+# 	for _action:GDScript in action_list:
+# 		var res:ActionResult = _action.new(ENGINE, OWNER).run()
+# 		if res.STATUS != "end":
+# 			return res
+# 	return ActionResult.new("running")
+
 func run() -> ActionResult:
-	#print("running")
-	Determinator.determine_next_action(OWNER)
-	return ActionResult.new("running", null)
+	var new_action:ACTION
+
+	new_action = HungerAction.new(ENGINE, OWNER)
+	ENGINE.NpcManager.add_state(new_action)
+
+	new_action = BladderAction.new(ENGINE,OWNER).find_location()
+	ENGINE.NpcManager.add_state(new_action)
+
+	return ActionResult.new("continue")
+
+func _to_string() -> String:
+	var str_list:Array[String] = [
+		OWNER.NAME,
+		"is idling"
+	]
+	return " ".join(str_list)
+
+# func run_old() -> ActionResult:
+# 	#print("running")
+# 	Determinator.determine_next_action(OWNER)
+# 	return ActionResult.new("running", null)
 
 
 # func run_old() -> ActionResult:

@@ -46,7 +46,7 @@ func run() -> ActionResult:
 
 func _to_string() -> String:
 	var str_list:Array[String] = [
-		"[ACTION]",
+		# "[ACTION]",
 		#"[{0}]".format([Global.TICKS]),
 		OWNER.NAME,
 		"is unlocking room for",

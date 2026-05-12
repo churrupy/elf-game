@@ -16,3 +16,8 @@ func _init(type:String) -> void:
 
 func _to_string() -> String:
 	return NAME
+
+
+func is_equal(other_item:ITEM) -> bool:
+	if TYPE != other_item.TYPE: return false
+	return true

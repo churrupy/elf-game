@@ -46,6 +46,10 @@ func get_involved_npcs() -> Array[NPC]:
 	return npc_list
 
 func process_response(npc:NPC) -> ACTION:
+	# check they're still in the same group
+	var same_group:bool = ENGINE.GroupManager.is_in_same_group(OWNER, npc)
+	if !same_group:
+		return null
 	# they're always going to respond for now
 	var new_action:IntroduceAction = IntroduceAction.new(ENGINE, npc).set_target(OWNER).create_event()
 	return new_action

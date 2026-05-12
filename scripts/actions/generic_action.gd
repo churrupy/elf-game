@@ -22,9 +22,9 @@ func _init(engine, owner: NPC) -> void:
 	ENGINE = engine
 	OWNER = owner
 	#TARGET = target
-	var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
-	COUNTDOWN = action_data["duration"]
-	score()
+	#var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
+	#COUNTDOWN = action_data["duration"]
+	#score()
 
 func enter_state():
 	pass
@@ -227,7 +227,7 @@ func flirt() -> void:
 
 func _to_string():
 	var str_list:Array[String] = [
-		"[ACTION]",
+		# "[ACTION]",
 		#"[{0}]".format([Global.TICKS]),
 		OWNER.NAME,
 		"is",

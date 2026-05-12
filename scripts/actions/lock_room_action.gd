@@ -29,6 +29,27 @@ func tick() -> ActionResult:
 	OWNER.decay_needs()
 	return result
 
+
+# func run_new() -> ActionResult:
+# 	var action_result:ActionResult = ActionResult.new("running")
+# 	var new_action:ACTION = ClearRoomAction.new(ENGINE, OWNER).set_target(TARGET) # target is a room, it's a work in progress
+# 	# also waits until everyone is in the room as well
+# 	action_result.ACTION_STACK.append(new_action)
+
+# 	for d:DOOR in TARGET.DOOR_LIST:
+# 		new_action = LockDoorAction.new(ENGINE, OWNER).set_target(d)
+# 		action_result.ACTION_STACK.append(new_action)
+
+# 	# maybe all complex actions like this aren't parents of sub-actions, but just replacing themselves with more granular actions on the action list
+# 	# so all complex actions are replaced
+# 	# (and if they don't want to be replaced, then add themselves onto the action stack)
+
+# 	return action_result
+
+	#how to stop this from running every single time?
+	# stuck in a loop
+	# should probably have some kind of "claim room" function that automatically kicks people out and stops them from re-entering if the room wants to be secured like this
+
 func run() -> ActionResult:
 	# shoo out other npcs
 	var filter: NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_in_room(TARGET_ROOM).is_not([OWNER])
@@ -64,7 +85,7 @@ func run() -> ActionResult:
 
 func _to_string() -> String:
 	var str_list:Array[String] = [
-		"[ACTION]",
+		# "[ACTION]",
 		#"[{0}]".format([Global.TICKS]),
 		OWNER.NAME,
 		"is locking room for",

@@ -62,14 +62,19 @@ func get_first_tagged_from_inventory(owner:Node, tag:String) -> ITEM:
 	return null
 
 
-func inventory_has(owner:Node, tag:String) -> bool:
-	var inventory = get_inventory_of(owner.ID)
-	#print(inventory)
-	#print(inventory.ITEMS)
-	for item: ITEM in inventory.ITEMS:
-		#print(item)
-		if tag in item.TAGS:
-			return true
+func inventory_has_tag(owner:Node, tag:String) -> bool:
+	var inventory:INVENTORY = get_inventory_of(owner.ID)
+	var all_tags:Array[String] = inventory.get_all_tags()
+	return tag in all_tags
+	# for item: ITEM in inventory.ITEMS:
+	# 	if tag in item.TAGS:
+	# 		return true
+	# return false
+
+func inventory_has_item(owner:Node, item:ITEM) -> bool:
+	var inventory:INVENTORY = get_inventory_of(owner.ID)
+	for checked_item:ITEM in inventory.ITEMS:
+		if item.TYPE == checked_item.TYPE: return true
 	return false
 
 

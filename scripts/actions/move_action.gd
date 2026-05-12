@@ -108,6 +108,26 @@ func update_location() -> bool:
 
 	return true
 
+# func run_new() -> ActionResult:
+# 	# create path, then push a move action down onto the stack for every step
+# 	# how to adjust for changes in path?
+# 	# maybe the steps check to make sure they're on the right step, like:
+# 	StepAction.new(ENGINE, OWNER).from(Vector2).to(Vector2)
+# 	# and if OWNER.LOCATION != from value, then pop the action, which will clear the entire stack until getting back to a MoveAction
+# 	# and the MoveAction will attempt to regenerate
+# 	# and the underlying actions depend on the higher actions functioning correctly, so if they don't, then they also return "end", which clears the stack until it gets back to IdleAction
+# 	# so if PeeAction is not sitting on a toilet, then "end"
+# 	# so all actions need some kind of context in order to report that they cannot fire correctly
+# 	if OWNER.LOCATION == LOCATION:
+# 		return ActionResult.new("end")
+# 	var res:ActionResult = ActionResult.new("replace")
+# 	res.ACTION_STACK = [self]
+# 	# generate path
+# 	# for each step in the path, add another action onto ACTION_STACK
+# 	# if path cannot be generated, then return "end"
+# 	# OR MoveAction just moves like it was before lol, no little step actions or whatever, it just loops until finished or fails
+# 	return ActionResult.new()
+
 
 func run() -> ActionResult:
 
