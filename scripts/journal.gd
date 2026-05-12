@@ -362,8 +362,6 @@ func update_navigation(nav_list:Array[String]) -> void:
 # 			$Menu.get_node("Navigation").add_child(label)
 
 func toggle_journal(topic: String="") -> void:
-	print("JOURNAL CLICK")
-
 	if topic == "" or topic == CURRENT_ENTRY:
 		for t in TOGGLEABLE:
 			t.visible = !t.visible

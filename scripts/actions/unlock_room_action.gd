@@ -8,13 +8,6 @@ func _init(engine, owner:NPC) -> void:
 	ID = "move"
 	ENGINE = engine
 	OWNER = owner
-	#TARGET_ROOM = target
-	#TARGET = target
-	#LOCATION = target.LOCATION
-	#MOVING_FOR = moving_for
-	#CHATTABLE = moving_for.CHATTABLE
-	#super._init(engine, owner, target)
-	#ENGINE.GroupManager.leave_group(owner)
 
 
 func room_to_unlock(_room:ROOM) -> UnlockRoomAction:
@@ -41,8 +34,8 @@ func run() -> ActionResult:
 			else:
 				#var new_action:MoveAction = MoveAction.new(ENGINE, OWNER, door, self).set_location(door.LOCATION)
 				var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(door).calling_action(MOVING_FOR)
-				return ActionResult.new("add", move_action)
-	return ActionResult.new("continue")
+				return ActionResult.new("add", move_action).continuing()
+	return ActionResult.new("end").continuing()
 
 func _to_string() -> String:
 	var str_list:Array[String] = [

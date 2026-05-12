@@ -21,7 +21,7 @@ func set_target(target:Node) -> BladderAction:
 	LOCATION = target.LOCATION
 	return self
 
-func find_location() -> BladderAction:
+func find_target() -> BladderAction:
 	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag("fill_bladder").is_available()
 	var toilets:Array[TILE] = filter.run_filter()
 	if len(toilets) > 0:
@@ -80,18 +80,20 @@ func tick() -> ActionResult:
 
 
 func run() -> ActionResult:
-	if LOCATION == null: return ActionResult.new("end")
-	if OWNER.NEEDS["bladder"] >= 95: return ActionResult.new("end")
+	if TARGET == null or LOCATION == Vector2.INF: return ActionResult.new("end").continuing()
+	if OWNER.NEEDS["bladder"] >= 95: return ActionResult.new("end").continuing()
 
 	var npc_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
 	if OWNER.NEEDS["bladder"] >= 95:
 		if !npc_room.is_secured():
-			return ActionResult.new("end")
+			return ActionResult.new("end").continuing()
 		else:
 			var new_action:UnlockRoomAction = UnlockRoomAction.new(ENGINE, OWNER).room_to_unlock(npc_room).calling_action(self)
 			return ActionResult.new("replace", new_action)
 	else:
 		if OWNER.LOCATION == LOCATION:
+			# update direction
+			# i deleted the logic for this so i'll have to figure it out again *cry*
 			refresh_needs("bladder")
 			return ActionResult.new("running")
 		else:

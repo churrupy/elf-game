@@ -44,13 +44,15 @@ func tick() -> ActionResult:
 func run() -> ActionResult:
 	var new_action:ACTION
 
-	new_action = HungerAction.new(ENGINE, OWNER)
-	ENGINE.NpcManager.add_state(new_action)
+	if OWNER.NEEDS["hunger"] < 50:
+		new_action = HungerAction.new(ENGINE, OWNER)
+		ENGINE.NpcManager.add_state(new_action)
 
-	new_action = BladderAction.new(ENGINE,OWNER).find_location()
-	ENGINE.NpcManager.add_state(new_action)
+	if OWNER.NEEDS["bladder"] < 50:
+		new_action = BladderAction.new(ENGINE,OWNER).find_target()
+		ENGINE.NpcManager.add_state(new_action)
 
-	return ActionResult.new("continue")
+	return ActionResult.new("running")
 
 func _to_string() -> String:
 	var str_list:Array[String] = [

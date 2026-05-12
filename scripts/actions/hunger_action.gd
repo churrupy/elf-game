@@ -62,9 +62,9 @@ func run() -> ActionResult:
 			var chosen_item:ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(chosen_inventory.OWNER, "food")
 
 			var new_action:PickupAction = PickupAction.new(ENGINE, OWNER).set_inventory(chosen_inventory).set_item(chosen_item)
-			return ActionResult.new("add", new_action)
+			return ActionResult.new("add", new_action).continuing()
 		else:
-			return ActionResult.new("end")
+			return ActionResult.new("end").continuing()
 		# var new_action:PickUpAction = PickUpAction.new(ENGINE, OWNER).find_item_by_tag("food")
 		# return ActionResult.new("add", new_action)
 	

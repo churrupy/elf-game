@@ -48,11 +48,12 @@ func tick() -> void:
 		var continuing:bool = true
 
 		while continuing:
-			continuing = false
 			var current_action:ACTION = npc.STATE_STACK.back()
 			print ("current_action: ", current_action)
 
 			var result:ActionResult = current_action.tick()
+
+			continuing = result.CONTINUE
 
 			if result.STATUS == "add":
 				current_action.suspend_state()
@@ -71,14 +72,14 @@ func tick() -> void:
 				var old_action:ACTION = npc.STATE_STACK.back()
 				old_action.resume_state()
 
-			elif result.STATUS == "continue":
-				#bonus turn
-				current_action.exit_state()
-				npc.STATE_STACK.pop_back()
-				var old_action:ACTION = npc.STATE_STACK.back()
-				old_action.resume_state()
-				continuing = true
-				print("continuing")
+			# elif result.STATUS == "continue":
+			# 	#bonus turn
+			# 	current_action.exit_state()
+			# 	npc.STATE_STACK.pop_back()
+			# 	var old_action:ACTION = npc.STATE_STACK.back()
+			# 	old_action.resume_state()
+			# 	continuing = true
+			# 	print("continuing")
 
 			elif result.STATUS == "clear":
 				current_action.exit_state()
@@ -135,14 +136,14 @@ func tick_old() -> void:
 				var old_action:ACTION = npc.STATE_STACK.back()
 				old_action.resume_state()
 
-			elif result.STATUS == "continue":
-				#bonus turn
-				current_action.exit_state()
-				npc.STATE_STACK.pop_back()
-				var old_action:ACTION = npc.STATE_STACK.back()
-				old_action.resume_state()
-				continuing = true
-				print("continuing")
+			# elif result.STATUS == "continue":
+			# 	#bonus turn
+			# 	current_action.exit_state()
+			# 	npc.STATE_STACK.pop_back()
+			# 	var old_action:ACTION = npc.STATE_STACK.back()
+			# 	old_action.resume_state()
+			# 	continuing = true
+			# 	print("continuing")
 
 			elif result.STATUS == "clear":
 				current_action.exit_state()

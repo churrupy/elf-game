@@ -446,8 +446,9 @@ func is_passable(loc:Vector2) -> bool:
 	var tile:TILE = get_tile(loc)
 	var tags:Array = tile.DATA["tags"]
 	if "door" in tags:
-		if tile.opened: return true
-		else: return false
+		return tile.opened
+		# if tile.opened: return true
+		# else: return false
 	if "h_surface" in tags or "v_surface" in tags:
 		return false
 	return true
@@ -456,8 +457,9 @@ func is_loc_visible(loc:Vector2) -> bool:
 	var tile:TILE = get_tile(loc)
 	var tags:Array = tile.DATA["tags"]
 	if "door" in tags:
-		if tile.opened: return true
-		else: return false
+		return tile.opened
+		# if tile.opened: return true
+		# else: return false
 	if "v_surface" in tags:
 		return false
 	return true

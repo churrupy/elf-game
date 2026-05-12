@@ -45,7 +45,7 @@ func tick() -> ActionResult:
 
 func run() -> ActionResult:
 	if OWNER.LOCATION == LOCATION:
-		return ActionResult.new("continue")
+		return ActionResult.new("end").continuing()
 
 	var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_location(LOCATION).calling_action(MOVING_FOR)
 	return ActionResult.new("add", move_action)

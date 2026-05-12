@@ -80,7 +80,7 @@ func run() -> ActionResult:
 			else:
 				var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(door).calling_action(self)
 				return ActionResult.new("add", move_action)
-	return ActionResult.new("continue")
+	return ActionResult.new("end").continuing()
 
 
 func _to_string() -> String:

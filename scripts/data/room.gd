@@ -47,6 +47,7 @@ func in_room(loc:Vector2) -> ROOM:
 	return null
 
 func is_secured() -> bool:
+	if len(DOOR_LIST) == 0: return false
 	for door:DOOR in DOOR_LIST:
 		if door.opened: return false
 

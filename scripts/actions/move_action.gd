@@ -14,21 +14,6 @@ func _init(engine, owner:NPC) -> void:
 	SEEABLE = true
 
 
-
-#func _init(engine, owner: NPC) -> void:
-	## i hope this works lol
-	## no scoring needed for this
-	#ID = "move"
-	#ENGINE = engine
-	#OWNER = owner
-	##TARGET = target
-	##LOCATION = target.LOCATION
-	##MOVING_FOR = moving_for
-	##CHATTABLE = moving_for.CHATTABLE
-	##super._init(engine, owner, target)
-	#ENGINE.GroupManager.leave_group(owner)
-
-
 #region builder
 func set_target(target:Node) -> MoveAction:
 	TARGET = target
@@ -47,11 +32,15 @@ func set_location(loc:Vector2) -> MoveAction:
 
 func secure_room() -> MoveAction:
 	# builder function
-	room_to_secure = ENGINE.Map.get_room(LOCATION)
+	secure = true
+	# room_to_secure = ENGINE.Map.get_room(LOCATION)
 	return self
 
 
 #endregion builder
+
+func resume_state() -> void:
+	update_path()
 
 
 func tick() -> ActionResult:
@@ -77,7 +66,7 @@ func tick() -> ActionResult:
 # 	ENGINE.History.add_event(OWNER.ID, "moves")
 # 	return "continue"
 
-func update_location() -> bool:
+func update_location() -> void:
 	var adjacent: bool = false
 	if TARGET is NPC:
 		adjacent = true
@@ -86,80 +75,61 @@ func update_location() -> bool:
 			adjacent = true
 	
 	if adjacent:
-		# print("######### adjacent check")
-		# print(OWNER.LOCATION)
-		# print(TARGET.LOCATION)
 		var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(TARGET.LOCATION,1).is_passable().is_available().is_not(TARGET.LOCATION)
 		var neighbors:Array[Vector2] = filter.run_filter()
-		if len(neighbors) == 0:
-			return false
-			# how to get it to communicate with BT that there's no available spots to do this right now??
-		
-		neighbors.sort_custom(func(a,b):OWNER.LOCATION.distance_to(b) > OWNER.LOCATION.distance_to(a))
-		LOCATION = neighbors[0]
-		print(LOCATION)
+		if len(neighbors) > 0:
+			neighbors.sort_custom(func(a,b):OWNER.LOCATION.distance_to(b) > OWNER.LOCATION.distance_to(a))
+			LOCATION = neighbors[0]
 	else:
 		LOCATION = TARGET.LOCATION
 
-	PATH = []
+	update_path()
 
-	#print("###########location check")
-	#print(LOCATION)
-
-	return true
-
-# func run_new() -> ActionResult:
-# 	# create path, then push a move action down onto the stack for every step
-# 	# how to adjust for changes in path?
-# 	# maybe the steps check to make sure they're on the right step, like:
-# 	StepAction.new(ENGINE, OWNER).from(Vector2).to(Vector2)
-# 	# and if OWNER.LOCATION != from value, then pop the action, which will clear the entire stack until getting back to a MoveAction
-# 	# and the MoveAction will attempt to regenerate
-# 	# and the underlying actions depend on the higher actions functioning correctly, so if they don't, then they also return "end", which clears the stack until it gets back to IdleAction
-# 	# so if PeeAction is not sitting on a toilet, then "end"
-# 	# so all actions need some kind of context in order to report that they cannot fire correctly
-# 	if OWNER.LOCATION == LOCATION:
-# 		return ActionResult.new("end")
-# 	var res:ActionResult = ActionResult.new("replace")
-# 	res.ACTION_STACK = [self]
-# 	# generate path
-# 	# for each step in the path, add another action onto ACTION_STACK
-# 	# if path cannot be generated, then return "end"
-# 	# OR MoveAction just moves like it was before lol, no little step actions or whatever, it just loops until finished or fails
-# 	return ActionResult.new()
+func update_path() -> void:
+	# if path becomes invalid, they'll just teleport through things *sob*
+	PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
 
 
 func run() -> ActionResult:
 
-	# if LOCATION == Vector2.INF:
-	# 	# determine whether we have to be on location or next to location
-	# 	var possible:bool = update_location()
-	# 	if !possible:
-	# 		return ActionResult.new("clear")
-	# 	ENGINE.GroupManager.leave_group(OWNER)
-
-
+	# end moving
 	if OWNER.LOCATION == LOCATION:
-		return ActionResult.new("continue")
+		return ActionResult.new("end").continuing()
 		#return ["end", null]
 
+	# target no longer valid
 	if TARGET != null:
 		if TARGET is NPC:
 			var target_action:ACTION = TARGET.STATE_STACK[-1]
 			if !target_action.CHATTABLE:
 				print("npc now unavailable")
-				return ActionResult.new("continue")
+				return ActionResult.new("end").continuing()
 
 		# check if target has moved
 		if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 			update_location()
 
+	# path no longer valid
 	if len(PATH) == 0:
-		# if path becomes invalid, they'll just teleport through things *sob*
-		PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
+		update_path()
 		if len(PATH) == 0:
-			print("no valid path")
-			return ActionResult.new("continue") #end move action and reassess goal
+			return ActionResult.new("end").continuing()
+
+	# check that current room is unlocked if necessary
+	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	var target_room:ROOM = ENGINE.Map.get_room(LOCATION)
+
+	if current_room == target_room:
+		if secure:
+			if !current_room.is_secured():
+				var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER).room_to_secure(target_room).calling_action(MOVING_FOR)
+				return ActionResult.new("add", new_action).continuing()
+	else:
+		if current_room.is_secured():
+			# print(current_room, "is locked?", current_room.is_secured())
+			var new_action:UnlockRoomAction = UnlockRoomAction.new(ENGINE, OWNER).room_to_unlock(current_room).calling_action(MOVING_FOR)
+			return ActionResult.new("add", new_action).continuing()
+		
 
 	# check that visible steps are still valid
 	var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list(PATH).in_range_of(OWNER.LOCATION, 10).in_arc_of(OWNER.DIRECTION)
@@ -169,10 +139,10 @@ func run() -> ActionResult:
 	if len(visible_loc) != len(passable_loc):
 		# if not all visible steps are passable
 		print("path became invalid")
-		return ActionResult.new("continue")
+		return ActionResult.new("end").continuing()
 		
 	
-
+	# move to next step
 	var old_location:Vector2 = OWNER.LOCATION
 	var next_step:Vector2 = PATH.pop_front()
 	# var next_step:Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
@@ -184,15 +154,6 @@ func run() -> ActionResult:
 	ENGINE.History.create_event(self)
 	print("moving from ", old_location, " to ", next_step)
 
-	if room_to_secure != null:
-		# does not currently wait for other npcs
-		var npc_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
-		if npc_room == room_to_secure:
-			if !room_to_secure.is_secured():
-				#var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER, room_to_secure, MOVING_FOR)
-				var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER).room_to_secure(room_to_secure).calling_action(MOVING_FOR)
-				return ActionResult.new("add", new_action)
-	
 
 	return ActionResult.new("running")
 
