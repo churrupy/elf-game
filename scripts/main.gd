@@ -11,6 +11,8 @@ var CAMERA: Camera = Camera.new()
 var InventoryManager:INVENTORY_MANAGER = INVENTORY_MANAGER.new(self)
 var GroupManager:GROUP_MANAGER = GROUP_MANAGER.new(self)
 
+var Journal:JOURNAL
+
 
 #region gamestate data
 var MODE:String = "club"
@@ -26,6 +28,8 @@ func _init() -> void:
 	var mode_data:Dictionary = Modes.MODES[MODE]
 	Map = MAP.new(self, mode_data["room"])
 	NpcManager = NPC_MANAGER.new(self, mode_data["num_npcs"])
+	Journal = JOURNAL.new(self)
+	
 
 
 #region init
@@ -36,6 +40,7 @@ func _ready() -> void:
 	move_child(Map, 0)
 	add_child(NpcManager)
 	NpcManager.show()
+	add_child(Journal)
 	for child in get_children():
 		if "ENGINE" in child:
 			child.ENGINE = self
@@ -157,7 +162,7 @@ func update():
 	update_player()
 	$HistoryMenu.update()
 	$TalkMenu.update()
-	$Journal.update()
+	Journal.update()
 	
 	print("displaying defaultmenu")
 	$DefaultMenu.update()
