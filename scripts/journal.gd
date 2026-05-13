@@ -106,7 +106,6 @@ func _ready() -> void:
 		t.hide()
 	update()
 
-	pass # Replace with function body.
 
 
 # func update_old() -> void:

@@ -53,24 +53,32 @@ func tick() -> void:
 
 			var result:ActionResult = current_action.tick()
 
-			continuing = result.CONTINUE
+			continuing = process_action(npc, result)
+			
 
-			if result.STATUS == "add":
-				current_action.suspend_state()
-				result.NEW_ACTION.enter_state()
-				npc.STATE_STACK.append(result.NEW_ACTION)
+			if !continuing and npc.STATE_STACK[-1].CHATTABLE:
+				print("chatting")
+				result = npc.SOCIAL_ACTION.run()
+				continuing = process_action(npc, result)
 
-			elif result.STATUS == "replace":
-				current_action.exit_state()
-				npc.STATE_STACK.pop_back()
-				result.NEW_ACTION.enter_state()
-				npc.STATE_STACK.append(result.NEW_ACTION)
+			print("continuing? ", continuing)
 
-			elif result.STATUS == "end":
-				current_action.exit_state()
-				npc.STATE_STACK.pop_back()
-				var old_action:ACTION = npc.STATE_STACK.back()
-				old_action.resume_state()
+			# if result.STATUS == "add":
+			# 	current_action.suspend_state()
+			# 	result.NEW_ACTION.enter_state()
+			# 	npc.STATE_STACK.append(result.NEW_ACTION)
+
+			# elif result.STATUS == "replace":
+			# 	current_action.exit_state()
+			# 	npc.STATE_STACK.pop_back()
+			# 	result.NEW_ACTION.enter_state()
+			# 	npc.STATE_STACK.append(result.NEW_ACTION)
+
+			# elif result.STATUS == "end":
+			# 	current_action.exit_state()
+			# 	npc.STATE_STACK.pop_back()
+			# 	var old_action:ACTION = npc.STATE_STACK.back()
+			# 	old_action.resume_state()
 
 			# elif result.STATUS == "continue":
 			# 	#bonus turn
@@ -81,92 +89,119 @@ func tick() -> void:
 			# 	continuing = true
 			# 	print("continuing")
 
-			elif result.STATUS == "clear":
-				current_action.exit_state()
-				print("clearing " + npc.NAME + "'s actions")
-				var idle_action:IdleAction = npc.STATE_STACK[0]
-				npc.STATE_STACK = [idle_action]
-
-			else:
-				# state continues running
-				#assumes result is ["running", null]
-				pass
-
-		# this setup seems weird lol
-		var current_action = npc.STATE_STACK.back()
-		
-		if current_action.CHATTABLE:
-			var _res: ActionResult = npc.SOCIAL_ACTION.run()
-
-		current_action = npc.STATE_STACK.back()
-		print("new action: ", current_action)
-
-func tick_old() -> void:
-	for npc:NPC in NPCS:
-		print("")
-		print ("***** ", npc.NAME, " *****")
-		npc.print_state_stack()
-
-		var continuing:bool = true
-
-		while continuing:
-			continuing = false
-			var current_action:ACTION = npc.STATE_STACK.back()
-			print ("current_action: ", current_action)
-
-			var result:ActionResult = current_action.tick()
-
-			if result.CONTINUE:
-				continuing = true
-
-			if result.STATUS == "add":
-				current_action.suspend_state()
-				result.NEW_ACTION.enter_state()
-				npc.STATE_STACK.append(result.NEW_ACTION)
-
-			elif result.STATUS == "replace":
-				current_action.exit_state()
-				npc.STATE_STACK.pop_back()
-				result.NEW_ACTION.enter_state()
-				npc.STATE_STACK.append(result.NEW_ACTION)
-
-			elif result.STATUS == "end":
-				current_action.exit_state()
-				npc.STATE_STACK.pop_back()
-				var old_action:ACTION = npc.STATE_STACK.back()
-				old_action.resume_state()
-
-			# elif result.STATUS == "continue":
-			# 	#bonus turn
+			# elif result.STATUS == "clear":
 			# 	current_action.exit_state()
-			# 	npc.STATE_STACK.pop_back()
-			# 	var old_action:ACTION = npc.STATE_STACK.back()
-			# 	old_action.resume_state()
-			# 	continuing = true
-			# 	print("continuing")
+			# 	print("clearing " + npc.NAME + "'s actions")
+			# 	var idle_action:IdleAction = npc.STATE_STACK[0]
+			# 	npc.STATE_STACK = [idle_action]
 
-			elif result.STATUS == "clear":
-				current_action.exit_state()
-				print("clearing " + npc.NAME + "'s actions")
-				var idle_action:IdleAction = npc.STATE_STACK[0]
-				npc.STATE_STACK = [idle_action]
-
-			else:
-				# state continues running
-				#assumes result is ["running", null]
-				pass
+			# else:
+			# 	# state continues running
+			# 	#assumes result is ["running", null]
+			# 	pass
 
 		# this setup seems weird lol
-		var current_action = npc.STATE_STACK.back()
+		# var current_action = npc.STATE_STACK.back()
 		
-		if current_action.CHATTABLE:
-			var _res: ActionResult = npc.SOCIAL_ACTION.run()
+		# if current_action.CHATTABLE:
+		# 	var _res: ActionResult = npc.SOCIAL_ACTION.run()
 
-		current_action = npc.STATE_STACK.back()
-		print("new action: ", current_action)
-		#print(npc.STATE_STACK)
+		#current_action = npc.STATE_STACK.back()
+		npc.decay_needs()
+		print("new action: ", npc.STATE_STACK.back())
+
+func process_action(owner:NPC, result:ActionResult) -> bool:
+	var current_action:ACTION = owner.STATE_STACK.back()
+	if result.STATUS == "add":
+		current_action.suspend_state()
+		result.NEW_ACTION.enter_state()
+		owner.STATE_STACK.append(result.NEW_ACTION)
+	elif result.STATUS == "replace":
+		current_action.exit_state()
+		owner.STATE_STACK.pop_back()
+		result.NEW_ACTION.enter_state()
+		owner.STATE_STACK.append(result.NEW_ACTION)
+	elif result.STATUS == "end":
+		current_action.exit_state()
+		owner.STATE_STACK.pop_back()
+		print("stack:", owner.STATE_STACK)
+		print(result.CONTINUE)
+		var old_action:ACTION = owner.STATE_STACK.back()
+		old_action.resume_state()
+	elif result.STATUS == "clear":
+		current_action.exit_state()
+		print("clearing " + owner.NAME + "'s actions")
+		var idle_action:IdleAction = owner.STATE_STACK[0]
+		owner.STATE_STACK = [idle_action]
+
+	return result.CONTINUE
+
+# func tick_old() -> void:
+# 	for npc:NPC in NPCS:
+# 		print("")
+# 		print ("***** ", npc.NAME, " *****")
+# 		npc.print_state_stack()
+
+# 		var continuing:bool = true
+
+# 		while continuing:
+# 			continuing = false
+# 			var current_action:ACTION = npc.STATE_STACK.back()
+# 			print ("current_action: ", current_action)
+
+# 			var result:ActionResult = current_action.tick()
+
+# 			if result.CONTINUE:
+# 				continuing = true
+
+# 			if result.STATUS == "add":
+# 				current_action.suspend_state()
+# 				result.NEW_ACTION.enter_state()
+# 				npc.STATE_STACK.append(result.NEW_ACTION)
+
+# 			elif result.STATUS == "replace":
+# 				current_action.exit_state()
+# 				npc.STATE_STACK.pop_back()
+# 				result.NEW_ACTION.enter_state()
+# 				npc.STATE_STACK.append(result.NEW_ACTION)
+
+# 			elif result.STATUS == "end":
+# 				current_action.exit_state()
+# 				npc.STATE_STACK.pop_back()
+# 				var old_action:ACTION = npc.STATE_STACK.back()
+# 				old_action.resume_state()
+
+# 			# elif result.STATUS == "continue":
+# 			# 	#bonus turn
+# 			# 	current_action.exit_state()
+# 			# 	npc.STATE_STACK.pop_back()
+# 			# 	var old_action:ACTION = npc.STATE_STACK.back()
+# 			# 	old_action.resume_state()
+# 			# 	continuing = true
+# 			# 	print("continuing")
+
+# 			elif result.STATUS == "clear":
+# 				current_action.exit_state()
+# 				print("clearing " + npc.NAME + "'s actions")
+# 				var idle_action:IdleAction = npc.STATE_STACK[0]
+# 				npc.STATE_STACK = [idle_action]
+
+# 			else:
+# 				# state continues running
+# 				#assumes result is ["running", null]
+# 				pass
+
+# 		# this setup seems weird lol
+# 		var current_action = npc.STATE_STACK.back()
 		
-		#npc.decay_needs()
+# 		if current_action.CHATTABLE:
+# 			var _res: ActionResult = npc.SOCIAL_ACTION.run()
+
+# 		current_action = npc.STATE_STACK.back()
+# 		print("new action: ", current_action)
+# 		#print(npc.STATE_STACK)
+		
+# 		#npc.decay_needs()
 
 
 
@@ -245,8 +280,8 @@ func update() -> void:
 		if reserved_loc != Vector2.INF:
 			#print(reserved_loc)
 			ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
-		else:
-			print("infinite vector")
+		# else:
+			# print("infinite vector")
 
 		var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
 		if x_index < 0:

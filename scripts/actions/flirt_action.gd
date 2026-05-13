@@ -17,7 +17,6 @@ func tick() -> ActionResult:
 		#res = ["end", null]
 	else:
 		res = run()
-	OWNER.decay_needs()
 	return res
 	
 	

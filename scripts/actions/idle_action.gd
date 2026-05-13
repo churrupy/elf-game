@@ -4,12 +4,13 @@ class_name IdleAction extends ACTION
 #var Determinator: ActionDeterminator
 
 #func _init(engine, owner: NPC, target: Node, determinator: ActionDeterminator) -> void:
-func _innit(engine, owner:NPC) -> void:
+func _init(engine, owner:NPC) -> void:
 	# i hope this works lol
 	# no scoring needed for this
 	ID = "idle"
 	LOCATION = owner.LOCATION
 	#Determinator = determinator
+	CHATTABLE = true
 	super._init(engine, owner)
 
 func start_state() -> void:
@@ -24,7 +25,6 @@ func can_do_action() -> bool:
 func tick() -> ActionResult:
 	#LOCATION = OWNER.LOCATION
 	var result:ActionResult = run()
-	OWNER.decay_needs()
 	return result
 
 # func run() -> ActionResult:

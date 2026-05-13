@@ -23,7 +23,6 @@ func calling_action(moving_for:ACTION) -> UnlockRoomAction:
 
 func tick() -> ActionResult:
 	var result:ActionResult = run()
-	OWNER.decay_needs()
 	return result
 
 func run() -> ActionResult:

@@ -6,9 +6,20 @@ var ENGINE
 func _init(engine) -> void:
 	ENGINE = engine
 
-func create_group(npc:NPC) -> void:
+func create_group(npc:NPC) -> GROUP:
 	var new_group: GROUP = GROUP.new(npc)
 	GROUPS[npc.ID] = new_group
+	return new_group
+
+func create_group_from_list(npc_list:Array) -> GROUP:
+	# really gotta figure out a better way to do this lol
+	var new_group: GROUP = create_group(npc_list[0])
+	for npc:NPC in npc_list:
+		join_npc(npc, npc_list[0])
+		
+	return new_group
+
+
 
 func get_group(npc:NPC) -> GROUP:
 	var npc_group: GROUP = GROUPS[npc.ID]

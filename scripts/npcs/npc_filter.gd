@@ -64,7 +64,7 @@ func is_in_room(_room:ROOM) -> NPC_FILTER:
 
 
 func run_filter() -> Array[NPC]:
-	#print("FILTERING check")
+	# print("FILTERING check")
 	for npc:NPC in npc_list:
 		#print(npc)
 		#print(is_not_list)
@@ -92,6 +92,8 @@ func run_filter() -> Array[NPC]:
 		
 		if be_available:
 			var current_action: ACTION = npc.STATE_STACK[-1]
+			print(current_action)
+			print(current_action.CHATTABLE)
 			if !current_action.CHATTABLE:
 				continue
 

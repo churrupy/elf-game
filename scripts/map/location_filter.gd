@@ -14,6 +14,8 @@ var distance:float = 1.5 # one tile away
 var be_available:bool = false
 var be_passable:bool = false
 
+var need_adjacent_tiles:int = 0
+
 func _init(engine) -> void:
 	ENGINE = engine
 
@@ -61,6 +63,9 @@ func is_not(loc:Vector2) -> LOCATION_FILTER:
 	is_not_list.append(loc)
 	return self
 
+func has_free_adjacent_tiles(num_tiles:int = 1) -> LOCATION_FILTER:
+	need_adjacent_tiles = num_tiles
+	return self
 
 
 func run_filter() -> Array[Vector2]:
@@ -84,6 +89,11 @@ func run_filter() -> Array[Vector2]:
 
 		if be_passable:
 			if !ENGINE.Map.is_passable(loc): continue
+
+		if need_adjacent_tiles > 0:
+			var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(origin, 1).is_available().is_not(origin)
+			var filtered_loc:Array[Vector2] = filter.run_filter()
+			if len(filtered_loc) < need_adjacent_tiles: continue
 		
 		filtered_list.append(loc)
 	

@@ -370,7 +370,7 @@ const TILE_TEMPLATES:Dictionary = {
 		"sprite": "table.png"
 	},
 	"toilet":  {
-		"tags": ["chair", "fill_bladder"],
+		"tags": ["chair", "fill_bladder", "encounter_location"],
 		"sprite": "toilet.png"
 	},	
 	"wall": {

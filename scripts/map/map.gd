@@ -339,7 +339,7 @@ func get_pathfind_path(end:Vector2, start:Vector2) -> Array[Vector2]:
 	while len(queue) > 0:
 		current = queue.pop_front()
 		if current == end:
-			result_list.append(current)
+			# result_list.append(current) # will this break everything else???
 			while current != start:
 				current = parent_dict[current]
 				result_list.append(current)

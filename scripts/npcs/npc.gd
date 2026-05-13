@@ -37,17 +37,7 @@ var LIKES: Array[String]
 var DISLIKES: Array[String]
 
 
-var NEEDS: Dictionary[String, float] = {
-	# "hunger": randf_range(40.0, 90.0),
-	"hunger": 40.0,
-	"energy": 90.0,
-	"release": 90.0,
-	"social": 90.0,
-	"fun": 90.0,
-	"bladder": randf_range(40.0, 90.0),
-	# "bladder": 40.0,
-	"arousal": 0.0
-}
+var NEEDS: Dictionary[String, float]
 
 #endregion
 
@@ -121,6 +111,7 @@ func initialize():
 
 	generate_tags()
 	load_sprites()
+	set_needs()
 
 	
 	
@@ -151,6 +142,19 @@ func load_sprites() -> void:
 	add_child(GLOW_SPRITE)
 	
 	
+func set_needs() -> void:
+	NEEDS = {
+		# "hunger": randf_range(40.0, 90.0),
+		"hunger": 90.0,
+		"energy": 90.0,
+		"release": 90.0,
+		"social": 90.0,
+		"fun": 90.0,
+		# "bladder": randf_range(40.0, 90.0),
+		"bladder": 90.0,
+		"arousal": 0.0
+	}
+
 
 	
 #endregion
@@ -210,6 +214,7 @@ func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
 	var impression_list:Array[Impression]
 	
 	for npc:NPC in npc_list:
+		if npc == self: continue
 		var impression:Impression = get_impression_of_npc(npc)
 		impression_list.append(impression)
 	return impression_list

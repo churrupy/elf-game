@@ -5,6 +5,8 @@ var PATH: Array[Vector2]
 
 var secure:bool = false
 var room_to_secure:ROOM
+var ACTION_GROUP:GROUP
+var RANGE:float = 0
 
 
 func _init(engine, owner:NPC) -> void:
@@ -25,9 +27,11 @@ func calling_action(moving_for:ACTION) -> MoveAction:
 	CHATTABLE = moving_for.CHATTABLE
 	return self
 
-func set_location(loc:Vector2) -> MoveAction:
+func set_location(loc:Vector2, range:int = 0) -> MoveAction:
 	# for if there's no set target
 	LOCATION = loc
+	RANGE = range
+	update_location()
 	return self
 
 func secure_room() -> MoveAction:
@@ -35,6 +39,16 @@ func secure_room() -> MoveAction:
 	secure = true
 	# room_to_secure = ENGINE.Map.get_room(LOCATION)
 	return self
+
+func set_group(_group:GROUP) -> MoveAction:
+	ACTION_GROUP = _group
+	return self
+
+# func within_range(range:int = 1.5) -> MoveAction:
+# 	# allows adjacent/nearby tiles as valid targets
+# 	# good for moving as a group
+# 	RANGE = range
+# 	return self
 
 
 #endregion builder
@@ -45,7 +59,6 @@ func resume_state() -> void:
 
 func tick() -> ActionResult:
 	var result: ActionResult = run()
-	OWNER.decay_needs()
 	return result
 
 # func tick_new():
@@ -67,33 +80,63 @@ func tick() -> ActionResult:
 # 	return "continue"
 
 func update_location() -> void:
-	var adjacent: bool = false
 	if TARGET is NPC:
-		adjacent = true
+		RANGE = 1.5
 	elif TARGET is TILE:
 		if "h_surface" in TARGET.DATA["tags"] or "v_surface" in TARGET.DATA["tags"]:
-			adjacent = true
-	
-	if adjacent:
-		var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(TARGET.LOCATION,1).is_passable().is_available().is_not(TARGET.LOCATION)
-		var neighbors:Array[Vector2] = filter.run_filter()
-		if len(neighbors) > 0:
-			neighbors.sort_custom(func(a,b):OWNER.LOCATION.distance_to(b) > OWNER.LOCATION.distance_to(a))
-			LOCATION = neighbors[0]
+			RANGE = 1.5
+
+	var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(TARGET.LOCATION, RANGE).is_passable().is_available()
+	#var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list().in_range_of(LOCATION, RANGE).is_available().is_passable()
+	var filtered_loc:Array[Vector2] = filter.run_filter()
+	if len(filtered_loc) == 0:
+		# shouldn't happen! but we'll see
+		print("adjacent move tiles not found")
 	else:
-		LOCATION = TARGET.LOCATION
+		LOCATION = filtered_loc[0]
 
 	update_path()
 
+# func update_location() -> void:
+# 	var adjacent: bool = false
+# 	if TARGET is NPC:
+# 		adjacent = true
+# 	elif TARGET is TILE:
+# 		if "h_surface" in TARGET.DATA["tags"] or "v_surface" in TARGET.DATA["tags"]:
+# 			adjacent = true
+	
+# 	# if adjacent:
+# 	# 	var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(TARGET.LOCATION,1).is_passable().is_available().is_not(TARGET.LOCATION)
+# 	# 	var neighbors:Array[Vector2] = filter.run_filter()
+# 	# 	if len(neighbors) > 0:
+# 	# 		neighbors.sort_custom(func(a,b):OWNER.LOCATION.distance_to(b) > OWNER.LOCATION.distance_to(a))
+# 	# 		LOCATION = neighbors[0]
+# 	# else:
+# 	# 	LOCATION = TARGET.LOCATION
+
+# 	update_path()
+
 func update_path() -> void:
 	# if path becomes invalid, they'll just teleport through things *sob*
+	# if RANGE > 0:
+	# 	var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(TARGET.LOCATION, RANGE).is_passable().is_available()
+	# 	#var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list().in_range_of(LOCATION, RANGE).is_available().is_passable()
+	# 	var filtered_loc:Array[Vector2] = filter.run_filter()
+	# 	if len(filtered_loc) == 0:
+	# 		# shouldn't happen! but we'll see
+	# 		print("adjacent move tiles not found")
+	# 	else:
+	# 		LOCATION = filtered_loc[0]
+
 	PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
 
 
 func run() -> ActionResult:
-
+	print("moving for", MOVING_FOR)
+	print(PATH)
 	# end moving
-	if OWNER.LOCATION == LOCATION:
+	if OWNER.LOCATION.distance_to(LOCATION) <= RANGE:
+	# if OWNER.LOCATION == LOCATION:
 		return ActionResult.new("end").continuing()
 		#return ["end", null]
 
@@ -123,6 +166,8 @@ func run() -> ActionResult:
 		if secure:
 			if !current_room.is_secured():
 				var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER).room_to_secure(target_room).calling_action(MOVING_FOR)
+				if ACTION_GROUP != null:
+					new_action.set_group(ACTION_GROUP)
 				return ActionResult.new("add", new_action).continuing()
 	else:
 		if current_room.is_secured():
@@ -144,6 +189,7 @@ func run() -> ActionResult:
 	
 	# move to next step
 	var old_location:Vector2 = OWNER.LOCATION
+	print("old location: ", old_location)
 	var next_step:Vector2 = PATH.pop_front()
 	# var next_step:Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	OWNER.LOCATION = next_step

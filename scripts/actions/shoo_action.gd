@@ -33,7 +33,6 @@ func set_location() -> ShooAction:
 
 func tick() -> ActionResult:
 	var result:ActionResult = run()
-	OWNER.decay_needs()
 	return result
 
 

@@ -39,7 +39,6 @@ func set_location() -> LeaveRoomAction:
 
 func tick() -> ActionResult:
 	var result:ActionResult = run()
-	OWNER.decay_needs()
 	return result
 
 

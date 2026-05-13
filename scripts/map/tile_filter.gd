@@ -16,6 +16,8 @@ var target_room:ROOM
 var be_available:bool = false
 var can_be_empty:bool = true
 
+var need_adjacent_tiles:int = 0
+
 func _init(engine) -> void:
 	ENGINE = engine
 
@@ -51,6 +53,10 @@ func not_empty() -> TILE_FILTER:
 	can_be_empty = false
 	return self
 
+func has_free_adjacent_tiles(num_tiles:int = 1) -> TILE_FILTER:
+	need_adjacent_tiles = num_tiles
+	return self
+
 func run_filter() -> Array[TILE]:
 	for tile:TILE in tile_list:
 		if tile in is_not_list: continue
@@ -80,6 +86,11 @@ func run_filter() -> Array[TILE]:
 		if target_room != null:
 			var tile_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
 			if tile_room != target_room: continue
+
+		if need_adjacent_tiles > 0:
+			var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(origin, 1).is_available().is_passable().is_not(origin)
+			var filtered_loc:Array[Vector2] = filter.run_filter()
+			if len(filtered_loc) < need_adjacent_tiles:continue
 
 		filtered_list.append(tile)
 

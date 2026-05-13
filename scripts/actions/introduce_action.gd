@@ -23,7 +23,6 @@ func create_event() -> IntroduceAction:
 
 func tick() -> ActionResult:
 	var result:ActionResult = run()
-	OWNER.decay_needs()
 	return result
 
 func run() -> ActionResult:

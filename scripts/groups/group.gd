@@ -34,6 +34,16 @@ func _to_string() -> String:
 		]
 		return " ".join(str_list)
 
+func participants_to_string() -> String:
+	var str = ""
+	for i in range(0,len(PARTICIPANTS)):
+		var npc:NPC = PARTICIPANTS[i]
+		if i == len(PARTICIPANTS) - 1:
+			str += "and " + npc.NAME
+		else:
+			str += npc.NAME + ", "
+	return str
+
 func to_wiki() -> Wiki:
 	if len(PARTICIPANTS) == 0:
 		print("empty group! shouldn't happen")

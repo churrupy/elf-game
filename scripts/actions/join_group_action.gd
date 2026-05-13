@@ -7,7 +7,7 @@ func _init(engine, owner:NPC) -> void:
 	ENGINE = engine
 	OWNER = owner
 	# TARGET = target
-	CHATTABLE = false
+	CHATTABLE = true
 
 #region builder
 func set_target(target:NPC) -> JoinGroupAction:
@@ -15,23 +15,32 @@ func set_target(target:NPC) -> JoinGroupAction:
 	LOCATION = target.LOCATION
 	return self
 
+func set_location(loc:Vector2) -> JoinGroupAction:
+	LOCATION = loc
+	return self
+
+
 #endregion builder
 
 func tick() -> ActionResult:
 	var result: ActionResult = run()
-	OWNER.decay_needs()
 	return result
 
 func run() -> ActionResult:
+
 	# check if target is still available
 	var target_action:ACTION = TARGET.STATE_STACK[-1]
 	if !target_action.CHATTABLE:
 		print("npc now unavailable")
-		return ActionResult.new("end")
+		return ActionResult.new("end").continuing()
+
+	if ENGINE.GroupManager.is_in_same_group(OWNER, TARGET):
+		return ActionResult.new("end").continuing()
 
 	if OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
 		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(TARGET).calling_action(self)
-		return ActionResult.new("add", move_action)
+		LOCATION = move_action.LOCATION
+		return ActionResult.new("add", move_action).continuing()
 	else:
 		ENGINE.GroupManager.join_npc(OWNER, TARGET)
 		ENGINE.History.create_event(self)

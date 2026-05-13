@@ -4,7 +4,7 @@ var MOVING_FOR:ACTION
 var PATH: Array[Vector2]
 var TARGET_ROOM:ROOM
 
-var GROUP:Array[NPC]
+var ACTION_GROUP:GROUP
 
 func _init(engine, owner:NPC) -> void:
 	ID = "move"
@@ -20,13 +20,12 @@ func calling_action(moving_for:ACTION) -> LockRoomAction:
 	CHATTABLE = moving_for.CHATTABLE
 	return self
 
-func set_group(_group:Array[NPC]) -> LockRoomAction:
-	GROUP = _group.duplicate()
+func set_group(_group:GROUP) -> LockRoomAction:
+	ACTION_GROUP = _group
 	return self
 
 func tick() -> ActionResult:
 	var result:ActionResult = run()
-	OWNER.decay_needs()
 	return result
 
 
@@ -57,7 +56,7 @@ func run() -> ActionResult:
 	# shoo out non-group npcs
 	if len(npcs_in_room) > 0:
 		for npc:NPC in npcs_in_room:
-			if npc in GROUP: continue
+			if ACTION_GROUP != null and npc in ACTION_GROUP.PARTICIPANTS: continue
 			var current_action = npc.STATE_STACK.back()
 			if current_action is not LeaveRoomAction or current_action is not ShooAction:
 				var leave_action:ShooAction = ShooAction.new(ENGINE, npc).set_location()
@@ -68,9 +67,10 @@ func run() -> ActionResult:
 
 	# wait for all group npcs to arrive
 	# does not check to make sure that NPCs are still available
-	for npc:NPC in GROUP:
-		if npc not in npcs_in_room:
-			return ActionResult.new("running")
+	if ACTION_GROUP != null:
+		for npc:NPC in ACTION_GROUP.PARTICIPANTS:
+			if npc not in npcs_in_room:
+				return ActionResult.new("running")
 	
 	# lock doors
 	for door:DOOR in TARGET_ROOM.DOOR_LIST:

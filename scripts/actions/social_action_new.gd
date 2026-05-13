@@ -4,11 +4,11 @@ var RECENT_TOPIC:String
 # var RESPONSE_REQUESTS: Array[EVENT] = []
 var RESPONSE_REQUESTS:Array[ACTION] = []
 
-enum STATUS {
-	RUNNING,
-	FAILURE,
-	SUCCESS
-}
+# enum STATUS {
+# 	RUNNING,
+# 	FAILURE,
+# 	SUCCESS
+# }
 
 
 func _init(engine, owner: NPC, target: NPC=null) -> void:
@@ -56,11 +56,11 @@ func _init(engine, owner: NPC, target: NPC=null) -> void:
 func tick() -> ActionResult:
 	return run()
 
-func run_old() -> ActionResult:
-	var status: STATUS = determine_next_action()
-	if status == STATUS.RUNNING:
-		refresh_needs("social")
-	return ActionResult.new("running")
+# func run_old() -> ActionResult:
+# 	var status: STATUS = determine_next_action()
+# 	if status == STATUS.RUNNING:
+# 		refresh_needs("social")
+# 	return ActionResult.new("running")
 
 
 # func run_old() -> ActionResult:
@@ -256,29 +256,31 @@ func run_old() -> ActionResult:
 	
 
 
-func determine_next_action() -> STATUS:
-	# sequence
-	var node_list: Array[Callable] = [
-		clear_responses,
-		join_group,
-		know_everyone,
-		respond_to_topic
-	]
+# func determine_next_action() -> STATUS:
+# 	# sequence
+# 	var node_list: Array[Callable] = [
+# 		clear_responses,
+# 		join_group,
+# 		know_everyone,
+# 		respond_to_topic
+# 	]
 
-	for node: Callable in node_list:
-		#print("calling", node)
-		var status: STATUS = node.call()
-		if status != STATUS.SUCCESS: return status
-	return STATUS.SUCCESS
+# 	for node: Callable in node_list:
+# 		#print("calling", node)
+# 		var status: STATUS = node.call()
+# 		if status != STATUS.SUCCESS: return status
+# 	return STATUS.SUCCESS
 
-func clear_responses() -> STATUS:
-	for _action:ACTION in RESPONSE_REQUESTS:
-		var new_action:ACTION = _action.process_response(OWNER)
-		if new_action != null:
-			ENGINE.NpcManager.add_state(new_action)
-			RESPONSE_REQUESTS = [] # clear all responses/don't bank responses
-			return STATUS.RUNNING
-	return STATUS.SUCCESS
+
+
+# func clear_responses() -> STATUS:
+# 	for _action:ACTION in RESPONSE_REQUESTS:
+# 		var new_action:ACTION = _action.process_response(OWNER)
+# 		if new_action != null:
+# 			ENGINE.NpcManager.add_state(new_action)
+# 			RESPONSE_REQUESTS = [] # clear all responses/don't bank responses
+# 			return STATUS.RUNNING
+# 	return STATUS.SUCCESS
 
 # func clear_responses() -> STATUS:
 # 	for event:EVENT in RESPONSE_REQUESTS:
@@ -292,44 +294,116 @@ func clear_responses() -> STATUS:
 # 	RESPONSE_REQUESTS = []
 # 	return STATUS.SUCCESS
 
-
-func join_group() -> STATUS:
+func run() -> ActionResult:
 	if ENGINE.GroupManager.is_conversing(OWNER):
-		return STATUS.SUCCESS
-	else:
-		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list(ENGINE.NpcManager.NPCS).in_range_of(OWNER.LOCATION, 10).is_available().is_not([OWNER])
-		var available_npcs:Array[NPC] = filter.run_filter()
-		if len(available_npcs) == 0:
-			print("no available npcs to talk to")
-			return STATUS.FAILURE
-		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
-		impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
-		for imp:Impression in impressions:
-			var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(OWNER.LOCATION, imp.TARGET)
-			if interactable_location != Vector2.INF:
-				var chosen_npc:NPC = imp.TARGET
-				var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER).set_target(chosen_npc)
-				new_action.LOCATION = interactable_location
-				ENGINE.NpcManager.add_state(new_action)
-				return STATUS.RUNNING
-	
-	# might leave site at this point
-	return STATUS.RUNNING
+		# choose what to do next
+		var res:ActionResult = clear_responses()
+		if res != null:
+			return res
+		
+		res = know_everyone()
+		if res != null:
+			return res
 
-func know_everyone() -> STATUS:
+		res = flirt()
+		if res != null:
+			return res
+
+		res = respond_to_topic()
+		if res != null:
+			return res
+	else:
+		return join_group()
+		
+
+	return ActionResult.new("running")
+
+func join_group() -> ActionResult:
+	print("attempting to join group")
+	# check if already trying to join a group
+	for _action:ACTION in OWNER.STATE_STACK:
+		if _action is JoinGroupAction:
+			print("already trying to join a group")
+			return ActionResult.new("running")
+
+	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_available().is_not([OWNER])
+	var available_npcs:Array[NPC] = filter.run_filter()
+	print("available npcs: ", available_npcs)
+	if len(available_npcs) == 0:
+		return ActionResult.new("running")
+	
+	var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
+	impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
+
+	for imp:Impression in impressions:
+		var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(OWNER.LOCATION, imp.TARGET)
+		if interactable_location != Vector2.INF:
+			var chosen_npc:NPC = imp.TARGET
+			var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER).set_target(chosen_npc).set_location(interactable_location)
+			return ActionResult.new("add", new_action)
+
+	return ActionResult.new("running")
+
+# func know_everyone() -> STATUS:
+# 	var group:GROUP = ENGINE.GroupManager.get_group(OWNER)
+# 	for npc:NPC in group.PARTICIPANTS:
+# 		if npc == OWNER: continue
+# 		if !OWNER.knows_npc(npc):
+# 			IntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
+# 			PromptIntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
+# 			return STATUS.RUNNING
+
+# 	return STATUS.SUCCESS
+
+func clear_responses() -> ActionResult:
+	for _action:ACTION in RESPONSE_REQUESTS:
+		var res:ActionResult = _action.process_response()
+		if res.STATUS == "event":
+			res.NEW_ACTION.create_event()
+			RESPONSE_REQUESTS = []
+			return ActionResult.new("running")
+		elif res.STATUS == "add":
+			RESPONSE_REQUESTS = []
+			return res
+		# var new_action:ACTION = _action.process_response(OWNER)
+		# if new_action != null:
+		# 	RESPONSE_REQUESTS = [] # responses don't survive past a turn
+		# 	new_action.create_event()
+		# 	return ActionResult.new("running")
+			# return ActionResult.new("add", new_action).continuing()
+	return null
+
+func know_everyone() -> ActionResult:
 	var group:GROUP = ENGINE.GroupManager.get_group(OWNER)
 	for npc:NPC in group.PARTICIPANTS:
 		if npc == OWNER: continue
 		if !OWNER.knows_npc(npc):
 			IntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
 			PromptIntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()
-			return STATUS.RUNNING
+			return ActionResult.new("running")
+	return null
 
-	return STATUS.SUCCESS
+func flirt() -> ActionResult:
+	# check if action is already happening
+	for _action:ACTION in OWNER.STATE_STACK:
+		if (_action is SeduceAction or
+			_action is EncounterAction):
+				print("already getting busy")
+				return ActionResult.new("running")
+	var group:GROUP = ENGINE.GroupManager.get_group(OWNER)
+	var impression_list:Array[Impression] = OWNER.get_all_impressions(group.PARTICIPANTS)
+	impression_list.sort_custom(func(a,b): b.ATTRACTIVE > a.ATTRACTIVE)
+	
+	if len(impression_list) > 0:
+	# if impression_list[0].ATTRACTIVE > 0:
+		SeduceAction.new(ENGINE, OWNER).set_target(impression_list[0].TARGET).create_event()
+		return ActionResult.new("running")
+	return null
 
 
 
-func respond_to_topic() -> STATUS:
+func respond_to_topic() -> ActionResult:
 	OpineAction.new(ENGINE, OWNER).create_event()
 	# ENGINE.GroupManager.respond_to_topic(OWNER)
-	return STATUS.RUNNING
+	return ActionResult.new("running")
