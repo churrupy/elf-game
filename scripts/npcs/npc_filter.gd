@@ -91,11 +91,13 @@ func run_filter() -> Array[NPC]:
 				continue
 		
 		if be_available:
-			var current_action: ACTION = npc.STATE_STACK[-1]
-			print(current_action)
-			print(current_action.CHATTABLE)
-			if !current_action.CHATTABLE:
+			if !npc.is_available():
 				continue
+			#var current_action: ACTION = npc.STATE_STACK[-1]
+			#print(current_action)
+			#print(current_action.CHATTABLE)
+			#if !current_action.CHATTABLE:
+				#continue
 
 		if target_room != null:
 			var npc_room:ROOM = ENGINE.Map.get_room(npc.LOCATION)

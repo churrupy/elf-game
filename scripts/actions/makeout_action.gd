@@ -1,6 +1,7 @@
 class_name MakeoutAction extends ACTION
 
-var ENCOUNTER_GROUP: GROUP
+var ACTION_GROUP: GROUP
+var PARTICIPANTS:Array[String]
 #var COUNTDOWN: int = 5
 
 func _init(engine, owner) -> void:
@@ -11,7 +12,8 @@ func _init(engine, owner) -> void:
 	ID = "make out"
 
 func set_group(_group:GROUP) -> MakeoutAction:
-	ENCOUNTER_GROUP = _group
+	ACTION_GROUP = _group
+	PARTICIPANTS = ENGINE.GroupManager.get_group_participants_from_group(ACTION_GROUP)
 	return self
 
 func tick() -> ActionResult:
@@ -29,6 +31,7 @@ func _to_string() -> String:
 	var str_list:Array[String] = [
 		OWNER.NAME,
 		"is making out with",
-		ENCOUNTER_GROUP.participants_to_string()
+		" ".join(PARTICIPANTS),
+		str(COUNTDOWN) + " left"
 	]
 	return " ".join(str_list)

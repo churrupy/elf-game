@@ -326,8 +326,8 @@ func get_pathfind_path(end:Vector2, start:Vector2) -> Array[Vector2]:
 	# i don't remember why i set up it up that way lol
 	var result_list:Array[Vector2]
 	if start == end:
-		print("trying to pathfind to current location")
-		push_error("Trying to pathfind to current location")
+		print("Pathfinding: Start and End are same location")
+		push_error("Pathfinding: Start and End are same location")
 		return result_list
 
 	var queue: Array[Vector2] = [start]
@@ -339,7 +339,7 @@ func get_pathfind_path(end:Vector2, start:Vector2) -> Array[Vector2]:
 	while len(queue) > 0:
 		current = queue.pop_front()
 		if current == end:
-			# result_list.append(current) # will this break everything else???
+			result_list.append(current) # will this break everything else???
 			while current != start:
 				current = parent_dict[current]
 				result_list.append(current)
@@ -356,8 +356,8 @@ func get_pathfind_path(end:Vector2, start:Vector2) -> Array[Vector2]:
 func step_towards_location(end: Vector2, start: Vector2) -> Vector2:
 	#pathfinding
 	if start == end:
-		print("trying to pathfind to current location")
-		push_error("Trying to pathfind to current location")
+		print("Pathfinding: Start and End are same location")
+		push_error("Pathfinding: Start and End are same location")
 		return start # shouldn't happen but who knows
 
 	var queue: Array[Vector2] = [start]

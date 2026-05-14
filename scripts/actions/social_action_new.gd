@@ -16,52 +16,13 @@ func _init(engine, owner: NPC, target: NPC=null) -> void:
 	ENGINE = engine
 	OWNER = owner
 	ID = "converse"
+	CHATTABLE = true
+	LOCATION = OWNER.LOCATION
 	#super._init(engine, owner, target)
 
-# func can_do_action() -> bool:
-# 	return ENGINE.NpcManager.is_available(TARGET)
-
-# func score() -> void:
-# 	# score based on need
-# 	var need: int = OWNER.NEEDS["social"]
-# 	SCORE += 100 - need
-
-# 	# score based on preference
-# 	if OWNER == TARGET:
-# 		SCORE = -100
-# 		return
-# 	SCORE += get_opinion()
-# 	if OWNER.NEEDS["release"] < 50 or OWNER.NEEDS["arousal"] > 30:
-# 		SCORE += get_attraction()
-
-# 	var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
-# 	if closest_location == Vector2.INF:
-# 		SCORE = -100
-# 		return
-# 	LOCATION = closest_location
-
-# func tick() -> ActionResult:
-# 	var res:ActionResult = ActionResult.new("running", null)
-# 	if !can_do_action():
-# 		res.STATUS = "end"
-# 		#res = ["end", null]
-# 	elif OWNER.LOCATION.distance_to(TARGET.LOCATION) > 1.5:
-# 		res.STATUS = "add"
-# 		res.NEW_ACTION = ChangingMoveAction.new(ENGINE, OWNER, TARGET, self)
-# 	else:
-# 		res = run()
-# 	OWNER.decay_needs()
-# 	return res
 
 func tick() -> ActionResult:
 	return run()
-
-# func run_old() -> ActionResult:
-# 	var status: STATUS = determine_next_action()
-# 	if status == STATUS.RUNNING:
-# 		refresh_needs("social")
-# 	return ActionResult.new("running")
-
 
 # func run_old() -> ActionResult:
 # 	var res: ActionResult = ActionResult.new("running")
@@ -295,6 +256,7 @@ func tick() -> ActionResult:
 # 	return STATUS.SUCCESS
 
 func run() -> ActionResult:
+	LOCATION = OWNER.LOCATION
 	if ENGINE.GroupManager.is_conversing(OWNER):
 		# choose what to do next
 		var res:ActionResult = clear_responses()
@@ -357,14 +319,14 @@ func join_group() -> ActionResult:
 # 	return STATUS.SUCCESS
 
 func clear_responses() -> ActionResult:
-	for _action:ACTION in RESPONSE_REQUESTS:
+	for _action:ACTION in OWNER.RESPONSE_REQUESTS:
 		var res:ActionResult = _action.process_response()
 		if res.STATUS == "event":
 			res.NEW_ACTION.create_event()
-			RESPONSE_REQUESTS = []
+			OWNER.RESPONSE_REQUESTS = []
 			return ActionResult.new("running")
 		elif res.STATUS == "add":
-			RESPONSE_REQUESTS = []
+			OWNER.RESPONSE_REQUESTS = []
 			return res
 		# var new_action:ACTION = _action.process_response(OWNER)
 		# if new_action != null:
@@ -407,3 +369,56 @@ func respond_to_topic() -> ActionResult:
 	OpineAction.new(ENGINE, OWNER).create_event()
 	# ENGINE.GroupManager.respond_to_topic(OWNER)
 	return ActionResult.new("running")
+
+
+func populate_stack() -> void:
+	print("Goal: Social Action")
+	var new_action:ACTION
+
+	if !ENGINE.GroupManager.is_conversing(OWNER):
+		print("looking for group")
+		var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_available()
+		var available_npcs:Array[NPC] = filter.run_filter()
+		if len(available_npcs) == 0:
+			# do something
+			pass
+		
+		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
+		impressions.sort_custom(func(a,b): b.SCORE > a.SCORE)
+
+		for imp:Impression in impressions:
+			var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(OWNER.LOCATION, imp.TARGET)
+			if interactable_location != Vector2.INF:
+				var chosen_npc:NPC = imp.TARGET
+				new_action = JoinGroupAction.new(ENGINE, OWNER).set_target(chosen_npc).set_location(interactable_location)
+				LOCATION = new_action.LOCATION
+				OWNER.STATE_STACK.append(new_action)
+				break
+
+	else:
+		LOCATION = OWNER.LOCATION
+		# it's okay if all these conversation bits fire immediately (rather than being tossed on the stack and firing from there)
+		# i might change it later tho
+		var res:ActionResult = clear_responses()
+		if res != null:
+			print("adding response action")
+			# OWNER.STATE_STACK.append(res.NEW_ACTION)
+			return
+		
+		res = know_everyone()
+		if res != null:
+			print("adding introduce action")
+			# OWNER.STATE_STACK.append(res.NEW_ACTION)
+			return
+		
+		res = flirt()
+		if res != null:
+			print("adding flirt action")
+			# OWNER.STATE_STACK.append(res.NEW_ACTION)
+			return
+
+		res = respond_to_topic()
+		if res != null:
+			print("adding commentary action")
+			# OWNER.STATE_STACK.append(res.NEW_ACTION)
+			return

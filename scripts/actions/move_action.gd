@@ -93,6 +93,7 @@ func update_location() -> void:
 		# shouldn't happen! but we'll see
 		print("adjacent move tiles not found")
 	else:
+		filtered_loc.sort_custom(func(a,b): OWNER.LOCATION.distance_to(b) < OWNER.LOCATION.distance_to(a))
 		LOCATION = filtered_loc[0]
 
 	update_path()
@@ -133,20 +134,23 @@ func update_path() -> void:
 
 func run() -> ActionResult:
 	print("moving for", MOVING_FOR)
-	print(PATH)
+	# print(PATH)
 	# end moving
-	if OWNER.LOCATION.distance_to(LOCATION) <= RANGE:
-	# if OWNER.LOCATION == LOCATION:
+	# if OWNER.LOCATION.distance_to(LOCATION) <= RANGE:
+	if OWNER.LOCATION == LOCATION:
 		return ActionResult.new("end").continuing()
 		#return ["end", null]
 
 	# target no longer valid
 	if TARGET != null:
 		if TARGET is NPC:
-			var target_action:ACTION = TARGET.STATE_STACK[-1]
-			if !target_action.CHATTABLE:
+			if !TARGET.is_available():
 				print("npc now unavailable")
 				return ActionResult.new("end").continuing()
+			#var target_action:ACTION = TARGET.STATE_STACK[-1]
+			#if !target_action.CHATTABLE:
+				#print("npc now unavailable")
+				#return ActionResult.new("end").continuing()
 
 		# check if target has moved
 		if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
@@ -189,7 +193,7 @@ func run() -> ActionResult:
 	
 	# move to next step
 	var old_location:Vector2 = OWNER.LOCATION
-	print("old location: ", old_location)
+	# print("old location: ", old_location)
 	var next_step:Vector2 = PATH.pop_front()
 	# var next_step:Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	OWNER.LOCATION = next_step

@@ -29,10 +29,13 @@ func tick() -> ActionResult:
 func run() -> ActionResult:
 
 	# check if target is still available
-	var target_action:ACTION = TARGET.STATE_STACK[-1]
-	if !target_action.CHATTABLE:
+	if !TARGET.is_available():
 		print("npc now unavailable")
 		return ActionResult.new("end").continuing()
+	# var target_action:ACTION = TARGET.STATE_STACK[-1]
+	# if !target_action.CHATTABLE:
+	# 	print("npc now unavailable")
+	# 	return ActionResult.new("end").continuing()
 
 	if ENGINE.GroupManager.is_in_same_group(OWNER, TARGET):
 		return ActionResult.new("end").continuing()

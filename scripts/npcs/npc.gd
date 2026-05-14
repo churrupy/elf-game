@@ -63,8 +63,12 @@ var LOOKING_AT: Array[Vector2]
 #region actions
 # var EVENT_QUEUE: Array[EVENT]
 
+var GOAL_ACTION: ACTION
+
 var STATE_STACK: Array[ACTION] = []
 var SOCIAL_ACTION: SocialAction_new
+
+var RESPONSE_REQUESTS:Array[ACTION]
 
 #endregion actions
 
@@ -161,10 +165,22 @@ func set_needs() -> void:
 	
 #region tick
 	
-func decay_needs():
-	for need in NEEDS:
+func decay_needs() -> void:
+	for need:String in NEEDS.keys():
 		var decay = Constants.NEED_DECAY_RATES[need]
 		NEEDS[need] = clamp((NEEDS[need] - decay), 0.0, 100.0)
+
+func are_needs_low() -> bool:
+	var priority_needs:Array[String] = [
+		"bladder",
+		"hunger"
+	]
+	for need:String in NEEDS.keys():
+		if need in priority_needs:
+			if NEEDS[need] < 50:
+				return true
+	
+	return false
 
 
 #endregion
@@ -412,9 +428,9 @@ func get_attraction(other_npc: NPC) -> int:
 	return OPINIONS[other_style]
 
 func print_state_stack() -> void:
-	print("printing stack")
-	for action:ACTION in STATE_STACK:
-		print(action)
+	print("printing stack: ", STATE_STACK)
+	# for action:ACTION in STATE_STACK:
+	# 	print(action)
 
 
 #endregion relationships
@@ -441,12 +457,13 @@ func update_direction(new_direction:Vector2) -> void:
 
 
 #region actions
-func consume(item:ITEM) -> void:
-	print(NAME, " is consuming ", item)
-	NEEDS["hunger"] += item.DATA["nutrition"]
+# func consume(item:ITEM) -> void:
+# 	print(NAME, " is consuming ", item)
+# 	NEEDS["hunger"] += item.DATA["nutrition"]
 
 func add_response(_action:ACTION) -> void:
-	SOCIAL_ACTION.RESPONSE_REQUESTS.append(_action)
+	# SOCIAL_ACTION.RESPONSE_REQUESTS.append(_action)
+	RESPONSE_REQUESTS.append(_action)
 
 func react_to_memory_list(mem_list:Array[MEMORY]) -> String:
 	return "likes"
@@ -462,3 +479,12 @@ func get_reserved_locations() -> Array[Vector2]:
 		if action is IdleAction: continue
 		result_list.append(action.LOCATION)
 	return result_list
+
+func get_reserved_location() -> Vector2:
+	return GOAL_ACTION.LOCATION
+
+
+func is_available() -> bool:
+	if GOAL_ACTION == null: return true
+	if GOAL_ACTION.CHATTABLE: return true
+	return false

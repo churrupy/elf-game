@@ -4,10 +4,13 @@ var PARTICIPANTS: Array[NPC]
 var CURRENT_TOPIC:MEMORY_FILTER
 
 
-func _init(first_owner:NPC) -> void:
-	PARTICIPANTS.append(first_owner)
-	sort()
-	CURRENT_TOPIC = MEMORY_FILTER.new()
+# func _init(first_owner:NPC) -> void:
+# 	PARTICIPANTS.append(first_owner)
+# 	sort()
+# 	CURRENT_TOPIC = MEMORY_FILTER.new()
+
+func _init() -> void:
+	pass
 
 func _to_string() -> String:
 	var location: Vector2 = get_location()
@@ -91,7 +94,7 @@ func is_equal(other_group:GROUP) -> bool:
 	return PARTICIPANTS == other_group.PARTICIPANTS
 
 func duplicate() -> GROUP:
-	var new_group:GROUP = GROUP.new(PARTICIPANTS[0])
+	var new_group:GROUP = GROUP.new()
 	new_group.PARTICIPANTS = PARTICIPANTS.duplicate()
 	new_group.CURRENT_TOPIC = CURRENT_TOPIC
 	return new_group

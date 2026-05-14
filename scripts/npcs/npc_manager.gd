@@ -1,6 +1,4 @@
-extends Control
-
-class_name NPC_MANAGER
+class_name NPC_MANAGER extends Control
 
 var ENGINE
 var NPCS: Array[NPC]
@@ -35,11 +33,82 @@ func create_npc() -> void:
 	
 	# initialize state stack
 	#var new_action: ACTION = IdleAction.new(ENGINE, npc, null, Determinator)
-	var new_action:ACTION = IdleAction.new(ENGINE, npc)
-	npc.STATE_STACK.append(new_action)
-	npc.SOCIAL_ACTION = SocialAction_new.new(ENGINE, npc)
+	# var new_action:ACTION = IdleAction.new(ENGINE, npc)
+	# npc.STATE_STACK.append(new_action)
+	# npc.SOCIAL_ACTION = SocialAction_new.new(ENGINE, npc)
 
 func tick() -> void:
+	for npc:NPC in NPCS:
+		print("")
+		print ("***** ", npc.NAME, " *****")
+		npc.decay_needs()
+		npc.print_state_stack()
+
+		var res:ActionResult = clear_responses(npc)
+		if res == null:
+			choose_goal(npc)
+
+		var continuing:bool = true
+
+		var PANIC:int = 100
+		while continuing:
+			if len(npc.STATE_STACK) == 0:
+				continuing = false
+				break
+			print(npc.STATE_STACK)
+			print("doing next action >>")
+			var current_action:ACTION = npc.STATE_STACK.back()
+			print("current_action: ", current_action)
+
+			var result:ActionResult = current_action.run()
+			continuing = process_action(npc, result)
+
+			PANIC -= 1
+			if PANIC <= 0:
+				print("caught in a loop")
+				push_error(npc.NAME, " action stuck in a loop")
+				break
+
+		
+
+func clear_responses(npc:NPC) -> ActionResult:
+	# god this is messy lol
+	var res:ActionResult
+	for _action:ACTION in npc.RESPONSE_REQUESTS:
+		res = _action.process_response()
+		if res == null:
+			continue
+		else:
+			if res.STATUS == "event":
+				res.NEW_ACTION.create_event()
+			elif res.STATUS == "add":
+				npc.STATE_STACK.append(res.NEW_ACTION)
+			break
+	npc.RESPONSE_REQUESTS = []
+	return res
+
+func choose_goal(npc:NPC) -> void:
+	# when to switch goals: state stack is empty, or a higher priority need is flagged
+	if len(npc.STATE_STACK) == 0 or (npc.GOAL_ACTION is SocialAction_new and npc.are_needs_low()):
+		# choose new goal
+		print("choosing new goal")
+		var new_action:ACTION
+		if npc.NEEDS["bladder"] < 50:
+			new_action = BladderAction.new(ENGINE, npc).find_target()
+			npc.GOAL_ACTION = new_action
+		
+		elif npc.NEEDS["hunger"] < 50:
+			new_action = HungerAction.new(ENGINE, npc)
+			npc.GOAL_ACTION = new_action
+
+		else:
+			new_action = SocialAction_new.new(ENGINE, npc)
+			npc.GOAL_ACTION = new_action
+
+		npc.STATE_STACK = []
+		npc.GOAL_ACTION.populate_stack()
+			
+func tick_old() -> void:
 	for npc:NPC in NPCS:
 		print("")
 		print ("***** ", npc.NAME, " *****")
@@ -124,10 +193,11 @@ func process_action(owner:NPC, result:ActionResult) -> bool:
 	elif result.STATUS == "end":
 		current_action.exit_state()
 		owner.STATE_STACK.pop_back()
-		print("stack:", owner.STATE_STACK)
-		print(result.CONTINUE)
-		var old_action:ACTION = owner.STATE_STACK.back()
-		old_action.resume_state()
+		# print("stack:", owner.STATE_STACK)
+		# print(result.CONTINUE)
+		if len(owner.STATE_STACK) > 0:
+			var old_action:ACTION = owner.STATE_STACK.back()
+			old_action.resume_state()
 	elif result.STATUS == "clear":
 		current_action.exit_state()
 		print("clearing " + owner.NAME + "'s actions")
@@ -261,8 +331,9 @@ func process_action(owner:NPC, result:ActionResult) -> bool:
 func add_state(new_action:ACTION) -> void:
 	#print(new_action)
 	var npc = new_action.OWNER
-	var current_action: ACTION = npc.STATE_STACK.back()
-	current_action.suspend_state()
+	if len(npc.STATE_STACK) > 0:
+		var current_action: ACTION = npc.STATE_STACK.back()
+		current_action.suspend_state()
 	new_action.enter_state()
 	npc.STATE_STACK.append(new_action)
 
@@ -275,13 +346,17 @@ func update() -> void:
 	for npc: NPC in NPCS:
 
 		# highlight reserved tile
-		var current_action: ACTION = npc.STATE_STACK.back()
-		var reserved_loc: Vector2 = current_action.LOCATION
-		if reserved_loc != Vector2.INF:
-			#print(reserved_loc)
+		# var current_action: ACTION = npc.STATE_STACK.back()
+		# var reserved_loc: Vector2 = current_action.LOCATION
+		# if reserved_loc != Vector2.INF:
+		# 	#print(reserved_loc)
+		# 	ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
+		# # else:
+		# 	# print("infinite vector")
+
+		if npc.GOAL_ACTION != null:
+			var reserved_loc:Vector2 = npc.GOAL_ACTION.LOCATION
 			ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
-		# else:
-			# print("infinite vector")
 
 		var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
 		if x_index < 0:
@@ -355,6 +430,14 @@ func print_reserved_locations() -> void:
 		print(ENGINE.prettify_vector(current_action.LOCATION))
 
 func get_reserved_locations() -> Array[Vector2]:
+	var result_list:Array[Vector2]
+	for npc:NPC in NPCS:
+		if npc.GOAL_ACTION != null:
+			result_list.append(npc.get_reserved_location())
+	return result_list
+
+
+func get_reserved_locations_old() -> Array[Vector2]:
 	var result_list:Array[Vector2] = []
 	for npc:NPC in NPCS:
 		var npc_list:Array[Vector2] = npc.get_reserved_locations()

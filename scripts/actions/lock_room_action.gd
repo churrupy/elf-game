@@ -5,6 +5,7 @@ var PATH: Array[Vector2]
 var TARGET_ROOM:ROOM
 
 var ACTION_GROUP:GROUP
+var PARTICIPANTS:Array[String]
 
 func _init(engine, owner:NPC) -> void:
 	ID = "move"
@@ -22,6 +23,7 @@ func calling_action(moving_for:ACTION) -> LockRoomAction:
 
 func set_group(_group:GROUP) -> LockRoomAction:
 	ACTION_GROUP = _group
+	PARTICIPANTS = ENGINE.GroupManager.get_group_participants_from_group(ACTION_GROUP)
 	return self
 
 func tick() -> ActionResult:
@@ -51,25 +53,33 @@ func tick() -> ActionResult:
 
 func run() -> ActionResult:
 	# shoo out other npcs
-	var filter: NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_in_room(TARGET_ROOM).is_not([OWNER])
+	var filter: NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_in_room(TARGET_ROOM)
 	var npcs_in_room:Array[NPC] = filter.run_filter()
 	# shoo out non-group npcs
 	if len(npcs_in_room) > 0:
+		var clearing_room:bool = false
 		for npc:NPC in npcs_in_room:
-			if ACTION_GROUP != null and npc in ACTION_GROUP.PARTICIPANTS: continue
+			if ACTION_GROUP != null and npc.ID in PARTICIPANTS: continue
+			clearing_room = true
 			var current_action = npc.STATE_STACK.back()
 			if current_action is not LeaveRoomAction or current_action is not ShooAction:
 				var leave_action:ShooAction = ShooAction.new(ENGINE, npc).set_location()
 				ENGINE.NpcManager.add_state(leave_action)
 				# var leave_action:LeaveRoomAction = LeaveRoomAction.new(ENGINE, npc).set_location().calling_action(self)
 				# ENGINE.NpcManager.add_state(leave_action)
-		return ActionResult.new("running")
+		if clearing_room:
+			print("uninvolved npcs still in room")
+			return ActionResult.new("running")
 
 	# wait for all group npcs to arrive
 	# does not check to make sure that NPCs are still available
 	if ACTION_GROUP != null:
-		for npc:NPC in ACTION_GROUP.PARTICIPANTS:
+		for id:String in PARTICIPANTS:
+			var npc:NPC = Global.NPCS[id]
 			if npc not in npcs_in_room:
+				print("involved npcs not at room")
+				print(npc)
+				print(npcs_in_room)
 				return ActionResult.new("running")
 	
 	# lock doors

@@ -37,6 +37,7 @@ func get_involved_npcs() -> Array[NPC]:
 	return [OWNER, TARGET]
 
 func process_response() -> ActionResult:
+	print("Processing Response: SeduceAction")
 	var same_group:bool = ENGINE.GroupManager.is_in_same_group(TARGET, OWNER)
 	if !same_group:
 		return null

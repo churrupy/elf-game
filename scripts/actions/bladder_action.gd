@@ -99,3 +99,23 @@ func run() -> ActionResult:
 		else:
 			var new_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(TARGET).calling_action(self).secure_room()
 			return ActionResult.new("add", new_action)
+
+func populate_stack() -> void:
+	# reserve location
+	print("Goal: Bladder Action")
+	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag("fill_bladder").is_available()
+	var toilets:Array[TILE] = filter.run_filter()
+	if len(toilets) > 0:
+		toilets.sort_custom(func(a,b): OWNER.LOCATION.distance_to(b.LOCATION) < OWNER.LOCATION.distance_to(a.LOCATION))
+		TARGET = toilets[0]
+		LOCATION = TARGET.LOCATION
+	
+	else:
+		# something else
+		pass
+	
+	var new_action:ACTION = RefreshNeedsAction.new(ENGINE, OWNER).set_need("bladder")
+	OWNER.STATE_STACK.append(new_action)
+
+	new_action = MoveAction.new(ENGINE, OWNER).set_target(TARGET).secure_room().calling_action(self)
+	OWNER.STATE_STACK.append(new_action)

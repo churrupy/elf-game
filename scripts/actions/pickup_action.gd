@@ -26,7 +26,7 @@ func find_closest_item_by_tag(tag:String) -> PickupAction:
 		# doesn't take into consideration pathfinding :(
 		filtered_inventories.sort_custom(func(a,b): b.OWNER.LOCATION.distance_to(OWNER.LOCATION) < a.OWNER.LOCATION.distance_to(OWNER.LOCATION))
 		TARGET_INVENTORY = filtered_inventories[0]
-		PICKUP_ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(TARGET.OWNER, tag)
+		PICKUP_ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(TARGET_INVENTORY.OWNER, tag)
 	return self
 
 
@@ -46,10 +46,11 @@ func run() -> ActionResult:
 	if !ENGINE.InventoryManager.inventory_has_item(TARGET_INVENTORY.OWNER, PICKUP_ITEM):
 		return ActionResult.new("end")
 
-	print("PICKING UP")
+	# print("PICKING UP")
 	
 	if OWNER.LOCATION.distance_to(TARGET_INVENTORY.OWNER.LOCATION) > 1.5:
 		var new_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(TARGET_INVENTORY.OWNER).calling_action(self)
+		OWNER.GOAL_ACTION.LOCATION = new_action.LOCATION
 		return ActionResult.new("add", new_action)
 	else:
 		ENGINE.InventoryManager.remove_from_inventory(TARGET_INVENTORY.OWNER, PICKUP_ITEM)

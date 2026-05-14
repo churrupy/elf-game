@@ -16,6 +16,8 @@ var Journal:JOURNAL
 
 #region gamestate data
 var MODE:String = "club"
+var AUTORUN_TICKS:int = 0
+# var AUTORUN:bool = false
 # var ROOM: String = "club"
 # var NUM_NPCS: int = 5
 var ROOM:String
@@ -64,6 +66,11 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	#print(Global.FOCUS_TARGET)
+
+	while AUTORUN_TICKS >= 0:
+		AUTORUN_TICKS -= 1
+		tick()
+		return
 	
 	# mouse control
 	var mouse_position: Vector2 = get_viewport().get_mouse_position()

@@ -14,7 +14,7 @@ func _init(engine, owner: NPC) -> void:
 	OWNER = owner
 	# TARGET = target
 	#LOCATION = Vector2.INF
-	CHATTABLE = true
+	CHATTABLE = false
 	#super._init(engine, owner, target)
 
 
@@ -99,6 +99,19 @@ func run() -> ActionResult:
 # 	print(item)
 # 	ENGINE.InventoryManager.add_to_inventory(OWNER, item)
 # 	print("inventory: ", ENGINE.InventoryManager.get_inventory_of(OWNER.ID))
+
+func populate_stack() -> void:
+	print("Goal: Hunger Action")
+	LOCATION = OWNER.LOCATION
+	var new_action:ACTION
+	var food_item:ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(OWNER, "food")
+	if food_item == null:
+		new_action = PickupAction.new(ENGINE, OWNER).find_closest_item_by_tag("food")
+		OWNER.STATE_STACK.append(new_action)
+		food_item = new_action.PICKUP_ITEM
+	
+	new_action = EatAction.new(ENGINE, OWNER).set_item(food_item)
+	OWNER.STATE_STACK.push_front(new_action)
 
 func _to_string() -> String:
 	var str_list:Array[String] = [
