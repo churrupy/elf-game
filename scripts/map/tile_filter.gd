@@ -9,6 +9,7 @@ var filtered_list:Array[TILE]
 var origin:Vector2 = Vector2.INF
 var location:Vector2 = Vector2.INF
 var distance:float = 1.5
+var direction:Vector2 = Vector2.INF
 var tags:Array[String] = []
 
 var target_room:ROOM
@@ -29,9 +30,19 @@ func set_list(_tile_list:Array[TILE] = []) -> TILE_FILTER:
 		tile_list = _tile_list
 	return self
 
+func set_list_from_vector(loc_list:Array[Vector2]) -> TILE_FILTER:
+	for loc:Vector2 in loc_list:
+		if loc == Vector2.INF: continue
+		tile_list.append(ENGINE.Map.get_tile(loc))
+	return self
+
 func in_range_of(_origin:Vector2, _distance:float) -> TILE_FILTER:
 	origin=_origin
 	distance=_distance
+	return self
+
+func in_arc_of(_direction:Vector2) -> TILE_FILTER:
+	direction = _direction
 	return self
 
 func set_room(_room:ROOM) -> TILE_FILTER:
@@ -65,6 +76,9 @@ func has_free_adjacent_tiles(num_tiles:int = 1) -> TILE_FILTER:
 func run_filter() -> Array[TILE]:
 	for tile:TILE in tile_list:
 		if tile in is_not_list: continue
+
+				
+
 		if !can_be_empty:
 			if tile.TYPE == "empty": continue
 
@@ -75,6 +89,11 @@ func run_filter() -> Array[TILE]:
 		if origin != Vector2.INF:
 			if origin.distance_to(tile.LOCATION) > distance:
 				continue
+
+			if direction != Vector2.INF:
+				var _direction = origin.direction_to(tile.LOCATION)
+				if _direction.dot(direction) <= -0.5:
+					continue
 
 		if len(tags) > 0:
 			var matched:bool = true
@@ -89,7 +108,18 @@ func run_filter() -> Array[TILE]:
 			if ENGINE.NpcManager.is_reserved(tile.LOCATION): continue
 		
 		if be_passable:
-			if !ENGINE.Map.is_passable(tile.LOCATION): continue
+			if tile is DOOR:
+				if origin != Vector2.INF: # is pathfinding rather than filtering
+					if !tile.opened:
+						# check if origin is in the same room as the door
+						# if yes, then treat door as empty tile
+						# if not, treat door as wall
+						var door_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
+						if !door_room.is_in_room(origin) : continue
+				else: # is filtering, probably
+					if !tile.opened: continue
+			else:
+				if tile.has_tag("h_surface") or tile.has_tag("v_surface"): continue
 
 		if target_room != null:
 			var tile_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)

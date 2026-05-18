@@ -445,7 +445,7 @@ func is_passable(loc:Vector2) -> bool:
 #var index: int = (loc[1] * width) + loc[0]
 	var tile:TILE = get_tile(loc)
 	var tags:Array = tile.DATA["tags"]
-	if "door" in tags:
+	if tile is DOOR:
 		return tile.opened
 		# if tile.opened: return true
 		# else: return false
@@ -504,8 +504,13 @@ func filter_closest_interactable_locations_dict(start_loc:Vector2, loc_list:Arra
 
 
 #region utility
-
 func get_neighbors(loc:Vector2) -> Array[Vector2]:
+	var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(loc,1.5).is_available().is_passable()
+	tile_filter.run_filter()
+	var loc_list:Array[Vector2] = tile_filter.convert_to_loc()
+	return loc_list
+
+func get_neighbors_old(loc:Vector2) -> Array[Vector2]:
 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(loc, 1).is_passable()
 	var result_list:Array[Vector2] = loc_filter.run_filter()
 	return result_list

@@ -3,7 +3,7 @@ extends Node
 const MODES:Dictionary = {
     "club": {
         "room": "club",
-        "num_npcs": 1
+        "num_npcs": 5
     },
     "workshop": {
         "room": "workshop",

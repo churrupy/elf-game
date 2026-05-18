@@ -17,6 +17,10 @@ func _init(loc:Vector2, type:String="empty") -> void:
 	# DATA = Constants.TILE_TEMPLATES[TYPE]
 	# texture = load("res://models/" + DATA["sprite"])
 
+func has_tag(tag:String) -> bool:
+	var tag_list:Array = DATA["tags"]
+	return tag in tag_list
+
 
 func add_loc_label() -> void:
 	var initial_label:Label = Label.new()

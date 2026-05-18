@@ -100,8 +100,23 @@ func tick() -> void:
 		npc.decay_needs()
 	
 	# validate colliding locations
+	validate_npc_locations()
 
 	return
+
+func validate_npc_locations() -> void:
+	for npc:NPC in NPCS:
+		var npc_filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().set_location(npc.LOCATION).is_not([npc])
+		var filtered_npcs:Array[NPC] = npc_filter.run_filter()
+		for colliding_npc:NPC in filtered_npcs:
+			var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(colliding_npc.LOCATION, 1.5).is_passable().is_available()
+			var filtered_tiles:Array[TILE] = tile_filter.run_filter()
+			if len(filtered_tiles) > 0:
+				npc.LOCATION = filtered_tiles.pick_random().LOCATION
+			else:
+				print("no free spaces for collision management")
+
+
 
 
 #func rebuild_goal_stack(npc:NPC) -> void:
@@ -558,8 +573,15 @@ func update() -> void:
 # 		free_loc.append(loc)
 # 	return free_loc
 
+func is_reserved(location:Vector2) -> bool:
+	var npc_filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_location(location)
+	var filtered_npcs:Array[NPC] = npc_filter.run_filter()
+	if len(filtered_npcs) > 0:
+		return true
+	return false
 
-func is_reserved(location: Vector2) -> bool:
+
+func is_reserved_old(location: Vector2) -> bool:
 	var reserved_list:Array[Vector2] = get_reserved_locations()
 	return location in reserved_list
 

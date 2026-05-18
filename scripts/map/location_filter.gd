@@ -19,7 +19,7 @@ var need_adjacent_tiles:int = 0
 func _init(engine) -> void:
 	ENGINE = engine
 
-func generate_list(_origin:Vector2, radius:int) -> LOCATION_FILTER:
+func generate_list(_origin:Vector2, radius:int = 1) -> LOCATION_FILTER:
 	# will create a rectangle
 	origin = _origin
 	#print("generating list")

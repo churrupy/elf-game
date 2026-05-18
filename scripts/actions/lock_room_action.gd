@@ -14,28 +14,28 @@ func _init(engine, owner:NPC) -> void:
 	ENGINE = engine
 	OWNER = owner
 
-func room_to_secure(_room:ROOM) -> LockRoomAction:
-	TARGET_ROOM = _room
-	return self
+# func room_to_secure(_room:ROOM) -> LockRoomAction:
+# 	TARGET_ROOM = _room
+# 	return self
 
-func calling_action(moving_for:ACTION) -> LockRoomAction:
-	MOVING_FOR = moving_for
-	CHATTABLE = moving_for.CHATTABLE
-	return self
+# func calling_action(moving_for:ACTION) -> LockRoomAction:
+# 	MOVING_FOR = moving_for
+# 	CHATTABLE = moving_for.CHATTABLE
+# 	return self
 
 func set_goal(moving_for:ACTION) -> LockRoomAction:
 	MOVING_FOR = moving_for
 	CHATTABLE = moving_for.CHATTABLE
 	return self
 
-func set_group(_group:GROUP) -> LockRoomAction:
-	ACTION_GROUP = _group
-	PARTICIPANTS = ENGINE.GroupManager.get_group_participants_from_group(ACTION_GROUP)
-	return self
+# func set_group(_group:GROUP) -> LockRoomAction:
+# 	ACTION_GROUP = _group
+# 	PARTICIPANTS = ENGINE.GroupManager.get_group_participants_from_group(ACTION_GROUP)
+# 	return self
 
-func tick() -> ActionResult:
-	var result:ActionResult = run()
-	return result
+# func tick() -> ActionResult:
+# 	var result:ActionResult = run()
+# 	return result
 
 
 # func run_new() -> ActionResult:

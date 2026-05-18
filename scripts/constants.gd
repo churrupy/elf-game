@@ -346,11 +346,11 @@ const POSE_CLASS = {
 }
 const TILE_TEMPLATES:Dictionary = {
 	"empty": {
-		"tags": ["floor"],
+		"tags": ["floor", "only_on"],
 		"sprite": "tile.png",
 	},
 	"counter": {
-		"tags": ["h_surface"],
+		"tags": ["h_surface", "only_adjacent"],
 		"sprite": "bar.png",
 		"may_contain": [
 			"snack",
@@ -358,23 +358,23 @@ const TILE_TEMPLATES:Dictionary = {
 		]
 	},
 	"dance_floor": {
-		"tags": ["floor"],
+		"tags": ["floor", "only_on"],
 		"sprite": "dance_floor.png"
 	},
 	"door": {
-		"tags": ["door"],
+		"tags": ["door", "only_on"],
 		"sprite": "door_top.png"
 	},
 	"table": {
-		"tags": ["h_surface"],
+		"tags": ["h_surface", "only_adjacent"],
 		"sprite": "table.png"
 	},
 	"toilet":  {
-		"tags": ["chair", "fill_bladder", "encounter_location"],
+		"tags": ["chair", "fill_bladder", "encounter_location", "only_on"],
 		"sprite": "toilet.png"
 	},	
 	"wall": {
-		"tags": ["v_surface"],
+		"tags": ["v_surface", "only_adjacent"],
 		"sprite": "wall.png"
 	}
 }

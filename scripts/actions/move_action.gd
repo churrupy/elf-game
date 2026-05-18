@@ -36,6 +36,7 @@ func set_goal(moving_for:ACTION) -> MoveAction:
 func set_location(loc:Vector2) -> MoveAction:
 	# for if there's no set target
 	LOCATION = loc
+	update_path()
 	return self
 
 func secure_room() -> MoveAction:
@@ -134,6 +135,9 @@ func update_path() -> void:
 	# 		LOCATION = filtered_loc[0]
 
 	PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
+	print("current location:", OWNER.LOCATION)
+	print("target location: ", LOCATION)
+	print("created path: ", PATH)
 
 
 func run() -> ActionResult:
@@ -142,63 +146,85 @@ func run() -> ActionResult:
 	# end moving
 	# if OWNER.LOCATION.distance_to(LOCATION) <= RANGE:
 	if OWNER.LOCATION == LOCATION:
+		print("reached location")
 		return ActionResult.new("end")
 		#return ["end", null]
 
 	# target no longer valid
-	if TARGET != null:
-		if TARGET is NPC:
-			if !TARGET.is_available():
-				print("npc now unavailable")
-				return ActionResult.new("end").continuing()
-			#var target_action:ACTION = TARGET.STATE_STACK[-1]
-			#if !target_action.CHATTABLE:
-				#print("npc now unavailable")
-				#return ActionResult.new("end").continuing()
+	# if TARGET != null:
+	# 	if TARGET is NPC:
+	# 		if !TARGET.is_available():
+	# 			print("npc now unavailable")
+	# 			return ActionResult.new("end").continuing()
+	# 		#var target_action:ACTION = TARGET.STATE_STACK[-1]
+	# 		#if !target_action.CHATTABLE:
+	# 			#print("npc now unavailable")
+	# 			#return ActionResult.new("end").continuing()
 
-		# check if target has moved
-		if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
-			update_location()
+	# 	# check if target has moved
+	# 	if LOCATION.distance_to(TARGET.LOCATION) > 1.5:
+	# 		update_location()
 
 	# path no longer valid
 	if len(PATH) == 0:
 		update_path()
 		if len(PATH) == 0:
+			print("path no longer valid")
 			return ActionResult.new("end").continuing()
 
 	# check that current room is unlocked if necessary
-	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
-	var target_room:ROOM = ENGINE.Map.get_room(LOCATION)
+	# var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	# var target_room:ROOM = ENGINE.Map.get_room(LOCATION)
 
-	if current_room == target_room:
-		if secure:
-			if !current_room.is_secured():
-				var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER).room_to_secure(target_room).calling_action(MOVING_FOR)
-				if ACTION_GROUP != null:
-					new_action.set_group(ACTION_GROUP)
-				return ActionResult.new("add", new_action).continuing()
-	else:
-		if current_room.is_secured():
-			# print(current_room, "is locked?", current_room.is_secured())
-			var new_action:UnlockRoomAction = UnlockRoomAction.new(ENGINE, OWNER).room_to_unlock(current_room).calling_action(MOVING_FOR)
-			return ActionResult.new("add", new_action).continuing()
+	# if current_room == target_room:
+	# 	if secure:
+	# 		if !current_room.is_secured():
+	# 			var new_action:LockRoomAction = LockRoomAction.new(ENGINE, OWNER).room_to_secure(target_room).calling_action(MOVING_FOR)
+	# 			if ACTION_GROUP != null:
+	# 				new_action.set_group(ACTION_GROUP)
+	# 			return ActionResult.new("add", new_action).continuing()
+	# else:
+	# 	if current_room.is_secured():
+	# 		# print(current_room, "is locked?", current_room.is_secured())
+	# 		var new_action:UnlockRoomAction = UnlockRoomAction.new(ENGINE, OWNER).room_to_unlock(current_room).calling_action(MOVING_FOR)
+	# 		return ActionResult.new("add", new_action).continuing()
 		
 
 	# check that visible steps are still valid
-	var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list(PATH).in_range_of(OWNER.LOCATION, 10).in_arc_of(OWNER.DIRECTION)
-	var visible_loc:Array[Vector2] = filter.run_filter()
-	filter = LOCATION_FILTER.new(ENGINE).set_list(visible_loc).is_passable()
-	var passable_loc:Array[Vector2] = filter.run_filter()
-	if len(visible_loc) != len(passable_loc):
-		# if not all visible steps are passable
+	# var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list(PATH).in_range_of(OWNER.LOCATION, 10).in_arc_of(OWNER.DIRECTION)
+	# var visible_loc:Array[Vector2] = filter.run_filter()
+	# print("visible loc: ", visible_loc)
+	# filter = LOCATION_FILTER.new(ENGINE).set_list(visible_loc).is_passable()
+	# var passable_loc:Array[Vector2] = filter.run_filter()
+	# print("passable loc: ", passable_loc)
+	# if len(visible_loc) != len(passable_loc):
+	# 	# if not all visible steps are passable
+	# 	print("path became invalid")
+	# 	return ActionResult.new("end").continuing()
+
+	# check that visible steps are still valid
+	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list_from_vector(PATH).in_range_of(OWNER.LOCATION, 10).in_arc_of(OWNER.DIRECTION)
+	var visible_tile:Array[TILE] = filter.run_filter()
+	print("visible tile: ", visible_tile)
+	filter = TILE_FILTER.new(ENGINE).set_list(visible_tile).in_range_of(OWNER.LOCATION, 100).is_passable()
+	var passable_tile:Array[TILE] = filter.run_filter()
+	print("passable tile: ", passable_tile)
+	if len(visible_tile) != len(passable_tile):
 		print("path became invalid")
-		return ActionResult.new("end").continuing()
+		return ActionResult.new("end")
 		
 	
 	# move to next step
 	var old_location:Vector2 = OWNER.LOCATION
-	# print("old location: ", old_location)
+	print("move action PATH: ", PATH)
 	var next_step:Vector2 = PATH.pop_front()
+
+	# if npc is pushed too far away from the path
+	if next_step.distance_to(old_location) >= 1.5:
+		PATH = []
+		return ActionResult.new("running")
+	print("move action PATH: ", PATH)
+
 	# var next_step:Vector2 = ENGINE.Map.step_towards_location(OWNER.LOCATION, LOCATION)
 	OWNER.LOCATION = next_step
 	
