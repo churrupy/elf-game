@@ -7,8 +7,10 @@ var TARGET_ROOM:ROOM
 var ACTION_GROUP:GROUP
 var PARTICIPANTS:Array[String]
 
+var ROOM_SECURED:bool = false
+
 func _init(engine, owner:NPC) -> void:
-	ID = "move"
+	ID = "lock room"
 	ENGINE = engine
 	OWNER = owner
 
@@ -17,6 +19,11 @@ func room_to_secure(_room:ROOM) -> LockRoomAction:
 	return self
 
 func calling_action(moving_for:ACTION) -> LockRoomAction:
+	MOVING_FOR = moving_for
+	CHATTABLE = moving_for.CHATTABLE
+	return self
+
+func set_goal(moving_for:ACTION) -> LockRoomAction:
 	MOVING_FOR = moving_for
 	CHATTABLE = moving_for.CHATTABLE
 	return self
@@ -51,46 +58,66 @@ func tick() -> ActionResult:
 	# stuck in a loop
 	# should probably have some kind of "claim room" function that automatically kicks people out and stops them from re-entering if the room wants to be secured like this
 
-func run() -> ActionResult:
-	# shoo out other npcs
-	var filter: NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_in_room(TARGET_ROOM)
-	var npcs_in_room:Array[NPC] = filter.run_filter()
-	# shoo out non-group npcs
-	if len(npcs_in_room) > 0:
-		var clearing_room:bool = false
-		for npc:NPC in npcs_in_room:
-			if ACTION_GROUP != null and npc.ID in PARTICIPANTS: continue
-			clearing_room = true
-			var current_action = npc.STATE_STACK.back()
-			if current_action is not LeaveRoomAction or current_action is not ShooAction:
-				var leave_action:ShooAction = ShooAction.new(ENGINE, npc).set_location()
-				ENGINE.NpcManager.add_state(leave_action)
-				# var leave_action:LeaveRoomAction = LeaveRoomAction.new(ENGINE, npc).set_location().calling_action(self)
-				# ENGINE.NpcManager.add_state(leave_action)
-		if clearing_room:
-			print("uninvolved npcs still in room")
-			return ActionResult.new("running")
+func enter_state() -> void:
+	# will lock current room
+	TARGET_ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	if TARGET_ROOM.is_secured():
+		ROOM_SECURED = true
 
-	# wait for all group npcs to arrive
-	# does not check to make sure that NPCs are still available
-	if ACTION_GROUP != null:
-		for id:String in PARTICIPANTS:
-			var npc:NPC = Global.NPCS[id]
-			if npc not in npcs_in_room:
-				print("involved npcs not at room")
-				print(npc)
-				print(npcs_in_room)
-				return ActionResult.new("running")
+
+func run() -> ActionResult:
+	if ROOM_SECURED:
+		return ActionResult.new("end")
+	else:
+		for door:DOOR in TARGET_ROOM.DOOR_LIST:
+			if door.opened:
+				var new_action:ACTION = CloseDoorAction.new(ENGINE, OWNER).set_target(door)
+				return ActionResult.new("add", new_action)
+		return ActionResult.new("running")
+
+# func run_old() -> ActionResult:
+# 	# shoo out other npcs
+# 	if TARGET_ROOM == null:
+# 		TARGET_ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+		
+# 	var filter: NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().set_room(TARGET_ROOM)
+# 	var npcs_in_room:Array[NPC] = filter.run_filter()
+# 	# shoo out non-group npcs
+# 	if len(npcs_in_room) > 0:
+# 		var clearing_room:bool = false
+# 		for npc:NPC in npcs_in_room:
+# 			if ACTION_GROUP != null and npc.ID in PARTICIPANTS: continue
+# 			clearing_room = true
+# 			var current_action = npc.STATE_STACK.back()
+# 			if current_action is not LeaveRoomAction or current_action is not ShooAction:
+# 				var leave_action:ShooAction = ShooAction.new(ENGINE, npc).set_location()
+# 				ENGINE.NpcManager.add_state(leave_action)
+# 				# var leave_action:LeaveRoomAction = LeaveRoomAction.new(ENGINE, npc).set_location().calling_action(self)
+# 				# ENGINE.NpcManager.add_state(leave_action)
+# 		if clearing_room:
+# 			print("uninvolved npcs still in room")
+# 			return ActionResult.new("running")
+
+# 	# wait for all group npcs to arrive
+# 	# does not check to make sure that NPCs are still available
+# 	if ACTION_GROUP != null:
+# 		for id:String in PARTICIPANTS:
+# 			var npc:NPC = Global.NPCS[id]
+# 			if npc not in npcs_in_room:
+# 				print("involved npcs not at room")
+# 				print(npc)
+# 				print(npcs_in_room)
+# 				return ActionResult.new("running")
 	
-	# lock doors
-	for door:DOOR in TARGET_ROOM.DOOR_LIST:
-		if door.opened:
-			if OWNER.LOCATION == door.LOCATION:
-				door.close()
-			else:
-				var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(door).calling_action(self)
-				return ActionResult.new("add", move_action)
-	return ActionResult.new("end").continuing()
+# 	# lock doors
+# 	for door:DOOR in TARGET_ROOM.DOOR_LIST:
+# 		if door.opened:
+# 			if OWNER.LOCATION == door.LOCATION:
+# 				door.close()
+# 			else:
+# 				var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_target(door).calling_action(self)
+# 				return ActionResult.new("add", move_action)
+# 	return ActionResult.new("end").continuing()
 
 
 func _to_string() -> String:

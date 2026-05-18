@@ -6,6 +6,8 @@ enum STATUS {
 	SUCCESS
 }
 
+var FOOD_ITEM:ITEM
+
 func _init(engine, owner: NPC) -> void:
 	# i hope this works lol
 	# no scoring needed for this
@@ -17,7 +19,32 @@ func _init(engine, owner: NPC) -> void:
 	CHATTABLE = false
 	#super._init(engine, owner, target)
 
+# func validate() -> bool:
+# 	LOCATION = OWNER.LOCATION
+# 	FOOD_ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(OWNER, "food")
+# 	if FOOD_ITEM == null:
+# 		var filter:INVENTORY_FILTER = INVENTORY_FILTER.new(ENGINE).set_list().has_tag("food")
+# 		var filtered_inventories:Array[INVENTORY] = filter.run_filter()
+# 		if len(filtered_inventories) > 0:
+# 			filtered_inventories.sort_custom(func(a,b): b.OWNER.LOCATION.distance_to(OWNER.LOCATION) < a.OWNER.LOCATION.distance_to(OWNER.LOCATION))
+# 			var chosen_inventory:INVENTORY = filtered_inventories[0]
+# 			TARGET = chosen_inventory.OWNER
+# 			FOOD_ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(TARGET, "food")
+# 	else:
+# 		TARGET = OWNER
+	
+# 	if FOOD_ITEM == null:
+# 		VALID = false
+# 		return false
+# 	return true
 
+func get_next_action() -> ActionResult:
+	FOOD_ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(OWNER, "food")
+	if FOOD_ITEM == null:
+		var new_goal:ACTION = PickupAction.new(ENGINE, OWNER).find_closest_by_tag("food")
+		FOOD_ITEM = new_goal.PICKUP_ITEM
+		return ActionResult.new("add", new_goal)
+	return ActionResult.new("running")
 
 func tick() -> ActionResult:
 	var res: ActionResult = run()
@@ -102,16 +129,25 @@ func run() -> ActionResult:
 
 func populate_stack() -> void:
 	print("Goal: Hunger Action")
-	LOCATION = OWNER.LOCATION
-	var new_action:ACTION
-	var food_item:ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(OWNER, "food")
-	if food_item == null:
-		new_action = PickupAction.new(ENGINE, OWNER).find_closest_item_by_tag("food")
+	var new_action:ACTION = EatAction.new(ENGINE, OWNER).set_item(FOOD_ITEM)
+	OWNER.STATE_STACK.append(new_action)
+
+	if !ENGINE.InventoryManager.inventory_has_item(OWNER, FOOD_ITEM):
+		new_action = PickupAction.new(ENGINE, OWNER).set_target(TARGET).set_item(FOOD_ITEM)
 		OWNER.STATE_STACK.append(new_action)
-		food_item = new_action.PICKUP_ITEM
+
+# func populate_stack() -> void:
+# 	print("Goal: Hunger Action")
+# 	LOCATION = OWNER.LOCATION
+# 	var new_action:ACTION
+# 	var food_item:ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(OWNER, "food")
+# 	if food_item == null:
+# 		new_action = PickupAction.new(ENGINE, OWNER).find_closest_item_by_tag("food")
+# 		OWNER.STATE_STACK.append(new_action)
+# 		food_item = new_action.PICKUP_ITEM
 	
-	new_action = EatAction.new(ENGINE, OWNER).set_item(food_item)
-	OWNER.STATE_STACK.push_front(new_action)
+# 	new_action = EatAction.new(ENGINE, OWNER).set_item(food_item)
+# 	OWNER.STATE_STACK.push_front(new_action)
 
 func _to_string() -> String:
 	var str_list:Array[String] = [

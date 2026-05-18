@@ -14,6 +14,7 @@ var tags:Array[String] = []
 var target_room:ROOM
 
 var be_available:bool = false
+var be_passable:bool = false
 var can_be_empty:bool = true
 
 var need_adjacent_tiles:int = 0
@@ -33,7 +34,7 @@ func in_range_of(_origin:Vector2, _distance:float) -> TILE_FILTER:
 	distance=_distance
 	return self
 
-func is_in_room(_room:ROOM) -> TILE_FILTER:
+func set_room(_room:ROOM) -> TILE_FILTER:
 	target_room = _room
 	return self
 
@@ -45,7 +46,11 @@ func is_available() -> TILE_FILTER:
 	be_available = true
 	return self
 
-func at_location(loc:Vector2) -> TILE_FILTER:
+func is_passable() -> TILE_FILTER:
+	be_passable = true
+	return self
+
+func set_location(loc:Vector2) -> TILE_FILTER:
 	location = loc
 	return self
 
@@ -82,6 +87,9 @@ func run_filter() -> Array[TILE]:
 
 		if be_available:
 			if ENGINE.NpcManager.is_reserved(tile.LOCATION): continue
+		
+		if be_passable:
+			if !ENGINE.Map.is_passable(tile.LOCATION): continue
 
 		if target_room != null:
 			var tile_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
@@ -95,3 +103,10 @@ func run_filter() -> Array[TILE]:
 		filtered_list.append(tile)
 
 	return filtered_list
+
+
+func convert_to_loc() -> Array[Vector2]:
+	var result_list:Array[Vector2]
+	var loc_list:Array = filtered_list.map(func(a): return a.LOCATION)
+	result_list.assign(loc_list)
+	return result_list

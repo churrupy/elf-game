@@ -21,6 +21,11 @@ func set_location(loc:Vector2 = Vector2.INF) -> EncounterAction:
 		LOCATION = loc
 	return self
 
+func validate() -> bool:
+	if TARGET == null:
+		return false
+	return true
+
 
 # func _init(engine, owner:NPC, target:Node= null) -> void:
 # 	ID = "encounter"
@@ -30,7 +35,7 @@ func set_location(loc:Vector2 = Vector2.INF) -> EncounterAction:
 func find_location() -> void:
 	print("looking for encounter location")
 	var group_size: int = len(PARTICIPANTS)
-	# print("group size: ", group_size)
+	print("group size: ", group_size)
 	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag("encounter_location").is_available().has_free_adjacent_tiles(group_size - 1)
 	var tiles:Array[TILE] = filter.run_filter()
 	# print(tiles)
@@ -45,37 +50,61 @@ func find_location() -> void:
 func tick() -> ActionResult:
 	return run()
 
+func initialize_group() -> void:
+	OWNER.STATE_STACK = []
+	for id:String in PARTICIPANTS:
 
-func run() -> ActionResult:
-	if LOCATION == Vector2.INF:
-		print("no free encounter tiles")
-		return ActionResult.new("end").continuing()
+		if id == OWNER.ID: continue
+
+		#get free tile
+		var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().is_available().in_range_of(LOCATION, 1.5).is_passable()
+		var filtered_tiles:Array[TILE] = filter.run_filter()
+		var chosen_location:Vector2 = filtered_tiles[0].LOCATION
+		var npc:NPC = Global.NPCS[id]
+		npc.GOAL_ACTION = EncounterAction.new(ENGINE, npc).set_group(ACTION_GROUP).set_location(chosen_location)
+		npc.STATE_STACK = []
+
+
+# func run() -> ActionResult:
+# 	if LOCATION == Vector2.INF:
+# 		print("no free encounter tiles")
+# 		return ActionResult.new("end").continuing()
 	
+# 	if OWNER.LOCATION != LOCATION:
+
+		
+# 		for id:String in PARTICIPANTS:
+# 			if id == OWNER.ID: continue
+# 			var npc:NPC = Global.NPCS[id]
+# 			var move_action:MoveAction = MoveAction.new(ENGINE, npc).calling_action(self).set_target(TARGET).set_location(LOCATION, 1.5).secure_room().set_group(ACTION_GROUP)
+# 			ENGINE.NpcManager.add_state(move_action)
+
+# 			# or maybe follow? idk lol
+
+# 		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).calling_action(self).set_target(TARGET).secure_room().set_group(ACTION_GROUP)
+# 		return ActionResult.new("add", move_action).continuing()
+
+# 		# give self move action
+# 		# give all of group move action
+
+# 	else:
+# 		for id:String in PARTICIPANTS:
+# 			if id == OWNER.ID: continue
+# 			var npc:NPC = Global.NPCS[id]
+# 			var new_action:MakeoutAction = MakeoutAction.new(ENGINE, OWNER).set_group(ACTION_GROUP)
+# 			ENGINE.NpcManager.add_state(new_action)
+		
+# 		var new_action:MakeoutAction = MakeoutAction.new(ENGINE, OWNER).set_group(ACTION_GROUP)
+# 		return ActionResult.new("replace", new_action).continuing()
+
+# 	# return res
+
+
+func populate_stack() -> void:
+	print("Goal: Encounter Action")
+	var new_action:MakeoutAction = MakeoutAction.new(ENGINE, OWNER).set_group(ACTION_GROUP)
+	OWNER.STATE_STACK.append(new_action)
+
 	if OWNER.LOCATION != LOCATION:
-
-		
-		for id:String in PARTICIPANTS:
-			if id == OWNER.ID: continue
-			var npc:NPC = Global.NPCS[id]
-			var move_action:MoveAction = MoveAction.new(ENGINE, npc).calling_action(self).set_target(TARGET).set_location(LOCATION, 1.5).secure_room().set_group(ACTION_GROUP)
-			ENGINE.NpcManager.add_state(move_action)
-
-			# or maybe follow? idk lol
-
-		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).calling_action(self).set_target(TARGET).secure_room().set_group(ACTION_GROUP)
-		return ActionResult.new("add", move_action).continuing()
-
-		# give self move action
-		# give all of group move action
-
-	else:
-		for id:String in PARTICIPANTS:
-			if id == OWNER.ID: continue
-			var npc:NPC = Global.NPCS[id]
-			var new_action:MakeoutAction = MakeoutAction.new(ENGINE, OWNER).set_group(ACTION_GROUP)
-			ENGINE.NpcManager.add_state(new_action)
-		
-		var new_action:MakeoutAction = MakeoutAction.new(ENGINE, OWNER).set_group(ACTION_GROUP)
-		return ActionResult.new("replace", new_action).continuing()
-
-	# return res
+		var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).calling_action(self).set_location(LOCATION).secure_room().set_group(ACTION_GROUP)
+		OWNER.STATE_STACK.append(move_action)

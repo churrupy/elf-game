@@ -19,6 +19,7 @@ func _init(engine, owner:NPC) -> void:
 #region builder
 func set_target(target:Node) -> MoveAction:
 	TARGET = target
+	# print(TARGET)
 	update_location()
 	return self
 
@@ -27,11 +28,14 @@ func calling_action(moving_for:ACTION) -> MoveAction:
 	CHATTABLE = moving_for.CHATTABLE
 	return self
 
-func set_location(loc:Vector2, range:int = 0) -> MoveAction:
+func set_goal(moving_for:ACTION) -> MoveAction:
+	MOVING_FOR = moving_for
+	CHATTABLE = moving_for.CHATTABLE
+	return self
+
+func set_location(loc:Vector2) -> MoveAction:
 	# for if there's no set target
 	LOCATION = loc
-	RANGE = range
-	update_location()
 	return self
 
 func secure_room() -> MoveAction:
@@ -138,7 +142,7 @@ func run() -> ActionResult:
 	# end moving
 	# if OWNER.LOCATION.distance_to(LOCATION) <= RANGE:
 	if OWNER.LOCATION == LOCATION:
-		return ActionResult.new("end").continuing()
+		return ActionResult.new("end")
 		#return ["end", null]
 
 	# target no longer valid

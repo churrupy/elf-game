@@ -43,7 +43,7 @@ func looking_at(_target:Vector2=Vector2.INF) -> NPC_FILTER:
 		target=_target
 	return self
 
-func at_location(_location:Vector2=Vector2.INF) -> NPC_FILTER:
+func set_location(_location:Vector2=Vector2.INF) -> NPC_FILTER:
 	if _location != Vector2.INF:
 		location = _location
 	else:
@@ -58,7 +58,7 @@ func is_not(_is_not_list:Array[NPC]) -> NPC_FILTER:
 	is_not_list = _is_not_list
 	return self
 
-func is_in_room(_room:ROOM) -> NPC_FILTER:
+func set_room(_room:ROOM) -> NPC_FILTER:
 	target_room = _room
 	return self
 

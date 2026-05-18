@@ -15,6 +15,11 @@ func set_item(_item:ITEM) -> PickupAction:
 	PICKUP_ITEM = _item
 	return self
 
+func set_target(_target:Node) -> PickupAction:
+	TARGET = _target
+	TARGET_INVENTORY = ENGINE.InventoryManager.get_inventory_of(TARGET.ID)
+	return self
+
 func set_inventory(_inventory:INVENTORY) -> PickupAction:
 	TARGET_INVENTORY = _inventory
 	return self

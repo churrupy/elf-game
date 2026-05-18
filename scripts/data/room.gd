@@ -53,6 +53,62 @@ func is_secured() -> bool:
 
 	return true
 
+func get_room_locations() -> Array[Vector2]:
+	var loc_list:Array[Vector2]
+	var area:int = SIZE[0] * SIZE[1]
+	var width:int = SIZE[0]
+	for i in range(0, area +1):
+		var x:int = i%width
+		var y:int = i/width
+		var loc:Vector2 = Vector2(x,y)
+		loc += LOCATION
+		loc_list.append(loc)
+	return loc_list
+
+func get_tags() -> Array[String]:
+	var tag_list:Array = []
+	var furniture_data:Dictionary = DATA["furniture"]
+	for furn:String in furniture_data.keys():
+		var furn_data:Dictionary = Constants.TILE_TEMPLATES[furn]
+		tag_list += furn_data["tags"]
+		
+	var _tag_list:Array[String]
+	_tag_list.assign(tag_list)
+	return _tag_list
+
+func get_tags_from_subrooms() -> Array[String]:
+	var tag_list:Array[String] = get_tags()
+	for subroom:ROOM in SUBROOMS:
+		tag_list += subroom.get_tags_from_subrooms()
+	return tag_list
+
+func has_tag(tag:String) -> bool:
+	var tag_list:Array[String] = get_tags()
+	return tag in tag_list
+
+func has_tag_in_subrooms(tag:String) -> bool:
+	var tag_list:Array[String] = get_tags_from_subrooms()
+	return tag in tag_list
+
+# func has_tag_in_subrooms(tag:String) -> bool:
+# 	# has tag either in self or subrooms
+# 	if has_tag(tag): return true
+# 	for subroom:ROOM in SUBROOMS:
+# 		if subroom.has_tag_in_subrooms(tag): return true
+# 	return false
+
+# func has_tag(tag:String) -> bool:
+# 	print("checking tag ", tag, " for room ", ID)
+# 	var furniture_data:Dictionary = DATA["furniture"]
+# 	for furn:String in furniture_data.keys():
+# 		print(furn)
+# 		var furn_data:Dictionary = Constants.TILE_TEMPLATES[furn]
+# 		print(furn_data["tags"])
+# 		if tag in furn_data["tags"]:
+# 			return true
+# 	print("no match")
+# 	return false
+
 
 func _to_string() -> String:
 	return ID

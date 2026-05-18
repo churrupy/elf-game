@@ -22,7 +22,7 @@ func tick() -> ActionResult:
 
 func run() -> ActionResult:
 	if COUNTDOWN <= 0:
-		return ActionResult.new("end").continuing()
+		return ActionResult.new("clear")
 	COUNTDOWN -= 1
 	ENGINE.History.create_event(self)
 	return ActionResult.new("running")

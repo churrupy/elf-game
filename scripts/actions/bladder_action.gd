@@ -1,10 +1,10 @@
 class_name BladderAction extends ACTION
 
-enum STATUS {
-	RUNNING,
-	FAILURE,
-	SUCCESS
-}
+var GOAL_STATUS:String = "running"
+var ACTION_STATUS:String = "running"
+
+var ON_TOILET:bool = false
+var FULL_BLADDER:bool = false
 
 func _init(engine, owner:NPC) -> void:
 	ENGINE = engine
@@ -12,6 +12,7 @@ func _init(engine, owner:NPC) -> void:
 	# TARGET = target
 	ID = "use toilet"
 	CHATTABLE = false
+	# find_target()
 	# LOCATION = target.LOCATION
 	# print("BLADDER LOCATION", LOCATION)
 
@@ -30,7 +31,51 @@ func find_target() -> BladderAction:
 		LOCATION = TARGET.LOCATION
 	return self
 
+# func validate() -> bool:
+# 	if TARGET == null:
+# 		VALID = false
+# 		return false
+# 	return true
+
+func score() -> BladderAction:
+	if TARGET == null:
+		SCORE = -100
+
+	SCORE += 100 - OWNER.NEEDS["bladder"]
+	return self
+
+	
+
 #endregion builder
+
+func validate() -> ActionResult:
+	var this_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).has_tag("fill_bladder").set_room(this_room)
+	var filtered_tiles: Array[TILE] = filter.run_filter()
+	if len(filtered_tiles) == 0:
+		# move to room
+		pass
+
+	if not this_room.is_secured():
+		pass
+		#var new_goal:ACTION = LockRoomGoal.new(ENGINE, OWNER) # locks current room
+		#return ActionResult.new("add", new_goal)
+	
+	# check if owner is on a toilet
+	var tile:TILE = ENGINE.Map.get_tile(OWNER.LOCATION)
+	if "fill_bladder" not in tile.DATA["tags"]:
+		var toilet_tile:TILE = filtered_tiles[0]
+		var new_action:ACTION = MoveAction.new(ENGINE, OWNER).set_target(toilet_tile)
+		return ActionResult.new("action", new_action)
+	
+	var new_action:PeeAction = PeeAction.new(ENGINE, OWNER)
+	return ActionResult.new("action", new_action)
+	
+	# if in same room as toilet
+	# should i choose the toilet here??
+	# i might have fucked myself with the way i generated rooms lol
+	# why do i not have a way to test whether a particular object is in the room lol
+
 
 
 # func run_new() -> ActionResult:
@@ -78,8 +123,28 @@ func find_target() -> BladderAction:
 func tick() -> ActionResult:
 	return run()
 
+func enter_state() -> void:
+	print("entering: BladderAction")
+	if OWNER.NEEDS["bladder"] >= 95:
+		FULL_BLADDER = true
+		return
+	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag("fill_bladder").is_available().set_location(OWNER.LOCATION)
+	var toilets:Array[TILE] = filter.run_filter()
+	if len(toilets) == 1:
+		ON_TOILET = true
 
 func run() -> ActionResult:
+	if FULL_BLADDER:
+		return ActionResult.new("end")
+	elif ON_TOILET:
+		var new_action:ACTION = PeeAction.new(ENGINE, OWNER)
+		return ActionResult.new("action", new_action)
+	else:
+		var new_action:ACTION = MoveToToilet.new(ENGINE, OWNER) # goal
+		return ActionResult.new("add", new_action)
+
+func run_old() -> ActionResult:
 	if TARGET == null or LOCATION == Vector2.INF: return ActionResult.new("end").continuing()
 	if OWNER.NEEDS["bladder"] >= 95: return ActionResult.new("end").continuing()
 

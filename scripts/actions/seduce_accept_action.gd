@@ -42,7 +42,13 @@ func process_response() -> ActionResult:
 		return null
 
 	var group:GROUP = ENGINE.GroupManager.create_group_from_list([TARGET, OWNER])
+	var encounter_action:EncounterAction = EncounterAction.new(ENGINE, TARGET).set_group(group).set_location()
+	if !encounter_action.validate():
+		print("can't find valid encounter spot")
+		return ActionResult.new("running")
+	TARGET.GOAL_ACTION = encounter_action
+	encounter_action.initialize_group()
 	# var group:GROUP = ENGINE.GroupManager.create_group(TARGET)
 	# ENGINE.GroupManager.join_npc(OWNER, TARGET)
-	var new_action: EncounterAction = EncounterAction.new(ENGINE, TARGET).set_group(group).set_location()
-	return ActionResult.new("add", new_action).continuing()
+	# var new_action: EncounterAction = EncounterAction.new(ENGINE, TARGET).set_group(group).set_location()
+	return ActionResult.new("running")

@@ -36,38 +36,177 @@ func create_npc() -> void:
 	# var new_action:ACTION = IdleAction.new(ENGINE, npc)
 	# npc.STATE_STACK.append(new_action)
 	# npc.SOCIAL_ACTION = SocialAction_new.new(ENGINE, npc)
+	var idle_goal:ACTION = IdleAction.new(ENGINE, npc)
+	npc.GOAL_STACK.append(idle_goal)
 
 func tick() -> void:
 	for npc:NPC in NPCS:
 		print("")
 		print ("***** ", npc.NAME, " *****")
 		npc.decay_needs()
-		npc.print_state_stack()
+		print("goals:", npc.GOAL_STACK)
 
-		var res:ActionResult = clear_responses(npc)
-		if res == null:
-			choose_goal(npc)
+		# add some kind of urgent interrupt here, where if some stats are below 25 or so, then immediately interrupt the current action to attempt to resolve them
+		if npc.are_needs_low():
+			pass
+		# then do response processing here
+		for response:ACTION in npc.RESPONSE_REQUESTS:
+			pass
 
+		# then regular goal processing
 		var continuing:bool = true
+		var PANIC:int = 10
 
-		var PANIC:int = 100
 		while continuing:
-			if len(npc.STATE_STACK) == 0:
-				continuing = false
-				break
-			print(npc.STATE_STACK)
-			print("doing next action >>")
-			var current_action:ACTION = npc.STATE_STACK.back()
-			print("current_action: ", current_action)
-
-			var result:ActionResult = current_action.run()
-			continuing = process_action(npc, result)
-
+			print("")
+			print("goal stack:", npc.GOAL_STACK)
+			print("current action:", npc.CURRENT_ACTION)
+			continuing = false
 			PANIC -= 1
+			print(PANIC)
 			if PANIC <= 0:
-				print("caught in a loop")
-				push_error(npc.NAME, " action stuck in a loop")
+				print("PANICKING!!")
 				break
+
+			if npc.CURRENT_ACTION == null:
+				# try to get the next action
+				var current_goal:ACTION = npc.GOAL_STACK.back()
+				current_goal.enter_state()
+				var result:ActionResult = current_goal.run()
+				process_goal_response(npc, result) # should eventually get back an action that is actionable
+				continuing = true
+			else:
+				var result:ActionResult = npc.CURRENT_ACTION.run()
+				continuing = process_action_response(npc, result)
+				# goal will process current game state and return either another goal or an action
+				# if goal is completed, will pop back 
+
+			# if npc.CURRENT_ACTION == null:
+			# 	var result:ActionResult = npc.GOAL_STACK.back().run()
+			# 	continuing = process_response(npc, result)
+			# 	var next_action:ACTION = npc.GOAL_STACK.back().get_next_action()
+			# 	if next_action == null:
+			# 		npc.GOAL_STACK.pop_back()
+			# 		continuing = true
+			# 	else:
+			# 		npc.CURRENT_ACTION = next_action
+			# 		continuing = true
+			# else:
+			# 	var res:ActionResult = npc.CURRENT_ACTION.run()
+			# 	if res.STATUS == "end":
+			# 		npc.CURRENT_ACTION = null
+			# 		continuing = true
+
+		npc.decay_needs()
+	
+	# validate colliding locations
+
+	return
+
+
+#func rebuild_goal_stack(npc:NPC) -> void:
+	#var can_perform_action:bool = false
+	#var PANIC:int = 100
+	#while !can_perform_action:
+		#PANIC -= 1
+		#if PANIC <= 0:
+			#break
+		#var top_goal:ACTION = npc.GOAL_STACK.back()
+		#var result:ActionResult = top_goal.run()
+		#process_response(npc, result)
+
+
+func process_action_response(npc, result) -> bool:
+	if result.STATUS == "end":
+		# npc.GOAL_STACK.back().STATUS == "success"
+		print("ending action")
+		npc.CURRENT_ACTION = null
+		return true
+	return false
+
+
+func process_goal_response(npc:NPC, result:ActionResult) -> void:
+	if result.STATUS == "add":
+		npc.GOAL_STACK.append(result.NEW_ACTION)
+	elif result.STATUS == "replace":
+		npc.GOAL_STACK.pop_back()
+		npc.GOAL_STACK.append(result.NEW_ACTION)
+	elif result.STATUS == "end":
+		npc.GOAL_STACK.pop_back()
+	elif result.STATUS == "clear":
+		npc.GOAL_STACK = []
+		npc.CURRENT_ACTION = null
+		print("clearing " + npc.NAME + "'s actions")
+		var idle_action:IdleAction = npc.GOAL_STACK[0]
+		npc.GOAL_STACK = [idle_action]
+	elif result.STATUS == "action":
+		npc.CURRENT_ACTION = result.NEW_ACTION
+			
+
+func process_response_old(npc:NPC, result:ActionResult) -> bool:
+	var current_goal:ACTION = npc.GOAL_STACK.back()
+	var res:bool = false
+	if result.STATUS == "add":
+		current_goal.suspend_state()
+		result.NEW_ACTION.enter_state()
+		npc.GOAL_STACK.append(result.NEW_ACTION)
+	elif result.STATUS == "replace":
+		current_goal.exit_state()
+		npc.GOAL_STACK.pop_back()
+		result.NEW_ACTION.enter_state()
+		npc.GOAL_STACK.append(result.NEW_ACTION)
+	elif result.STATUS == "end":
+		current_goal.exit_state()
+		npc.GOAL_STACK.pop_back()
+		var old_goal:ACTION = npc.GOAL_STACK.back()
+		old_goal.resume_state()
+	elif result.STATUS == "clear":
+		npc.GOAL_STACK = []
+		npc.CURRENT_ACTION = null
+		current_goal.exit_state()
+		print("clearing " + npc.NAME + "'s actions")
+		var idle_action:IdleAction = npc.GOAL_STACK[0]
+		npc.GOAL_STACK = [idle_action]
+	elif result.STATUS == "action":
+		result.NEW_ACTION.enter_state()
+		npc.CURRENT_ACTION = result.NEW_ACTION
+		res = true
+	return res
+
+# func tick_old() -> void:
+# 	for npc:NPC in NPCS:
+# 		print("")
+# 		print ("***** ", npc.NAME, " *****")
+# 		npc.decay_needs()
+# 		npc.print_state_stack()
+
+# 		var res:ActionResult = clear_responses(npc)
+# 		if res == null:
+# 			choose_goal(npc)
+
+# 		if len(npc.STATE_STACK) == 0:
+# 			npc.GOAL_ACTION.populate_stack()
+
+# 		var continuing:bool = true
+
+# 		var PANIC:int = 100
+# 		while continuing:
+# 			if len(npc.STATE_STACK) == 0:
+# 				continuing = false
+# 				break
+# 			print(npc.STATE_STACK)
+# 			print("doing next action >>")
+# 			var current_action:ACTION = npc.STATE_STACK.back()
+# 			print("current_action: ", current_action)
+
+# 			var result:ActionResult = current_action.run()
+# 			continuing = process_action(npc, result)
+
+# 			PANIC -= 1
+# 			if PANIC <= 0:
+# 				print("caught in a loop")
+# 				push_error(npc.NAME, " action stuck in a loop")
+# 				break
 
 		
 
@@ -89,97 +228,101 @@ func clear_responses(npc:NPC) -> ActionResult:
 
 func choose_goal(npc:NPC) -> void:
 	# when to switch goals: state stack is empty, or a higher priority need is flagged
+	npc.STATE_STACK = []
 	if len(npc.STATE_STACK) == 0 or (npc.GOAL_ACTION is SocialAction_new and npc.are_needs_low()):
 		# choose new goal
 		print("choosing new goal")
 		var new_action:ACTION
 		if npc.NEEDS["bladder"] < 50:
 			new_action = BladderAction.new(ENGINE, npc).find_target()
-			npc.GOAL_ACTION = new_action
+			if new_action.validate():
+				npc.GOAL_ACTION = new_action
+				return
 		
-		elif npc.NEEDS["hunger"] < 50:
+		if npc.NEEDS["hunger"] < 50:
 			new_action = HungerAction.new(ENGINE, npc)
-			npc.GOAL_ACTION = new_action
+			if new_action.valid():
+				npc.GOAL_ACTION = new_action
+				return
 
-		else:
-			new_action = SocialAction_new.new(ENGINE, npc)
-			npc.GOAL_ACTION = new_action
+		new_action = SocialAction_new.new(ENGINE, npc)
+		npc.GOAL_ACTION = new_action
 
-		npc.STATE_STACK = []
-		npc.GOAL_ACTION.populate_stack()
-			
-func tick_old() -> void:
-	for npc:NPC in NPCS:
-		print("")
-		print ("***** ", npc.NAME, " *****")
-		npc.print_state_stack()
-
-		var continuing:bool = true
-
-		while continuing:
-			var current_action:ACTION = npc.STATE_STACK.back()
-			print ("current_action: ", current_action)
-
-			var result:ActionResult = current_action.tick()
-
-			continuing = process_action(npc, result)
-			
-
-			if !continuing and npc.STATE_STACK[-1].CHATTABLE:
-				print("chatting")
-				result = npc.SOCIAL_ACTION.run()
-				continuing = process_action(npc, result)
-
-			print("continuing? ", continuing)
-
-			# if result.STATUS == "add":
-			# 	current_action.suspend_state()
-			# 	result.NEW_ACTION.enter_state()
-			# 	npc.STATE_STACK.append(result.NEW_ACTION)
-
-			# elif result.STATUS == "replace":
-			# 	current_action.exit_state()
-			# 	npc.STATE_STACK.pop_back()
-			# 	result.NEW_ACTION.enter_state()
-			# 	npc.STATE_STACK.append(result.NEW_ACTION)
-
-			# elif result.STATUS == "end":
-			# 	current_action.exit_state()
-			# 	npc.STATE_STACK.pop_back()
-			# 	var old_action:ACTION = npc.STATE_STACK.back()
-			# 	old_action.resume_state()
-
-			# elif result.STATUS == "continue":
-			# 	#bonus turn
-			# 	current_action.exit_state()
-			# 	npc.STATE_STACK.pop_back()
-			# 	var old_action:ACTION = npc.STATE_STACK.back()
-			# 	old_action.resume_state()
-			# 	continuing = true
-			# 	print("continuing")
-
-			# elif result.STATUS == "clear":
-			# 	current_action.exit_state()
-			# 	print("clearing " + npc.NAME + "'s actions")
-			# 	var idle_action:IdleAction = npc.STATE_STACK[0]
-			# 	npc.STATE_STACK = [idle_action]
-
-			# else:
-			# 	# state continues running
-			# 	#assumes result is ["running", null]
-			# 	pass
-
-		# this setup seems weird lol
-		# var current_action = npc.STATE_STACK.back()
 		
-		# if current_action.CHATTABLE:
-		# 	var _res: ActionResult = npc.SOCIAL_ACTION.run()
+		# npc.GOAL_ACTION.populate_stack()
+			
+# func tick_old() -> void:
+# 	for npc:NPC in NPCS:
+# 		print("")
+# 		print ("***** ", npc.NAME, " *****")
+# 		npc.print_state_stack()
 
-		#current_action = npc.STATE_STACK.back()
-		npc.decay_needs()
-		print("new action: ", npc.STATE_STACK.back())
+# 		var continuing:bool = true
 
-func process_action(owner:NPC, result:ActionResult) -> bool:
+# 		while continuing:
+# 			var current_action:ACTION = npc.STATE_STACK.back()
+# 			print ("current_action: ", current_action)
+
+# 			var result:ActionResult = current_action.tick()
+
+# 			continuing = process_action(npc, result)
+			
+
+# 			if !continuing and npc.STATE_STACK[-1].CHATTABLE:
+# 				print("chatting")
+# 				result = npc.SOCIAL_ACTION.run()
+# 				continuing = process_action(npc, result)
+
+# 			print("continuing? ", continuing)
+
+# 			# if result.STATUS == "add":
+# 			# 	current_action.suspend_state()
+# 			# 	result.NEW_ACTION.enter_state()
+# 			# 	npc.STATE_STACK.append(result.NEW_ACTION)
+
+# 			# elif result.STATUS == "replace":
+# 			# 	current_action.exit_state()
+# 			# 	npc.STATE_STACK.pop_back()
+# 			# 	result.NEW_ACTION.enter_state()
+# 			# 	npc.STATE_STACK.append(result.NEW_ACTION)
+
+# 			# elif result.STATUS == "end":
+# 			# 	current_action.exit_state()
+# 			# 	npc.STATE_STACK.pop_back()
+# 			# 	var old_action:ACTION = npc.STATE_STACK.back()
+# 			# 	old_action.resume_state()
+
+# 			# elif result.STATUS == "continue":
+# 			# 	#bonus turn
+# 			# 	current_action.exit_state()
+# 			# 	npc.STATE_STACK.pop_back()
+# 			# 	var old_action:ACTION = npc.STATE_STACK.back()
+# 			# 	old_action.resume_state()
+# 			# 	continuing = true
+# 			# 	print("continuing")
+
+# 			# elif result.STATUS == "clear":
+# 			# 	current_action.exit_state()
+# 			# 	print("clearing " + npc.NAME + "'s actions")
+# 			# 	var idle_action:IdleAction = npc.STATE_STACK[0]
+# 			# 	npc.STATE_STACK = [idle_action]
+
+# 			# else:
+# 			# 	# state continues running
+# 			# 	#assumes result is ["running", null]
+# 			# 	pass
+
+# 		# this setup seems weird lol
+# 		# var current_action = npc.STATE_STACK.back()
+		
+# 		# if current_action.CHATTABLE:
+# 		# 	var _res: ActionResult = npc.SOCIAL_ACTION.run()
+
+# 		#current_action = npc.STATE_STACK.back()
+# 		npc.decay_needs()
+# 		print("new action: ", npc.STATE_STACK.back())
+
+func process_action_old(owner:NPC, result:ActionResult) -> bool:
 	var current_action:ACTION = owner.STATE_STACK.back()
 	if result.STATUS == "add":
 		current_action.suspend_state()
@@ -199,10 +342,12 @@ func process_action(owner:NPC, result:ActionResult) -> bool:
 			var old_action:ACTION = owner.STATE_STACK.back()
 			old_action.resume_state()
 	elif result.STATUS == "clear":
-		current_action.exit_state()
-		print("clearing " + owner.NAME + "'s actions")
-		var idle_action:IdleAction = owner.STATE_STACK[0]
-		owner.STATE_STACK = [idle_action]
+		owner.STATE_STACK = []
+		owner.GOAL_ACTION = null
+		#current_action.exit_state()
+		#print("clearing " + owner.NAME + "'s actions")
+		#var idle_action:IdleAction = owner.STATE_STACK[0]
+		#owner.STATE_STACK = [idle_action]
 
 	return result.CONTINUE
 

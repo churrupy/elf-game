@@ -78,7 +78,6 @@ func inventory_has_item(owner:Node, item:ITEM) -> bool:
 	return false
 
 
-
 func update_inventory_owner(new_owner:Node) -> void:
 	# i can't believe how i stumbled into how stupid this is lol
 	var inventory:INVENTORY = get_inventory_of(new_owner.ID) # should have the same id

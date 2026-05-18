@@ -31,7 +31,7 @@ func in_range_of(_origin:Vector2, _distance:float=1.5) -> INVENTORY_FILTER:
 	distance=_distance
 	return self
 
-func is_in_room(_room:ROOM) -> INVENTORY_FILTER:
+func set_room(_room:ROOM) -> INVENTORY_FILTER:
 	target_room = _room
 	return self
 
@@ -39,7 +39,7 @@ func has_tag(_tag:String) -> INVENTORY_FILTER:
 	tags.append(_tag)
 	return self
 
-func at_location(loc:Vector2) -> INVENTORY_FILTER:
+func set_location(loc:Vector2) -> INVENTORY_FILTER:
 	location = loc
 	return self
 

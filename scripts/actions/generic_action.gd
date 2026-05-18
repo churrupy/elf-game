@@ -13,6 +13,8 @@ var CHATTABLE: bool = true
 var SEEABLE:bool = false
 var HEARABLE:bool = false
 
+var VALID:bool = true
+
 
 var POSE:String = "standing"
 var PHYSICAL_ACTION:String = ""
@@ -44,8 +46,8 @@ func resume_state():
 	pass
 
 
-func score() -> void:
-	pass
+# func score() -> void:
+# 	pass
 
 
 func can_do_action() -> bool:

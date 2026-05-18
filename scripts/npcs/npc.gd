@@ -24,7 +24,7 @@ var PORTRAIT: Dictionary = {}
 
 var LOCATION: Vector2
 var GENDER: String
-var CURRENT_ACTION: ACTION
+# var CURRENT_ACTION: ACTION
 var RECENT_TOPIC: String
 var STYLE: String
 var OPINIONS: Dictionary = {}
@@ -69,6 +69,12 @@ var STATE_STACK: Array[ACTION] = []
 var SOCIAL_ACTION: SocialAction_new
 
 var RESPONSE_REQUESTS:Array[ACTION]
+
+
+
+
+var GOAL_STACK:Array[ACTION]
+var CURRENT_ACTION:ACTION
 
 #endregion actions
 
@@ -155,7 +161,7 @@ func set_needs() -> void:
 		"social": 90.0,
 		"fun": 90.0,
 		# "bladder": randf_range(40.0, 90.0),
-		"bladder": 90.0,
+		"bladder": 40.0,
 		"arousal": 0.0
 	}
 

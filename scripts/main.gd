@@ -16,10 +16,7 @@ var Journal:JOURNAL
 
 #region gamestate data
 var MODE:String = "club"
-var AUTORUN_TICKS:int = 0
-# var AUTORUN:bool = false
-# var ROOM: String = "club"
-# var NUM_NPCS: int = 5
+var AUTORUN_TICKS:int = 00
 var ROOM:String
 var NUM_NPCS:int
 
@@ -48,17 +45,13 @@ func _ready() -> void:
 			child.ENGINE = self
 	
 
-	#var passable_locations: Array[Vector2] = Map.filter_passable_locations()
 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(self).set_list().is_passable()
 	var passable_locations:Array[Vector2] = loc_filter.run_filter()
 
-	#var filtered_tiles: Array[TILE] = Utility.filter_reserved_tiles(passable_tiles)
 	$Player.LOCATION = passable_locations.pick_random()
 	update_focus_target("player")
 
 	$TalkMenu.hide()
-	#GroupManager.print_groups()
-	#tick()
 
 #endregion
 
@@ -83,19 +76,9 @@ func _process(_delta: float) -> void:
 		if Map.is_in_line_of_sight($Player.LOCATION, location): 
 			$MouseTileLabel.text += " **"
 
-		#InventoryManager.print_inventory_at_location(location)
-
-		# var loc_npcs: Array[String] = NpcManager.get_npc_from_location(location)
-		# $DefaultMenu.open_menus(loc_npcs)
-
-		# if Input.is_action_just_pressed("mouse_click"):
-		# 	# $DefaultMenu.hold_temp_menus()
-		# 	$DefaultMenu.hold_menus(loc_npcs)
-		
 		var loc_items:Array = get_all_at_location(location)
 		var loc_ids:Array[String]
 		loc_ids.assign(loc_items.map(func(a): return a.ID))
-		# var loc_ids:Array = loc_items.map(func(a): return a.ID)
 
 		$DefaultMenu.open_menus(loc_ids)
 
@@ -128,11 +111,8 @@ func _process(_delta: float) -> void:
 		update()
 	else:
 		var new_location: Vector2 = $Player.LOCATION + delta_direction
-		#print("new location", new_location)
-		#var new_location = [$Player.LOCATION[0] + delta_direction[0], $Player.LOCATION[1] + delta_direction[1]]
 		if Map.is_passable(new_location):
 			$Player.LOCATION = new_location
-			#$NpcMenu.unwatch_npc()
 			tick()
 		else:
 			update()
@@ -150,7 +130,6 @@ func tick() -> void:
 	print("Ticks: ", Global.TICKS)
 	print("Focused on " + Global.FOCUS_TARGET + " at " + str(Global.FOCUS_LOCATION))
 	NpcManager.tick()
-	#GroupManager.print_groups()
 	update()
 
 
@@ -262,11 +241,11 @@ func toggle_history_menu() -> void:
 func get_all_at_location(loc:Vector2) -> Array:
 	var all_items:Array
 	
-	var filter = NPC_FILTER.new(self).set_list().at_location(loc)
+	var filter = NPC_FILTER.new(self).set_list().set_location(loc)
 	var filtered_items:Array = filter.run_filter()
 	all_items += filtered_items
 
-	filter = TILE_FILTER.new(self).set_list().at_location(loc).not_empty()
+	filter = TILE_FILTER.new(self).set_list().set_location(loc).not_empty()
 	filtered_items = filter.run_filter()
 	all_items += filtered_items
 

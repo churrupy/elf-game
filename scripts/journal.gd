@@ -210,6 +210,7 @@ func show_trait_homepage() -> void:
 
 
 func show_entry() -> void:
+	# generic entry that i don't have any details for yet
 	update_title(CURRENT_ENTRY.capitalize())
 
 	var nav_list: Array[String] = [
@@ -235,7 +236,7 @@ func show_npc() -> void:
 		"All",
 		"NPCs"
 	]
-	# update_navigation(nav_list)
+	update_navigation(nav_list)
 
 	
 
