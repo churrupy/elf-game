@@ -85,7 +85,17 @@ func update_inventory_owner(new_owner:Node) -> void:
 
 
 
+func count_items_in_list(item:String, inv_list:Array[INVENTORY]) -> int:
+	var count:int = 0
+	for i:INVENTORY in inv_list:
+		count += i.count_item(item)
+	return count
 
+func count_tags_in_list(tag:String, inv_list:Array[INVENTORY]) -> int:
+	var count:int = 0
+	for i:INVENTORY in inv_list:
+		count += i.count_tag(tag)
+	return count
 
 
 #region tile/furniture

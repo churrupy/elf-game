@@ -1,7 +1,7 @@
 class_name CRAFT_MENU extends Control
 
 var ENGINE
-var CURRENT_ENTRY:String = "All"
+var CURRENT_ENTRY:String = "Cooking"
 
 var PINNED_ENTRIES:Array[String]
 
@@ -17,18 +17,23 @@ var CLOSE_BUTTON:Button
 
 var TOGGLEABLE:Array
 
+#region init
+
 func _init(engine) -> void:
 	ENGINE = engine
 	set_craft_button()
 	set_background()
 	set_title()
 	set_navigation()
+	set_entry()
 	set_close_button()
 
 	TOGGLEABLE = [
 		BG,
 		TITLE,
 		NAV_MENU,
+		SCROLL_CONTAINER,
+		ENTRY,
 		CLOSE_BUTTON
 	]
 
@@ -87,6 +92,7 @@ func _ready() -> void:
 		t.hide()
 	update()
 
+#endregion init
 
 
 func toggle_menu(topic:String="") -> void:
@@ -101,7 +107,120 @@ func toggle_menu(topic:String="") -> void:
 
 	update()
 
+#region update
+
+func update_title(title:String) -> void:
+	TITLE.text = title
+
+
+func update_navigation(nav_list:Array[String]) -> void:
+	for i in range(0,len(nav_list)):
+		var option:String = nav_list[i]
+		
+		var nav_button:Button = Button.new()
+		nav_button.text = option
+		nav_button.connect("pressed", toggle_menu.bind(option))
+		NAV_MENU.add_child(nav_button)
+
+		if i != len(nav_list) -1:
+			var divider:Label = Label.new()
+			divider.text = " > "
+			NAV_MENU.add_child(divider)
+
 
 func update() -> void:
 
-	for child in ENTRY.
+	for child in ENTRY.get_children():
+		child.queue_free()
+
+	for child in NAV_MENU.get_children():
+		child.queue_free()
+
+	
+	var options:Dictionary[String, Callable] = {
+		"All": show_homepage,
+		"Cooking": show_cooking_homepage,
+		"Crafting": show_crafting_homepage
+	}
+
+	if CURRENT_ENTRY in options.keys():
+		options[CURRENT_ENTRY].call()
+		return
+
+	# else:
+	# 	show_entry()
+
+func show_homepage() -> void:
+	update_title("All")
+
+	var options:Array[String] = [
+		"Cooking",
+		"Crafting"
+	]
+
+	for o:String in options:
+		var new_button:Button = Button.new()
+		new_button.text = o
+		new_button.connect("pressed", toggle_menu.bind(o))
+		ENTRY.add_child(new_button)
+
+func show_cooking_homepage() -> void:
+	# print("show cooking menu")
+	update_title("Cooking")
+
+	var nav_list:Array[String] = [
+		"All"
+	]
+	update_navigation(nav_list)
+
+	var recipe_filter:RECIPE_FILTER = RECIPE_FILTER.new(ENGINE).set_crafting_type("cooking")
+	var recipe_list:Array[Dictionary] = recipe_filter.run_filter()
+
+	# print("printing recipes")
+	for r:Dictionary in recipe_list:
+		# print(r)
+		# var new_label:Label = Label.new()
+		# new_label.text = r["name"]
+		# ENTRY.add_child(new_label)
+
+		var new_recipe:RECIPE = RECIPE.new(ENGINE, ENGINE.get_node("Player"), r["name"])
+		var display_recipe: RichTextLabel = new_recipe.create_display()
+		ENTRY.add_child(display_recipe)
+		
+		if new_recipe.CRAFTABLE:
+			var craft_button:Button = Button.new()
+			craft_button.text = new_recipe.DATA["verb"].capitalize() + " " + r["name"].capitalize()
+			# craft_button.text = "Craft " + r["name"]
+			craft_button.connect("pressed", craft_recipe.bind(new_recipe))
+			ENTRY.add_child(craft_button)
+		# print(display_recipe.global_position)
+		# ENTRY.add_child(new_recipe.create_display())
+
+	# print(ENTRY.get_children())
+
+
+func show_crafting_homepage() -> void:
+	update_title("Crafting")
+
+	var nav_list:Array[String] = [
+		"All"
+	]
+	update_navigation(nav_list)
+
+	var recipe_filter:RECIPE_FILTER = RECIPE_FILTER.new(ENGINE).set_crafting_type("crafting")
+	var recipe_list:Array[Dictionary] = recipe_filter.run_filter()
+
+	for r:Dictionary in recipe_list:
+		var new_recipe:RECIPE = RECIPE.new(ENGINE, ENGINE.get_node("Player"), r)
+		ENTRY.add_child(new_recipe.to_wiki())
+
+func craft_recipe(recipe:RECIPE) -> void:
+	if !recipe.CRAFTABLE: return
+
+	recipe.craft()
+
+	update()
+
+
+
+#endregion update

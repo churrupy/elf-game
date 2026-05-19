@@ -6,6 +6,7 @@ var COLOR: Color = Color(1,1,1)
 
 
 func _init() -> void:
+
 	pass
 
 
@@ -14,6 +15,7 @@ func add_to_wiki(string: String, type:String="label", color:Color=Color.WHITE, i
 		var new_label: Label = Label.new()
 		new_label.text = string
 		new_label.set("theme_override_colors/font_color",color)
+		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		add_child(new_label)
 	elif type == "button":
 		var new_button: Button = Button.new()

@@ -12,10 +12,13 @@ var InventoryManager:INVENTORY_MANAGER = INVENTORY_MANAGER.new(self)
 var GroupManager:GROUP_MANAGER = GROUP_MANAGER.new(self)
 
 var Journal:JOURNAL
+var CraftMenu:CRAFT_MENU
+var PlayerMenu:PLAYER_MENU
 
+var UPDATABLES:Array
 
 #region gamestate data
-var MODE:String = "club"
+var MODE:String = "workshop"
 var AUTORUN_TICKS:int = 00
 var ROOM:String
 var NUM_NPCS:int
@@ -28,7 +31,8 @@ func _init() -> void:
 	Map = MAP.new(self, mode_data["room"])
 	NpcManager = NPC_MANAGER.new(self, mode_data["num_npcs"])
 	Journal = JOURNAL.new(self)
-	
+	CraftMenu = CRAFT_MENU.new(self)
+	PlayerMenu = PLAYER_MENU.new(self)
 
 
 #region init
@@ -40,18 +44,38 @@ func _ready() -> void:
 	add_child(NpcManager)
 	NpcManager.show()
 	add_child(Journal)
+	add_child(CraftMenu)
+	add_child(PlayerMenu)
 	for child in get_children():
 		if "ENGINE" in child:
 			child.ENGINE = self
-	
+
+	UPDATABLES = [
+		Map,
+		NpcManager,
+		$HistoryMenu,
+		$TalkMenu,
+		Journal,
+		CraftMenu,
+		$DefaultMenu,
+		PlayerMenu
+	]
+
+	initialize_player()
+
+	$TalkMenu.hide()
+
+
+func initialize_player():
+	print("initializing player")
+	InventoryManager.create_inventory($Player)
+
+	PlayerMenu.set_player()
 
 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(self).set_list().is_passable()
 	var passable_locations:Array[Vector2] = loc_filter.run_filter()
-
 	$Player.LOCATION = passable_locations.pick_random()
 	update_focus_target("player")
-
-	$TalkMenu.hide()
 
 #endregion
 
@@ -141,17 +165,23 @@ func tick() -> void:
 func update():
 	print("updating map center")
 	update_map_center()
-	print("displaying map")
-	Map.update()
-	print("displaying npcs")
-	NpcManager.update()
-	update_player()
-	$HistoryMenu.update()
-	$TalkMenu.update()
-	Journal.update()
+	for u in UPDATABLES:
+		u.update()
 	
-	print("displaying defaultmenu")
-	$DefaultMenu.update()
+
+# func update_old():
+	
+# 	print("displaying map")
+# 	Map.update()
+# 	print("displaying npcs")
+# 	NpcManager.update()
+# 	update_player()
+# 	$HistoryMenu.update()
+# 	$TalkMenu.update()
+# 	Journal.update()
+	
+# 	print("displaying defaultmenu")
+# 	$DefaultMenu.update()
 
 
 func update_player() -> void:

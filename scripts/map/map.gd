@@ -121,6 +121,14 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 							for k in range(0,amount+1):
 								var new_item:ITEM = ITEM.new(item_type)
 								ENGINE.InventoryManager.add_to_inventory(tile, new_item)
+					if "contains" in tile.DATA:
+						print("contains check")
+						for item_type:String in tile.DATA["contains"]:
+							var amount:int = [1,2,3].pick_random()
+							for k in range(0,amount+1):
+								var new_item:ITEM = ITEM.new(item_type)
+								ENGINE.InventoryManager.add_to_inventory(tile, new_item)
+						print(ENGINE.InventoryManager.get_inventory_of(tile.ID))
 
 	for room_type:String in room_data["rooms"].keys():
 		for relative_location:Vector2 in room_data["rooms"][room_type]:

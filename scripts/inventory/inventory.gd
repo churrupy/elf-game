@@ -7,6 +7,20 @@ var ITEMS: Array[ITEM] = []
 func _init(owner:Node) -> void:
 	OWNER = owner
 
+func count_item(item:String) -> int:
+	var count:int = 0
+	for i:ITEM in ITEMS:
+		if i.NAME == item:
+			count += 1
+	return count
+
+func count_tag(tag:String) -> int:
+	var count:int = 0
+	for i:ITEM in ITEMS:
+		if tag in i.DATA["tags"]:
+			count += 1
+	return count
+
 func get_all_tags() -> Array[String]:
 	#print(OWNER)
 	var tag_list: Array[String]
@@ -14,6 +28,7 @@ func get_all_tags() -> Array[String]:
 		#print(item)
 		tag_list += item.TAGS
 	return tag_list
+
 
 func _to_string() -> String:
 	var item_strings = ", ".join(ITEMS)

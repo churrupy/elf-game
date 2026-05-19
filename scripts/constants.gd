@@ -177,161 +177,161 @@ var PORTRAIT_TEMPLATES = {
 	
 }
 
-var CLASS_TEMPLATES = {
-	"GenericAction": ACTION,
-	#"TileAction": TileAction,
-	#"SocialAction": SocialAction,
-	"SeduceAction": SeduceAction
-}
+# var CLASS_TEMPLATES = {
+# 	"GenericAction": ACTION,
+# 	#"TileAction": TileAction,
+# 	#"SocialAction": SocialAction,
+# 	"SeduceAction": SeduceAction
+# }
 
-var ACTION_ID: Dictionary = {
-	"IdleAction": IdleAction,
-	#"SocialAction": SocialAction,
-	"SeduceAction": SeduceAction,
-	"HungerAction": HungerAction,
-	"BladderAction": BladderAction,
-	"MoveAction": MoveAction,
-	"DanceAction": DanceAction,
-	"DrinkAction": DrinkAction
-}
+# var ACTION_ID: Dictionary = {
+# 	"IdleAction": IdleAction,
+# 	#"SocialAction": SocialAction,
+# 	"SeduceAction": SeduceAction,
+# 	"HungerAction": HungerAction,
+# 	"BladderAction": BladderAction,
+# 	"MoveAction": MoveAction,
+# 	"DanceAction": DanceAction,
+# 	"DrinkAction": DrinkAction
+# }
 
 
 #region action templates
-const ACTION_TEMPLATES = {
-	"idle": {
-		"need": "",
-		"duration": 0,
-		"pose": "standing",
-		"joinable": true,
-		"other_req": false,
-		"do_off_tile": false,
-		"class": "IdleAction"
-	},
-	"move": {
-		"need": "",
-		"duration": 3,
-		"pose": "standing",
-		"joinable": false,
-		"other_req": false,
-		"do_off_tile": false,
-		"class": "MoveAction"
-	},
-	#region SocialAction
-	"converse": {
-		"need": "social",
-		#"relationship": "friendship",
-		"duration": 10,
-		"followers": [1,4],
-		"pose": "standing",
-		"joinable": true,
-		"other_req": true,
-		"do_off_tile": true,
-		"class": "SocialAction"
-	},
-	"encounter": {
-		"need": "release",
-		"duration": 30,
-		"followers": [1,1],
-		"pose": "standing",
-		"joinable": false,
-		"other_req": true,
-		"do_off_tile": true,
-		"conversable": false,
-		"class": "SocialAction" # LOL i'll figure this out later
-	},
-	"flirt": {
-		"need": "social",
-		"duration": 5,
-		"followers": [1,1],
-		"pose": "standing",
-		"joinable": false,
-		"other_req": true,
-		"do_off_tile": true,
-		"conversable": false,
-		"class": "SocialAction"
-	},
-	"seduce": {
-		"need": "release",
-		"duration": 5,
-		"followers": [1,1],
-		"pose": "standing",
-		"joinable": false,
-		"other_req": true,
-		"do_off_tile": true,
-		"conversable": false,
-		"class": "SeduceAction"
-	},
-	#region TileAction
-	"loiter": {
-		"need": "social",
-		"duration": 10,
-		"joinable": true,
-		"other_req": false,
-		"do_off_tile": true,
-		"class": "SocialAction"
-	},
-	"dance" : {
-		"need": "fun",
-		"duration": 10,
-		"followers": [0,3],
-		"pose": "standing",
-		"joinable": true,
-		"other_req": false,
-		"do_off_tile": false,
-		"conversable": false,
-		"class": "DanceAction"
-	},
-	"drink": {
-		"need": "fun",
-		"duration": 5,
-		"followers": [0,0],
-		"pose": "standing",
-		"joinable": false,
-		"other_req": false,
-		"do_off_tile": true,
-		"class": "DrinkAction"
-	},
-	"use toilet": {
-		"need": "bladder",
-		"duration": 5,
-		"followers": [0,0],
-		"pose": "standing",
-		"joinable": false,
-		"other_req": false,
-		"do_off_tile": false,
-		"conversable": false,
-		"class": "BladderAction"
-	},
-	"bladder": {
-		"need": "bladder",
-		"duration": 5,
-		"followers": [0,0],
-		"pose": "standing",
-		"joinable": false,
-		"other_req": false,
-		"do_off_tile": false,
-		"conversable": false,
-		"class": "BladderAction"
-	},
-	"snack": {
-		"duration": 5,
-		"followers": [0,0],
-		"pose": "standing",
-		"joinable": false,
-		"other_req": false,
-		"do_off_tile": true,
-		"class": "HungerAction"
-	},
-	"hunger": {
-		"duration": 5,
-		"followers": [0,0],
-		"pose": "standing",
-		"joinable": false,
-		"other_req": false,
-		"do_off_tile": true,
-		"class": "HungerAction"
-	}
-}
+# const ACTION_TEMPLATES = {
+# 	"idle": {
+# 		"need": "",
+# 		"duration": 0,
+# 		"pose": "standing",
+# 		"joinable": true,
+# 		"other_req": false,
+# 		"do_off_tile": false,
+# 		"class": "IdleAction"
+# 	},
+# 	"move": {
+# 		"need": "",
+# 		"duration": 3,
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": false,
+# 		"do_off_tile": false,
+# 		"class": "MoveAction"
+# 	},
+# 	#region SocialAction
+# 	"converse": {
+# 		"need": "social",
+# 		#"relationship": "friendship",
+# 		"duration": 10,
+# 		"followers": [1,4],
+# 		"pose": "standing",
+# 		"joinable": true,
+# 		"other_req": true,
+# 		"do_off_tile": true,
+# 		"class": "SocialAction"
+# 	},
+# 	"encounter": {
+# 		"need": "release",
+# 		"duration": 30,
+# 		"followers": [1,1],
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": true,
+# 		"do_off_tile": true,
+# 		"conversable": false,
+# 		"class": "SocialAction" # LOL i'll figure this out later
+# 	},
+# 	"flirt": {
+# 		"need": "social",
+# 		"duration": 5,
+# 		"followers": [1,1],
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": true,
+# 		"do_off_tile": true,
+# 		"conversable": false,
+# 		"class": "SocialAction"
+# 	},
+# 	"seduce": {
+# 		"need": "release",
+# 		"duration": 5,
+# 		"followers": [1,1],
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": true,
+# 		"do_off_tile": true,
+# 		"conversable": false,
+# 		"class": "SeduceAction"
+# 	},
+# 	#region TileAction
+# 	"loiter": {
+# 		"need": "social",
+# 		"duration": 10,
+# 		"joinable": true,
+# 		"other_req": false,
+# 		"do_off_tile": true,
+# 		"class": "SocialAction"
+# 	},
+# 	"dance" : {
+# 		"need": "fun",
+# 		"duration": 10,
+# 		"followers": [0,3],
+# 		"pose": "standing",
+# 		"joinable": true,
+# 		"other_req": false,
+# 		"do_off_tile": false,
+# 		"conversable": false,
+# 		"class": "DanceAction"
+# 	},
+# 	"drink": {
+# 		"need": "fun",
+# 		"duration": 5,
+# 		"followers": [0,0],
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": false,
+# 		"do_off_tile": true,
+# 		"class": "DrinkAction"
+# 	},
+# 	"use toilet": {
+# 		"need": "bladder",
+# 		"duration": 5,
+# 		"followers": [0,0],
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": false,
+# 		"do_off_tile": false,
+# 		"conversable": false,
+# 		"class": "BladderAction"
+# 	},
+# 	"bladder": {
+# 		"need": "bladder",
+# 		"duration": 5,
+# 		"followers": [0,0],
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": false,
+# 		"do_off_tile": false,
+# 		"conversable": false,
+# 		"class": "BladderAction"
+# 	},
+# 	"snack": {
+# 		"duration": 5,
+# 		"followers": [0,0],
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": false,
+# 		"do_off_tile": true,
+# 		"class": "HungerAction"
+# 	},
+# 	"hunger": {
+# 		"duration": 5,
+# 		"followers": [0,0],
+# 		"pose": "standing",
+# 		"joinable": false,
+# 		"other_req": false,
+# 		"do_off_tile": true,
+# 		"class": "HungerAction"
+# 	}
+# }
 
 #endregion
 
@@ -365,6 +365,19 @@ const TILE_TEMPLATES:Dictionary = {
 		"tags": ["door", "only_on"],
 		"sprite": "door_top.png"
 	},
+	"kitchen_counter": {
+		"tags": ["h_surface", "only_adjacent"],
+		"sprite": "bar.png",
+		"contains": [
+			"clean water",
+			"wheat flour",
+			"metal bowl"
+		]
+	},
+	"oven": {
+		"tags": ["oven", "only_adjacent"],
+		"sprite": "oven.png",
+	},
 	"table": {
 		"tags": ["h_surface", "only_adjacent"],
 		"sprite": "table.png"
@@ -386,60 +399,92 @@ const TILE_TEMPLATES:Dictionary = {
 
 
 #region Furniture
-var FURNITURE: Dictionary ={
-	"counter": {
-		"type": "h_surface",
-		"tags": ["container"],
-		"sprite": "bar.png",
-		"may_contain": [
-			"snack",
-			"beer"
-		]
-	},
-	"dance_floor": {
-		"type": "floor",
-		"tags": [],
-		"sprite": "dance_floor.png"
-	},
-	"table": {
-		"type": "h_surface",
-		"tags": [],
-		"sprite": "table.png"
-	},
-	"toilet": {
-		"type": "chair",
-		"tags": ["fill_bladder"],
-		"sprite": "toilet.png"
-	},
-	"wall": {
-		"type": "v_surface",
-		"tags": [],
-		"sprite": "wall.png"
-	},
-	"door": {
-		"type": "v_surface",
-		"tags": [],
-		"sprite": "door_top.png"
-	}
+# var FURNITURE: Dictionary ={
+# 	"counter": {
+# 		"type": "h_surface",
+# 		"tags": ["container"],
+# 		"sprite": "bar.png",
+# 		"may_contain": [
+# 			"snack",
+# 			"beer"
+# 		]
+# 	},
+# 	"dance_floor": {
+# 		"type": "floor",
+# 		"tags": [],
+# 		"sprite": "dance_floor.png"
+# 	},
+# 	"table": {
+# 		"type": "h_surface",
+# 		"tags": [],
+# 		"sprite": "table.png"
+# 	},
+# 	"toilet": {
+# 		"type": "chair",
+# 		"tags": ["fill_bladder"],
+# 		"sprite": "toilet.png"
+# 	},
+# 	"wall": {
+# 		"type": "v_surface",
+# 		"tags": [],
+# 		"sprite": "wall.png"
+# 	},
+# 	"door": {
+# 		"type": "v_surface",
+# 		"tags": [],
+# 		"sprite": "door_top.png"
+# 	}
 	
 
-}
+# }
 
 
 
 #endregion furniture
+
+#region items
 var ITEM_TEMPLATES: Dictionary = {
-	"snack" : {
+	"beer": {
+		"description": "Let's get smashed!",
+		"nutrition": 5,
+		"tags": ["alcohol"]
+	},
+	"bread": {
+		"description": "Nice crusty bread.",
 		"nutrition": 20,
 		"tags": ["food"]
 	},
-	"beer": {
+	"dough": {
+		"description": "Soft pillowy dough for making bread.",
+		"nutrition": 0,
+		"tags": ["cooking_ingredient", "dough"]
+	},
+	"clean water": {
+		"description": "Fresh clean water",
+		"nutrition": 0,
+		"tags": ["cooking_ingredient", "water"]
+	},
+	"metal bowl": {
+		"description": "Metal bowl good for mixing ingredients in.",
+		"nutrition": 0,
+		"tags": ["tool", "bowl"]
+	},
+	"snack" : {
+		"description": "Freedom fries! *bird noises*",
+		"nutrition": 20,
+		"tags": ["food"]
+	},
+	
+	"wheat flour": {
+		"description": "Fine powder, but not the kind you snort.",
 		"nutrition": 5,
-		"tags": ["alcohol"]
-	}
+		"tags": ["cooking_ingredient", "flour"]
+	},
+	
+	
 }
 
 #FoodManager
 #AlcoholManager
 
-#region items
+#endregion items

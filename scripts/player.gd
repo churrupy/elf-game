@@ -4,6 +4,8 @@ class_name Player
 
 var ID:String = "player"
 
+var NAME:String = "Casey"
+
 var LOCATION: Vector2
 var CURRENT_ACTION: IdleAction
 var NEEDS: Dictionary

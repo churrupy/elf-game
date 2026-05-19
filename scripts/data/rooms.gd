@@ -89,7 +89,14 @@ var ROOM_TEMPLATES_new: Dictionary = {
 	"rooms": {},
 	"walls": true,
 	"doors": [],
-	"furniture": {}
+	"furniture": {
+		"kitchen_counter": [
+			[Vector2(4,1), Vector2(4,1)]
+		],
+		"oven": [
+			[Vector2(3,1), Vector2(3,1)]
+		]
+	},
 }
 
 

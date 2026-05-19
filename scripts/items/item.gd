@@ -13,6 +13,26 @@ func _init(type:String) -> void:
 	DATA = Constants.ITEM_TEMPLATES[TYPE]
 	TAGS.assign(DATA["tags"])
 
+func create_display(amount:int = 1) -> RichTextLabel:
+	print("creating item display")
+
+	var display:RichTextLabel = RichTextLabel.new()
+	display.fit_content = true
+
+	display.push_paragraph(HorizontalAlignment.HORIZONTAL_ALIGNMENT_LEFT)
+	display.push_bold()
+	display.add_text(NAME.capitalize())
+	display.pop()
+	if amount > 1:
+		display.add_text(" (x" + str(amount) + ")")
+	display.pop()
+
+	display.push_paragraph(HorizontalAlignment.HORIZONTAL_ALIGNMENT_LEFT)
+	display.add_text(Constants.ITEM_TEMPLATES[NAME]["description"])
+	display.pop()
+
+	return display
+
 
 func _to_string() -> String:
 	return NAME

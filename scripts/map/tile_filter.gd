@@ -96,13 +96,14 @@ func run_filter() -> Array[TILE]:
 					continue
 
 		if len(tags) > 0:
-			var matched:bool = true
-			var t_tags:Array = tile.DATA["tags"]
-			for tag:String in tags:
-				if tag not in t_tags:
-					matched = false
-					break
-			if !matched: continue
+			if !is_subset_of(tags, tile.DATA["tags"]): continue
+			# var matched:bool = true
+			# var t_tags:Array = tile.DATA["tags"]
+			# for tag:String in tags:
+			# 	if tag not in t_tags:
+			# 		matched = false
+			# 		break
+			# if !matched: continue
 
 		if be_available:
 			if ENGINE.NpcManager.is_reserved(tile.LOCATION): continue
@@ -140,3 +141,11 @@ func convert_to_loc() -> Array[Vector2]:
 	var loc_list:Array = filtered_list.map(func(a): return a.LOCATION)
 	result_list.assign(loc_list)
 	return result_list
+
+
+func is_subset_of(subset:Array, set:Array) -> bool:
+	for i in subset:
+		if i in set: continue
+		else: return false
+
+	return true
