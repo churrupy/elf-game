@@ -158,35 +158,35 @@ func process_goal_response(npc:NPC, result:ActionResult) -> void:
 		npc.CURRENT_ACTION = result.NEW_ACTION
 			
 
-func process_response_old(npc:NPC, result:ActionResult) -> bool:
-	var current_goal:ACTION = npc.GOAL_STACK.back()
-	var res:bool = false
-	if result.STATUS == "add":
-		current_goal.suspend_state()
-		result.NEW_ACTION.enter_state()
-		npc.GOAL_STACK.append(result.NEW_ACTION)
-	elif result.STATUS == "replace":
-		current_goal.exit_state()
-		npc.GOAL_STACK.pop_back()
-		result.NEW_ACTION.enter_state()
-		npc.GOAL_STACK.append(result.NEW_ACTION)
-	elif result.STATUS == "end":
-		current_goal.exit_state()
-		npc.GOAL_STACK.pop_back()
-		var old_goal:ACTION = npc.GOAL_STACK.back()
-		old_goal.resume_state()
-	elif result.STATUS == "clear":
-		npc.GOAL_STACK = []
-		npc.CURRENT_ACTION = null
-		current_goal.exit_state()
-		print("clearing " + npc.NAME + "'s actions")
-		var idle_action:IdleAction = npc.GOAL_STACK[0]
-		npc.GOAL_STACK = [idle_action]
-	elif result.STATUS == "action":
-		result.NEW_ACTION.enter_state()
-		npc.CURRENT_ACTION = result.NEW_ACTION
-		res = true
-	return res
+# func process_response_old(npc:NPC, result:ActionResult) -> bool:
+# 	var current_goal:ACTION = npc.GOAL_STACK.back()
+# 	var res:bool = false
+# 	if result.STATUS == "add":
+# 		current_goal.suspend_state()
+# 		result.NEW_ACTION.enter_state()
+# 		npc.GOAL_STACK.append(result.NEW_ACTION)
+# 	elif result.STATUS == "replace":
+# 		current_goal.exit_state()
+# 		npc.GOAL_STACK.pop_back()
+# 		result.NEW_ACTION.enter_state()
+# 		npc.GOAL_STACK.append(result.NEW_ACTION)
+# 	elif result.STATUS == "end":
+# 		current_goal.exit_state()
+# 		npc.GOAL_STACK.pop_back()
+# 		var old_goal:ACTION = npc.GOAL_STACK.back()
+# 		old_goal.resume_state()
+# 	elif result.STATUS == "clear":
+# 		npc.GOAL_STACK = []
+# 		npc.CURRENT_ACTION = null
+# 		current_goal.exit_state()
+# 		print("clearing " + npc.NAME + "'s actions")
+# 		var idle_action:IdleAction = npc.GOAL_STACK[0]
+# 		npc.GOAL_STACK = [idle_action]
+# 	elif result.STATUS == "action":
+# 		result.NEW_ACTION.enter_state()
+# 		npc.CURRENT_ACTION = result.NEW_ACTION
+# 		res = true
+# 	return res
 
 # func tick_old() -> void:
 # 	for npc:NPC in NPCS:
@@ -241,27 +241,27 @@ func clear_responses(npc:NPC) -> ActionResult:
 	npc.RESPONSE_REQUESTS = []
 	return res
 
-func choose_goal(npc:NPC) -> void:
-	# when to switch goals: state stack is empty, or a higher priority need is flagged
-	npc.STATE_STACK = []
-	if len(npc.STATE_STACK) == 0 or (npc.GOAL_ACTION is SocialAction_new and npc.are_needs_low()):
-		# choose new goal
-		print("choosing new goal")
-		var new_action:ACTION
-		if npc.NEEDS["bladder"] < 50:
-			new_action = BladderAction.new(ENGINE, npc).find_target()
-			if new_action.validate():
-				npc.GOAL_ACTION = new_action
-				return
+# func choose_goal(npc:NPC) -> void:
+# 	# when to switch goals: state stack is empty, or a higher priority need is flagged
+# 	npc.STATE_STACK = []
+# 	if len(npc.STATE_STACK) == 0 or (npc.GOAL_ACTION is SocialAction_new and npc.are_needs_low()):
+# 		# choose new goal
+# 		print("choosing new goal")
+# 		var new_action:ACTION
+# 		if npc.NEEDS["bladder"] < 50:
+# 			new_action = BladderAction.new(ENGINE, npc).find_target()
+# 			if new_action.validate():
+# 				npc.GOAL_ACTION = new_action
+# 				return
 		
-		if npc.NEEDS["hunger"] < 50:
-			new_action = HungerAction.new(ENGINE, npc)
-			if new_action.valid():
-				npc.GOAL_ACTION = new_action
-				return
+# 		if npc.NEEDS["hunger"] < 50:
+# 			new_action = HungerAction.new(ENGINE, npc)
+# 			if new_action.valid():
+# 				npc.GOAL_ACTION = new_action
+# 				return
 
-		new_action = SocialAction_new.new(ENGINE, npc)
-		npc.GOAL_ACTION = new_action
+# 		new_action = SocialAction_new.new(ENGINE, npc)
+# 		npc.GOAL_ACTION = new_action
 
 		
 		# npc.GOAL_ACTION.populate_stack()
@@ -337,34 +337,34 @@ func choose_goal(npc:NPC) -> void:
 # 		npc.decay_needs()
 # 		print("new action: ", npc.STATE_STACK.back())
 
-func process_action_old(owner:NPC, result:ActionResult) -> bool:
-	var current_action:ACTION = owner.STATE_STACK.back()
-	if result.STATUS == "add":
-		current_action.suspend_state()
-		result.NEW_ACTION.enter_state()
-		owner.STATE_STACK.append(result.NEW_ACTION)
-	elif result.STATUS == "replace":
-		current_action.exit_state()
-		owner.STATE_STACK.pop_back()
-		result.NEW_ACTION.enter_state()
-		owner.STATE_STACK.append(result.NEW_ACTION)
-	elif result.STATUS == "end":
-		current_action.exit_state()
-		owner.STATE_STACK.pop_back()
-		# print("stack:", owner.STATE_STACK)
-		# print(result.CONTINUE)
-		if len(owner.STATE_STACK) > 0:
-			var old_action:ACTION = owner.STATE_STACK.back()
-			old_action.resume_state()
-	elif result.STATUS == "clear":
-		owner.STATE_STACK = []
-		owner.GOAL_ACTION = null
-		#current_action.exit_state()
-		#print("clearing " + owner.NAME + "'s actions")
-		#var idle_action:IdleAction = owner.STATE_STACK[0]
-		#owner.STATE_STACK = [idle_action]
+# func process_action_old(owner:NPC, result:ActionResult) -> bool:
+# 	var current_action:ACTION = owner.STATE_STACK.back()
+# 	if result.STATUS == "add":
+# 		current_action.suspend_state()
+# 		result.NEW_ACTION.enter_state()
+# 		owner.STATE_STACK.append(result.NEW_ACTION)
+# 	elif result.STATUS == "replace":
+# 		current_action.exit_state()
+# 		owner.STATE_STACK.pop_back()
+# 		result.NEW_ACTION.enter_state()
+# 		owner.STATE_STACK.append(result.NEW_ACTION)
+# 	elif result.STATUS == "end":
+# 		current_action.exit_state()
+# 		owner.STATE_STACK.pop_back()
+# 		# print("stack:", owner.STATE_STACK)
+# 		# print(result.CONTINUE)
+# 		if len(owner.STATE_STACK) > 0:
+# 			var old_action:ACTION = owner.STATE_STACK.back()
+# 			old_action.resume_state()
+# 	elif result.STATUS == "clear":
+# 		owner.STATE_STACK = []
+# 		owner.GOAL_ACTION = null
+# 		#current_action.exit_state()
+# 		#print("clearing " + owner.NAME + "'s actions")
+# 		#var idle_action:IdleAction = owner.STATE_STACK[0]
+# 		#owner.STATE_STACK = [idle_action]
 
-	return result.CONTINUE
+# 	return result.CONTINUE
 
 # func tick_old() -> void:
 # 	for npc:NPC in NPCS:
@@ -581,9 +581,9 @@ func is_reserved(location:Vector2) -> bool:
 	return false
 
 
-func is_reserved_old(location: Vector2) -> bool:
-	var reserved_list:Array[Vector2] = get_reserved_locations()
-	return location in reserved_list
+# func is_reserved_old(location: Vector2) -> bool:
+# 	var reserved_list:Array[Vector2] = get_reserved_locations()
+# 	return location in reserved_list
 
 	# for npc:NPC in NPCS:
 	# 	var current_action:ACTION = npc.STATE_STACK.back()
@@ -604,12 +604,12 @@ func get_reserved_locations() -> Array[Vector2]:
 	return result_list
 
 
-func get_reserved_locations_old() -> Array[Vector2]:
-	var result_list:Array[Vector2] = []
-	for npc:NPC in NPCS:
-		var npc_list:Array[Vector2] = npc.get_reserved_locations()
-		result_list += npc_list
-	return result_list
+# func get_reserved_locations_old() -> Array[Vector2]:
+# 	var result_list:Array[Vector2] = []
+# 	for npc:NPC in NPCS:
+# 		var npc_list:Array[Vector2] = npc.get_reserved_locations()
+# 		result_list += npc_list
+# 	return result_list
 
 
 #endregion filters

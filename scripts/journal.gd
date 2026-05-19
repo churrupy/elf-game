@@ -277,12 +277,25 @@ func show_npc_snap(npc:NPC, subnav_options:Array[String]) -> void:
 
 func show_npc_needs(npc:NPC) -> void:
 
+	var title:Label = Label.new()
+	title.text = "NEEDS"
+	ENTRY.add_child(title)
+
 	for need: String in npc.NEEDS.keys():
 		var _str: String = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
 		var new_label:Label = Label.new()
 		new_label.text = _str
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ENTRY.add_child(new_label)
+
+	var goal:Label = Label.new()
+	goal.text = str(npc.GOAL_STACK.back())
+	ENTRY.add_child(goal)
+	
+	var action:Label = Label.new()
+	action.text = str(npc.CURRENT_ACTION)
+	ENTRY.add_child(action)
+
 
 
 func show_npc_details(npc:NPC) -> void:

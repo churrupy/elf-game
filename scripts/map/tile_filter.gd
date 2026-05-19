@@ -36,7 +36,7 @@ func set_list_from_vector(loc_list:Array[Vector2]) -> TILE_FILTER:
 		tile_list.append(ENGINE.Map.get_tile(loc))
 	return self
 
-func in_range_of(_origin:Vector2, _distance:float) -> TILE_FILTER:
+func in_range_of(_origin:Vector2, _distance:float = 1.5) -> TILE_FILTER:
 	origin=_origin
 	distance=_distance
 	return self

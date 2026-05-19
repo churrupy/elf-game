@@ -206,7 +206,7 @@ func run() -> ActionResult:
 	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list_from_vector(PATH).in_range_of(OWNER.LOCATION, 10).in_arc_of(OWNER.DIRECTION)
 	var visible_tile:Array[TILE] = filter.run_filter()
 	print("visible tile: ", visible_tile)
-	filter = TILE_FILTER.new(ENGINE).set_list(visible_tile).in_range_of(OWNER.LOCATION, 100).is_passable()
+	filter = TILE_FILTER.new(ENGINE).set_list(visible_tile).in_range_of(OWNER.LOCATION, 100).is_passable().is_available()
 	var passable_tile:Array[TILE] = filter.run_filter()
 	print("passable tile: ", passable_tile)
 	if len(visible_tile) != len(passable_tile):

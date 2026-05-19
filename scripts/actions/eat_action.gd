@@ -14,7 +14,7 @@ func set_item(_food:ITEM) -> EatAction:
 func run() -> ActionResult:
 	if !ENGINE.InventoryManager.inventory_has_item(OWNER, FOOD_ITEM):
 		return ActionResult.new("end")
-	
+	print("eating food")
 	# OWNER.consume(FOOD_ITEM)
 	OWNER.NEEDS["hunger"] += FOOD_ITEM.DATA["nutrition"]
 	ENGINE.InventoryManager.remove_from_inventory(OWNER, FOOD_ITEM)

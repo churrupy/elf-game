@@ -18,6 +18,7 @@ func set_tag(_tag:String) -> MoveToTile:
 	TILE_TAG = _tag
 	return self
 
+
 func to_secure() -> MoveToTile:
 	secure_room = true
 	return self

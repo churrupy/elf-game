@@ -146,7 +146,7 @@ func update_npc() -> void:
 	SNAP.push_bold()
 	SNAP.add_text("Action: ")
 	SNAP.pop()
-	SNAP.add_text(str(FOCUS.STATE_STACK.back()))
+	SNAP.add_text(str(FOCUS.GOAL_STACK.back()))
 	SNAP.pop()
 
 
