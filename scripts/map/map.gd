@@ -343,7 +343,7 @@ func get_pathfind_path(end:Vector2, start:Vector2) -> Array[Vector2]:
 			while current != start:
 				current = parent_dict[current]
 				result_list.append(current)
-			return result_list
+			return result_list.slice(1)
 		for neighbor in get_neighbors(current):
 			if neighbor in visited:
 				continue
@@ -505,15 +505,16 @@ func filter_closest_interactable_locations_dict(start_loc:Vector2, loc_list:Arra
 
 #region utility
 func get_neighbors(loc:Vector2) -> Array[Vector2]:
-	var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(loc,1.5).is_available().is_passable()
+	# var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(loc,1.5).is_available().is_passable()
+	var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(loc,1.5).is_passable()
 	tile_filter.run_filter()
 	var loc_list:Array[Vector2] = tile_filter.convert_to_loc()
 	return loc_list
 
-func get_neighbors_old(loc:Vector2) -> Array[Vector2]:
-	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(loc, 1).is_passable()
-	var result_list:Array[Vector2] = loc_filter.run_filter()
-	return result_list
+# func get_neighbors_old(loc:Vector2) -> Array[Vector2]:
+# 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(loc, 1).is_passable()
+# 	var result_list:Array[Vector2] = loc_filter.run_filter()
+# 	return result_list
 
 
 func get_closest_adjacent_location(start_location: Vector2, target_location: Vector2) -> Vector2:

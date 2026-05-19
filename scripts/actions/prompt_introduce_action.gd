@@ -53,4 +53,4 @@ func process_response() -> ActionResult:
 	# they're always going to respond for now
 	var new_action:IntroduceAction = IntroduceAction.new(ENGINE, TARGET).set_target(OWNER)
 
-	return ActionResult.new("event", new_action)
+	return ActionResult.new("action", new_action)

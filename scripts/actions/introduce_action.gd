@@ -43,7 +43,8 @@ func _to_string() -> String:
 	return " ".join(str_list)
 
 func get_involved_npcs() -> Array[NPC]:
-	var npc_list:Array[NPC] = ENGINE.GroupManager.get_group_participants(OWNER)
+	var id_list:Array[String] = ENGINE.GroupManager.get_group_participants(OWNER)
+	var npc_list:Array[NPC] = ENGINE.NpcManager.get_npcs_from_ids(id_list)
 	# if group changes then this no longer works :(
 	# i'll have to fix that
 	return npc_list

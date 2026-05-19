@@ -1,11 +1,16 @@
 class_name CRAFT_MENU extends Control
 
 var ENGINE
-var CURRENT_ENTRY:String
+var CURRENT_ENTRY:String = "All"
+
+var PINNED_ENTRIES:Array[String]
 
 var BG:TextureRect
 var TITLE:Label
 var NAV_MENU:HFlowContainer
+
+var SCROLL_CONTAINER:ScrollContainer
+var ENTRY:VBoxContainer
 
 var CRAFT_BUTTON:Button
 var CLOSE_BUTTON:Button
@@ -13,27 +18,27 @@ var CLOSE_BUTTON:Button
 var TOGGLEABLE:Array
 
 func _init(engine) -> void:
-    ENGINE = engine
-    set_craft_button()
-    set_background()
-    set_title()
-    set_navigation()
-    set_close_button()
+	ENGINE = engine
+	set_craft_button()
+	set_background()
+	set_title()
+	set_navigation()
+	set_close_button()
 
-    TOGGLEABLE = [
-        BG,
-        TITLE,
-        NAV_MENU,
-        CLOSE_BUTTON
-    ]
+	TOGGLEABLE = [
+		BG,
+		TITLE,
+		NAV_MENU,
+		CLOSE_BUTTON
+	]
 
 func set_craft_button() -> void:
-    CRAFT_BUTTON = Button.new()
-    CRAFT_BUTTON.text = "Craft"
-    CRAFT_BUTTON.focus_mode = FocusMode.FOCUS_NUN
-    CRAFT_BUTTON.position = Vector2(250, 150)
-    CRAFT_BUTTON.connect("pressed", toggle_craft_menu)
-    add_child(CRAFT_BUTTON)
+	CRAFT_BUTTON = Button.new()
+	CRAFT_BUTTON.text = "Craft"
+	CRAFT_BUTTON.focus_mode = FocusMode.FOCUS_NONE
+	CRAFT_BUTTON.position = Vector2(250, 150)
+	CRAFT_BUTTON.connect("pressed", toggle_menu)
+	add_child(CRAFT_BUTTON)
 
 func set_background() -> void:
 	BG = TextureRect.new()
@@ -57,18 +62,46 @@ func set_navigation() -> void:
 	NAV_MENU.position = Vector2(7,47)
 	add_child(NAV_MENU)
 
+func set_entry() -> void:
+	SCROLL_CONTAINER = ScrollContainer.new()
+	SCROLL_CONTAINER.size = Vector2(290, 550)
+	SCROLL_CONTAINER.position = Vector2(4,90)
+	add_child(SCROLL_CONTAINER)
+
+	ENTRY = VBoxContainer.new()
+	ENTRY.custom_minimum_size = Vector2(290,0)
+	SCROLL_CONTAINER.add_child(ENTRY)
+
 func set_close_button() -> void:
 	CLOSE_BUTTON = Button.new()
 	CLOSE_BUTTON.text = "X"
 	CLOSE_BUTTON.size = Vector2(30,30)
 	CLOSE_BUTTON.position = Vector2(250,0)
 	CLOSE_BUTTON.add_theme_font_size_override("font_size", 32)
-	CLOSE_BUTTON.connect("pressed", toggle_journal)
+	CLOSE_BUTTON.connect("pressed", toggle_menu)
 	add_child(CLOSE_BUTTON)
 
 func _ready() -> void:
-    position = Vector2(900,0)
-    for t in TOGGLEABLE:
-        t.hide()
-    update()
+	position = Vector2(900,0)
+	for t in TOGGLEABLE:
+		t.hide()
+	update()
 
+
+
+func toggle_menu(topic:String="") -> void:
+	if topic == "" or topic == CURRENT_ENTRY:
+		for t in TOGGLEABLE:
+			t.visible = !t.visible
+
+	else:
+		CURRENT_ENTRY = topic
+		for t in TOGGLEABLE:
+			t.show()
+
+	update()
+
+
+func update() -> void:
+
+	for child in ENTRY.

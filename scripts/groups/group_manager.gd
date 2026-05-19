@@ -36,14 +36,17 @@ func get_group(npc:NPC) -> GROUP:
 	return npc_group
 
 
-
 func is_conversing(npc:NPC) -> bool:
-	var npc_group:GROUP = get_group(npc)
-	for id:String in GROUP_LIST.keys():
-		var checked_group:GROUP = GROUP_LIST[id]
-		if checked_group == npc_group and id != npc.ID:
-			return true
-	return false
+	var participants:Array[String] = get_group_participants(npc)
+	return len(participants) > 1
+
+# func is_conversing(npc:NPC) -> bool:
+# 	var npc_group:GROUP = get_group(npc)
+# 	for id:String in GROUP_LIST.keys():
+# 		var checked_group:GROUP = GROUP_LIST[id]
+# 		if checked_group == npc_group and id != npc.ID:
+# 			return true
+# 	return false
 	# if len(npc_group.PARTICIPANTS) == 1:
 	# 	return false
 	# elif len(npc_group.PARTICIPANTS) == 0:

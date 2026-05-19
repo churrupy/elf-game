@@ -155,7 +155,7 @@ func load_sprites() -> void:
 func set_needs() -> void:
 	NEEDS = {
 		# "hunger": randf_range(40.0, 90.0),
-		"hunger": 40.0,
+		"hunger": 90.0,
 		"energy": 90.0,
 		"release": 90.0,
 		"social": 90.0,

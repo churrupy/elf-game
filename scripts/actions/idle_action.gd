@@ -77,6 +77,10 @@ func run() -> ActionResult:
 
 	var result:ActionResult
 
+	if len(OWNER.RESPONSE_REQUESTS) > 0:
+		var new_action:ACTION = RespondAction.new(ENGINE, OWNER)
+		result = ActionResult.new("add", new_action)
+
 	if OWNER.NEEDS["bladder"] < 50:
 		var new_action:ACTION = BladderAction.new(ENGINE, OWNER)
 		result = ActionResult.new("add", new_action)

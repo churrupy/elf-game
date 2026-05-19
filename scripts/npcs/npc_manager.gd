@@ -50,8 +50,11 @@ func tick() -> void:
 		if npc.are_needs_low():
 			pass
 		# then do response processing here
-		for response:ACTION in npc.RESPONSE_REQUESTS:
-			pass
+		if len(npc.RESPONSE_REQUESTS) > 0:
+			var new_goal:ACTION = RespondAction.new(ENGINE, npc)
+			new_goal.enter_state()
+			var res:ActionResult = new_goal.run()
+			process_goal_response(npc, res)
 
 		# then regular goal processing
 		var continuing:bool = true
@@ -723,3 +726,10 @@ func is_reserved_by(loc:Vector2) -> Array[NPC]:
 	return result_list
 
 #endregion
+
+func get_npcs_from_ids(id_list:Array[String]) -> Array[NPC]:
+	var npc_list:Array[NPC]
+	for id:String in id_list:
+		var npc:NPC = get_npc(id)
+		npc_list.append(npc)
+	return npc_list

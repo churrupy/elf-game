@@ -4,6 +4,10 @@ var RECENT_TOPIC:String
 # var RESPONSE_REQUESTS: Array[EVENT] = []
 var RESPONSE_REQUESTS:Array[ACTION] = []
 
+var IS_IN_GROUP:bool = false
+var KNOWS_EVERYONE:bool = false
+var GROUP_PARTICIPANTS:Array[NPC]
+
 # enum STATUS {
 # 	RUNNING,
 # 	FAILURE,
@@ -21,8 +25,8 @@ func _init(engine, owner: NPC, target: NPC=null) -> void:
 	#super._init(engine, owner, target)
 
 
-func tick() -> ActionResult:
-	return run()
+# func tick() -> ActionResult:
+# 	return run()
 
 # func run_old() -> ActionResult:
 # 	var res: ActionResult = ActionResult.new("running")
@@ -255,13 +259,26 @@ func tick() -> ActionResult:
 # 	RESPONSE_REQUESTS = []
 # 	return STATUS.SUCCESS
 
+func enter_state() -> void:
+	if ENGINE.GroupManager.is_conversing(OWNER):
+		IS_IN_GROUP = true
+		var id_list:Array[String] = ENGINE.GroupManager.get_group_participants(OWNER)
+		GROUP_PARTICIPANTS = ENGINE.NpcManager.get_npcs_from_ids(id_list)
+
+	else:
+		IS_IN_GROUP = false
+		GROUP_PARTICIPANTS = []
+				
+
+
 func run() -> ActionResult:
 	LOCATION = OWNER.LOCATION
-	if ENGINE.GroupManager.is_conversing(OWNER):
+	if IS_IN_GROUP:
+		var res:ActionResult
 		# choose what to do next
-		var res:ActionResult = clear_responses()
-		if res != null:
-			return res
+		# var res:ActionResult = clear_responses()
+		# if res != null:
+		# 	return res
 		
 		res = know_everyone()
 		if res != null:
@@ -275,37 +292,39 @@ func run() -> ActionResult:
 		if res != null:
 			return res
 	else:
-		return join_group()
+		var new_action:ACTION = JoinGroupAction.new(ENGINE, OWNER)
+		return ActionResult.new("add", new_action)
+		# return join_group()
 		
 
 	return ActionResult.new("running")
 
-func join_group() -> ActionResult:
-	print("attempting to join group")
-	# check if already trying to join a group
-	for _action:ACTION in OWNER.STATE_STACK:
-		if _action is JoinGroupAction:
-			print("already trying to join a group")
-			return ActionResult.new("running")
+# func join_group() -> ActionResult:
+# 	print("attempting to join group")
+# 	# check if already trying to join a group
+# 	for _action:ACTION in OWNER.STATE_STACK:
+# 		if _action is JoinGroupAction:
+# 			print("already trying to join a group")
+# 			return ActionResult.new("running")
 
-	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
-	var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_available().is_not([OWNER])
-	var available_npcs:Array[NPC] = filter.run_filter()
-	print("available npcs: ", available_npcs)
-	if len(available_npcs) == 0:
-		return ActionResult.new("running")
+# 	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+# 	var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().is_available().is_not([OWNER])
+# 	var available_npcs:Array[NPC] = filter.run_filter()
+# 	print("available npcs: ", available_npcs)
+# 	if len(available_npcs) == 0:
+# 		return ActionResult.new("running")
 	
-	var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
-	impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
+# 	var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
+# 	impressions.sort_custom(func(a,b): b.SCORE < a.SCORE)
 
-	for imp:Impression in impressions:
-		var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(OWNER.LOCATION, imp.TARGET)
-		if interactable_location != Vector2.INF:
-			var chosen_npc:NPC = imp.TARGET
-			var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER).set_target(chosen_npc).set_location(interactable_location)
-			return ActionResult.new("add", new_action)
+# 	for imp:Impression in impressions:
+# 		var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(OWNER.LOCATION, imp.TARGET)
+# 		if interactable_location != Vector2.INF:
+# 			var chosen_npc:NPC = imp.TARGET
+# 			var new_action:JoinGroupAction = JoinGroupAction.new(ENGINE, OWNER).set_target(chosen_npc).set_location(interactable_location)
+# 			return ActionResult.new("add", new_action)
 
-	return ActionResult.new("running")
+# 	return ActionResult.new("running")
 
 # func know_everyone() -> STATUS:
 # 	var group:GROUP = ENGINE.GroupManager.get_group(OWNER)
@@ -336,9 +355,10 @@ func clear_responses() -> ActionResult:
 			# return ActionResult.new("add", new_action).continuing()
 	return null
 
+
 func know_everyone() -> ActionResult:
-	var group:GROUP = ENGINE.GroupManager.get_group(OWNER)
-	for npc:NPC in group.PARTICIPANTS:
+	# var group:GROUP = ENGINE.GroupManager.get_group(OWNER)
+	for npc:NPC in GROUP_PARTICIPANTS:
 		if npc == OWNER: continue
 		if !OWNER.knows_npc(npc):
 			IntroduceAction.new(ENGINE, OWNER).set_target(npc).create_event()

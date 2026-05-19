@@ -291,7 +291,7 @@ func show_npc_needs(npc:NPC) -> void:
 	var goal:Label = Label.new()
 	goal.text = str(npc.GOAL_STACK.back())
 	ENTRY.add_child(goal)
-	
+
 	var action:Label = Label.new()
 	action.text = str(npc.CURRENT_ACTION)
 	ENTRY.add_child(action)
@@ -309,6 +309,15 @@ func show_npc_details(npc:NPC) -> void:
 
 
 func show_npc_relationships(npc:NPC) -> void:
+
+	var label:Label = Label.new()
+	label.text = "Currently in a group with: "
+	ENTRY.add_child(label)
+
+	var id_list:Array[String] = ENGINE.GroupManager.get_group_participants(npc)
+	label = Label.new()
+	label.text = ", ".join(id_list)
+	ENTRY.add_child(label)
 
 	# relationship details
 	var impression_list: Array[Impression] = npc.get_all_impressions()
