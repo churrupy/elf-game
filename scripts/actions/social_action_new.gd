@@ -375,7 +375,7 @@ func flirt() -> ActionResult:
 				return ActionResult.new("running")
 	var group:GROUP = ENGINE.GroupManager.get_group(OWNER)
 	var impression_list:Array[Impression] = OWNER.get_all_impressions(group.PARTICIPANTS)
-	impression_list.sort_custom(func(a,b): b.ATTRACTIVE > a.ATTRACTIVE)
+	impression_list.sort_custom(func(a,b): return a.ATTRACTIVE > b.ATTRACTIVE)
 	
 	if len(impression_list) > 0:
 	# if impression_list[0].ATTRACTIVE > 0:
@@ -404,7 +404,7 @@ func populate_stack() -> void:
 			pass
 		
 		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
-		impressions.sort_custom(func(a,b): b.SCORE > a.SCORE)
+		impressions.sort_custom(func(a,b): return a.SCORE > b.SCORE)
 
 		for imp:Impression in impressions:
 			var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(OWNER.LOCATION, imp.TARGET)

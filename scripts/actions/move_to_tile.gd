@@ -38,7 +38,7 @@ func enter_state() -> void:
 		if TARGET.has_tag("adjacent_only"):
 			var location_filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(TARGET.LOCATION).is_available().is_passable().is_not(TARGET.LOCATION)
 			var adjacent_loc:Array[Vector2] = location_filter.run_filter()
-			adjacent_loc.sort_custom(func(a,b):OWNER.LOCATION.distance_to(a) < OWNER.LOCATION.distance_to(b))
+			adjacent_loc.sort_custom(func(a,b): return OWNER.LOCATION.distance_to(a) < OWNER.LOCATION.distance_to(b))
 			LOCATION = adjacent_loc[0]
 		else:
 			LOCATION = tiles[0].LOCATION

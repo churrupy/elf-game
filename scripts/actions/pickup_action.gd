@@ -39,7 +39,7 @@ func find_closest_item_by_tag(tag:String) -> PickupAction:
 	var filtered_inventories:Array[INVENTORY] = filter.run_filter()
 	if len(filtered_inventories) > 0:
 		# doesn't take into consideration pathfinding :(
-		filtered_inventories.sort_custom(func(a,b): b.OWNER.LOCATION.distance_to(OWNER.LOCATION) < a.OWNER.LOCATION.distance_to(OWNER.LOCATION))
+		filtered_inventories.sort_custom(func(a,b): return a.OWNER.LOCATION.distance_to(OWNER.LOCATION) < b.OWNER.LOCATION.distance_to(OWNER.LOCATION))
 		TARGET_INVENTORY = filtered_inventories[0]
 		PICKUP_ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(TARGET_INVENTORY.OWNER, tag)
 	return self
@@ -67,7 +67,7 @@ func enter_state() -> void:
 		var filtered_inventory:Array[INVENTORY] = inventory_filter.run_filter()
 		if len(filtered_inventory) > 0:
 			INVENTORY_IN_ROOM = true
-			filtered_inventory.sort_custom(func(a,b): a.OWNER.LOCATION.distance_to(OWNER.LOCATION) < b.OWNER.LOCATION.distance_to(OWNER.LOCATION))
+			filtered_inventory.sort_custom(func(a,b): return a.OWNER.LOCATION.distance_to(OWNER.LOCATION) < b.OWNER.LOCATION.distance_to(OWNER.LOCATION))
 			TARGET_INVENTORY = filtered_inventory[0]
 			PICKUP_ITEM = ENGINE.InventoryManager.get_first_tagged_from_inventory(TARGET_INVENTORY.OWNER, ITEM_TAG)
 
@@ -90,7 +90,7 @@ func run() -> ActionResult:
 	elif INVENTORY_IN_ROOM:
 		var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(TARGET_INVENTORY.OWNER.LOCATION)
 		var tile_list:Array[TILE] = tile_filter.run_filter()
-		tile_list.sort_custom(func(a,b): a.LOCATION.distance_to(OWNER.LOCATION) < b.LOCATION.distance_to(OWNER.LOCATION))
+		tile_list.sort_custom(func(a,b): return a.LOCATION.distance_to(OWNER.LOCATION) < b.LOCATION.distance_to(OWNER.LOCATION))
 		LOCATION = tile_list[0].LOCATION
 		var new_action:ACTION = MoveAction.new(ENGINE, OWNER).set_location(LOCATION).set_goal(self)
 		return ActionResult.new("action", new_action)

@@ -99,7 +99,7 @@ func update_location() -> void:
 		# shouldn't happen! but we'll see
 		print("adjacent move tiles not found")
 	else:
-		filtered_loc.sort_custom(func(a,b): OWNER.LOCATION.distance_to(b) < OWNER.LOCATION.distance_to(a))
+		filtered_loc.sort_custom(func(a,b): return OWNER.LOCATION.distance_to(a) < OWNER.LOCATION.distance_to(b))
 		LOCATION = filtered_loc[0]
 
 	update_path()
@@ -145,12 +145,15 @@ func update_path() -> void:
 	# print("created path: ", PATH)
 
 func run() -> ActionResult:
+	if LOCATION == Vector2.INF:
+		print("invalid MoveAction target: ", LOCATION)
+		return ActionResult.new("end")
 	print("moving for", MOVING_FOR)
 	if OWNER.LOCATION == LOCATION:
 		print("reached location")
 		return ActionResult.new("end")
 
-	print("path validation: ", str(PATH))
+	# print("path validation: ", str(PATH))
 
 	if !PATH.validate_from_npc(OWNER):
 		print("path failed validation")

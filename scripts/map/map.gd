@@ -566,7 +566,7 @@ func get_closest_interactable_location(start_location:Vector2, target:Node) -> V
 	if len(neighbors) == 0:
 		return Vector2.INF
 	
-	neighbors.sort_custom(func(a,b): start_location.distance_to(b) < start_location.distance_to(a))
+	neighbors.sort_custom(func(a,b): return start_location.distance_to(a) < start_location.distance_to(b))
 	return neighbors[0]
 
 func get_tile(loc:Vector2) -> TILE:

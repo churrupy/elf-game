@@ -9,6 +9,8 @@ func _init(engine, owner:NPC) -> void:
 	ID = "be shooed"
 	ENGINE = engine
 	OWNER = owner
+	# since this is added by another person, force-end their current action
+	OWNER.CURRENT_ACTION = null
 
 func set_target(_room:ROOM) -> ShooAction:
 	TARGET_ROOM = _room
@@ -41,14 +43,14 @@ func set_location() -> ShooAction:
 # 	return result
 
 func enter_state() -> void:
-	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
-	if TARGET_ROOM != null:
-		if current_room != TARGET_ROOM:
-			LEFT_ROOM = true
-		else:
-			LEFT_ROOM = false
-	else:
+
+	if TARGET_ROOM == null:
 		TARGET_ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+
+	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	if TARGET_ROOM != current_room:
+		LEFT_ROOM = true
+	else:
 		if len(TARGET_ROOM.DOOR_LIST) == 0:
 			print("No doors in this room/this room is the largest room on the map so npcs cannot leave it")
 			LEFT_ROOM = true
@@ -76,12 +78,13 @@ func enter_state() -> void:
 
 
 func run() -> ActionResult:
+	print("running: Shoo Action")
 	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
 	if current_room != TARGET_ROOM:
 		return ActionResult.new("end")
-		
-	if OWNER.LOCATION == LOCATION:
-		return ActionResult.new("end")
+
+		# if OWNER.LOCATION == LOCATION:
+		# 	return ActionResult.new("end")
 
 	var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_location(LOCATION).calling_action(self)
 	return ActionResult.new("action", move_action)

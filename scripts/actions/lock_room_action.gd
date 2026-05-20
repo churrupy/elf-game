@@ -85,6 +85,7 @@ func run() -> ActionResult:
 		for npc:NPC in illegal_npcs:
 			var current_goal:ACTION = npc.GOAL_STACK.back()
 			if current_goal is not ShooAction:
+				# target room is set here because npc location validation could push them out of the room and so we want to be specific about what room we're being pushed out of
 				var shoo_action:ACTION = ShooAction.new(ENGINE, npc).set_target(TARGET_ROOM)
 				npc.GOAL_STACK.append(shoo_action)
 		var wait_action:ACTION = WaitAction.new(ENGINE, OWNER)

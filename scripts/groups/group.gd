@@ -69,7 +69,7 @@ func to_wiki() -> Wiki:
 	
 
 func sort() -> void:
-	PARTICIPANTS.sort_custom(func(a,b): return b.NAME < a.NAME)
+	PARTICIPANTS.sort_custom(func(a,b): return a.NAME < b.NAME)
 
 
 func get_location() -> Vector2:

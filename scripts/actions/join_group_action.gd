@@ -53,7 +53,7 @@ func run() -> ActionResult:
 			return ActionResult.new("end") 
 
 		var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
-		impressions.sort_custom(func(a,b): a.SCORE > b.SCORE)
+		impressions.sort_custom(func(a,b): return a.SCORE > b.SCORE)
 		TARGET = impressions[0].TARGET
 		NEAR_TARGET = OWNER.LOCATION.distance_to(TARGET.LOCATION) <= 1.5
 

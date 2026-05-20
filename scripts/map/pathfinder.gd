@@ -18,6 +18,61 @@ func set_end(loc:Vector2) -> Pathfinder:
 	return self
 
 func find_path() -> Array[Vector2]:
+	# a* (hopefully)
+	if START == END:
+		print("PAthfinding: START and END are same location")
+		push_error("Pathfinding: START and END are same location")
+		return []
+
+	var initial_node:PathNode = PathNode.new(START, END)
+
+	var queue: Array[PathNode] = [initial_node]
+	var visited: Array[Vector2] = []
+	# var parent_dict: Dictionary = {}
+
+	var current:PathNode
+
+	while len(queue) > 0:
+		queue.sort_custom(func(a,b): return a.get_estimated_cost() < b.get_estimated_cost())
+		current = queue.pop_front()
+
+		if current.LOCATION == END:
+			PATH.append(current.LOCATION)
+			while current.LOCATION != START:
+				print("current: ", current)
+				print("start: ", START)
+				print("end: ", END)
+				print("PATH: ", PATH)
+				current = current.PARENT
+				print("new current: ", current)
+				# current = parent_dict[current]
+				PATH.append(current.LOCATION)
+			return PATH
+		for neighbor in get_neighbors(current.LOCATION):
+			if neighbor in visited:
+				continue
+			# check if neighbor is in queue
+			# if it is in queue, check if current is a better parent than its PARENT
+			var found_match:bool = false
+			for q:PathNode in queue:
+				if q.LOCATION == neighbor:
+					found_match = true
+					q.update_parent(current)
+			if !found_match:
+				var new_node:PathNode = PathNode.new(neighbor, END, current)
+				queue.append(new_node)
+
+			visited.append(neighbor)
+			
+			# parent_dict[neighbor] = current
+	push_error("pathfind fail")
+	print("pathfind fail")
+	return []
+
+
+
+
+func find_path_breadth_first() -> Array[Vector2]:
 	# print("PATHFINDING CHECK")
 	if START == END:
 		print("PAthfinding: START and END are same location")
