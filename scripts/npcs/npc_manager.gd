@@ -101,6 +101,7 @@ func tick() -> void:
 			# 		continuing = true
 
 		npc.decay_needs()
+		print(npc.NAME, " finished processing")
 	
 	# validate colliding locations
 	validate_npc_locations()
@@ -108,16 +109,39 @@ func tick() -> void:
 	return
 
 func validate_npc_locations() -> void:
+	print("validating npc locations")
 	for npc:NPC in NPCS:
-		var npc_filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().set_location(npc.LOCATION).is_not([npc])
-		var filtered_npcs:Array[NPC] = npc_filter.run_filter()
-		for colliding_npc:NPC in filtered_npcs:
-			var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(colliding_npc.LOCATION, 1.5).is_passable().is_available()
-			var filtered_tiles:Array[TILE] = tile_filter.run_filter()
-			if len(filtered_tiles) > 0:
-				npc.LOCATION = filtered_tiles.pick_random().LOCATION
-			else:
-				print("no free spaces for collision management")
+		var filtered_npcs:Array[NPC] = NPC_FILTER.new(ENGINE).set_list().set_location(npc.LOCATION).run_filter()
+		if len(filtered_npcs) > 1:
+			print("colliding npcs")
+			var moving_npcs:Array[NPC] = NPC_FILTER.new(ENGINE).set_list(filtered_npcs).set_action_id("move").run_filter()
+			var moving_npc:NPC
+			if len(moving_npcs) == 1:
+				# if only one npc that is actively moving, then they get priority on the space
+				print("only one moving npc")
+				moving_npc = moving_npcs[0]
+			for checked_npc:NPC in filtered_npcs:
+				if checked_npc == moving_npc: continue
+				var tile_list:Array[TILE] = TILE_FILTER.new(ENGINE).set_list().in_range_of(checked_npc.LOCATION, 1.5).is_passable().is_available().run_filter()
+				if len(tile_list) > 0:
+					checked_npc.LOCATION = tile_list.pick_random().LOCATION
+					print(npc.NAME, " gets pushed to ", npc.LOCATION)
+
+
+
+# func validate_npc_locations() -> void:
+# 	for npc:NPC in NPCS:
+# 		var filtered_npcs:Array[NPC] = NPC_FILTER.new(ENGINE).set_list().set_location(npc.LOCATION).run_filter()
+# 		# var filtered_npcs:Array[NPC] = npc_filter.run_filter()
+# 		for colliding_npc:NPC in filtered_npcs:
+# 			var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(colliding_npc.LOCATION, 1.5).is_passable().is_available()
+# 			var filtered_tiles:Array[TILE] = tile_filter.run_filter()
+# 			if len(filtered_tiles) > 0:
+				
+# 				npc.LOCATION = filtered_tiles.pick_random().LOCATION
+# 				print(npc.NAME, " gets pushed to ", npc.LOCATION)
+# 			else:
+# 				print("no free spaces for collision management")
 
 
 
@@ -139,6 +163,8 @@ func process_action_response(npc, result) -> bool:
 		# npc.GOAL_STACK.back().STATUS == "success"
 		print("ending action")
 		npc.CURRENT_ACTION = null
+		return true
+	elif result.STATUS == "continue":
 		return true
 	return false
 

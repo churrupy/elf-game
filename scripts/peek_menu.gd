@@ -173,15 +173,22 @@ func update_tile() -> void:
 	SNAP.add_text(str(room))
 	SNAP.pop()
 
-
-	SNAP.push_paragraph(ALIGNMENT)
-	SNAP.push_bold()
-	SNAP.add_text("Inventory: ")
-	SNAP.pop()
+	if FOCUS is DOOR:
+		SNAP.push_paragraph(ALIGNMENT)
+		SNAP.push_bold()
+		SNAP.add_text("Open?: ")
+		SNAP.pop()
+		SNAP.add_text(str(FOCUS.opened))
+		SNAP.pop()
+	else:
+		SNAP.push_paragraph(ALIGNMENT)
+		SNAP.push_bold()
+		SNAP.add_text("Inventory: ")
+		SNAP.pop()
 	
-	var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(FOCUS.ID)
-	SNAP.add_text(str(inventory))
-	SNAP.pop()
+		var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(FOCUS.ID)
+		SNAP.add_text(str(inventory))
+		SNAP.pop()
 
 	# var reserved_by:Array[NPC] = ENGINE.NpcManager.is_reserved_by(FOCUS.LOCATION)
 	# SNAP.push_paragraph(ALIGNMENT)

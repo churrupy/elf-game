@@ -25,7 +25,7 @@ func _init(loc:Vector2, tile:TILE, _wall:String) -> void:
 	NAME = tile.NAME
 	TYPE = "door"
 	LOCATION = loc
-	DATA = Constants.FURNITURE["door"]
+	DATA = Constants.TILE_TEMPLATES["door"]
 	add_loc_label()
 	#super._init("door", loc)
 

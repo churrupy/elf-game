@@ -18,7 +18,7 @@ var PlayerMenu:PLAYER_MENU
 var UPDATABLES:Array
 
 #region gamestate data
-var MODE:String = "workshop"
+var MODE:String = "club"
 var AUTORUN_TICKS:int = 00
 var ROOM:String
 var NUM_NPCS:int

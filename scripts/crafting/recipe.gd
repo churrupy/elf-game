@@ -11,7 +11,7 @@ func _init(engine, owner, name) -> void:
 	ENGINE = engine
 	OWNER = owner
 	NAME = name
-	print("running filter")
+	# print("running filter")
 	
 	var filter:RECIPE_FILTER = RECIPE_FILTER.new(ENGINE).set_name(NAME)
 	DATA = filter.run_filter()[0]
@@ -20,7 +20,7 @@ func validate_recipe() -> void:
 	pass
 
 func create_display() -> RichTextLabel:
-	print('creating display')
+	# print('creating display')
 	var craft_tracker:bool = true
 	var display:RichTextLabel = RichTextLabel.new()
 	# display.custom_minimum_size = Vector2(250,90)
@@ -79,7 +79,7 @@ func create_display() -> RichTextLabel:
 		display.add_text(t)
 		display.pop() # color
 		if amount_nearby > 1:
-			print("TOO MANY")
+			# print("TOO MANY")
 			display.add_text(" (x" + str(amount_nearby) + ")")
 		display.pop() # list
 	display.pop()
@@ -103,7 +103,7 @@ func create_display() -> RichTextLabel:
 		display.add_text(t)
 		display.pop() # color
 		if amount_nearby > 1:
-			print("TOO MANY")
+			# print("TOO MANY")
 			display.add_text(" (x" + str(amount_nearby) + ")")
 		display.pop() #list
 	display.pop()
@@ -145,32 +145,32 @@ func to_wiki() -> Wiki:
 	return new_wiki
 
 func get_furniture_amount_nearby(furn:String) -> int:
-	print("checking if furniture is nearby: ", furn)
+	# print("checking if furniture is nearby: ", furn)
 	var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag(furn).in_range_of(OWNER.LOCATION)
 	var filtered_tiles:Array[TILE] = tile_filter.run_filter()
-	print("filtered tiles: ", filtered_tiles)
-	print(OWNER.LOCATION)
+	# print("filtered tiles: ", filtered_tiles)
+	# print(OWNER.LOCATION)
 	return len(filtered_tiles)
 
 func get_item_amount_nearby(item:String) -> int:
-	print("checking if item is nearby: ", item)
+	# print("checking if item is nearby: ", item)
 	var inventory_filter:INVENTORY_FILTER = INVENTORY_FILTER.new(ENGINE).set_list().has_tag(item).in_range_of(OWNER.LOCATION).include_owner(OWNER)
 	var filtered_inventories:Array[INVENTORY] = inventory_filter.run_filter()
 	return ENGINE.InventoryManager.count_tags_in_list(item, filtered_inventories)
  
 func is_furniture_nearby(furn:String) -> bool:
-	print("checking if furniture is nearby: ", furn)
+	# print("checking if furniture is nearby: ", furn)
 	var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag(furn).in_range_of(OWNER.LOCATION)
 	# var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag(furn)
 	var filtered_tiles:Array[TILE] = tile_filter.run_filter()
-	print("filtered tiles: ", filtered_tiles)
-	print(OWNER.LOCATION)
+	# print("filtered tiles: ", filtered_tiles)
+	# print(OWNER.LOCATION)
 	if len(filtered_tiles) > 0:
 		return true
 	return false
 
 func is_item_nearby(item:String) -> bool:
-	print("checking if item is nearby: ", item)
+	# print("checking if item is nearby: ", item)
 	var inventory_filter:INVENTORY_FILTER = INVENTORY_FILTER.new(ENGINE).set_list().has_tag(item).in_range_of(OWNER.LOCATION).include_owner(OWNER)
 	var filtered_inventory:Array[INVENTORY] = inventory_filter.run_filter()
 	if len(filtered_inventory) > 0:

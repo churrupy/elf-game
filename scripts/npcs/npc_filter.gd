@@ -17,6 +17,8 @@ var target_room:ROOM
 
 var filtered_list:Array[NPC]
 
+var target_action_id:String = ""
+
 
 func _init(engine) -> void:
 	ENGINE = engine
@@ -62,6 +64,10 @@ func set_room(_room:ROOM) -> NPC_FILTER:
 	target_room = _room
 	return self
 
+func set_action_id(_action:String) -> NPC_FILTER:
+	target_action_id = _action
+	return self
+
 
 func run_filter() -> Array[NPC]:
 	# print("FILTERING check")
@@ -102,6 +108,12 @@ func run_filter() -> Array[NPC]:
 		if target_room != null:
 			var npc_room:ROOM = ENGINE.Map.get_room(npc.LOCATION)
 			if npc_room != target_room: continue
+
+		if target_action_id != "":
+			var npc_action:ACTION = npc.CURRENT_ACTION
+			if npc_action != null and npc_action.ID != target_action_id: continue
+			# print("class check ", npc_action.get_class())
+			# if !npc_action.is_class(target_action): continue
 
 		filtered_list.append(npc)
 	#print(filtered_list)

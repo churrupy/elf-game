@@ -153,7 +153,7 @@ func show_inventory() -> void:
 	var repeat_items:Array[String]
 
 	var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of("player")
-	print("inventory check:", inventory)
+	# print("inventory check:", inventory)
 	for i:ITEM in inventory.ITEMS:
 		if i.NAME not in repeat_items:
 			var amount:int = inventory.count_item(i.NAME)

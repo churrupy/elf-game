@@ -7,6 +7,7 @@ var TARGET_ROOM:ROOM
 var ACTION_GROUP:GROUP
 var PARTICIPANTS:Array[String]
 
+var ROOM_CLEAR:bool = false
 var ROOM_SECURED:bool = false
 
 func _init(engine, owner:NPC) -> void:
@@ -63,17 +64,32 @@ func enter_state() -> void:
 	TARGET_ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
 	if TARGET_ROOM.is_secured():
 		ROOM_SECURED = true
+	else:
+		var illegal_npcs:Array[NPC] = NPC_FILTER.new(ENGINE).set_list().set_room(TARGET_ROOM).is_not([OWNER]).run_filter()
+		if len(illegal_npcs) == 0:
+			ROOM_CLEAR = true
 
 
 func run() -> ActionResult:
 	if ROOM_SECURED:
 		return ActionResult.new("end")
-	else:
+
+	if ROOM_CLEAR:
 		for door:DOOR in TARGET_ROOM.DOOR_LIST:
 			if door.opened:
 				var new_action:ACTION = CloseDoorAction.new(ENGINE, OWNER).set_target(door)
 				return ActionResult.new("add", new_action)
 		return ActionResult.new("running")
+	else:
+		var illegal_npcs:Array[NPC] = NPC_FILTER.new(ENGINE).set_list().set_room(TARGET_ROOM).is_not([OWNER]).run_filter()
+		for npc:NPC in illegal_npcs:
+			var current_goal:ACTION = npc.GOAL_STACK.back()
+			if current_goal is not ShooAction:
+				var shoo_action:ACTION = ShooAction.new(ENGINE, npc).set_target(TARGET_ROOM)
+				npc.GOAL_STACK.append(shoo_action)
+		var wait_action:ACTION = WaitAction.new(ENGINE, OWNER)
+		return ActionResult.new("action")
+		
 
 # func run_old() -> ActionResult:
 # 	# shoo out other npcs

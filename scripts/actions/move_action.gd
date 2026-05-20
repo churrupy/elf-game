@@ -1,7 +1,8 @@
 class_name MoveAction extends ACTION
 
 var MOVING_FOR:ACTION
-var PATH: Array[Vector2]
+# var PATH: Array[Vector2]
+var PATH:Pathfinder
 
 var secure:bool = false
 var room_to_secure:ROOM
@@ -134,13 +135,56 @@ func update_path() -> void:
 	# 	else:
 	# 		LOCATION = filtered_loc[0]
 
-	PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
-	print("current location:", OWNER.LOCATION)
-	print("target location: ", LOCATION)
-	print("created path: ", PATH)
+	PATH = Pathfinder.new(ENGINE).set_start(OWNER.LOCATION).set_end(LOCATION)
+	PATH.find_path()
+	print("Pathfinder check: ", PATH)
 
+	# PATH = ENGINE.Map.get_pathfind_path(OWNER.LOCATION, LOCATION)
+	# print("current location:", OWNER.LOCATION)
+	# print("target location: ", LOCATION)
+	# print("created path: ", PATH)
 
 func run() -> ActionResult:
+	print("moving for", MOVING_FOR)
+	if OWNER.LOCATION == LOCATION:
+		print("reached location")
+		return ActionResult.new("end")
+
+	print("path validation: ", str(PATH))
+
+	if !PATH.validate_from_npc(OWNER):
+		print("path failed validation")
+		return ActionResult.new("end")
+		# PATH.set_start(OWNER.LOCATION).find_path()
+		# print("rechecking path")
+		# if !PATH.validate_from_npc(OWNER):
+		# 	print("No valid path found")
+		# 	return ActionResult.new("end")
+
+	var old_location:Vector2 = OWNER.LOCATION
+	var next_step:Vector2 = PATH.next_step()
+	if next_step.distance_to(old_location) > 1.5:
+		print("OWNER pushed too far away from path")
+		return ActionResult.new("end")
+		# PATH.set_start(OWNER.LOCATION)
+		# PATH.find_path()
+		# if PATH.validate_from_npc(OWNER):
+		# 	next_step = PATH.next_step()
+		# else:
+		# 	return ActionResult.new("end")
+
+	OWNER.LOCATION = next_step
+	var new_direction:Vector2 = next_step - old_location
+	OWNER.update_direction(new_direction)
+	# ENGINE.History.add_move_event(OWNER)
+	ENGINE.History.create_event(self)
+	print("moving from ", old_location, " to ", next_step)
+	print(PATH)
+
+	return ActionResult.new("running")
+
+
+func run_old() -> ActionResult:
 	print("moving for", MOVING_FOR)
 	# print(PATH)
 	# end moving
@@ -203,7 +247,7 @@ func run() -> ActionResult:
 	# 	return ActionResult.new("end").continuing()
 
 	# check that visible steps are still valid
-	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list_from_vector(PATH).in_range_of(OWNER.LOCATION, 10).in_arc_of(OWNER.DIRECTION)
+	var filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list_from_vector([]).in_range_of(OWNER.LOCATION, 10).in_arc_of(OWNER.DIRECTION)
 	var visible_tile:Array[TILE] = filter.run_filter()
 	print("visible tile: ", visible_tile)
 	filter = TILE_FILTER.new(ENGINE).set_list(visible_tile).in_range_of(OWNER.LOCATION, 100).is_passable().is_available()
@@ -221,7 +265,7 @@ func run() -> ActionResult:
 
 	# if npc is pushed too far away from the path
 	if next_step.distance_to(old_location) >= 1.5:
-		PATH = []
+		PATH = null
 		return ActionResult.new("running")
 	print("move action PATH: ", PATH)
 
