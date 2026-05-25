@@ -39,8 +39,8 @@ func update() -> void:
 	_str = "Gender: " + DISPLAY_NPC.GENDER
 	display_string.append(_str)
 	_str = "Current Location: " + ENGINE.prettify_vector(DISPLAY_NPC.LOCATION)
-	display_string.append(_str)
-	_str = "Currently Reserved: " + ENGINE.prettify_vector(ENGINE.NpcManager.get_reserved_tile(DISPLAY_NPC))
+	# display_string.append(_str)
+	# _str = "Currently Reserved: " + ENGINE.prettify_vector(ENGINE.NpcManager.get_reserved_tile(DISPLAY_NPC))
 	display_string.append(_str)
 	_str = "Current Action: " + str(DISPLAY_NPC.STATE_STACK.back())
 	display_string.append(_str)

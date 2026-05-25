@@ -1,8 +1,9 @@
-class_name JoinGroupAction extends ACTION
+class_name JoinGroupGoal extends ACTION
 
 var IS_IN_GROUP:bool = false
 var NEAR_TARGET:bool = false
 
+var CALLING_GOAL:ACTION
 
 func _init(engine, owner:NPC) -> void:
 	ID = "join_group"
@@ -13,15 +14,10 @@ func _init(engine, owner:NPC) -> void:
 	CHATTABLE = true
 
 #region builder
-# func set_target(target:NPC) -> JoinGroupAction:
-# 	TARGET = target
-# 	LOCATION = target.LOCATION
-# 	return self
-
-# func set_location(loc:Vector2) -> JoinGroupAction:
-# 	LOCATION = loc
-# 	return self
-
+func set_goal(_goal:ACTION) -> JoinGroupGoal:
+	CALLING_GOAL = _goal
+	CHATTABLE = CALLING_GOAL.CHATTABLE
+	return self
 
 #endregion builder
 

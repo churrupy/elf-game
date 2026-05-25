@@ -27,6 +27,11 @@ func set_list(_npc_list:Array[NPC] = ENGINE.NpcManager.NPCS) -> NPC_FILTER:
 	npc_list = _npc_list
 	return self
 
+func set_list_from_ids(id_list:Array[String]) ->NPC_FILTER:
+	for id:String in id_list:
+		var npc:NPC = ENGINE.NpcManager.get_npc(id)
+		npc_list.append(npc)
+	return self
 
 func in_range_of(_origin:Vector2, _distance:int) -> NPC_FILTER:
 	origin=_origin

@@ -7,7 +7,7 @@ var ID:String = "player"
 var NAME:String = "Casey"
 
 var LOCATION: Vector2
-var CURRENT_ACTION: IdleAction
+var CURRENT_ACTION: IdleGoal
 var NEEDS: Dictionary
 var COLOR: Color = Color(1,1,1)
 

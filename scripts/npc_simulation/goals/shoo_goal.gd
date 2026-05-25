@@ -1,22 +1,23 @@
-class_name ShooAction extends ACTION
+class_name ShooGoal extends ACTION
 
 # special version of LeaveRoomAction
 
 var TARGET_ROOM:ROOM
 var LEFT_ROOM:bool = false
+var WAITED:bool = false #makes them wait a turn to make sure that they don't try to immediately re-enter room
 
 func _init(engine, owner:NPC) -> void:
-	ID = "be shooed"
+	ID = "shoo"
 	ENGINE = engine
 	OWNER = owner
 	# since this is added by another person, force-end their current action
 	OWNER.CURRENT_ACTION = null
 
-func set_target(_room:ROOM) -> ShooAction:
+func set_target(_room:ROOM) -> ShooGoal:
 	TARGET_ROOM = _room
 	return self
 
-func set_location() -> ShooAction:
+func set_location() -> ShooGoal:
 	# builder function
 	var this_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
 	if len(this_room.DOOR_LIST) == 0:
@@ -24,6 +25,7 @@ func set_location() -> ShooAction:
 		print("this room is the biggest room on the map so npcs cannot leave it")
 		print("CRASH!")
 		return self
+
 	var door:DOOR = this_room.DOOR_LIST.pick_random() # this will fuck up if the room exits to two different rooms
 	var wall:String = door.wall
 
@@ -68,12 +70,7 @@ func enter_state() -> void:
 		var target_direction:Vector2 = door.LOCATION + wall_dict[wall]
 		LOCATION = target_direction
 
-# func run() -> ActionResult:
-# 	if OWNER.LOCATIOIN == LOCATION:
-# 		return ActionResult.new("end")
-	
-# 	var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_location(LOCATION).set_goal(self)
-# 	return ActionResult.new("action", move_action)
+
 
 
 
@@ -81,10 +78,12 @@ func run() -> ActionResult:
 	print("running: Shoo Action")
 	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
 	if current_room != TARGET_ROOM:
-		return ActionResult.new("end")
-
-		# if OWNER.LOCATION == LOCATION:
-		# 	return ActionResult.new("end")
+		if !WAITED:
+			var new_action:ACTION = WaitAction.new(ENGINE, OWNER)
+			WAITED = true
+			return ActionResult.new("action", new_action)
+		else:
+			return ActionResult.new("end")
 
 	var move_action:MoveAction = MoveAction.new(ENGINE, OWNER).set_location(LOCATION).calling_action(self)
 	return ActionResult.new("action", move_action)

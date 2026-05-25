@@ -11,7 +11,7 @@ func set_goal(goal:ACTION) -> WaitAction:
 	return self
 
 func run() -> ActionResult:
-	return ActionResult.new("end")
+	return ActionResult.new("end turn")
 
 func _to_string() -> String:
 	var str_list:Array[String] = [

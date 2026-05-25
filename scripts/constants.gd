@@ -185,11 +185,11 @@ var PORTRAIT_TEMPLATES = {
 # }
 
 # var ACTION_ID: Dictionary = {
-# 	"IdleAction": IdleAction,
+# 	"IdleGoal": IdleGoal,
 # 	#"SocialAction": SocialAction,
 # 	"SeduceAction": SeduceAction,
-# 	"HungerAction": HungerAction,
-# 	"BladderAction": BladderAction,
+# 	"HungerGoal": HungerGoal,
+# 	"BladderGoal": BladderGoal,
 # 	"MoveAction": MoveAction,
 # 	"DanceAction": DanceAction,
 # 	"DrinkAction": DrinkAction
@@ -205,7 +205,7 @@ var PORTRAIT_TEMPLATES = {
 # 		"joinable": true,
 # 		"other_req": false,
 # 		"do_off_tile": false,
-# 		"class": "IdleAction"
+# 		"class": "IdleGoal"
 # 	},
 # 	"move": {
 # 		"need": "",
@@ -300,7 +300,7 @@ var PORTRAIT_TEMPLATES = {
 # 		"other_req": false,
 # 		"do_off_tile": false,
 # 		"conversable": false,
-# 		"class": "BladderAction"
+# 		"class": "BladderGoal"
 # 	},
 # 	"bladder": {
 # 		"need": "bladder",
@@ -311,7 +311,7 @@ var PORTRAIT_TEMPLATES = {
 # 		"other_req": false,
 # 		"do_off_tile": false,
 # 		"conversable": false,
-# 		"class": "BladderAction"
+# 		"class": "BladderGoal"
 # 	},
 # 	"snack": {
 # 		"duration": 5,
@@ -320,7 +320,7 @@ var PORTRAIT_TEMPLATES = {
 # 		"joinable": false,
 # 		"other_req": false,
 # 		"do_off_tile": true,
-# 		"class": "HungerAction"
+# 		"class": "HungerGoal"
 # 	},
 # 	"hunger": {
 # 		"duration": 5,
@@ -329,7 +329,7 @@ var PORTRAIT_TEMPLATES = {
 # 		"joinable": false,
 # 		"other_req": false,
 # 		"do_off_tile": true,
-# 		"class": "HungerAction"
+# 		"class": "HungerGoal"
 # 	}
 # }
 

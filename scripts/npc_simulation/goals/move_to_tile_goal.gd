@@ -1,4 +1,4 @@
-class_name MoveToTile extends ACTION
+class_name MoveToTileGoal extends ACTION
 
 var ON_TILE:bool = false
 var IN_TILE_ROOM:bool = false
@@ -14,12 +14,12 @@ func _init(engine, owner) -> void:
 	ID = "move to tile"
 
 
-func set_tag(_tag:String) -> MoveToTile:
+func set_tag(_tag:String) -> MoveToTileGoal:
 	TILE_TAG = _tag
 	return self
 
 
-func to_secure() -> MoveToTile:
+func to_secure() -> MoveToTileGoal:
 	secure_room = true
 	return self
 
@@ -59,11 +59,11 @@ func run() -> ActionResult:
 				var new_action:ACTION = MoveAction.new(ENGINE, OWNER).set_location(LOCATION).set_goal(self)
 				return ActionResult.new("action", new_action)
 			else:
-				var new_action:ACTION = LockRoomAction.new(ENGINE, OWNER).set_goal(self)
+				var new_action:ACTION = LockRoomGoal.new(ENGINE, OWNER).set_goal(self)
 				return ActionResult.new("add", new_action)
 		else:
 			var new_action:ACTION = MoveAction.new(ENGINE, OWNER).set_location(LOCATION).set_goal(self)
 			return ActionResult.new("action", new_action)
 	else:
-		var new_action:ACTION = MoveToRoomAction.new(ENGINE, OWNER).set_tag(TILE_TAG)
+		var new_action:ACTION = MoveToRoomGoal.new(ENGINE, OWNER).set_tag(TILE_TAG)
 		return ActionResult.new("add", new_action)

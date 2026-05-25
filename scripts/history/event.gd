@@ -15,14 +15,27 @@ func _init(_action:ACTION) -> void:
 
 
 func _to_string() -> String:
-	var str_list:Array[String] = [
-		"[T]:",
-		str(START_TICK),
-		"->",
-		str(END_TICK),
+	var str_list:Array[String]
+	if START_TICK == END_TICK:
+		str_list = [
+			"[T]:",
+			str(START_TICK)
+		]
+	else:
+
+		str_list = [
+			"[T]:",
+			str(START_TICK),
+			"->",
+			str(END_TICK)
+		]
+	
+	var str_list2:Array[String] = [
 		str(EVENT_ACTION),
 		"at",
 		str(EVENT_ROOM)
 	]
+
+	str_list += str_list2
 
 	return " ".join(str_list)

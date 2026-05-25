@@ -66,7 +66,7 @@
 # 	var chosen_toilet:TILE = toilets[0]
 # 	print("chosen location: ", chosen_toilet.LOCATION)
 	
-# 	var new_action:BladderAction = BladderAction.new(ENGINE, npc, chosen_toilet)
+# 	var new_action:BladderGoal = BladderGoal.new(ENGINE, npc, chosen_toilet)
 # 	ENGINE.NpcManager.add_state(new_action)
 # 	return STATUS.RUNNING
 
@@ -87,7 +87,7 @@
 # 	for loc:INVENTORY in food_locations:
 # 		var interactable_location:Vector2 = ENGINE.Map.get_closest_interactable_location(npc.LOCATION, loc.OWNER)
 # 		if interactable_location != Vector2.INF:
-# 			var new_action:HungerAction = HungerAction.new(ENGINE, npc, loc.OWNER)
+# 			var new_action:HungerGoal = HungerGoal.new(ENGINE, npc, loc.OWNER)
 # 			new_action.LOCATION = interactable_location
 # 			ENGINE.NpcManager.add_state(new_action)
 # 			return STATUS.RUNNING

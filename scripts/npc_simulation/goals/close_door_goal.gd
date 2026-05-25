@@ -1,4 +1,4 @@
-class_name CloseDoorAction extends ACTION
+class_name CloseDoorGoal extends ACTION
 
 var AT_DOOR:bool = false
 var DOOR_CLOSED:bool = false
@@ -10,7 +10,7 @@ func _init(engine, owner) -> void:
     OWNER = owner
 
 
-func set_target(_door:DOOR) -> CloseDoorAction:
+func set_target(_door:DOOR) -> CloseDoorGoal:
     TARGET = _door
     return self
 

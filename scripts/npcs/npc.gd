@@ -63,15 +63,12 @@ var LOOKING_AT: Array[Vector2]
 #region actions
 # var EVENT_QUEUE: Array[EVENT]
 
-var GOAL_ACTION: ACTION
+#var GOAL_ACTION: ACTION
 
-var STATE_STACK: Array[ACTION] = []
-var SOCIAL_ACTION: SocialAction_new
+#var STATE_STACK: Array[ACTION] = []
+#var SOCIAL_ACTION: SocialAction_new
 
-var RESPONSE_REQUESTS:Array[ACTION]
-
-
-
+var ACTION_RESPONSES:Array[ACTION]
 
 var GOAL_STACK:Array[ACTION]
 var CURRENT_ACTION:ACTION
@@ -155,13 +152,13 @@ func load_sprites() -> void:
 func set_needs() -> void:
 	NEEDS = {
 		# "hunger": randf_range(40.0, 90.0),
-		"hunger": 40.0,
+		"hunger": 90.0,
 		"energy": 90.0,
 		"release": 90.0,
 		"social": 90.0,
 		"fun": 90.0,
 		# "bladder": randf_range(40.0, 90.0),
-		"bladder": 40.0,
+		"bladder": 90.0,
 		"arousal": 0.0
 	}
 
@@ -202,6 +199,7 @@ func _to_string():
 #region MEMORIES
 
 func get_known_npcs() -> Array[NPC]:
+	# need a better filter on this lol
 	var known_npcs:Array[NPC]
 	for memory:MEMORY in MEMORIES:
 		var action:ACTION = memory.EVENT_ACTION
@@ -241,107 +239,6 @@ func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
 		impression_list.append(impression)
 	return impression_list
 
-	# var npc_reports: Array[WitnessReport] = filter_memories_by_npc(npc)
-	# # just do likes for now
-	# for report: WitnessReport in npc_reports:
-	# 	var event: EVENT = report.EVENT_WITNESSED
-	# 	if event is DialogueEvent:
-	# 		# has topic opinions in it
-	# 		if event.TOPIC in impression.OPINIONS.keys():
-	# 			# check that opinion is the same
-	# 			if impression.OPINIONS[event.TOPIC] == event.OPINION:
-	# 				pass
-	# 			else:
-	# 				# opinion is different somehow
-	# 				pass
-	# 		else:
-	# 			impression.OPINIONS[event.TOPIC] = event.OPINION
-
-	# return impression_list
-
-
-# func knows_npc(target:NPC) -> bool:
-# 	for report: WitnessReport in MEMORIES:
-# 	for memory:MEMORY in MEMORIES:
-# 		var event:EVENT = report.EVENT_WITNESSED
-# 		if event is not StatementEvent: continue
-# 		if event.SPEAKER == target: return true
-# 	return false
-
-#func filter_memories_by_npc(target:NPC, report_list: Array[WitnessReport] = MEMORIES) -> Array[WitnessReport]:
-	#var res_list: Array[WitnessReport]
-	#for report: WitnessReport in MEMORIES:
-		#if report.includes_npc(target):
-			#res_list.append(report)
-	#return res_list
-#
-#func filter_memories_by_event(event: EVENT, report_list: Array[WitnessReport] = MEMORIES) -> Array[WitnessReport]:
-	#var res_list: Array[WitnessReport]
-	#for report: WitnessReport in MEMORIES:
-		#if report.EVENT_WITNESSED == event:
-			#res_list.append(report)
-	#return res_list
-#
-#func get_report_wikis(report_list: Array[WitnessReport] = MEMORIES) -> Array[Wiki]:
-	#var wiki_list: Array[Wiki]
-	#for report:WitnessReport in report_list:
-		#var new_wiki: Wiki = report.to_wiki()
-		#if new_wiki != null:
-			#wiki_list.append(report.to_wiki())
-	#return wiki_list
-
-#func get_all_witnessed_npcs(report_list:Array[WitnessReport] = MEMORIES) -> Array[NPC]:
-	## returns all npcs that self has witnessed
-	#var npc_list: Array[NPC]
-	#for report: WitnessReport in report_list:
-		#var event: EVENT = report.EVENT_WITNESSED
-		#var participants: Array[NPC] = event.get_all_participants()
-		#for p:NPC in participants:
-			#if p not in npc_list:
-				#npc_list.append(p)
-	#return npc_list
-
-#func get_impression_of_npc(npc:NPC) -> Impression:
-	#var impression: Impression = Impression.new(self, npc)
-	#if npc.STYLE in LIKES:
-		#impression.ATTRACTIVE = 1
-	#elif npc.STYLE in DISLIKES:
-		#impression.ATTRACTIVE = -1
-#
-	#var npc_reports: Array[WitnessReport] = filter_memories_by_npc(npc)
-	## just do likes for now
-	#for report: WitnessReport in npc_reports:
-		#var event: EVENT = report.EVENT_WITNESSED
-		#if event is DialogueEvent:
-			## has topic opinions in it
-			#if event.TOPIC in impression.OPINIONS.keys():
-				## check that opinion is the same
-				#if impression.OPINIONS[event.TOPIC] == event.OPINION:
-					#pass
-				#else:
-					## opinion is different somehow
-					#pass
-			#else:
-				#impression.OPINIONS[event.TOPIC] = event.OPINION
-#
-	#return impression
-
-# func get_all_impressions_old() -> Array[Impression]:
-# 	var witnessed_npcs: Array[NPC] = get_all_witnessed_npcs()
-# 	var impression_list: Array[Impression]
-# 	for w:NPC in witnessed_npcs:
-# 		var new_impression: Impression = get_impression_of_npc(w)
-# 		impression_list.append(new_impression)
-# 	return impression_list
-
-#func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
-	#if npc_list == []:
-		#npc_list = get_all_witnessed_npcs()
-	#var res_list:Array[Impression]
-	#for npc:NPC in npc_list:
-		#var impression: Impression = get_impression_of_npc(npc)
-		#res_list.append(impression)
-	#return res_list
 
 #endregion memories
 
@@ -361,9 +258,6 @@ func get_existing_memory(_action:ACTION) -> MEMORY:
 		if _action.is_equal(memory): return memory
 	return null
 
-# func requests_response(event:EVENT) -> void:
-# 	# adds event to RESPONSE_REQUEST list in SocialAction
-# 	SOCIAL_ACTION.RESPONSE_REQUESTS.append(event)
 
 func get_opinion(tag: String) -> int:
 	if tag in LIKES: return 1
@@ -385,37 +279,7 @@ func get_opinion_string(npc_id: String) -> String:
 	else:
 		return "awful"
 
-#func get_impression(other_npc: NPC) -> Wiki:
-	#var new_wiki: Wiki = Wiki.new()
-	#new_wiki.add_to_wiki("{0} thinks".format([NAME]))
-	#new_wiki.add_to_wiki(other_npc.ID, "button", Color.WHITE, true)
-	#new_wiki.add_to_wiki("is")
-	#if other_npc.STYLE in LIKES:
-		#new_wiki.add_to_wiki("attractive", "label", Color.GREEN)
-	#elif other_npc.STYLE in DISLIKES:
-		#new_wiki.add_to_wiki("unattractive", "label", Color.RED)
-	#
-	#for report: WitnessReport in MEMORIES:
-		#if report.includes_npc(other_npc):
-			#for reaction: String in report.REACTIONS.keys():
-				#if report.REACTIONS[reaction] > 0:
-					#new_wiki.add_to_wiki(reaction, "button", Color.GREEN)
-				#elif report.REACTIONS[reaction] == 0:
-					#new_wiki.add_to_wiki(reaction, "button", Color.WHITE)
-				#elif report.REACTIONS[reaction]< 0:
-					#new_wiki.add_to_wiki(reaction, "button", Color.RED)
-#
-	#return new_wiki
-
 	
-
-	
-#func get_dialogues() -> Array[String]:
-	#var dialogue_list: Array[String]
-	#for report:WitnessReport in MEMORIES:
-		#dialogue_list.append(report.get_display_string())
-	#return dialogue_list
-
 
 func does_share_opinion(topic: String, opinion: int) -> int:
 	# MAKE THIS AN ENUM omg
@@ -433,8 +297,8 @@ func get_attraction(other_npc: NPC) -> int:
 	var other_style = other_npc.STYLE
 	return OPINIONS[other_style]
 
-func print_state_stack() -> void:
-	print("printing stack: ", STATE_STACK)
+func print_goal_stack() -> void:
+	print(NAME, "'s goals: ", GOAL_STACK)
 	# for action:ACTION in STATE_STACK:
 	# 	print(action)
 
@@ -468,8 +332,8 @@ func update_direction(new_direction:Vector2) -> void:
 # 	NEEDS["hunger"] += item.DATA["nutrition"]
 
 func add_response(_action:ACTION) -> void:
-	# SOCIAL_ACTION.RESPONSE_REQUESTS.append(_action)
-	RESPONSE_REQUESTS.append(_action)
+	# SOCIAL_ACTION.ACTION_RESPONSES.append(_action)
+	ACTION_RESPONSES.append(_action)
 
 func react_to_memory_list(mem_list:Array[MEMORY]) -> String:
 	return "likes"
@@ -477,20 +341,25 @@ func react_to_memory_list(mem_list:Array[MEMORY]) -> String:
 
 #endregion actions
 
-func get_reserved_locations() -> Array[Vector2]:
-	var result_list:Array[Vector2]
-	if len(STATE_STACK) == 1:
-		return [STATE_STACK[0].LOCATION]
-	for action:ACTION in STATE_STACK:
-		if action is IdleAction: continue
-		result_list.append(action.LOCATION)
-	return result_list
+# func get_reserved_locations() -> Array[Vector2]:
+# 	var result_list:Array[Vector2]
+# 	if len(STATE_STACK) == 1:
+# 		return [STATE_STACK[0].LOCATION]
+# 	for action:ACTION in STATE_STACK:
+# 		if action is IdleGoal: continue
+# 		result_list.append(action.LOCATION)
+# 	return result_list
 
-func get_reserved_location() -> Vector2:
-	return GOAL_ACTION.LOCATION
+# func get_reserved_location() -> Vector2:
+# 	return GOAL_ACTION.LOCATION
 
 
 func is_available() -> bool:
-	if GOAL_ACTION == null: return true
-	if GOAL_ACTION.CHATTABLE: return true
+	return GOAL_STACK.back().CHATTABLE
+
+
+func has_goal_id_in_stack(_id:String) -> bool:
+	for goal:ACTION in GOAL_STACK:
+		if goal.ID == _id: return true
+
 	return false

@@ -13,6 +13,7 @@ var direction:Vector2 = Vector2.INF
 var tags:Array[String] = []
 
 var target_room:ROOM
+var not_room_list:Array[ROOM]
 
 var be_available:bool = false
 var be_passable:bool = false
@@ -47,6 +48,10 @@ func in_arc_of(_direction:Vector2) -> TILE_FILTER:
 
 func set_room(_room:ROOM) -> TILE_FILTER:
 	target_room = _room
+	return self
+
+func set_not_room(_room:ROOM) -> TILE_FILTER:
+	not_room_list.append(_room)
 	return self
 
 func has_tag(_tag:String) -> TILE_FILTER:
@@ -125,6 +130,7 @@ func run_filter() -> Array[TILE]:
 		if target_room != null:
 			var tile_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
 			if tile_room != target_room: continue
+			if tile_room in not_room_list: continue
 
 		if need_adjacent_tiles > 0:
 			var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(origin, 1).is_available().is_passable().is_not(origin)

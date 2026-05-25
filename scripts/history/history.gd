@@ -7,7 +7,8 @@ var HISTORY: Array[EVENT_new]
 func _init(engine):
 	ENGINE = engine
 
-func add_event() -> void:
+func add_event(_action:ACTION) -> void:
+	create_event(_action)
 	# steps
 	# create event
 	# populate event information
