@@ -9,10 +9,10 @@ var ROOM_SECURED:bool = false
 
 var IS_READY:bool = false
 
-func _init(engine, owner) -> void:
-	ENGINE = engine
-	OWNER = owner
-	ID = "encounter"
+# func _init(engine, owner) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	ID = "encounter"
 
 func set_participants(npc_list:Array[NPC]) -> InitializeEncounterGoal:
 	PARTICIPANTS = npc_list.duplicate()
@@ -50,25 +50,25 @@ func start_state() -> void:
 		EVERYONE_PRESENT = false
 		ROOM_SECURED = false
 
-func run() -> ActionResult:
-	if !VALID_ENCOUNTER:
-		return ActionResult.new("end")
+# func run() -> ActionResult:
+# 	if !VALID_ENCOUNTER:
+# 		return ActionResult.new("end")
 
-	var new_goal:ACTION
+# 	var new_goal:ACTION
 
-	if !VALID_ROOM:
-		new_goal = MoveToRoomGoal.new(ENGINE, OWNER).set_tag("encounter_location")#.set_participants(PARTICIPANTS)
-		return ActionResult.new("add", new_goal)
+# 	if !VALID_ROOM:
+# 		new_goal = MoveToRoomGoal.new(ENGINE, OWNER).set_tag("encounter_location")#.set_participants(PARTICIPANTS)
+# 		return ActionResult.new("add", new_goal)
 
-	if !EVERYONE_PRESENT or !ROOM_SECURED:
-		new_goal = LockRoomGoal.new(ENGINE, OWNER).set_participants(PARTICIPANTS)
-		return ActionResult.new("add", new_goal)
+# 	if !EVERYONE_PRESENT or !ROOM_SECURED:
+# 		new_goal = LockRoomGoal.new(ENGINE, OWNER).set_participants(PARTICIPANTS)
+# 		return ActionResult.new("add", new_goal)
 
-	# also add EncounterGoal to everyone else as well here
-	for p:NPC in PARTICIPANTS:
-		if p == OWNER: continue
-		new_goal = EncounterWaitGoal.new(ENGINE, p).set_target(OWNER)
-		p.GOAL_STACK.append(new_goal)
+# 	# also add EncounterGoal to everyone else as well here
+# 	for p:NPC in PARTICIPANTS:
+# 		if p == OWNER: continue
+# 		new_goal = EncounterWaitGoal.new(ENGINE, p).set_target(OWNER)
+# 		p.GOAL_STACK.append(new_goal)
 
-	new_goal = EncounterGoal.new(ENGINE, OWNER).set_participants(PARTICIPANTS)
-	return ActionResult.new("replace", new_goal)
+# 	new_goal = EncounterGoal.new(ENGINE, OWNER).set_participants(PARTICIPANTS)
+# 	return ActionResult.new("replace", new_goal)

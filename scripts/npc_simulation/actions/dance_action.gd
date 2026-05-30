@@ -1,41 +1,33 @@
 class_name DanceAction extends ACTION
 
-func _init(engine, owner:NPC, target:TILE) -> void:
-	ID = "dance"
-	super._init(engine, owner)
-
-# func score() -> void:
-# 	# sets ACTION.LOCATION as well
-# 	var need: int = OWNER.NEEDS["fun"]
-# 	SCORE += 100 - need
-
-# 	var is_impassable: bool = ENGINE.Map.is_impassable(TARGET.LOCATION)
-# 	var is_reserved: bool = ENGINE.NpcManager.is_reserved(TARGET.LOCATION)
-# 	if is_impassable or is_reserved:
-# 		if !can_do_off_tile: 
-# 			SCORE = -100
-# 			return
-# 		var closest_location: Vector2 = ENGINE.Map.get_closest_adjacent_location(OWNER.LOCATION, TARGET.LOCATION)
-# 		if closest_location == Vector2.INF:
-# 			# no closest location found
-# 			SCORE = -100
-# 			return
-# 		LOCATION = closest_location
-# 	else:
-# 		LOCATION = TARGET.LOCATION
-
-# 	SCORE -= OWNER.LOCATION.distance_to(LOCATION)
-
+# func _init(engine, owner:NPC) -> void:
+# 	ID = "dance"
+# 	ENGINE = engine
+# 	OWNER = owner
 
 func run() -> ActionResult:
 	refresh_needs("fun")
-	#ENGINE.History.add_event(OWNER.ID, "dances")
+	ENGINE.History.add_event(self)
+	return ActionResult.new("end turn")
 
-	#chitchat()
+func _to_string() -> String:
+	var str_list:Array[String] = [
+		OWNER.NAME,
+		"dances their heart out."
+	]
+	return " ".join(str_list)
 
-	COUNTDOWN -= 1
-	if COUNTDOWN < 0:
-		return ActionResult.new("end", null)
-		#return ["end", null]
-	return ActionResult.new("running", null)
-	#return ["running", null]
+
+
+# func run() -> ActionResult:
+# 	refresh_needs("fun")
+# 	#ENGINE.History.add_event(OWNER.ID, "dances")
+
+# 	#chitchat()
+
+# 	COUNTDOWN -= 1
+# 	if COUNTDOWN < 0:
+# 		return ActionResult.new("end", null)
+# 		#return ["end", null]
+# 	return ActionResult.new("running", null)
+# 	#return ["running", null]

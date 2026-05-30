@@ -6,10 +6,10 @@ var TARGET_ROOM:ROOM
 
 var ROOM_UNLOCKED:bool = false
 
-func _init(engine, owner:NPC) -> void:
-	ID = "move"
-	ENGINE = engine
-	OWNER = owner
+# func _init(engine, owner:NPC) -> void:
+# 	ID = "move"
+# 	ENGINE = engine
+# 	OWNER = owner
 
 
 # func room_to_unlock(_room:ROOM) -> UnlockRoomAction:
@@ -33,21 +33,34 @@ func set_goal(moving_for:ACTION) -> UnlockRoomAction:
 # 	var result:ActionResult = run()
 # 	return result
 
-func enter_state() -> void:
-	TARGET_ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
-	if !TARGET_ROOM.is_secured():
-		ROOM_UNLOCKED = true
-
+# func enter_state() -> void:
+# 	TARGET_ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+# 	if !TARGET_ROOM.is_secured():
+# 		ROOM_UNLOCKED = true
 
 func run() -> ActionResult:
-	if ROOM_UNLOCKED:
-		return ActionResult.new("end")
-	else:
-		for door:DOOR in TARGET_ROOM.DOOR_LIST:
-			if !door.opened:
-				var new_action:ACTION = OpenDoorAction.new(ENGINE, OWNER).set_target(door)
-				return ActionResult.new("add", new_action)
-		return ActionResult.new("running")
+	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	if !current_room.is_secured():
+		return ActionResult.new("success")
+
+	for door:DOOR in current_room.DOOR_LIST:
+		if !door.opened:
+			OWNER.BLACKBOARD["target_door"] = door
+			# var new_action:ACTION = OpenDoorAction.new(ENGINE, OWNER).set_target(door)
+			add_action(OpenDoorAction)
+
+	return ActionResult.new("running")
+
+
+# func run() -> ActionResult:
+# 	if ROOM_UNLOCKED:
+# 		return ActionResult.new("end")
+# 	else:
+# 		for door:DOOR in TARGET_ROOM.DOOR_LIST:
+# 			if !door.opened:
+# 				var new_action:ACTION = OpenDoorAction.new(ENGINE, OWNER).set_target(door)
+# 				return ActionResult.new("add", new_action)
+# 		return ActionResult.new("running")
 	# for door:DOOR in TARGET_ROOM.DOOR_LIST:
 	# 	if !door.opened:
 	# 		if OWNER.LOCATION == door.LOCATION:
@@ -59,11 +72,12 @@ func run() -> ActionResult:
 	# return ActionResult.new("end").continuing()
 
 func _to_string() -> String:
+	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
 	var str_list:Array[String] = [
 		# "[ACTION]",
 		#"[{0}]".format([Global.TICKS]),
 		OWNER.NAME,
-		"is unlocking room for",
-		MOVING_FOR.ID
+		"is unlocking",
+		current_room.TYPE
 	]
 	return " ".join(str_list)

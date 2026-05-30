@@ -4,12 +4,12 @@ class_name EncounterActionAnchor extends ACTION
 
 var ORGASM_COUNT = 0
 
-func _init(engine, owner: NPC, target: TILE) -> void:
-	# i hope this works lol
-	# no scoring needed for this
-	ID = "encounter"
-	LOCATION = target.LOCATION
-	super._init(engine, owner)
+# func _init(engine, owner: NPC, target: TILE) -> void:
+# 	# i hope this works lol
+# 	# no scoring needed for this
+# 	ID = "encounter"
+# 	LOCATION = target.LOCATION
+# 	super._init(engine, owner)
 
 
 func run() -> ActionResult:

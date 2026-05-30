@@ -1,9 +1,9 @@
 class_name PeeAction extends ACTION
 
-func _init(engine, owner) -> void:
-	ENGINE = engine
-	OWNER = owner
-	ID = "pee"
+# func _init(engine, owner) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	ID = "pee"
 
 
 func run() -> ActionResult:

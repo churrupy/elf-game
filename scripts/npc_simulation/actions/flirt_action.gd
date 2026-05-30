@@ -3,9 +3,9 @@ class_name FlirtAction extends ACTION
 var REQUEST_SENT:bool = false
 var EVENT:HistoryEvent = null
 
-func _init(engine, owner:NPC, target:NPC) -> void:
-	ID = "flirt"
-	super._init(engine, owner, target)
+# func _init(engine, owner:NPC, target:NPC) -> void:
+# 	ID = "flirt"
+# 	super._init(engine, owner, target)
 
 func can_do_action() -> bool:
 	return ENGINE.NpcManager.is_available(TARGET)

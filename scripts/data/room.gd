@@ -9,6 +9,14 @@ var DOOR_LIST:Array[DOOR]
 var LOCATION:Vector2
 var SIZE:Vector2
 
+var wall_dict:Dictionary = {
+		"up": Vector2.UP,
+		"down": Vector2.DOWN,
+		"left": Vector2.LEFT,
+		"right": Vector2.RIGHT
+	}
+
+
 
 func _init(type:String, loc:Vector2, size:Vector2) -> void:
 	ID = type + str(Global.get_counter())
@@ -16,6 +24,20 @@ func _init(type:String, loc:Vector2, size:Vector2) -> void:
 	TYPE = type
 	LOCATION = loc
 	SIZE = size
+
+func is_generic() -> bool:
+	return DATA["generic"]
+
+func in_room(loc:Vector2) -> ROOM:
+	# skips checking generic subrooms
+	if is_in_room(loc):
+		for sub:ROOM in SUBROOMS:
+			var result_room:ROOM = sub.in_room(loc)
+			if result_room != null:
+				return result_room
+		return self
+	return null
+
 
 func is_in_room(loc:Vector2) -> bool:
 	# check doors first cause i made this too complicated
@@ -37,14 +59,20 @@ func is_in_room(loc:Vector2) -> bool:
 		return false
 	return true
 
-func in_room(loc:Vector2) -> ROOM:
-	if is_in_room(loc):
-		for sub:ROOM in SUBROOMS:
-			var result_room:ROOM = sub.in_room(loc)
-			if result_room != null:
-				return result_room
-		return self
-	return null
+func right_inside_door() -> TILE:
+	var door:DOOR = DOOR_LIST.pick_random()
+	return door
+
+func right_outside_door() -> Vector2:
+	var door:DOOR = DOOR_LIST.pick_random()
+	if door == null:
+		return Vector2.INF
+	var wall:String = door.wall
+
+	var target_direction:Vector2 = door.LOCATION + wall_dict[wall]
+	return target_direction
+
+
 
 func is_secured() -> bool:
 	if len(DOOR_LIST) == 0: return false
@@ -53,7 +81,7 @@ func is_secured() -> bool:
 
 	return true
 
-func get_room_locations() -> Array[Vector2]:
+func get_locations() -> Array[Vector2]:
 	var loc_list:Array[Vector2]
 	var area:int = SIZE[0] * SIZE[1]
 	var width:int = SIZE[0]

@@ -2,10 +2,10 @@ class_name RespondGoal extends ACTION
 
 var HAS_REQUESTS:bool = false
 
-func _init(engine, owner) -> void:
-	ENGINE = engine
-	OWNER = owner
-	ID = "respond"
+# func _init(engine, owner) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	ID = "respond"
 
 func enter_state() -> void:
 	if len(OWNER.ACTION_RESPONSES) > 0:

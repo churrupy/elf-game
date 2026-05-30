@@ -37,8 +37,9 @@ func find_path() -> Array[Vector2]:
 		current = queue.pop_front()
 
 		if current.LOCATION == END:
-			PATH.append(current.LOCATION)
+			# PATH.append(current.LOCATION)
 			while current.LOCATION != START:
+				PATH.append(current.LOCATION)
 				print("current: ", current)
 				print("start: ", START)
 				print("end: ", END)
@@ -46,7 +47,7 @@ func find_path() -> Array[Vector2]:
 				current = current.PARENT
 				print("new current: ", current)
 				# current = parent_dict[current]
-				PATH.append(current.LOCATION)
+				
 			return PATH
 		for neighbor in get_neighbors(current.LOCATION):
 			if neighbor in visited:
@@ -125,12 +126,13 @@ func validate() -> bool:
 
 
 func validate_from_npc(npc:NPC) -> bool:
-	# print("validation")
+	print("validation")
 	if len(PATH) == 0: return false
-	var visible_tiles:Array[TILE] = TILE_FILTER.new(ENGINE).set_list_from_vector(PATH).in_range_of(npc.LOCATION, 10).in_arc_of(npc.DIRECTION).run_filter()
+	# var visible_tiles:Array[TILE] = TILE_FILTER.new(ENGINE).set_list_from_vector(PATH).in_range_of(npc.LOCATION, 10).in_arc_of(npc.DIRECTION).run_filter()
+	var visible_tiles:Array[TILE] = TILE_FILTER.new(ENGINE).set_list_from_vector(PATH).in_range_of(npc.LOCATION).run_filter()
 	var passable_tiles:Array[TILE] = TILE_FILTER.new(ENGINE).set_list(visible_tiles).in_range_of(npc.LOCATION, 10).is_passable().run_filter()
-	# print("visible tiles: ", visible_tiles)
-	# print("passable: ", passable_tiles)
+	print("visible tiles: ", visible_tiles)
+	print("passable: ", passable_tiles)
 	if len(visible_tiles) == len(passable_tiles):
 		return true
 	return false

@@ -10,12 +10,11 @@ var ACTION_GROUP:GROUP
 var RANGE:float = 0
 
 
-func _init(engine, owner:NPC) -> void:
-	ID = "move"
-	ENGINE = engine
-	OWNER = owner
-	SEEABLE = true
-
+# func _init(engine, owner:NPC) -> void:
+# 	ID = "move"
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	SEEABLE = true
 
 #region builder
 # func set_target(target:Node) -> MoveAction:
@@ -24,10 +23,10 @@ func _init(engine, owner:NPC) -> void:
 # 	update_location()
 # 	return self
 
-func calling_action(moving_for:ACTION) -> MoveAction:
-	MOVING_FOR = moving_for
-	CHATTABLE = moving_for.CHATTABLE
-	return self
+# func calling_action(moving_for:ACTION) -> MoveAction:
+# 	MOVING_FOR = moving_for
+# 	CHATTABLE = moving_for.CHATTABLE
+# 	return self
 
 func set_goal(moving_for:ACTION) -> MoveAction:
 	MOVING_FOR = moving_for
@@ -40,52 +39,13 @@ func set_location(loc:Vector2) -> MoveAction:
 	update_path()
 	return self
 
-# func secure_room() -> MoveAction:
-# 	# builder function
-# 	secure = true
-# 	# room_to_secure = ENGINE.Map.get_room(LOCATION)
+
+# func set_group(_group:GROUP) -> MoveAction:
+# 	ACTION_GROUP = _group
 # 	return self
-
-func set_group(_group:GROUP) -> MoveAction:
-	ACTION_GROUP = _group
-	return self
-
-# func within_range(range:int = 1.5) -> MoveAction:
-# 	# allows adjacent/nearby tiles as valid targets
-# 	# good for moving as a group
-# 	RANGE = range
-# 	return self
-
 
 #endregion builder
 
-# func resume_state() -> void:
-# 	update_path()
-
-
-# func tick() -> ActionResult:
-# 	var result: ActionResult = run()
-# 	return result
-
-
-# func update_location() -> void:
-# 	if TARGET is NPC:
-# 		RANGE = 1.5
-# 	elif TARGET is TILE:
-# 		if "h_surface" in TARGET.DATA["tags"] or "v_surface" in TARGET.DATA["tags"]:
-# 			RANGE = 1.5
-
-# 	var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(TARGET.LOCATION, RANGE).is_passable().is_available()
-# 	#var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).set_list().in_range_of(LOCATION, RANGE).is_available().is_passable()
-# 	var filtered_loc:Array[Vector2] = filter.run_filter()
-# 	if len(filtered_loc) == 0:
-# 		# shouldn't happen! but we'll see
-# 		print("adjacent move tiles not found")
-# 	else:
-# 		filtered_loc.sort_custom(func(a,b): return OWNER.LOCATION.distance_to(a) < OWNER.LOCATION.distance_to(b))
-# 		LOCATION = filtered_loc[0]
-
-# 	update_path()
 
 
 func update_path() -> void:
@@ -95,24 +55,35 @@ func update_path() -> void:
 
 
 func run() -> ActionResult:
+	LOCATION = OWNER.BLACKBOARD["saved_loc"]
 	if LOCATION == Vector2.INF:
 		print("invalid MoveAction target: ", LOCATION)
-		return ActionResult.new("end")
+		return ActionResult.new("fail")
+
+	if PATH == null:
+		PATH = Pathfinder.new(ENGINE).set_start(OWNER.LOCATION).set_end(LOCATION)
+		PATH.find_path()
+		print("Pathfinder check: ", PATH)
+
 	print("moving for", MOVING_FOR)
 	if OWNER.LOCATION == LOCATION:
+		print("success check")
+		print("pathfinder:", PATH)
 		print("reached location")
-		return ActionResult.new("end")
+		print("owner location:", OWNER.LOCATION)
+		print("target location:", LOCATION)
+		return ActionResult.new("success")
 
 
 	if !PATH.validate_from_npc(OWNER):
 		print("path failed validation")
-		return ActionResult.new("end")
+		return ActionResult.new("fail")
 
 	var old_location:Vector2 = OWNER.LOCATION
 	var next_step:Vector2 = PATH.next_step()
 	if next_step.distance_to(old_location) > 1.5:
 		print("OWNER pushed too far away from path")
-		return ActionResult.new("end")
+		return ActionResult.new("fail")
 
 	OWNER.LOCATION = next_step
 	var new_direction:Vector2 = next_step - old_location
@@ -130,8 +101,9 @@ func _to_string() -> String:
 		# "[ACTION]",
 		#"[{0}]".format([Global.TICKS]),
 		OWNER.NAME,
-		"is moving for",
-		MOVING_FOR.ID
+		"is moving",
+		str(PATH)
+		#MOVING_FOR.ID
 	]
 	return " ".join(str_list)
 

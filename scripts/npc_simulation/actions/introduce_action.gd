@@ -1,8 +1,8 @@
 class_name IntroduceAction extends ACTION
 
-func _init(engine, owner):
-	ENGINE = engine
-	OWNER = owner
+# func _init(engine, owner):
+# 	ENGINE = engine
+# 	OWNER = owner
 
 func run() -> ActionResult:
 	ENGINE.History.add_event(self)

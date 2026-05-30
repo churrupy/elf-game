@@ -11,9 +11,11 @@ var location:Vector2 = Vector2.INF
 var distance:float = 1.5
 var direction:Vector2 = Vector2.INF
 var tags:Array[String] = []
+var fulfills_need:String = ""
 
 var target_room:ROOM
 var not_room_list:Array[ROOM]
+var accessible_from:Vector2 = Vector2.INF
 
 var be_available:bool = false
 var be_passable:bool = false
@@ -31,11 +33,16 @@ func set_list(_tile_list:Array[TILE] = []) -> TILE_FILTER:
 		tile_list = _tile_list
 	return self
 
+func set_not(tile:TILE) -> TILE_FILTER:
+	is_not_list.append(tile)
+	return self
+
 func set_list_from_vector(loc_list:Array[Vector2]) -> TILE_FILTER:
 	for loc:Vector2 in loc_list:
 		if loc == Vector2.INF: continue
 		tile_list.append(ENGINE.Map.get_tile(loc))
 	return self
+
 
 func in_range_of(_origin:Vector2, _distance:float = 1.5) -> TILE_FILTER:
 	origin=_origin
@@ -58,6 +65,10 @@ func has_tag(_tag:String) -> TILE_FILTER:
 	tags.append(_tag)
 	return self
 
+func set_fulfills_need(_need:String) -> TILE_FILTER:
+	fulfills_need = _need
+	return self
+
 func is_available() -> TILE_FILTER:
 	be_available = true
 	return self
@@ -65,6 +76,12 @@ func is_available() -> TILE_FILTER:
 func is_passable() -> TILE_FILTER:
 	be_passable = true
 	return self
+
+
+func is_accessible_to(_loc:Vector2) -> TILE_FILTER:
+	accessible_from = _loc
+	return self
+
 
 func set_location(loc:Vector2) -> TILE_FILTER:
 	location = loc
@@ -86,6 +103,10 @@ func run_filter() -> Array[TILE]:
 
 		if !can_be_empty:
 			if tile.TYPE == "empty": continue
+
+		if fulfills_need != "":
+			if "refreshes" not in tile.DATA: continue
+			if tile.DATA["refreshes"] != fulfills_need: continue
 
 		if location != Vector2.INF:
 			if tile.LOCATION != location:
@@ -128,14 +149,23 @@ func run_filter() -> Array[TILE]:
 				if tile.has_tag("h_surface") or tile.has_tag("v_surface"): continue
 
 		if target_room != null:
-			var tile_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
-			if tile_room != target_room: continue
-			if tile_room in not_room_list: continue
+			if !target_room.is_in_room(tile.LOCATION): continue
+
+		# if target_room != null:
+		# 	var tile_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
+		# 	if tile_room != target_room: continue
+		# 	if tile_room in not_room_list: continue
 
 		if need_adjacent_tiles > 0:
 			var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(origin, 1).is_available().is_passable().is_not(origin)
 			var filtered_loc:Array[Vector2] = filter.run_filter()
 			if len(filtered_loc) < need_adjacent_tiles:continue
+
+		if accessible_from != Vector2.INF:
+			var tile_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
+			if !tile_room.is_in_room(accessible_from):
+				# if origin is not in tile room
+				if tile_room.is_secured(): continue
 
 		filtered_list.append(tile)
 
@@ -147,6 +177,26 @@ func convert_to_loc() -> Array[Vector2]:
 	var loc_list:Array = filtered_list.map(func(a): return a.LOCATION)
 	result_list.assign(loc_list)
 	return result_list
+
+func convert_to_actions(_npc:NPC) -> Array[ACTION]:
+	# converts to UseItemAction
+	var action_list:Array[ACTION]
+	var checked_needs:Array[String]
+	for t:TILE in filtered_list:
+		if "refreshes" in t.DATA:
+			if t.DATA["refreshes"] not in checked_needs:
+				var refreshed_need:String = t.DATA["refreshes"]
+				var new_goal:ACTION = UseTileGoal.new(ENGINE, _npc, null).set_need(refreshed_need)
+				action_list.append(new_goal)
+				checked_needs.append(refreshed_need)
+
+	return action_list
+
+# func convert_to_furn() -> Array[TILE]:
+# 	var result_list:Array[TILE]
+# 	var furn_list:Array = filtered_list.filter(func(a): return a.TYPE != "empty")
+# 	result_list.assign(furn_list)
+# 	return result_list
 
 
 func is_subset_of(subset:Array, set:Array) -> bool:

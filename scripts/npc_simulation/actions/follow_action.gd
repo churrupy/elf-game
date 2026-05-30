@@ -2,9 +2,9 @@ class_name FollowAction extends ACTION
 
 var CLEAR:bool = false
 
-func _init(engine, owner:NPC) -> void:
-    ENGINE = engine
-    OWNER = owner
+# func _init(engine, owner:NPC) -> void:
+#     ENGINE = engine
+#     OWNER = owner
 
 func set_target(_target:NPC) -> FollowAction:
     TARGET = _target

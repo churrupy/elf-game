@@ -2,11 +2,11 @@ class_name SeduceResponseGoal extends ACTION
 
 var HAS_RESPONDED:bool = false
 
-func _init(engine, owner) -> void:
-	print("seduce response check", owner.NAME)
-	ID = "seduce"
-	ENGINE = engine
-	OWNER = owner
+# func _init(engine, owner) -> void:
+# 	print("seduce response check", owner.NAME)
+# 	ID = "seduce"
+# 	ENGINE = engine
+# 	OWNER = owner
 
 func set_target(_npc:NPC) -> SeduceResponseGoal:
 	TARGET = _npc

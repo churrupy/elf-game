@@ -4,12 +4,12 @@ var ACTION_GROUP: GROUP
 var PARTICIPANTS:Array[String]
 #var COUNTDOWN: int = 5
 
-func _init(engine, owner) -> void:
-	ENGINE = engine
-	OWNER = owner
-	SEEABLE = true
-	COUNTDOWN = 5
-	ID = "make out"
+# func _init(engine, owner) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	SEEABLE = true
+# 	COUNTDOWN = 5
+# 	ID = "make out"
 
 func set_group(_group:GROUP) -> MakeoutAction:
 	ACTION_GROUP = _group

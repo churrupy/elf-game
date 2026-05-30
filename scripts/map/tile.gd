@@ -17,6 +17,13 @@ func _init(loc:Vector2, type:String="empty") -> void:
 	# DATA = Constants.TILE_TEMPLATES[TYPE]
 	# texture = load("res://models/" + DATA["sprite"])
 
+func in_range(_loc:Vector2) -> bool:
+	var distance:float = _loc.distance_to(LOCATION)
+	var range:Array = DATA["interactable_range"]
+	if distance >= range[0] and distance <= range[1]:
+		return true
+	return false
+
 func has_tag(tag:String) -> bool:
 	var tag_list:Array = DATA["tags"]
 	return tag in tag_list

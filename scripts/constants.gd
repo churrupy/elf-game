@@ -177,164 +177,6 @@ var PORTRAIT_TEMPLATES = {
 	
 }
 
-# var CLASS_TEMPLATES = {
-# 	"GenericAction": ACTION,
-# 	#"TileAction": TileAction,
-# 	#"SocialAction": SocialAction,
-# 	"SeduceAction": SeduceAction
-# }
-
-# var ACTION_ID: Dictionary = {
-# 	"IdleGoal": IdleGoal,
-# 	#"SocialAction": SocialAction,
-# 	"SeduceAction": SeduceAction,
-# 	"HungerGoal": HungerGoal,
-# 	"BladderGoal": BladderGoal,
-# 	"MoveAction": MoveAction,
-# 	"DanceAction": DanceAction,
-# 	"DrinkAction": DrinkAction
-# }
-
-
-#region action templates
-# const ACTION_TEMPLATES = {
-# 	"idle": {
-# 		"need": "",
-# 		"duration": 0,
-# 		"pose": "standing",
-# 		"joinable": true,
-# 		"other_req": false,
-# 		"do_off_tile": false,
-# 		"class": "IdleGoal"
-# 	},
-# 	"move": {
-# 		"need": "",
-# 		"duration": 3,
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": false,
-# 		"do_off_tile": false,
-# 		"class": "MoveAction"
-# 	},
-# 	#region SocialAction
-# 	"converse": {
-# 		"need": "social",
-# 		#"relationship": "friendship",
-# 		"duration": 10,
-# 		"followers": [1,4],
-# 		"pose": "standing",
-# 		"joinable": true,
-# 		"other_req": true,
-# 		"do_off_tile": true,
-# 		"class": "SocialAction"
-# 	},
-# 	"encounter": {
-# 		"need": "release",
-# 		"duration": 30,
-# 		"followers": [1,1],
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": true,
-# 		"do_off_tile": true,
-# 		"conversable": false,
-# 		"class": "SocialAction" # LOL i'll figure this out later
-# 	},
-# 	"flirt": {
-# 		"need": "social",
-# 		"duration": 5,
-# 		"followers": [1,1],
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": true,
-# 		"do_off_tile": true,
-# 		"conversable": false,
-# 		"class": "SocialAction"
-# 	},
-# 	"seduce": {
-# 		"need": "release",
-# 		"duration": 5,
-# 		"followers": [1,1],
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": true,
-# 		"do_off_tile": true,
-# 		"conversable": false,
-# 		"class": "SeduceAction"
-# 	},
-# 	#region TileAction
-# 	"loiter": {
-# 		"need": "social",
-# 		"duration": 10,
-# 		"joinable": true,
-# 		"other_req": false,
-# 		"do_off_tile": true,
-# 		"class": "SocialAction"
-# 	},
-# 	"dance" : {
-# 		"need": "fun",
-# 		"duration": 10,
-# 		"followers": [0,3],
-# 		"pose": "standing",
-# 		"joinable": true,
-# 		"other_req": false,
-# 		"do_off_tile": false,
-# 		"conversable": false,
-# 		"class": "DanceAction"
-# 	},
-# 	"drink": {
-# 		"need": "fun",
-# 		"duration": 5,
-# 		"followers": [0,0],
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": false,
-# 		"do_off_tile": true,
-# 		"class": "DrinkAction"
-# 	},
-# 	"use toilet": {
-# 		"need": "bladder",
-# 		"duration": 5,
-# 		"followers": [0,0],
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": false,
-# 		"do_off_tile": false,
-# 		"conversable": false,
-# 		"class": "BladderGoal"
-# 	},
-# 	"bladder": {
-# 		"need": "bladder",
-# 		"duration": 5,
-# 		"followers": [0,0],
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": false,
-# 		"do_off_tile": false,
-# 		"conversable": false,
-# 		"class": "BladderGoal"
-# 	},
-# 	"snack": {
-# 		"duration": 5,
-# 		"followers": [0,0],
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": false,
-# 		"do_off_tile": true,
-# 		"class": "HungerGoal"
-# 	},
-# 	"hunger": {
-# 		"duration": 5,
-# 		"followers": [0,0],
-# 		"pose": "standing",
-# 		"joinable": false,
-# 		"other_req": false,
-# 		"do_off_tile": true,
-# 		"class": "HungerGoal"
-# 	}
-# }
-
-#endregion
-
 #region tiles
 
 const POSE_CLASS = {
@@ -344,10 +186,13 @@ const POSE_CLASS = {
 	"HSurfacePoses": ["standing"],
 	"VSurfacePoses": ["standing"]
 }
+
+
 const TILE_TEMPLATES:Dictionary = {
 	"empty": {
 		"tags": ["floor", "only_on"],
 		"sprite": "tile.png",
+		"interactable_range": [0,0]
 	},
 	"counter": {
 		"tags": ["h_surface", "only_adjacent"],
@@ -355,15 +200,19 @@ const TILE_TEMPLATES:Dictionary = {
 		"may_contain": [
 			"snack",
 			"beer"
-		]
+		],
+		"interactable_range": [0.1,1.5]
 	},
 	"dance_floor": {
 		"tags": ["floor", "only_on"],
-		"sprite": "dance_floor.png"
+		"sprite": "dance_floor.png",
+		"interactable_range": [0,0],
+		"refreshes": "fun"
 	},
 	"door": {
 		"tags": ["door", "only_on"],
-		"sprite": "door_top.png"
+		"sprite": "door_top.png",
+		"interactable_range": [0,0]
 	},
 	"kitchen_counter": {
 		"tags": ["h_surface", "only_adjacent"],
@@ -372,23 +221,30 @@ const TILE_TEMPLATES:Dictionary = {
 			"clean water",
 			"wheat flour",
 			"metal bowl"
-		]
+		],
+		"interactable_range": [0.1,1.5]
 	},
 	"oven": {
 		"tags": ["oven", "only_adjacent"],
 		"sprite": "oven.png",
+		"interactable_range": [0.1,1.5]
 	},
 	"table": {
 		"tags": ["h_surface", "only_adjacent"],
-		"sprite": "table.png"
+		"sprite": "table.png",
+		"interactable_range": [0.1,1.5]
 	},
 	"toilet":  {
 		"tags": ["chair", "fill_bladder", "encounter_location", "only_on"],
-		"sprite": "toilet.png"
+		"sprite": "toilet.png",
+		"refreshes": "bladder",
+		"private": true,
+		"interactable_range": [0,0]
 	},	
 	"wall": {
 		"tags": ["v_surface", "only_adjacent"],
-		"sprite": "wall.png"
+		"sprite": "wall.png",
+		"interactable_range": [0.1,1.5]
 	}
 }
 
@@ -397,62 +253,19 @@ const TILE_TEMPLATES:Dictionary = {
 
 
 
-
-#region Furniture
-# var FURNITURE: Dictionary ={
-# 	"counter": {
-# 		"type": "h_surface",
-# 		"tags": ["container"],
-# 		"sprite": "bar.png",
-# 		"may_contain": [
-# 			"snack",
-# 			"beer"
-# 		]
-# 	},
-# 	"dance_floor": {
-# 		"type": "floor",
-# 		"tags": [],
-# 		"sprite": "dance_floor.png"
-# 	},
-# 	"table": {
-# 		"type": "h_surface",
-# 		"tags": [],
-# 		"sprite": "table.png"
-# 	},
-# 	"toilet": {
-# 		"type": "chair",
-# 		"tags": ["fill_bladder"],
-# 		"sprite": "toilet.png"
-# 	},
-# 	"wall": {
-# 		"type": "v_surface",
-# 		"tags": [],
-# 		"sprite": "wall.png"
-# 	},
-# 	"door": {
-# 		"type": "v_surface",
-# 		"tags": [],
-# 		"sprite": "door_top.png"
-# 	}
-	
-
-# }
-
-
-
-#endregion furniture
-
 #region items
 var ITEM_TEMPLATES: Dictionary = {
 	"beer": {
 		"description": "Let's get smashed!",
 		"nutrition": 5,
-		"tags": ["alcohol"]
+		"tags": ["alcohol"],
+		"refreshes": "fun"
 	},
 	"bread": {
 		"description": "Nice crusty bread.",
 		"nutrition": 20,
-		"tags": ["food"]
+		"tags": ["food"],
+		"refreshes": "hunger"
 	},
 	"dough": {
 		"description": "Soft pillowy dough for making bread.",
@@ -472,7 +285,8 @@ var ITEM_TEMPLATES: Dictionary = {
 	"snack" : {
 		"description": "Freedom fries! *bird noises*",
 		"nutrition": 20,
-		"tags": ["food"]
+		"tags": ["food"],
+		"refreshes": "hunger"
 	},
 	
 	"wheat flour": {

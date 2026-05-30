@@ -4,6 +4,7 @@ var STATUS: String
 var NEW_ACTION: ACTION
 var ACTION_STACK:Array[ACTION]
 var CONTINUE: bool = false
+var WIPE_BOARD:bool = false
 
 func _init(status:String, new_action: ACTION=null) -> void:
 	STATUS = status
@@ -18,6 +19,10 @@ func set_action(_action:ACTION) -> ActionResult:
 
 func set_status(_status:String) -> ActionResult:
 	STATUS = _status
+	return self
+
+func wipe_board() -> ActionResult:
+	WIPE_BOARD = true
 	return self
 
 func continuing() -> ActionResult:

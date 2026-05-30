@@ -2,10 +2,10 @@ class_name IntroduceResponseGoal extends ACTION
 
 var HAS_RESPONDED:bool = false
 
-func _init(engine, owner) -> void:
-    ID = "introduce"
-    ENGINE = engine
-    OWNER = owner
+# func _init(engine, owner) -> void:
+#     ID = "introduce"
+#     ENGINE = engine
+#     OWNER = owner
 
 func set_target(_npc:NPC) -> IntroduceResponseGoal:
     TARGET = _npc

@@ -2,10 +2,10 @@ class_name EatAction extends ACTION
 
 var FOOD_ITEM:ITEM
 
-func _init(engine, owner:NPC) -> void:
-	ENGINE = engine
-	OWNER = owner
-	ID = "eat"
+# func _init(engine, owner:NPC) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	ID = "eat"
 
 func set_item(_food:ITEM) -> EatAction:
 	FOOD_ITEM = _food

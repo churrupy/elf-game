@@ -29,6 +29,32 @@ func get_all_tags() -> Array[String]:
 		tag_list += item.TAGS
 	return tag_list
 
+func get_all_needs() -> Array[String]:
+	var needs_list:Array[String]
+	for i:ITEM in ITEMS:
+		if "refreshes" in i.DATA:
+			var refreshed_need:String = i.DATA["refreshes"]
+			if refreshed_need not in needs_list:
+				needs_list.append(refreshed_need)
+	return needs_list
+
+func can_refresh(_need:String) -> bool:
+	for i:ITEM in ITEMS:
+		var item_data:Dictionary = i.DATA
+		if "refreshes" in item_data.keys():
+			if item_data["refreshes"] == _need:
+				return true
+
+	return false
+
+func get_first_fulfills(_need:String) -> ITEM:
+	for i:ITEM in ITEMS:
+		var item_data:Dictionary = i.DATA
+		if "refreshes" in item_data.keys():
+			if item_data["refreshes"] == _need:
+				return i
+	return null
+
 
 func _to_string() -> String:
 	var item_strings = ", ".join(ITEMS)

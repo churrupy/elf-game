@@ -10,61 +10,123 @@ var GROUP_PARTICIPANTS:Array[NPC]
 
 
 
-func _init(engine, owner: NPC, target: NPC=null) -> void:
-	# no scoring needed for this
-	ENGINE = engine
-	OWNER = owner
-	ID = "converse"
-	CHATTABLE = true
+# func _init(engine, owner: NPC, target: NPC=null) -> void:
+# 	# no scoring needed for this
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	ID = "converse"
+# 	CHATTABLE = true
 
 func score() -> SocialGoal:
-	SCORE = 100 - OWNER.NEEDS["social"]
-	print("social score: ", SCORE)
+	var need:float = OWNER.NEEDS["social"]/100
+	SCORE = 1 - (need * need)
 	return self
+
+	# var owner_group:GROUP = ENGINE.GroupManager.get_group(OWNER)
+	# var can_talk_to_someone:int = 1
+	# if owner_group == null:
+	# 	var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+	# 	var available_npcs:Array[NPC] = NPC_FILTER.new(ENGINE).set_list().is_available().set_room(current_room).run_filter()
+	# 	if len(available_npcs)
+
+	# return self
+
+# func score() -> SocialGoal:
+# 	SCORE = 100 - OWNER.NEEDS["social"]
+# 	print("social score: ", SCORE)
+# 	return self
 
 
 
 func enter_state() -> void:
-	if ENGINE.GroupManager.is_conversing(OWNER):
+	var npc_group:GROUP = ENGINE.GroupManager.get_group(OWNER)
+	if npc_group != null:
+	# if ENGINE.GroupManager.is_conversing(OWNER):
 		IS_IN_GROUP = true
-		var id_list:Array[String] = ENGINE.GroupManager.get_group_participants(OWNER)
-		GROUP_PARTICIPANTS = ENGINE.NpcManager.get_npcs_from_ids(id_list)
+		GROUP_PARTICIPANTS = npc_group.PARTICIPANTS.duplicate()
+		# var id_list:Array[String] = ENGINE.GroupManager.get_group_participants(OWNER)
+		# GROUP_PARTICIPANTS = ENGINE.NpcManager.get_npcs_from_ids(id_list)
 
 	else:
 		IS_IN_GROUP = false
 		GROUP_PARTICIPANTS = []
-				
 
-func run() -> ActionResult:
-	if OWNER.are_needs_low():
-		return ActionResult.new("end")
 
-	LOCATION = OWNER.LOCATION
-	if IS_IN_GROUP:
-		var res:ActionResult
-		# choose what to do next
-		# var res:ActionResult = clear_responses()
-		# if res != null:
-		# 	return res
+# func run() -> ActionResult:
+# 	if OWNER.are_needs_low():
+# 		return ActionResult.new("end")
+
+# 	var owner_group:GROUP = ENGINE.GroupManager.get_group(OWNER)
+# 	if owner_group == null:
+# 		print("not in a group")
+# 		var current_room:ROOM = ENGINE.Map.get_room(OWNER.LOCATION)
+# 		var available_npcs:Array[NPC] = NPC_FILTER.new(ENGINE).set_list().is_available().set_room(current_room).is_not([OWNER]).run_filter()
+# 		if len(available_npcs) == 0:
+# 			if "in_largest_room" in OWNER.BLACKBOARD and OWNER.BLACKBOARD["in_largest_room"]:
+# 				# do something else for a bit
+# 				var new_action:ACTION = FunGoal.new(ENGINE, OWNER)
+# 				return ActionResult.new("replace", new_action)
+
+# 			OWNER.BLACKBOARD["current_room"] = ENGINE.Map.get_room(OWNER.LOCATION)
+# 			var new_action:ACTION = LeaveRoomAction.new(ENGINE, OWNER).set_goal(self)
+# 			return ActionResult.new("add", new_action)
+# 		else:
+# 			var impressions:Array[Impression] = OWNER.get_all_impressions(available_npcs)
+# 			impressions.sort_custom(func(a,b): return a.SCORE > b.SCORE)
+# 			OWNER.BLACKBOARD["npc_to_join"] = impressions[0].TARGET
+# 			var new_action:ACTION = JoinGroupGoal.new(ENGINE, OWNER)
+# 			return ActionResult.new("add", new_action)
+# 	else:
+# 		var res:ActionResult
+# 		# choose what to do next
+# 		# var res:ActionResult = clear_responses()
+# 		# if res != null:
+# 		# 	return res
 		
-		res = know_everyone()
-		if res != null:
-			return res
+# 		res = know_everyone()
+# 		if res != null:
+# 			return res
 
-		res = flirt()
-		if res != null:
-			return res
+# 		res = flirt()
+# 		if res != null:
+# 			return res
 
-		res = respond_to_topic()
-		if res != null:
-			return res
-	else:
-		var new_action:ACTION = JoinGroupGoal.new(ENGINE, OWNER).set_goal(self)
-		return ActionResult.new("add", new_action)
-		# return join_group()
+# 		res = respond_to_topic()
+# 		if res != null:
+# 			return res
+	
+# 	return ActionResult.new("running")
+
+# func run_old() -> ActionResult:
+# 	if OWNER.are_needs_low():
+# 		return ActionResult.new("end")
+
+# 	LOCATION = OWNER.LOCATION
+# 	if IS_IN_GROUP:
+# 		var res:ActionResult
+# 		# choose what to do next
+# 		# var res:ActionResult = clear_responses()
+# 		# if res != null:
+# 		# 	return res
+		
+# 		res = know_everyone()
+# 		if res != null:
+# 			return res
+
+# 		res = flirt()
+# 		if res != null:
+# 			return res
+
+# 		res = respond_to_topic()
+# 		if res != null:
+# 			return res
+# 	else:
+# 		var new_action:ACTION = JoinGroupGoal.new(ENGINE, OWNER).set_goal(self)
+# 		return ActionResult.new("add", new_action)
+# 		# return join_group()
 		
 
-	return ActionResult.new("running")
+# 	return ActionResult.new("running")
 
 
 

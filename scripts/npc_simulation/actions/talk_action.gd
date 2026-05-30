@@ -3,10 +3,10 @@ class_name TalkAction extends ACTION
 var STATEMENTS:Array[ACTION]
 
 
-func _init(engine, owner) -> void:
-	ID = "talk"
-	ENGINE = engine
-	OWNER = owner
+# func _init(engine, owner) -> void:
+# 	ID = "talk"
+# 	ENGINE = engine
+# 	OWNER = owner
 
 func add_statement(_statement:ACTION) -> TalkAction:
 	STATEMENTS.append(_statement)

@@ -111,8 +111,7 @@ func run_filter() -> Array[NPC]:
 				#continue
 
 		if target_room != null:
-			var npc_room:ROOM = ENGINE.Map.get_room(npc.LOCATION)
-			if npc_room != target_room: continue
+			if !target_room.is_in_room(npc.LOCATION): continue
 
 		if target_action_id != "":
 			var npc_action:ACTION = npc.CURRENT_ACTION
@@ -124,3 +123,11 @@ func run_filter() -> Array[NPC]:
 	#print(filtered_list)
 	
 	return filtered_list
+
+
+#func convert_to_actions(npc_list:Array[NPC]) -> Array[ACTION]:
+	#var action_list:Array[ACTION]
+	#for npc:NPC in npc_list:
+		#var new_action:ACTION = SocializeWithGoal.new(ENGINE).set_target(npc)
+		#action_list.append(new_action)
+	#return action_list

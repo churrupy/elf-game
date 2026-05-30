@@ -2,10 +2,10 @@ class_name RefreshNeedsAction extends ACTION
 
 var NEED:String
 
-func _init(engine, owner) -> void:
-	ENGINE = engine
-	OWNER = owner
-	ID = "refresh needs"
+# func _init(engine, owner) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	ID = "refresh needs"
 
 func set_need(_need:String) -> RefreshNeedsAction:
 	NEED = _need

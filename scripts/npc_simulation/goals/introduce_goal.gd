@@ -2,12 +2,12 @@ class_name IntroduceGoal extends ACTION
 
 var IS_INTRODUCED:bool = false
 
-func _init(engine, owner:NPC) -> void:
-	ID = "introduce"
-	ENGINE = engine
-	OWNER = owner
-	SEEABLE = true
-	HEARABLE = true
+# func _init(engine, owner:NPC) -> void:
+# 	ID = "introduce"
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	SEEABLE = true
+# 	HEARABLE = true
 
 #region builder
 func set_target(target:NPC) -> IntroduceGoal:

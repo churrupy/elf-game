@@ -1,12 +1,12 @@
 class_name PromptIntroduceAction extends ACTION
 
-func _init(engine, owner:NPC) -> void:
-	ID = "prompt introduce"
-	ENGINE = engine
-	OWNER = owner
-	LOCATION = owner.LOCATION
-	SEEABLE = true
-	HEARABLE = true
+# func _init(engine, owner:NPC) -> void:
+# 	ID = "prompt introduce"
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	LOCATION = owner.LOCATION
+# 	SEEABLE = true
+# 	HEARABLE = true
 
 #region builder
 func set_target(target:NPC) -> PromptIntroduceAction:

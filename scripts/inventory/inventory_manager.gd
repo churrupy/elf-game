@@ -61,6 +61,9 @@ func get_first_tagged_from_inventory(owner:Node, tag:String) -> ITEM:
 			return item
 	return null
 
+func inventory_can_refresh(owner:Node, _need:String) -> bool:
+	var inventory:INVENTORY = get_inventory_of(owner.ID)
+	return inventory.can_refresh(_need)
 
 func inventory_has_tag(owner:Node, tag:String) -> bool:
 	var inventory:INVENTORY = get_inventory_of(owner.ID)

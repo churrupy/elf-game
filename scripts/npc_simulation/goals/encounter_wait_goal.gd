@@ -3,9 +3,9 @@ class_name EncounterWaitGoal extends ACTION
 var NEAR_TARGET:bool = false
 var ENCOUNTER_READY:bool = false
 
-func _init(engine, owner) -> void:
-	ENGINE = engine
-	OWNER = owner
+# func _init(engine, owner) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
 
 func set_target(_target:NPC) -> EncounterWaitGoal:
 	TARGET = _target

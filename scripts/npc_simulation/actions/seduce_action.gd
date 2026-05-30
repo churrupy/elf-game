@@ -1,9 +1,9 @@
 class_name SeduceAction extends ACTION
 
-func _init(engine, owner):
-	ID = "seduce"
-	ENGINE = engine
-	OWNER = owner
+# func _init(engine, owner):
+# 	ID = "seduce"
+# 	ENGINE = engine
+# 	OWNER = owner
 
 func set_target(_target:NPC) -> SeduceAction:
 	TARGET = _target

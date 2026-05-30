@@ -10,11 +10,11 @@ var VALID_ROOM:bool = false
 var EVERYONE_PRESENT:bool = false
 var ROOM_SECURED:bool = false
 
-func _init(engine, owner:NPC) -> void:
-	ENGINE = engine
-	OWNER = owner
-	ID = "encounter"
-	CHATTABLE = false
+# func _init(engine, owner:NPC) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	ID = "encounter"
+# 	CHATTABLE = false
 
 func set_participants(npc_list:Array[NPC]) -> EncounterGoal:
 	PARTICIPANTS = npc_list
@@ -53,7 +53,7 @@ func find_location() -> void:
 	var tiles:Array[TILE] = filter.run_filter()
 	# print(tiles)
 	if len(tiles) > 0:
-		tiles.sort_custom(func(a,b): OWNER.LOCATION.distance_to(b.LOCATION) < OWNER.LOCATION.distance_to(a.LOCATION))
+		tiles.sort_custom(func(a,b): return OWNER.LOCATION.distance_to(b.LOCATION) < OWNER.LOCATION.distance_to(a.LOCATION))
 		TARGET = tiles[0]
 		LOCATION = TARGET.LOCATION
 		# probably could use a function that calculates the number of free tiles around a location

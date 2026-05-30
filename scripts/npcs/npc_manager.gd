@@ -29,13 +29,64 @@ func create_npc() -> void:
 	NPCS.append(npc)
 	Global.NPCS[npc.ID] = npc
 	ENGINE.InventoryManager.create_inventory(npc)
-	ENGINE.GroupManager.create_group(npc)
+	# ENGINE.GroupManager.create_group(npc)
 	
 	# initialize npc goal stack
 	var idle_goal:ACTION = IdleGoal.new(ENGINE, npc)
-	npc.GOAL_STACK.append(idle_goal)
+	npc.ACTION_STACK.append(idle_goal)
 
 func tick() -> void:
+	for npc:NPC in NPCS:
+		print("")
+		print ("***** ", npc.NAME, " *****")
+		npc.decay_needs()
+		# print("goals:", npc.ACTION_STACK)
+
+		var continuing:bool = true
+		var PANIC:int = 10
+
+		while continuing:
+			PANIC -= 1
+			if PANIC <= 0:
+				print("PANICKING!")
+				break
+			continuing = false
+			print("")
+			print("action stack:", npc.ACTION_STACK)
+			var current_action:ACTION = npc.ACTION_STACK.back()
+			print("current action: ", current_action)
+			var res:ActionResult = current_action.run()
+			print(res)
+
+			if res.STATUS == "success":
+				npc.ACTION_STACK.pop_back()
+				continuing = true
+			elif res.STATUS == "fail":
+				var idle_action:ACTION = npc.ACTION_STACK[0]
+				npc.ACTION_STACK = [idle_action]
+				continuing = true
+			elif res.STATUS == "continue":
+				continuing = true
+			elif res.STATUS == "running":
+				pass
+			elif res.STATUS == "recalculate":
+				# cya contigency if system can't figure out an appropriate action to do
+				# clears action stack, waits for five rounds, and tries again
+				var idle_action:ACTION = npc.ACTION_STACK[0]
+				npc.ACTION_STACK = [idle_action]
+				for i in range(0,5):
+					idle_action.add_action(WaitAction)
+
+
+		print(npc.NAME, " finished processing")
+
+	# validate_npc_locations()
+
+
+		
+			
+
+func tick_old() -> void:
 	for npc:NPC in NPCS:
 		print("")
 		print ("***** ", npc.NAME, " *****")
@@ -68,7 +119,7 @@ func tick() -> void:
 			if npc.CURRENT_ACTION == null:
 				# try to get the next action
 				var current_goal:ACTION = npc.GOAL_STACK.back()
-				current_goal.enter_state()
+				# current_goal.enter_state()
 				var result:ActionResult = current_goal.run()
 				process_goal_response(npc, result) # should eventually get back an action that is actionable
 				continuing = true
@@ -134,6 +185,9 @@ func process_action_response(npc, result) -> bool:
 
 
 func process_goal_response(npc:NPC, result:ActionResult) -> void:
+	if result.wipe_board():
+		npc.BLACKBOARD = {}
+		
 	if result.STATUS == "add":
 		npc.GOAL_STACK.append(result.NEW_ACTION)
 	elif result.STATUS == "replace":
@@ -152,7 +206,15 @@ func process_goal_response(npc:NPC, result:ActionResult) -> void:
 			
 
 
+func add_action(new_action:ACTION) -> void:
+	print("adding action: ", new_action)
+	var npc:NPC = new_action.OWNER
+	npc.ACTION_STACK.append(new_action)
 
+func clear_actions(_npc:NPC) -> void:
+	print("clearing ", _npc.NAME, "'s actions")
+	var idle_action:ACTION = _npc.ACTION_STACK[0]
+	_npc.ACTION_STACK = [idle_action]
 
 func add_state(new_action:ACTION) -> void:
 	#print(new_action)
@@ -298,3 +360,16 @@ func get_npcs_from_ids(id_list:Array[String]) -> Array[NPC]:
 		var npc:NPC = get_npc(id)
 		npc_list.append(npc)
 	return npc_list
+
+
+#region remember
+
+func remember_current_room(_npc:NPC) -> void:
+	var current_room:ROOM = ENGINE.Map.get_room(_npc.LOCATION)
+	_npc.BLACKBOARD["current_room"] = current_room
+
+func remember_location(_npc:NPC, _loc:Vector2) -> void:
+	_npc.BLACKBOARD["saved_loc"] = _loc
+
+
+#endregion remember

@@ -16,6 +16,8 @@ var target_room:ROOM
 
 var check_npcs:bool = false
 
+var fulfills_need:String = ""
+
 func _init(engine) -> void:
 	ENGINE = engine
 
@@ -55,6 +57,10 @@ func include_owner(owner:Node) -> INVENTORY_FILTER:
 	owner_list.append(owner)
 	return self
 
+func set_fulfills_need(_need:String) -> INVENTORY_FILTER:
+	fulfills_need = _need
+	return self
+
 
 func run_filter() -> Array[INVENTORY]:
 	for inventory:INVENTORY in inventory_list:
@@ -74,9 +80,12 @@ func run_filter() -> Array[INVENTORY]:
 				if origin.distance_to(inventory.OWNER.LOCATION) > distance:
 					continue
 
+		if fulfills_need != "":
+			if !inventory.can_refresh(fulfills_need): continue
+
 		if target_room != null:
-			var inv_room:ROOM = ENGINE.Map.get_room(inventory.OWNER.LOCATION)
-			if inv_room != target_room: continue
+			if !target_room.is_in_room(inventory.OWNER.LOCATION): continue
+
 		
 		if len(tags) > 0:
 			if !is_subset_of(tags, inventory.get_all_tags()): continue
@@ -93,6 +102,20 @@ func run_filter() -> Array[INVENTORY]:
 		filtered_list.append(inventory)
 
 	return filtered_list
+
+func convert_to_actions(_npc:NPC) -> Array[ACTION]:
+	# converts to PickupItemAction
+	var action_list:Array[ACTION]
+	var checked_needs:Array[String]
+	for i:INVENTORY in filtered_list:
+		var needs_list:Array[String] = i.get_all_needs()
+		for n:String in needs_list:
+			if n not in checked_needs:
+				var new_goal:ACTION = PickupItemGoal.new(ENGINE, _npc, null).set_need(n)
+				action_list.append(new_goal)
+				checked_needs.append(n)
+	return action_list
+
 
 
 func is_subset_of(subset:Array, set:Array) -> bool:

@@ -42,9 +42,9 @@ var ROOM_TEMPLATES_new: Dictionary = {
 	"rooms": {
 		"public_bathroom": [Vector2(7,0)]
 	},
-	"doors": {
-
-	},
+	"generic": false,
+	"doors": {},
+	"can_idle": true,
 	"furniture": {
 		"counter": [
 				[Vector2(0,8), Vector2(4,8)]
@@ -70,6 +70,7 @@ var ROOM_TEMPLATES_new: Dictionary = {
 			Vector2(2,6)
 		],
 	},
+	"generic": true,
 	"doors": [Vector2(0,8)],
 	"furniture": {}
 },
@@ -77,6 +78,7 @@ var ROOM_TEMPLATES_new: Dictionary = {
 	"size": Vector2(3,3),
 	"rooms":{},
 	"walls": true,
+	"generic": true,
 	"doors": [Vector2(0,1)],
 	"furniture": {
 		"toilet":[
@@ -89,6 +91,7 @@ var ROOM_TEMPLATES_new: Dictionary = {
 	"rooms": {},
 	"walls": true,
 	"doors": [],
+	"generic": false,
 	"furniture": {
 		"kitchen_counter": [
 			[Vector2(4,1), Vector2(4,1)]

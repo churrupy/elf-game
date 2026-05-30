@@ -71,7 +71,10 @@ var LOOKING_AT: Array[Vector2]
 var ACTION_RESPONSES:Array[ACTION]
 
 var GOAL_STACK:Array[ACTION]
+var ACTION_STACK:Array[ACTION]
 var CURRENT_ACTION:ACTION
+
+var BLACKBOARD:Dictionary
 
 #endregion actions
 
@@ -158,7 +161,7 @@ func set_needs() -> void:
 		"social": 90.0,
 		"fun": 90.0,
 		# "bladder": randf_range(40.0, 90.0),
-		"bladder": 90.0,
+		"bladder": 40.0,
 		"arousal": 0.0
 	}
 
@@ -212,6 +215,7 @@ func get_known_npcs() -> Array[NPC]:
 func knows_npc(target:NPC) -> bool:
 	var known_npcs:Array[NPC] = get_known_npcs()
 	return target in known_npcs
+
 
 func get_impression_of_npc(npc:NPC) -> Impression:
 	var impression: Impression = Impression.new(self, npc)
@@ -355,7 +359,13 @@ func react_to_memory_list(mem_list:Array[MEMORY]) -> String:
 
 
 func is_available() -> bool:
-	return GOAL_STACK.back().CHATTABLE
+	return ACTION_STACK.back().CHATTABLE
+
+func has_action_id(_id:String) -> bool:
+	for a:ACTION in ACTION_STACK:
+		if a.ID == _id: return true
+
+	return false
 
 
 func has_goal_id_in_stack(_id:String) -> bool:

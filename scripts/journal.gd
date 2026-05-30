@@ -310,14 +310,17 @@ func show_npc_details(npc:NPC) -> void:
 
 func show_npc_relationships(npc:NPC) -> void:
 
-	var label:Label = Label.new()
-	label.text = "Currently in a group with: "
-	ENTRY.add_child(label)
+	var npc_group:GROUP = ENGINE.GroupManager.get_group(npc)
+	if npc_group != null:
 
-	var id_list:Array[String] = ENGINE.GroupManager.get_group_participants(npc)
-	label = Label.new()
-	label.text = ", ".join(id_list)
-	ENTRY.add_child(label)
+		var label:Label = Label.new()
+		label.text = "Currently in a group with: "
+		ENTRY.add_child(label)
+		var names:Array = npc_group.PARTICIPANTS.map(func(a): return a.NAME)
+
+		label = Label.new()
+		label.text = ", ".join(names)
+		ENTRY.add_child(label)
 
 	# relationship details
 	var impression_list: Array[Impression] = npc.get_all_impressions()

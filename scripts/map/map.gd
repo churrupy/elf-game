@@ -328,76 +328,76 @@ func update() -> void:
 
 #region pathfinding
 
-func get_pathfind_path(end:Vector2, start:Vector2) -> Array[Vector2]:
-	#pathfinding
-	# pathfinds backwards from target location
-	# i don't remember why i set up it up that way lol
-	var result_list:Array[Vector2]
-	if start == end:
-		print("Pathfinding: Start and End are same location")
-		push_error("Pathfinding: Start and End are same location")
-		return result_list
+# func get_pathfind_path(end:Vector2, start:Vector2) -> Array[Vector2]:
+# 	#pathfinding
+# 	# pathfinds backwards from target location
+# 	# i don't remember why i set up it up that way lol
+# 	var result_list:Array[Vector2]
+# 	if start == end:
+# 		print("Pathfinding: Start and End are same location")
+# 		push_error("Pathfinding: Start and End are same location")
+# 		return result_list
 
-	var queue: Array[Vector2] = [start]
-	var visited: Array[Vector2] = [start]
-	var parent_dict: Dictionary = {}
+# 	var queue: Array[Vector2] = [start]
+# 	var visited: Array[Vector2] = [start]
+# 	var parent_dict: Dictionary = {}
 
-	var current: Vector2
+# 	var current: Vector2
 
-	while len(queue) > 0:
-		current = queue.pop_front()
-		if current == end:
-			result_list.append(current) # will this break everything else???
-			while current != start:
-				current = parent_dict[current]
-				result_list.append(current)
-			return result_list.slice(1)
-		for neighbor in get_neighbors(current):
-			if neighbor in visited:
-				continue
-			visited.append(neighbor)
-			queue.append(neighbor)
-			parent_dict[neighbor] = current
-	push_error("pathfind fail")
-	return result_list
+# 	while len(queue) > 0:
+# 		current = queue.pop_front()
+# 		if current == end:
+# 			result_list.append(current) # will this break everything else???
+# 			while current != start:
+# 				current = parent_dict[current]
+# 				result_list.append(current)
+# 			return result_list.slice(1)
+# 		for neighbor in get_neighbors(current):
+# 			if neighbor in visited:
+# 				continue
+# 			visited.append(neighbor)
+# 			queue.append(neighbor)
+# 			parent_dict[neighbor] = current
+# 	push_error("pathfind fail")
+# 	return result_list
 
-func step_towards_location(end: Vector2, start: Vector2) -> Vector2:
-	#pathfinding
-	if start == end:
-		print("Pathfinding: Start and End are same location")
-		push_error("Pathfinding: Start and End are same location")
-		return start # shouldn't happen but who knows
+# func step_towards_location(end: Vector2, start: Vector2) -> Vector2:
+# 	#pathfinding
+# 	if start == end:
+# 		print("Pathfinding: Start and End are same location")
+# 		push_error("Pathfinding: Start and End are same location")
+# 		return start # shouldn't happen but who knows
 
-	var queue: Array[Vector2] = [start]
-	var visited: Array[Vector2] = [start]
-	var parent_dict: Dictionary = {}
+# 	var queue: Array[Vector2] = [start]
+# 	var visited: Array[Vector2] = [start]
+# 	var parent_dict: Dictionary = {}
 
-	var current: Vector2
+# 	var current: Vector2
 
-	while len(queue) > 0:
-		current = queue.pop_front()
-		if current == end:
-			return parent_dict[end]
-		for neighbor in get_neighbors(current):
-			if neighbor in visited:
-				continue
-			visited.append(neighbor)
-			queue.append(neighbor)
-			parent_dict[neighbor] = current
-	push_error("pathfind fail")
-	return Vector2.INF
+# 	while len(queue) > 0:
+# 		current = queue.pop_front()
+# 		if current == end:
+# 			return parent_dict[end]
+# 		for neighbor in get_neighbors(current):
+# 			if neighbor in visited:
+# 				continue
+# 			visited.append(neighbor)
+# 			queue.append(neighbor)
+# 			parent_dict[neighbor] = current
+# 	push_error("pathfind fail")
+# 	return Vector2.INF
 
 
 
 # not used
-func get_next_step(parent_dict: Dictionary, start: Vector2, end: Vector2) -> Vector2:
-	var node: Vector2 = end
-	while true:
-		var parent = parent_dict[node] #not sure if i can use a list as a key in godot 
-		if parent == start:
-			return node
-		node = parent
-	return Vector2.INF
+# func get_next_step(parent_dict: Dictionary, start: Vector2, end: Vector2) -> Vector2:
+# 	var node: Vector2 = end
+# 	while true:
+# 		var parent = parent_dict[node] #not sure if i can use a list as a key in godot 
+# 		if parent == start:
+# 			return node
+# 		node = parent
+# 	return Vector2.INF
 
 
 
@@ -478,6 +478,7 @@ func get_all_locations() -> Array[Vector2]:
 		loc_list.append(tile.LOCATION)
 	return loc_list
 
+
 func filter_closest_interactable_locations(start_loc: Vector2, loc_list: Array[Vector2]) -> Array[Vector2]:
 	# takes in a list of target locations, determines if that location is interactable on-location, and if not, then find the closest interactable location to the start location
 	var res_list: Array[Vector2] 
@@ -509,6 +510,19 @@ func filter_closest_interactable_locations_dict(start_loc:Vector2, loc_list:Arra
 
 
 #endregion filters
+#
+##region rooms
+#func get_room_furn_actions_unique(_room:ROOM):
+	#var furn_list:Array[TILE] = get_furniture(_room)
+	#
+#
+#func get_furniture(_room:ROOM) -> Array[TILE]:
+	#var loc_list:Array[Vector2] = _room.get_locations()
+	#var furn_list:Array[TILE] = TILE_FILTER.new(ENGINE).set_list_from_vector(loc_list).not_empty()
+	#return furn_list
+#
+#
+##endregion rooms
 
 
 #region utility
@@ -545,29 +559,55 @@ func get_closest_adjacent_location(start_location: Vector2, target_location: Vec
 			smallest_distance = distance
 			closest_tile = v
 	return closest_tile
-
-
-func get_closest_interactable_location(start_location:Vector2, target:Node) -> Vector2:
-	var adjacent:bool = false
-
-	if target is NPC:
-		adjacent = true
-	elif target is TILE:
-		if "h_surface" in target.DATA["tags"] or "v_surface" in target.DATA["tags"]:
-			adjacent = true
-
-	var filter:LOCATION_FILTER
-	if adjacent:
-		filter = LOCATION_FILTER.new(ENGINE).generate_list(target.LOCATION,1).is_passable().is_available().is_not(target.LOCATION)
-	else:
-		filter = LOCATION_FILTER.new(ENGINE).set_list([target.LOCATION]).is_available()
-
-	var neighbors:Array[Vector2] = filter.run_filter()
-	if len(neighbors) == 0:
-		return Vector2.INF
 	
-	neighbors.sort_custom(func(a,b): return start_location.distance_to(a) < start_location.distance_to(b))
-	return neighbors[0]
+func get_closest_interactable_location(start:Node, target:Node) -> Vector2:
+	if target is NPC:
+		return get_closest_interactable_location_npc(start, target)
+	elif target is TILE:
+		return get_closest_interactable_location_tile(start, target)
+	else:
+		return get_closest_interactable_location_tile(start, target)
+
+func get_closest_interactable_location_npc(start:Node, target:NPC) -> Vector2:
+	var target_range:Array = [0.1, 1.5]
+	var npc_tile:TILE = get_tile(target.LOCATION)
+	var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(target.LOCATION, target_range[1]).set_not(npc_tile)
+
+	var tile_list:Array[TILE] = tile_filter.run_filter()
+	tile_list.sort_custom(func(a,b): return a.LOCATION.distance_to(start.LOCATION) < b.LOCATION.distance_to(start.LOCATION))
+	return tile_list[0].LOCATION
+
+func get_closest_interactable_location_tile(start:Node, target:TILE) -> Vector2:
+	var target_range:Array = target.DATA["interactable_range"]
+	var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().in_range_of(target.LOCATION, target_range[1])
+	if target_range[0] != 0.0:
+		tile_filter.set_not(target)
+	var tile_list:Array[TILE] = tile_filter.run_filter()
+	tile_list.sort_custom(func(a,b): return a.LOCATION.distance_to(start.LOCATION) < b.LOCATION.distance_to(start.LOCATION))
+	return tile_list[0].LOCATION
+
+
+# func get_closest_interactable_location(start_location:Vector2, target:Node) -> Vector2:
+# 	var adjacent:bool = false
+
+# 	if target is NPC:
+# 		adjacent = true
+# 	elif target is TILE:
+# 		if "h_surface" in target.DATA["tags"] or "v_surface" in target.DATA["tags"]:
+# 			adjacent = true
+
+# 	var filter:LOCATION_FILTER
+# 	if adjacent:
+# 		filter = LOCATION_FILTER.new(ENGINE).generate_list(target.LOCATION,1).is_passable().is_available().is_not(target.LOCATION)
+# 	else:
+# 		filter = LOCATION_FILTER.new(ENGINE).set_list([target.LOCATION]).is_available()
+
+# 	var neighbors:Array[Vector2] = filter.run_filter()
+# 	if len(neighbors) == 0:
+# 		return Vector2.INF
+	
+# 	neighbors.sort_custom(func(a,b): return start_location.distance_to(a) < start_location.distance_to(b))
+# 	return neighbors[0]
 
 func get_tile(loc:Vector2) -> TILE:
 	var width:int = MAP_SIZE[0]
@@ -642,6 +682,17 @@ func highlight_tile(loc: Vector2, highlight_color: Color) -> void:
 	tile.modulate = highlight_color
 
 
+# func get_room_exact(loc:Vector2) -> ROOM:
+# 	# includes generic rooms such as bathrooms
+# 	for room:ROOM in ROOM_LIST:
+# 		var result_room:ROOM = room.in_room(loc)
+# 		if result_room != null:
+# 			return result_room
+
+# 	push_error("Room not found, IMPOSSIBLE", loc)
+# 	print("Room not found:", loc)
+# 	return null
+
 func get_room(loc:Vector2) -> ROOM:
 	for room:ROOM in ROOM_LIST:
 		var result_room:ROOM = room.in_room(loc)
@@ -649,9 +700,8 @@ func get_room(loc:Vector2) -> ROOM:
 			return result_room
 
 	push_error("Room not found, IMPOSSIBLE", loc)
-	print("Room not found:", loc)
+	print("Room not found: ", loc)
 	return null
-
 
 
 func print_map() -> void:

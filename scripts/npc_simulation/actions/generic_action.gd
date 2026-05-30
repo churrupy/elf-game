@@ -4,12 +4,15 @@ var ENGINE
 var ID: String
 var OWNER: NPC
 
+var DATA:Dictionary
+
 var TARGET: Node 
 var LOCATION: Vector2 = Vector2.INF 
 var COUNTDOWN: int
-var SCORE: int = 0
+var SCORE: float = 0.0
 
-var CHATTABLE: bool = true
+var GOAL:ACTION
+var CHATTABLE: bool = false
 var SEEABLE:bool = false
 var HEARABLE:bool = false
 
@@ -20,13 +23,53 @@ var POSE:String = "standing"
 var PHYSICAL_ACTION:String = ""
 
 
-func _init(engine, owner: NPC) -> void:
+
+var ACTION_DATA:Dictionary = {
+	"IdleAction": {
+		"chattable": "true"
+	},
+	"SocializeWithAction": {
+		"chattable": "true"
+	}
+}
+
+
+func _init(engine, owner:NPC, _goal:ACTION=null) -> void:
 	ENGINE = engine
 	OWNER = owner
+	GOAL = _goal
+	ID = get_class()
+	if ID in ACTION_DATA.keys():
+		DATA = ACTION_DATA[ID]
+		var chat_data:String = DATA["chattable"]
+		match chat_data:
+			"true":
+				CHATTABLE = true
+			"false":
+				CHATTABLE = false
+			_:
+				CHATTABLE = GOAL.CHATTABLE
+
+
 	#TARGET = target
 	#var action_data: Dictionary = Constants.ACTION_TEMPLATES[ID]
 	#COUNTDOWN = action_data["duration"]
 	#score()
+
+func set_goal(_goal:ACTION) -> ACTION:
+	GOAL = _goal
+	CHATTABLE = GOAL.CHATTABLE
+	return self
+
+func add_action(_action:GDScript, owner=OWNER) -> void:
+	print("adding action: ", _action)
+	var new_action:ACTION = _action.new(ENGINE, OWNER, self)
+	new_action.add_self_to_owner()
+
+
+func add_self_to_owner() -> void:
+	OWNER.ACTION_STACK.append(self)
+
 
 func enter_state():
 	pass

@@ -1,8 +1,8 @@
 class_name LowNeedsGoal extends ACTION
 
-func _init(engine, owner) -> void:
-	ENGINE = engine
-	OWNER = owner
+# func _init(engine, owner) -> void:
+# 	ENGINE = engine
+# 	OWNER = owner
 
 func run() -> ActionResult:
 	if OWNER.are_needs_low():

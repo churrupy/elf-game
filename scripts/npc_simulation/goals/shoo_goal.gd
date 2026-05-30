@@ -6,12 +6,12 @@ var TARGET_ROOM:ROOM
 var LEFT_ROOM:bool = false
 var WAITED:bool = false #makes them wait a turn to make sure that they don't try to immediately re-enter room
 
-func _init(engine, owner:NPC) -> void:
-	ID = "shoo"
-	ENGINE = engine
-	OWNER = owner
-	# since this is added by another person, force-end their current action
-	OWNER.CURRENT_ACTION = null
+# func _init(engine, owner:NPC) -> void:
+# 	ID = "shoo"
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	# since this is added by another person, force-end their current action
+# 	OWNER.CURRENT_ACTION = null
 
 func set_target(_room:ROOM) -> ShooGoal:
 	TARGET_ROOM = _room

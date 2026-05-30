@@ -3,12 +3,12 @@ class_name SeduceGoal extends ACTION
 var TARGET_SEDUCABLE:bool = false
 var SEDUCTION_ATTEMPT:bool = false
 
-func _init(engine, owner: NPC) -> void:
-	# i hope this works lol
-	ID = "seduce"
-	ENGINE = engine
-	OWNER = owner
-	HEARABLE = true
+# func _init(engine, owner: NPC) -> void:
+# 	# i hope this works lol
+# 	ID = "seduce"
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	HEARABLE = true
 
 func set_target(_target:NPC) -> SeduceGoal:
 	TARGET = _target

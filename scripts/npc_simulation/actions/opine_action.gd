@@ -3,14 +3,14 @@ class_name OpineAction extends ACTION
 var ACTION_GROUP:GROUP
 var REACTION:String
 
-func _init(engine, owner:NPC) -> void:
-	ID = "opine"
-	ENGINE = engine
-	OWNER = owner
-	ACTION_GROUP = ENGINE.GroupManager.get_group(OWNER)
-	LOCATION = ACTION_GROUP.get_location()
-	SEEABLE = true
-	HEARABLE = true
+# func _init(engine, owner:NPC) -> void:
+# 	ID = "opine"
+# 	ENGINE = engine
+# 	OWNER = owner
+# 	ACTION_GROUP = ENGINE.GroupManager.get_group(OWNER)
+# 	LOCATION = ACTION_GROUP.get_location()
+# 	SEEABLE = true
+# 	HEARABLE = true
 
 #region builder
 func create_event() -> OpineAction:
