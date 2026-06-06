@@ -57,7 +57,7 @@ func _ready() -> void:
 		$TalkMenu,
 		Journal,
 		CraftMenu,
-		$DefaultMenu,
+		# $DefaultMenu,
 		PlayerMenu
 	]
 
@@ -101,13 +101,17 @@ func _process(_delta: float) -> void:
 			$MouseTileLabel.text += " **"
 
 		var loc_items:Array = get_all_at_location(location)
-		var loc_ids:Array[String]
-		loc_ids.assign(loc_items.map(func(a): return a.ID))
+		var loc_names:Array[String]
+		loc_names.assign(loc_items.map(func(a): return a.NAME))
+		var loc_tag:String = ", ".join(loc_names)
+		$PeekLabel.text = loc_tag
+		# var loc_ids:Array[String]
+		# loc_ids.assign(loc_items.map(func(a): return a.ID))
 
-		$DefaultMenu.open_menus(loc_ids)
+		# $DefaultMenu.open_menus(loc_ids)
 
-		if Input.is_action_just_pressed("mouse_click"):
-			$DefaultMenu.hold_menus(loc_ids)
+		# if Input.is_action_just_pressed("mouse_click"):
+			# $DefaultMenu.hold_menus(loc_ids)
 
 	if Input.is_action_just_pressed("auto_tick"):
 		tick()

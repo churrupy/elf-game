@@ -30,5 +30,5 @@ func continuing() -> ActionResult:
 	return self
 
 func _to_string() -> String:
-	var _str: String = "[STATUS] " + STATUS + ": " + str(NEW_ACTION)
+	var _str: String = "[ActionResult] " + STATUS + ": " + str(NEW_ACTION)
 	return _str

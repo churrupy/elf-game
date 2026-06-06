@@ -20,7 +20,7 @@ var wall_dict:Dictionary = {
 
 func _init(type:String, loc:Vector2, size:Vector2) -> void:
 	ID = type + str(Global.get_counter())
-	DATA = Rooms.ROOM_TEMPLATES_new[type]
+	DATA = Rooms.ROOM_TEMPLATES[type]
 	TYPE = type
 	LOCATION = loc
 	SIZE = size

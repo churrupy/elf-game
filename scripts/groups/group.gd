@@ -4,11 +4,6 @@ var PARTICIPANTS: Array[NPC]
 var CURRENT_TOPIC:MEMORY_FILTER
 
 
-# func _init(first_owner:NPC) -> void:
-# 	PARTICIPANTS.append(first_owner)
-# 	sort()
-# 	CURRENT_TOPIC = MEMORY_FILTER.new()
-
 func _init(npc_list:Array[NPC]) -> void:
 	PARTICIPANTS = npc_list.duplicate()
 
@@ -24,30 +19,6 @@ func _to_string() -> String:
 
 	return " ".join(str_list)
 
-# func _to_string() -> String:
-# 	var location: Vector2 = get_location()
-# 	if len(PARTICIPANTS) == 0:
-# 		print("empty group! shouldn't happen")
-# 		push_error("empty group")
-# 		return ""
-# 	elif len(PARTICIPANTS) == 1:
-# 		var str_list: Array[String] = [
-# 			# "[{0}]".format([Global.TICKS]),
-# 			PARTICIPANTS[0].NAME,
-# 			"is standing at",
-# 			str(location)
-# 		]
-# 		return " ".join(str_list)
-# 	else:
-# 		var names:Array = PARTICIPANTS.map(func(npc): return npc.NAME)
-# 		names[-1] = "and " + names[-1]
-# 		var str_list:Array[String] = [
-# 			# "[{0}]".format([Global.TICKS]),
-# 			", ".join(names),
-# 			"talk together at",
-# 			str(location)
-# 		]
-# 		return " ".join(str_list)
 
 func participants_to_string() -> String:
 	var _str:String = ""
@@ -104,9 +75,3 @@ func is_equal(other_group:GROUP) -> bool:
 	sort()
 	other_group.sort()
 	return PARTICIPANTS == other_group.PARTICIPANTS
-
-# func duplicate() -> GROUP:
-# 	var new_group:GROUP = GROUP.new()
-# 	new_group.PARTICIPANTS = PARTICIPANTS.duplicate()
-# 	new_group.CURRENT_TOPIC = CURRENT_TOPIC
-# 	return new_group

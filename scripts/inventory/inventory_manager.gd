@@ -101,48 +101,6 @@ func count_tags_in_list(tag:String, inv_list:Array[INVENTORY]) -> int:
 	return count
 
 
-#region tile/furniture
-# functions here look at immobile inventories ONLY
-# NO NPC INVENTORIES
-func get_inventory_at_location(loc:Vector2) -> INVENTORY:
-	var inventory_list: Array[INVENTORY] # cause it'll return both the item and the tile as inventory options
-	for inventory: INVENTORY in INVENTORIES:
-		if inventory.OWNER is NPC: continue # skip mobile inventories
-		if inventory.OWNER.LOCATION == loc:
-			inventory_list.append(inventory)
-	if len(inventory_list) == 0:
-		# this should never happen so long as location is valid
-		push_error("No inventory found at ", ENGINE.prettify_vector(loc))
-		return null
-	elif len(inventory_list) == 1:
-		return inventory_list[0]
-	else:
-		# multiple 
-		# also shouldn't happen but i'm less confident in it
-		#print(inventory_list)
-		push_error("Multiple inventories at ", ENGINE.prettify_vector(loc))
-		return null
-
-
-
-func get_inventory_locations(inv_list:Array[INVENTORY] = INVENTORIES) -> Array[Vector2]:
-	# immobile inventories only
-	var res_list: Array[Vector2]
-	for inventory:INVENTORY in inv_list:
-		if inventory.OWNER is NPC: continue
-		res_list.append(inventory.OWNER.LOCATION)
-	return res_list
-
-
-func print_inventory_at_location(loc: Vector2) -> void:
-	# immobile inventories only
-	var inventory: INVENTORY = get_inventory_at_location(loc)
-	#print(inventory)
-
-
-
-#endregion tile/furniture
-
 
 func _to_string() -> String:
 	var display_list:Array[String]

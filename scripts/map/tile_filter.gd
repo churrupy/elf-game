@@ -19,6 +19,7 @@ var accessible_from:Vector2 = Vector2.INF
 
 var be_available:bool = false
 var be_passable:bool = false
+var be_reachable:bool = false
 var can_be_empty:bool = true
 
 var need_adjacent_tiles:int = 0
@@ -75,6 +76,10 @@ func is_available() -> TILE_FILTER:
 
 func is_passable() -> TILE_FILTER:
 	be_passable = true
+	return self
+
+func is_reachable() -> TILE_FILTER:
+	be_reachable = true
 	return self
 
 

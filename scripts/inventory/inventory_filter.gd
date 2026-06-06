@@ -89,15 +89,7 @@ func run_filter() -> Array[INVENTORY]:
 		
 		if len(tags) > 0:
 			if !is_subset_of(tags, inventory.get_all_tags()): continue
-			# var matched:bool = false
-			# for tag:String in tags:
-			# 	for item:ITEM in inventory.ITEMS:
-			# 		if tag in item.TAGS:
-			# 			matched = true
-			# 			break
-			# 	if matched:
-			# 		break
-			# if !matched: continue
+
 
 		filtered_list.append(inventory)
 

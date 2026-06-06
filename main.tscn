@@ -61,5 +61,10 @@ text = "(0,0)"
 [node name="HistoryMenu" parent="." instance=ExtResource("6_7mycd")]
 visible = false
 
+[node name="PeekLabel" type="Label" parent="."]
+offset_top = 116.0
+offset_right = 300.0
+offset_bottom = 172.0
+
 [connection signal="pressed" from="FreeCamButton" to="." method="activate_free_cam"]
 [connection signal="pressed" from="HistoryButton" to="." method="toggle_history_menu"]

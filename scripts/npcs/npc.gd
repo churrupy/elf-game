@@ -296,10 +296,6 @@ func does_share_opinion(topic: String, opinion: int) -> int:
 	return 0
 
 
-func get_attraction(other_npc: NPC) -> int:
-	#return 100 #for testing
-	var other_style = other_npc.STYLE
-	return OPINIONS[other_style]
 
 func print_goal_stack() -> void:
 	print(NAME, "'s goals: ", GOAL_STACK)
@@ -308,6 +304,10 @@ func print_goal_stack() -> void:
 
 
 #endregion relationships
+
+func look_at(_loc:Vector2) -> void:
+	DIRECTION = _loc - LOCATION
+	print("updating direction to: ", DIRECTION)
 
 
 func update_direction(new_direction:Vector2) -> void:
@@ -331,9 +331,6 @@ func update_direction(new_direction:Vector2) -> void:
 
 
 #region actions
-# func consume(item:ITEM) -> void:
-# 	print(NAME, " is consuming ", item)
-# 	NEEDS["hunger"] += item.DATA["nutrition"]
 
 func add_response(_action:ACTION) -> void:
 	# SOCIAL_ACTION.ACTION_RESPONSES.append(_action)
@@ -345,17 +342,6 @@ func react_to_memory_list(mem_list:Array[MEMORY]) -> String:
 
 #endregion actions
 
-# func get_reserved_locations() -> Array[Vector2]:
-# 	var result_list:Array[Vector2]
-# 	if len(STATE_STACK) == 1:
-# 		return [STATE_STACK[0].LOCATION]
-# 	for action:ACTION in STATE_STACK:
-# 		if action is IdleGoal: continue
-# 		result_list.append(action.LOCATION)
-# 	return result_list
-
-# func get_reserved_location() -> Vector2:
-# 	return GOAL_ACTION.LOCATION
 
 
 func is_available() -> bool:

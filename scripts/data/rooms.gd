@@ -1,41 +1,7 @@
 extends Node
 
+
 var ROOM_TEMPLATES: Dictionary = {
-
-"club": {
-	"size": Vector2(11,10),
-	"furniture":
-		{
-			"counter": [
-				[Vector2(0,8), Vector2(4,8)]
-			],
-			"dance_floor": [
-				[Vector2(2,2), Vector2(5,5)]
-			],
-			"table": [
-				[Vector2(0,2), Vector2(0,2)],
-				[Vector2(0,4), Vector2(0,4)],
-				[Vector2(0,6), Vector2(0,6)]
-			],
-			"toilet": [
-				[Vector2(10,0), Vector2(10,0)],
-				[Vector2(10,2), Vector2(10,2)],
-				[Vector2(10,4), Vector2(10,4)],
-				[Vector2(10,6), Vector2(10,6)]
-			],
-			"wall": [
-				[Vector2(7,0), Vector2(7,7)],
-				[Vector2(9,1), Vector2(10,1)],
-				[Vector2(9,3), Vector2(10,3)],
-				[Vector2(9,5), Vector2(10,5)],
-				[Vector2(9,7), Vector2(10,7)],
-			]
-		}
-}
-
-}
-
-var ROOM_TEMPLATES_new: Dictionary = {
 
 "club": {
 	"size": Vector2(11,10),

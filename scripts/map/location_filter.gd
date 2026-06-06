@@ -88,7 +88,17 @@ func run_filter() -> Array[Vector2]:
 			if ENGINE.NpcManager.is_reserved(loc): continue
 
 		if be_passable:
-			if !ENGINE.Map.is_passable(loc): continue
+			var tile:TILE = ENGINE.Map.get_tile(loc)
+			if tile is DOOR:
+				if origin != Vector2.INF:
+					if !tile.opened:
+						var door_room:ROOM = ENGINE.Map.get_room(tile.LOCATION)
+						if !door_room.is_in_room(origin): continue
+				else:
+					if !tile.opened:continue
+
+			else:
+				if tile.has_tag("h_surface") or tile.has_tag("v_surface"): continue
 
 		if need_adjacent_tiles > 0:
 			var filter:LOCATION_FILTER = LOCATION_FILTER.new(ENGINE).generate_list(origin, 1).is_available().is_not(origin)

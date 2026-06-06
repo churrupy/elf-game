@@ -29,10 +29,9 @@ func create_npc() -> void:
 	NPCS.append(npc)
 	Global.NPCS[npc.ID] = npc
 	ENGINE.InventoryManager.create_inventory(npc)
-	# ENGINE.GroupManager.create_group(npc)
 	
 	# initialize npc goal stack
-	var idle_goal:ACTION = IdleGoal.new(ENGINE, npc)
+	var idle_goal:ACTION = IdleGoal.new(ENGINE, npc, null)
 	npc.ACTION_STACK.append(idle_goal)
 
 func tick() -> void:
@@ -43,24 +42,36 @@ func tick() -> void:
 		# print("goals:", npc.ACTION_STACK)
 
 		var continuing:bool = true
-		var PANIC:int = 10
+		var PANIC:int = 0
 
 		while continuing:
-			PANIC -= 1
-			if PANIC <= 0:
+			print("")
+			print("action attempt: ", PANIC)
+			PANIC += 1
+			if PANIC >= 10:
 				print("PANICKING!")
 				break
 			continuing = false
-			print("")
 			print("action stack:", npc.ACTION_STACK)
 			var current_action:ACTION = npc.ACTION_STACK.back()
 			print("current action: ", current_action)
 			var res:ActionResult = current_action.run()
-			print(res)
+			print(res, current_action.STATUS)
 
 			if res.STATUS == "success":
-				npc.ACTION_STACK.pop_back()
+				var index:int = npc.ACTION_STACK.find(current_action)
+				if index > -1:
+					npc.ACTION_STACK.remove_at(index)
 				continuing = true
+			elif res.STATUS == "end":
+				current_action.end_action()
+				var index:int = npc.ACTION_STACK.find(current_action)
+				if index > -1:
+					npc.ACTION_STACK.remove_at(index)
+				continuing = true
+			# if res.STATUS == "success":
+			# 	npc.ACTION_STACK.pop_back()
+			# 	continuing = true
 			elif res.STATUS == "fail":
 				var idle_action:ACTION = npc.ACTION_STACK[0]
 				npc.ACTION_STACK = [idle_action]
@@ -84,59 +95,7 @@ func tick() -> void:
 
 
 		
-			
-
-func tick_old() -> void:
-	for npc:NPC in NPCS:
-		print("")
-		print ("***** ", npc.NAME, " *****")
-		npc.decay_needs()
-		print("goals:", npc.GOAL_STACK)
-
-		if npc.CURRENT_ACTION == null:
-			# add some kind of urgent interrupt here, where if some stats are below 25 or so, then immediately interrupt the current action to attempt to resolve them
-			var new_goal:ACTION = LowNeedsGoal.new(ENGINE, npc)
-			npc.GOAL_STACK.append(new_goal)
-			# then do response processing here
-			new_goal = RespondGoal.new(ENGINE, npc)
-			npc.GOAL_STACK.append(new_goal)
-
-		# then regular goal processing
-		var continuing:bool = true
-		var PANIC:int = 10
-
-		while continuing:
-			print("")
-			print("goal stack:", npc.GOAL_STACK)
-			print("current action:", npc.CURRENT_ACTION)
-			continuing = false
-			PANIC -= 1
-			print(PANIC)
-			if PANIC <= 0:
-				print("PANICKING!!")
-				break
-
-			if npc.CURRENT_ACTION == null:
-				# try to get the next action
-				var current_goal:ACTION = npc.GOAL_STACK.back()
-				# current_goal.enter_state()
-				var result:ActionResult = current_goal.run()
-				process_goal_response(npc, result) # should eventually get back an action that is actionable
-				continuing = true
-			else:
-				var result:ActionResult = npc.CURRENT_ACTION.run()
-				continuing = process_action_response(npc, result)
-				# goal will process current game state and return either another goal or an action
-				# if goal is completed, will pop back 
-
-		npc.decay_needs()
-		print(npc.NAME, " finished processing")
-	
-	# validate colliding locations
-	validate_npc_locations()
-
-	return
-
+		
 func validate_npc_locations() -> void:
 	print("validating npc locations")
 	for npc:NPC in NPCS:
@@ -170,60 +129,14 @@ func validate_npc_locations() -> void:
 
 
 
-func process_action_response(npc, result) -> bool:
-	if result.STATUS == "end":
-		# npc.GOAL_STACK.back().STATUS == "success"
-		print("ending action")
-		npc.CURRENT_ACTION = null
-		return true
-	elif result.STATUS == "end turn":
-		npc.CURRENT_ACTION = null
-		return false
-	elif result.STATUS == "continue":
-		return true
-	return false
 
-
-func process_goal_response(npc:NPC, result:ActionResult) -> void:
-	if result.wipe_board():
-		npc.BLACKBOARD = {}
-		
-	if result.STATUS == "add":
-		npc.GOAL_STACK.append(result.NEW_ACTION)
-	elif result.STATUS == "replace":
-		npc.GOAL_STACK.pop_back()
-		npc.GOAL_STACK.append(result.NEW_ACTION)
-	elif result.STATUS == "end":
-		npc.GOAL_STACK.pop_back()
-	elif result.STATUS == "clear":
-		npc.GOAL_STACK = []
-		npc.CURRENT_ACTION = null
-		print("clearing " + npc.NAME + "'s actions")
-		var idle_goal:IdleGoal = npc.GOAL_STACK[0]
-		npc.GOAL_STACK = [idle_goal]
-	elif result.STATUS == "action":
-		npc.CURRENT_ACTION = result.NEW_ACTION
-			
-
-
-func add_action(new_action:ACTION) -> void:
-	print("adding action: ", new_action)
-	var npc:NPC = new_action.OWNER
-	npc.ACTION_STACK.append(new_action)
 
 func clear_actions(_npc:NPC) -> void:
 	print("clearing ", _npc.NAME, "'s actions")
 	var idle_action:ACTION = _npc.ACTION_STACK[0]
 	_npc.ACTION_STACK = [idle_action]
 
-func add_state(new_action:ACTION) -> void:
-	#print(new_action)
-	var npc = new_action.OWNER
-	if len(npc.STATE_STACK) > 0:
-		var current_action: ACTION = npc.STATE_STACK.back()
-		current_action.suspend_state()
-	new_action.enter_state()
-	npc.STATE_STACK.append(new_action)
+
 
 func update() -> void:
 	# updates display, does not tick npcs
@@ -306,29 +219,6 @@ func get_npc(npc_id:String) ->NPC:
 			return npc
 	return null
 
-func get_attraction(npc_id:String, target_npc_id:String) -> int:
-	return 1 # for testing
-	var npc:NPC = Global.NPCS[npc_id]
-	var target_npc:NPC = Global.NPCS[target_npc_id]
-	var attraction:int = npc.OPINIONS[target_npc.STYLE]
-	return attraction
-
-
-#region vector2
-
-
-# func get_npc_from_location(location: Vector2) -> Array[String]:
-# 	var npc_list: Array[String]
-# 	for npc:NPC in NPCS:
-# 		if npc.LOCATION == location:
-# 			npc_list.append(npc.ID)
-# 	return npc_list
-
-#endregion
-
-
-
-
 #endregion utility
 
 
@@ -340,18 +230,6 @@ func get_npc_names(npc_list:Array[NPC]=NPCS) -> Array[String]:
 		result_list.append(npc.NAME)
 	return result_list
 
-# func get_reserved_tile(npc:NPC) -> Vector2:
-# 	var current_action:ACTION = npc.STATE_STACK.back()
-# 	return current_action.LOCATION
-
-# func is_reserved_by(loc:Vector2) -> Array[NPC]:
-# 	var result_list:Array[NPC]
-# 	for npc:NPC in NPCS:
-# 		var npc_list:Array[Vector2] = npc.get_reserved_locations()
-# 		if loc in npc_list:
-# 			result_list.append(npc)
-# 	return result_list
-
 #endregion
 
 func get_npcs_from_ids(id_list:Array[String]) -> Array[NPC]:
@@ -360,16 +238,3 @@ func get_npcs_from_ids(id_list:Array[String]) -> Array[NPC]:
 		var npc:NPC = get_npc(id)
 		npc_list.append(npc)
 	return npc_list
-
-
-#region remember
-
-func remember_current_room(_npc:NPC) -> void:
-	var current_room:ROOM = ENGINE.Map.get_room(_npc.LOCATION)
-	_npc.BLACKBOARD["current_room"] = current_room
-
-func remember_location(_npc:NPC, _loc:Vector2) -> void:
-	_npc.BLACKBOARD["saved_loc"] = _loc
-
-
-#endregion remember

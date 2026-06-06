@@ -1,0 +1,93 @@
+### Versu Resources ###
+
+# Versu
+- The AI Architecture of Versu. (https://www.paulekman.com/universal-emotions/)
+	- general paper about the overal Versu architecture.
+- Praxis. (https://versu.com/wp-content/uploads/2014/05/praxis.pdf)
+	- lecture slides on how the language Praxis works (no video or audio)
+	- lots of symbol logic on this lol
+- Prompter. (https://versu.com/wp-content/uploads/2014/05/graham_versu.pdf)
+	- unclear what Prompter is lol.
+- Computer Models of Constitutive Social Practice. (https://versu.com/wp-content/uploads/2014/05/ptai_evans.pdf)
+
+## Reconstructions
+- Re:Praxis. (https://github.com/ShiJbey/RePraxis)
+	- C-Sharp recreation of Praxis.
+- Praxish. (https://github.com/mkremins/praxish/tree/master)
+	- JS recreation of Praxis.
+- Wyclef. (https://github.com/JamesDameris/Wyclef)
+	- Another JS recreation (no documentation :( ).
+
+# Emily Short
+## Versu Specific
+- Versu: Conversation Implementation. (https://emshort.blog/2013/02/26/versu-conversation-implementation/)
+
+## Conversation/Social Game Modeling in general
+- Moods in conversation. (https://emshort.blog/2009/12/10/moods-in-conversation/)
+- Conversational analysis studies. (https://emshort.blog/2009/08/08/conversational-analysis-studies/)
+- The conversational "script". (https://emshort.blog/2009/08/26/the-conversational-script/).
+- Modeling conversation flow: multiple people conversing; some closing caveats. (https://emshort.blog/2009/08/12/modeling-conversation-flow-multiple-people-conversing-some-closing-caveats/).
+- Modeling conversation flow: beginnings and endings using scenes. (https://emshort.blog/2009/08/10/modeling-conversation-flow-beginnings-and-endings-using-scenes/)
+- Modeling conversation flow: silence. (https://emshort.blog/2009/08/06/modeling-conversation-flow-silence/)
+- Academic literature on modeling conversations. (https://emshort.blog/2019/04/16/mailbag/)
+- Memory and Knowledge for Characters. (https://emshort.blog/2019/03/05/describing-a-procedurally-generated-world/)
+- Modeling conversation flow: actions in conversational context. (https://emshort.blog/2009/08/05/modeling-conversation-flow-actions-in-conversational-context/)
+- Modeling conversation flow: NPC questions. (https://emshort.blog/2009/08/02/modeling-conversation-flow-open-ended-questions/)
+- Modeling conversation flow: NPC repeating information. (https://emshort.blog/2009/07/30/modeling-conversation-flow-npc-repeating-information/)
+- Modeling conversation flow: interrupting the player. (https://emshort.blog/2009/07/27/modeling-conversation-flow-interrupting-the-player/)
+- Modeling conversation flow: subject changes. (https://emshort.blog/2009/07/24/modeling-conversation-flow-subject-changes/)
+- Modeling conversation flow: types of NPC Initiative. (https://emshort.blog/2009/07/22/modeling-conversation-flow-types-of-npc-initiative/)
+- Information Flow and Gradual Characterization. (https://emshort.blog/2009/02/21/information-flow-and-characterization/)
+- Visualizing conversation. (https://emshort.blog/2008/12/02/visualizing-conversation/)
+- The beat issue. (https://emshort.blog/2008/07/27/the-beat-issue/)
+	- "beat" - non-dialogue decorators in dialogue
+- Tightening the World-Plot Interface: or, Why I Am Obsessed With Conversation Models. (https://emshort.blog/2015/05/24/framed-invisible-parties-and-the-world-plot-interface/)
+
+
+
+## Reviews
+- Mailbag: Deep Conversation. (https://emshort.blog/2018/09/11/mailbag-deep-conversation/)
+	- links to a bunch of games that deal with simulating conversation in different ways.
+- Ladykiller in a Bind. (https://emshort.blog/2017/05/23/ladykiller-in-a-bind-christine-lovelove-conquers-all/)
+	- Game/conversation review
+- Beyond Branching: Quality-Based, Salience-Based, and Waypoint Narrative Structures. (https://emshort.blog/2016/04/12/beyond-branching-quality-based-and-salience-based-narrative-structures/)
+- GDC: Marleigh Norton, Conversation Interfaces. (https://emshort.blog/2010/10/08/gdc-marleigh-norton-conversation-interfaces/)
+	- About non-text ways of designing conversation
+	- Links are probably the more important bit of this article, but are dead. I might be able to find them later.
+- Conscript conversation scripting. (https://emshort.blog/2010/03/24/conscript-conversation-scripting/)
+	- About different ways of scripting conversation.
+
+
+
+
+## Talks
+- Conversation as gameplay talk. (https://emshort.blog/2019/01/20/conversation-as-gameplay-talk/)- Plotting for Interactivity. (https://emshort.blog/2011/07/14/plotting-for-interactivity-the-set-piece-or-crisis/)
+- People in Your Pocket. (https://www.gdcvault.com/play/1014495/People-in-Your-Pocket-High)
+	- general 
+
+- ICIDS: The future of interactive storytelling, plus some Versu thoughts. (https://emshort.blog/2014/11/16/icids-the-future-of-interactive-storytelling-plus-some-versu-thoughts/)
+
+
+## Link Wrappers (posts where the links are more important but I haven't investigated further yet)
+- Conversation Methodolgies. (https://emshort.blog/2009/05/12/conversation-methodologies/)
+
+
+
+
+# Social Simulation Games
+- Prom Week. (https://promweek.soe.ucsc.edu/play/)
+	- requires Flash download
+- Conversations We Have In My Head. (https://squinky.itch.io/conversations)
+	- free, itchio
+	
+	
+# Other
+- Elan Ruskin, Rule Databases for Contextual Dialog and Game Logic. (https://cdn.akamai.steamstatic.com/apps/valve/2012/GDC2012_Ruskin_Elan_DynamicDialog.pdf)
+- People in Your Pocket. (https://www.gdcvault.com/play/1014495/People-in-Your-Pocket-High)
+	- general lecture about using (classical) ai in mobile games
+
+
+
+# Emotions
+- Universal Emotions. (https://www.paulekman.com/universal-emotions/)
+

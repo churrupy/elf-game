@@ -4,18 +4,24 @@ class_name SatisfyNeedFromTileAction extends ACTION
 # 	ENGINE = engine
 # 	OWNER = owner
 
+func set_id() -> void:
+	ID = "SatisfyNeedFromTileAction"
+
 
 func run() -> ActionResult:
 	if "target_tile" not in OWNER.BLACKBOARD:
-		return ActionResult.new("fail")
+		STATUS = "fail"
+		return ActionResult.new("end")
 
 	var target_tile:TILE = OWNER.BLACKBOARD["target_tile"]
 	if OWNER.LOCATION != target_tile.LOCATION:
-		return ActionResult.new("fail")
+		STATUS = "fail"
+		return ActionResult.new("end")
 
 	var need:String = OWNER.BLACKBOARD["target_need"]
 	if OWNER.NEEDS[need] >= 95:
-		return ActionResult.new("success")
+		STATUS = "success"
+		return ActionResult.new("end")
 	refresh_needs(need)
 	return ActionResult.new("running")
 
