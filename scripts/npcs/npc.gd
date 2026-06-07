@@ -84,10 +84,10 @@ func _draw()->void:
 	var direction_angle: float = DIRECTION.angle()
 	var start_angle: float = direction_angle + (PI/2)
 	var end_angle: float = direction_angle - (PI/2)
-	draw_arc(LOCATION, Constants.TILE_SIZE, start_angle, end_angle, 20, HAIR_COLOR)
-	for v: Vector2 in LOOKING_AT:
-		var direction: Vector2 = LOCATION.direction_to(v) * Constants.TILE_SIZE
-		draw_line(LOCATION, direction, HAIR_COLOR, 5.0)
+	#draw_arc(LOCATION, ENGINE.GameWindow.TILE_SIZE, start_angle, end_angle, 20, HAIR_COLOR)
+	#for v: Vector2 in LOOKING_AT:
+		#var direction: Vector2 = LOCATION.direction_to(v) * Constants.TILE_SIZE
+		#draw_line(LOCATION, direction, HAIR_COLOR, 5.0)
 
 #region initialize
 func initialize():

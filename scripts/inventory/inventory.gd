@@ -56,6 +56,23 @@ func get_first_fulfills(_need:String) -> ITEM:
 	return null
 
 
+func get_summary() -> Array:
+	var summary:Array
+	var repeat_items:Array[String]
+
+	for i:ITEM in ITEMS:
+		if i.TYPE in repeat_items: continue
+		var dict:Dictionary = {
+			"item": i,
+			"count": count_item(i.NAME)
+		}
+		summary.append(dict)
+		repeat_items.append(i.TYPE)
+
+	return summary
+
+
+
 func _to_string() -> String:
 	var item_strings = ", ".join(ITEMS)
 	var str_list: Array[String] = [

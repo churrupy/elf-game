@@ -17,8 +17,9 @@ func _init(engine, room) -> void:
 	#size = Global.MAIN_FRAME_SIZE
 	#position = Constants.MAIN_FRAME_POSITION
 	color = Color(.3, .3, .3)
-	size = Constants.CENTER_PANEL_SIZE
-	global_position = Constants.CENTER_PANEL_LOCATION
+	# size = Constants.CENTER_PANEL_SIZE
+	# global_position = Constants.CENTER_PANEL_LOCATION
+	_process(0.0)
 
 	var room_data: Dictionary = Rooms.ROOM_TEMPLATES[room]
 	var room_size: Vector2 = room_data["size"]
@@ -140,13 +141,14 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 
 	return new_room
 
-		
-
-
-
+	
 #endregion init
 
 #region update
+
+func _process(_float) -> void:
+	size = ENGINE.GameWindow.CENTER_PANEL_SIZE
+	global_position = ENGINE.GameWindow.CENTER_PANEL_LOCATION
 
 func clear_tiles():
 	for child in get_children():
@@ -154,19 +156,33 @@ func clear_tiles():
 			remove_child(child)
 
 func update() -> void:
+	print("map check")
 	clear_tiles()
 	var player_room:ROOM = get_room(ENGINE.get_node("Player").LOCATION)
 	for tile: TILE in TILES:
 		#[var x: int, var y: int] = tile.LOCATION
 
-		var screen_index: Vector2 = ENGINE.get_screen_index(tile.LOCATION)
-		if screen_index[0] < 0 or screen_index[1] < 0:
+		var global_location:Vector2 = ENGINE.GameWindow.get_global_location(tile.LOCATION)
+		# print(tile.LOCATION, " ", global_location)
+		if global_location[0] < 0 or global_location[1] < 0:
 			continue
 		
-		add_child(tile)
+		# adjust to make sure tile ends up in center panel
+		global_location = global_location + Vector2(ENGINE.GameWindow.CENTER_PANEL_LOCATION[0], 0)
+		# global_location[0] = global_location[0] + ENGINE.GameWindow.CENTER_PANEL_LOCATION[0]
 		
-		tile.global_position[0] = (screen_index[0] * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
-		tile.global_position[1] = screen_index[1] * Constants.TILE_SIZE
+
+		add_child(tile)
+		tile.global_position = global_location
+
+		# var screen_index: Vector2 = ENGINE.GameWindow.get_screen_index(tile.LOCATION)
+		# if screen_index[0] < 0 or screen_index[1] < 0:
+		# 	continue
+		
+		# add_child(tile)
+		
+		# tile.global_position[0] = (screen_index[0] * Constants.TILE_SIZE) + ENGINE.GameWindow.CENTER_PANEL_LOCATION[0]
+		# tile.global_position[1] = screen_index[1] * Constants.TILE_SIZE
 		
 		# if is_in_line_of_sight(ENGINE.get_node("Player").LOCATION, tile.LOCATION):
 		# 	#print(ENGINE.prettify_vector(tile.LOCATION), " is in line of sight")
@@ -212,7 +228,7 @@ func get_ray_path(origin: Vector2, target: Vector2) -> Array[Vector2]:
 	return ray_path
 
 func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
-	if int(target[0]) not in range(0, Constants.MAP_SIZE[0]) or int(target[1]) not in range(0, Constants.MAP_SIZE[1]):
+	if int(target[0]) not in range(0, MAP_SIZE[0]) or int(target[1]) not in range(0, MAP_SIZE[1]):
 		return false
 	var ray_path: Array[Vector2] = get_ray_path(origin, target)
 	for v: Vector2 in ray_path:
@@ -227,16 +243,25 @@ func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
 
 
 #region filters
+func is_passable(loc:Vector2, origin:Vector2) -> bool:
 
-# func is_passable(loc:Vector2) -> bool:
-# #var index: int = (loc[1] * width) + loc[0]
-# 	var tile:TILE = get_tile(loc)
-# 	var tags:Array = tile.DATA["tags"]
-# 	if tile is DOOR:
-# 		return tile.opened
-# 	if "h_surface" in tags or "v_surface" in tags:
-# 		return false
-# 	return true
+	var tile:TILE = get_tile(loc)
+	if tile == null:
+		return false
+	elif tile is DOOR:
+		if tile.opened: return true
+		var tile_room:ROOM = get_room(tile.LOCATION)
+		if tile_room.is_in_room(origin):
+			return true
+		else:
+			return false
+	else:
+		var tags:Array = tile.DATA["tags"]
+		if "h_surface" in tags or "v_surface" in tags:
+			return false
+		return true
+
+
 
 func is_loc_visible(loc:Vector2) -> bool:
 	var tile:TILE = get_tile(loc)
@@ -354,6 +379,8 @@ func get_closest_interactable_location_tile(start:Node, target:TILE) -> Vector2:
 func get_tile(loc:Vector2) -> TILE:
 	var width:int = MAP_SIZE[0]
 	var index:int = (loc[1] * width) + loc[0]
+	if index < 0 or index > len(TILES) -1:
+		return null
 	var tile:TILE = TILES[index]
 	return tile
 
@@ -369,38 +396,6 @@ func random_empty_tile() -> TILE:
 		if tile_data["impassable"] == false: return tile
 	return null
 
-# func find_action_locations(action:String) -> Array[Vector2]:
-# 	if action == "encounter":
-# 		return find_encounter_locations()
-# 	var filtered_locations: Array[Vector2] = []
-# 	for tile: TILE in TILES:
-# 		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
-# 		if action in tile_data["actions"]:
-# 			filtered_locations.append(tile.LOCATION)
-# 	return filtered_locations
-
-
-# func find_encounter_locations() -> Array[Vector2]:
-# 	var encounter_locations: Array[Vector2]
-# 	for tile:TILE in TILES:
-# 		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
-# 		if "encounter_location" in tile_data.keys():
-# 			encounter_locations.append(tile.LOCATION)
-# 	return encounter_locations
-
-
-
-# func get_all_actions_on_map(npc) -> Array[ACTION]:
-# 	var all_actions: Array[ACTION]
-# 	for tile: TILE in TILES:
-# 		var tile_data: Dictionary = Constants.TILE_TEMPLATES[tile.TYPE]
-# 		for action: String in tile_data["actions"]:
-# 			var action_class_id: String = Constants.ACTION_TEMPLATES[action]["class"]
-# 			var ACTION_CLASS: GDScript = Constants.ACTION_ID[action_class_id]
-# 			var new_action: ACTION = ACTION_CLASS.new(ENGINE, npc, tile)
-# 			all_actions.append(new_action)
-# 	return all_actions
-
 
 	
 func get_available_poses_for_tile(location: Vector2) -> Array:
@@ -408,12 +403,11 @@ func get_available_poses_for_tile(location: Vector2) -> Array:
 	var pose_class: String = Constants.TILE_TEMPLATES[tile.TYPE]["poses"]
 	return Constants.POSE_CLASS[pose_class]
 
-
-
 func get_location_from_mouse(loc: Vector2) -> Vector2:
-	loc = Vector2(loc[0]-Constants.CENTER_PANEL_LOCATION[0], loc[1])
-	var x:int = (int(loc[0]) / Constants.TILE_SIZE) + Global.X_RANGE[0]
-	var y:int = (int(loc[1]) / Constants.TILE_SIZE) + Global.Y_RANGE[0]
+	loc = Vector2(loc[0] - ENGINE.GameWindow.CENTER_PANEL_LOCATION[0], loc[1])
+	# loc = Vector2(loc[0]-Constants.CENTER_PANEL_LOCATION[0], loc[1])
+	var x:int = (int(loc[0]) / ENGINE.GameWindow.TILE_SIZE) + ENGINE.GameWindow.X_RANGE[0]
+	var y:int = (int(loc[1]) / ENGINE.GameWindow.TILE_SIZE) + ENGINE.GameWindow.Y_RANGE[0]
 	#var width: int = Constants.MAP_SIZE[0]
 	#var index: int = (loc[1] * width) + loc[0]
 	#var tile: TILE = TILES[index]

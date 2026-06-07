@@ -1,8 +1,6 @@
 extends Node
 
 var NPCS = {}
-var NEARBY_NPCS: Array[String] = []
-var FOCUS_NPCS = []
 var TICKS: int = 0
 
 var FOCUS_TARGET: String

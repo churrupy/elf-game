@@ -1,7 +1,7 @@
 class_name JOURNAL extends Control
 
 var ENGINE
-var CURRENT_ENTRY: String = "All"
+var CURRENT_ENTRY:String = "All"
 var SUBENTRY:String = "Needs"
 
 var PINNED_ENTRIES: Array[String]
@@ -23,6 +23,8 @@ var TOGGLEABLE:Array
 
 func _init(engine) -> void:
 	ENGINE = engine
+	# size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
+	# global_position = ENGINE.GameWindow.RIGHT_PANEL_LOCATION
 	set_journal_button()
 	set_background()
 	set_title()
@@ -44,6 +46,8 @@ func set_journal_button() -> void:
 	JOURNAL_BUTTON = Button.new()
 	JOURNAL_BUTTON.icon = ResourceLoader.load("res://models/journal.png")
 	JOURNAL_BUTTON.focus_mode = FocusMode.FOCUS_NONE
+	#JOURNAL_BUTTON.position = Vector2(global_position[0] + size[0] - 250, 100)
+	#print("JOURNAL BUTTON", JOURNAL_BUTTON.position)
 	JOURNAL_BUTTON.position = Vector2(250,100)
 	JOURNAL_BUTTON.connect("pressed", toggle_journal)
 	add_child(JOURNAL_BUTTON)
@@ -52,7 +56,8 @@ func set_background() -> void:
 	BG = TextureRect.new()
 	BG.texture = load("res://models/left_menu.png")
 	BG.flip_h = true
-	BG.size = Vector2(300,660)
+	# BG.size = Vector2(300,660)
+	BG.size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
 	BG.modulate = Constants.COLOR_LIST.pick_random()
 	add_child(BG)
 
@@ -108,29 +113,14 @@ func _ready() -> void:
 
 
 
-# func update_old() -> void:
-# 	for child in $Menu.get_node("ScrollContainer").get_node("Entry").get_children():
-# 		child.queue_free()
-
-# 	for child in $Menu.get_node("Navigation").get_children():
-# 		child.queue_free()
-
-# 	if CURRENT_ENTRY == "All":
-# 		update_all()
-# 	elif CURRENT_ENTRY == "NPCs":
-# 		update_all_npcs()
-# 	elif CURRENT_ENTRY == "Topics":
-# 		update_all_topics()
-# 	elif CURRENT_ENTRY == "Traits":
-# 		update_all_traits()
-# 	elif CURRENT_ENTRY in Global.NPCS:
-# 		update_npc()
-# 	else:
-# 		update_entry()
 
 #region update
 
 func update() -> void:
+	# size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
+	# global_position = ENGINE.GameWindow.RIGHT_PANEL_LOCATION
+	# print("jounral size", size)
+	# print("journal position", global_position)
 
 	for child in ENTRY.get_children():
 		child.queue_free()
@@ -141,9 +131,17 @@ func update() -> void:
 	# for child in SUBNAV_MENU.get_children():
 	# 	child.queue_free()
 
-	if CURRENT_ENTRY in Global.NPCS:
-		show_npc()
+	var npc:NPC = ENGINE.NpcManager.get_npc(CURRENT_ENTRY)
+	if npc != null:
+		show_npc(npc)
 		return
+
+	var tile:TILE = ENGINE.Map.get_tile_from_id(CURRENT_ENTRY)
+	if tile != null:
+		show_tile(tile)
+		return
+
+
 
 	var options:Dictionary[String, Callable] = {
 		"All": show_homepage,
@@ -226,10 +224,9 @@ func show_entry() -> void:
 
 #region npc
 
-func show_npc() -> void:
+func show_npc(npc:NPC) -> void:
 	# standard details
 	
-	var npc: NPC = Global.NPCS[CURRENT_ENTRY]
 	update_title(npc.NAME)
 
 	var nav_list: Array[String] = [
@@ -288,14 +285,11 @@ func show_npc_needs(npc:NPC) -> void:
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ENTRY.add_child(new_label)
 
-	var goal:Label = Label.new()
-	goal.text = str(npc.GOAL_STACK.back())
-	ENTRY.add_child(goal)
-
-	var action:Label = Label.new()
-	action.text = str(npc.CURRENT_ACTION)
-	ENTRY.add_child(action)
-
+	var current_action:Label = Label.new()
+	current_action.text = str(npc.ACTION_STACK.back())
+	current_action.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	
+	ENTRY.add_child(current_action)
 
 
 func show_npc_details(npc:NPC) -> void:
@@ -337,15 +331,47 @@ func show_npc_relationships(npc:NPC) -> void:
 func show_npc_inventory(npc:NPC) -> void:
 
 	var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(npc.ID)
-	for item:ITEM in inventory.ITEMS:
-		var new_label:Label = Label.new()
-		new_label.text = item.TYPE
-		ENTRY.add_child(new_label)
+	var inventory_summary:Array = inventory.get_summary()
+	for i:Dictionary in inventory_summary:
+		var new_display:RichTextLabel = i["item"].create_display(i["count"])
+		ENTRY.add_child(new_display)
 
-# func update_title(title:String) -> void:
-# 	$Menu.get_node("Title").text = title
 
 #endregion npc
+
+#region tile
+func show_tile(tile:TILE) -> void:
+	update_title(tile.TYPE)
+
+	var nav_list: Array[String] = [
+		"All"
+	]
+	update_navigation(nav_list)
+
+	var display_list:Array[String] = [
+		"ID: " + tile.ID,
+		"Location: " + ENGINE.prettify_vector(tile.LOCATION)
+	]
+
+	for item:String in display_list:
+		var new_label:Label = Label.new()
+		new_label.text = item
+		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ENTRY.add_child(new_label)
+
+	var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(tile.ID)
+	var inventory_summary:Array = inventory.get_summary()
+	for i:Dictionary in inventory_summary:
+		var new_display:RichTextLabel = i["item"].create_display(i["count"])
+		ENTRY.add_child(new_display)
+
+
+
+
+
+#endregion tile
+
+#region utility
 
 func update_title(title:String) -> void:
 	TITLE.text = title
@@ -364,27 +390,14 @@ func update_navigation(nav_list:Array[String]) -> void:
 			divider.text = " > "
 			NAV_MENU.add_child(divider)
 
-# func update_npc_subnavmenu(subnav_list:Array[String]) -> void:
-
-# 	for option:String in subnav_list:
-
-# 		var nav_button:Button = Button.new()
-# 		nav_button.text = option
-# 		nav_button.connect("pressed", update_subnav.bind(option))
-# 		SUBNAV_MENU.add_child(nav_button)
+ 
+func update_subnav(option:String) -> void:
+	SUBENTRY = option
+	update()
 
 
-# func update_navigation(nav_list: Array[String]) -> void:
-# 	for i in range(0,len(nav_list)):
-# 		var option: String = nav_list[i]
-# 		var nav_button: Button = Button.new()
-# 		nav_button.text = option
-# 		nav_button.connect("pressed", toggle_journal.bind(option))
-# 		$Menu.get_node("Navigation").add_child(nav_button)
-# 		if i != len(nav_list) -1:
-# 			var label: Label = Label.new()
-# 			label.text = " > "
-# 			$Menu.get_node("Navigation").add_child(label)
+#endregion utility
+
 
 func toggle_journal(topic: String="") -> void:
 	if topic == "" or topic == CURRENT_ENTRY:
@@ -397,9 +410,4 @@ func toggle_journal(topic: String="") -> void:
 			t.show()
 		# $Menu.visible = true
 
-	update()
-
-
-func update_subnav(option:String) -> void:
-	SUBENTRY = option
 	update()

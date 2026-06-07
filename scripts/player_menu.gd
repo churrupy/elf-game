@@ -150,13 +150,8 @@ func show_details() -> void:
 func show_inventory() -> void:
 	update_title("Inventory")
 
-	var repeat_items:Array[String]
-
 	var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of("player")
-	# print("inventory check:", inventory)
-	for i:ITEM in inventory.ITEMS:
-		if i.NAME not in repeat_items:
-			var amount:int = inventory.count_item(i.NAME)
-			var new_display:RichTextLabel = i.create_display(amount)
-			ENTRY.add_child(new_display)
-			repeat_items.append(i.NAME)
+	var inventory_summary:Array = inventory.get_summary()
+	for i:Dictionary in inventory_summary:
+		var new_display:RichTextLabel = i["item"].create_display(i["count"])
+		ENTRY.add_child(new_display)

@@ -24,11 +24,6 @@ Dialogue="*res://scripts/dialogue.gd"
 Rooms="*res://scripts/data/rooms.gd"
 Modes="*res://scripts/modes.gd"
 
-[display]
-
-window/size/viewport_width=1200
-window/size/viewport_height=660
-
 [editor]
 
 movie_writer/movie_file="C:/Users/charl/Documents/Godot/elf_game/recordings/moobi.avi"

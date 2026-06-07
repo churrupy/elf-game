@@ -1,34 +1,34 @@
 extends Node
 
 #region game const
-const TILE_SIZE = 64
+# const TILE_SIZE = 64
 #const SCREEN_SIZE = Vector2(1200, 660)
-const MAP_SIZE = [11,10] # num tiles across
-const BOTTOM_RIGHT = Vector2(MAP_SIZE[0]-1, MAP_SIZE[1]-1)
-const NUM_NPCS = 5
+# const MAP_SIZE = [11,10] # num tiles across
+# const BOTTOM_RIGHT = Vector2(MAP_SIZE[0]-1, MAP_SIZE[1]-1)
+# const NUM_NPCS = 5
 
 #region window
 
-var SCREEN_SIZE: Vector2 = DisplayServer.window_get_size()
-#var MAP_CENTER: Vector2 = Vector2(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2)
+# var SCREEN_SIZE: Vector2 = DisplayServer.window_get_size()
+# #var MAP_CENTER: Vector2 = Vector2(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2)
 
-var LEFT_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/4, SCREEN_SIZE[1])
-var LEFT_PANEL_LOCATION = Vector2.ZERO
+# var LEFT_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/4, SCREEN_SIZE[1])
+# var LEFT_PANEL_LOCATION = Vector2.ZERO
 
-var CENTER_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]) # map
-var CENTER_PANEL_LOCATION = Vector2(LEFT_PANEL_LOCATION[0] + LEFT_PANEL_SIZE[0], SCREEN_SIZE[1])
+# var CENTER_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]) # map
+# var CENTER_PANEL_LOCATION = Vector2(LEFT_PANEL_LOCATION[0] + LEFT_PANEL_SIZE[0], SCREEN_SIZE[1])
 
-var RIGHT_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/4, SCREEN_SIZE[1]/2)
-var RIGHT_PANEL_LOCATION = Vector2(CENTER_PANEL_LOCATION[0] + CENTER_PANEL_SIZE[0], SCREEN_SIZE[1])
+# var RIGHT_PANEL_SIZE = Vector2(SCREEN_SIZE[0]/4, SCREEN_SIZE[1]/2)
+# var RIGHT_PANEL_LOCATION = Vector2(CENTER_PANEL_LOCATION[0] + CENTER_PANEL_SIZE[0], SCREEN_SIZE[1])
 
 #endregion window
 
 
 #region map
-var MAP_CENTER = Vector2(CENTER_PANEL_SIZE[0]/2 + CENTER_PANEL_LOCATION[0], CENTER_PANEL_LOCATION[1]/2)
+# var MAP_CENTER = Vector2(CENTER_PANEL_SIZE[0]/2 + CENTER_PANEL_LOCATION[0], CENTER_PANEL_LOCATION[1]/2)
 
-var NUM_X_TILES = int(CENTER_PANEL_SIZE[0] / TILE_SIZE) # num tiles across in x direction
-var NUM_Y_TILES = int(CENTER_PANEL_SIZE[1] / TILE_SIZE) # num tiles across in y direction
+# var NUM_X_TILES = int(CENTER_PANEL_SIZE[0] / TILE_SIZE) # num tiles across in x direction
+# var NUM_Y_TILES = int(CENTER_PANEL_SIZE[1] / TILE_SIZE) # num tiles across in y direction
 
 
 #endregion map

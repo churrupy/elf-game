@@ -137,6 +137,7 @@ func clear_actions(_npc:NPC) -> void:
 	_npc.ACTION_STACK = [idle_action]
 
 
+#region update
 
 func update() -> void:
 	# updates display, does not tick npcs
@@ -159,18 +160,29 @@ func update() -> void:
 			#var reserved_loc:Vector2 = npc.GOAL_ACTION.LOCATION
 			#ENGINE.Map.highlight_tile(reserved_loc, npc.HAIR_COLOR)
 
-		var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
-		if x_index < 0:
+		var global_location:Vector2 = ENGINE.GameWindow.get_global_location(npc.LOCATION)
+		if global_location[0] < 0 or global_location[1] < 0:
 			continue
-		var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(npc.LOCATION[1]))
-		if y_index < 0:
-			continue
-
+		
+		# adjust to make sure tile ends up in center panel
+		global_location += Vector2(ENGINE.GameWindow.CENTER_PANEL_LOCATION[0], 0)
+		global_location += ENGINE.GameWindow.TILE_CENTER
+		# global_location[0] = global_location[0] + ENGINE.GameWindow.CENTER_PANEL_LOCATION[0]
+		npc.global_position = global_location
 		add_child(npc)
-		npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
-		npc.global_position[1] = y_index * Constants.TILE_SIZE
-		npc.global_position = npc.global_position + Vector2(Constants.TILE_SIZE/2, Constants.TILE_SIZE/2)
-		npc.show()
+
+		# var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
+		# if x_index < 0:
+		# 	continue
+		# var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(npc.LOCATION[1]))
+		# if y_index < 0:
+		# 	continue
+
+		# add_child(npc)
+		# npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
+		# npc.global_position[1] = y_index * Constants.TILE_SIZE
+		# npc.global_position = npc.global_position + Vector2(Constants.TILE_SIZE/2, Constants.TILE_SIZE/2)
+		# npc.show()
 
 		# draws line between npc and the other npcs it can see (that are close by)
 		# does not show ALL other npcs an npc can see, just the close ones
@@ -185,6 +197,7 @@ func update() -> void:
 		
 	#print_reserved_locations()
 
+#endregion update
 
 #region filters
 func is_reserved(location:Vector2) -> bool:
