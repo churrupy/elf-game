@@ -1,26 +1,29 @@
 extends Node
-#class_name ENGINE
 
-#var X_RANGE
-#var Y_RANGE
 var GameWindow:GAME_WINDOW
 var Map:MAP
 #var History:Control
 var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
+
+# managers
 var NpcManager:NPC_MANAGER
-# var CAMERA: Camera = Camera.new()
 var InventoryManager:INVENTORY_MANAGER = INVENTORY_MANAGER.new(self)
 var GroupManager:GROUP_MANAGER = GROUP_MANAGER.new(self)
 
+
+# menus
+var MenuBones:MENU_BONES
 var Journal:JOURNAL
 var CraftMenu:CRAFT_MENU
 var PlayerMenu:PLAYER_MENU
+
+
 
 var UPDATABLES:Array
 var FULL_SCREEN:bool = false
 
 #region gamestate data
-var MODE:String = "club"
+var MODE:String = "workshop"
 var AUTORUN_TICKS:int = 00
 var ROOM:String
 var NUM_NPCS:int
@@ -33,10 +36,15 @@ func _init() -> void:
 	var mode_data:Dictionary = Modes.MODES[MODE]
 	GameWindow = GAME_WINDOW.new(self)
 	Map = MAP.new(self, mode_data["room"])
+
+	#init managers
 	NpcManager = NPC_MANAGER.new(self, mode_data["num_npcs"])
-	Journal = JOURNAL.new(self)
-	CraftMenu = CRAFT_MENU.new(self)
-	PlayerMenu = PLAYER_MENU.new(self)
+
+	#init menus
+	MenuBones = MENU_BONES.new(self)
+	Journal = JOURNAL.new(self, MenuBones)
+	#CraftMenu = CRAFT_MENU.new(self, MenuBones)
+	#PlayerMenu = PLAYER_MENU.new(self)
 
 
 #region init
@@ -48,9 +56,10 @@ func _ready() -> void:
 	move_child(Map, 0)
 	add_child(NpcManager)
 	NpcManager.show()
+	add_child(MenuBones)
 	add_child(Journal)
-	add_child(CraftMenu)
-	add_child(PlayerMenu)
+	#add_child(CraftMenu)
+	#add_child(PlayerMenu)
 	for child in get_children():
 		if "ENGINE" in child:
 			child.ENGINE = self
@@ -61,10 +70,11 @@ func _ready() -> void:
 		NpcManager,
 		$HistoryMenu,
 		$TalkMenu,
+		MenuBones,
 		Journal,
-		CraftMenu,
+		# CraftMenu,
 		$DefaultMenu,
-		PlayerMenu,
+		# PlayerMenu,
 		
 	]
 
@@ -75,13 +85,17 @@ func _ready() -> void:
 
 func initialize_player():
 	print("initializing player")
+	# creating inventory
 	InventoryManager.create_inventory($Player)
 
-	PlayerMenu.set_player()
-
+	# putting player on map
 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(self).set_list().is_passable()
 	var passable_locations:Array[Vector2] = loc_filter.run_filter()
 	$Player.LOCATION = passable_locations.pick_random()
+
+	# giving initial entry to journal
+	MenuBones.CURRENT_ENTRY = $Player
+	MenuBones.init_presets() # because the journal is stupid
 	# update_focus_target("player")
 
 #endregion
@@ -89,6 +103,9 @@ func initialize_player():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
+
+	if Input.is_action_just_pressed("esc"):
+		quit()
 	
 	#print(Global.FOCUS_TARGET)
 
@@ -124,7 +141,8 @@ func _process(_delta: float) -> void:
 
 		if Input.is_action_just_pressed("mouse_click") and len(loc_items) > 0:
 			var top_item:Node = loc_items[0]
-			Journal.toggle_journal(top_item.ID)
+			# Journal.toggle_journal(top_item.ID)
+			MenuBones.update_current_entry(top_item)
 			# $DefaultMenu.hold_menus(loc_ids)
 
 	if Input.is_action_just_pressed("auto_tick"):
@@ -189,9 +207,17 @@ func update() -> void:
 	print("updating main")
 	
 	for u in UPDATABLES:
-		u.update()
+		if "update" in u:
+			u.update()
 
 	update_player()
+
+func update_window() -> void:
+	for child in get_children():
+		if "update_window" in child:
+			child.update_window()
+
+	update()
 
 
 func update_player() -> void:
@@ -205,7 +231,7 @@ func update_player() -> void:
 		global_location += Vector2(GameWindow.CENTER_PANEL_LOCATION[0], 0)
 		# orient to center of tile
 		global_location += GameWindow.TILE_CENTER
-		$Player.global_position = global_location
+		$Player.position = global_location
 		
 		# var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int($Player.LOCATION[0]))
 		# if x_index < 0:
@@ -266,15 +292,15 @@ func prettify_vector(v:Vector2) -> String:
 # 	var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(loc[1]))
 # 	return Vector2(x_index, y_index)
 
-func is_on_screen(object: Node) -> bool:
-	var location: Vector2 = object.LOCATION
-	var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(location[0]))
-	if x_index < 0:
-		return false
-	var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(location[1]))
-	if y_index < 0:
-		return false
-	return true
+# func is_on_screen(object: Node) -> bool:
+# 	var location: Vector2 = object.LOCATION
+# 	var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(location[0]))
+# 	if x_index < 0:
+# 		return false
+# 	var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(location[1]))
+# 	if y_index < 0:
+# 		return false
+# 	return true
 
 
 
@@ -321,4 +347,11 @@ func toggle_full_screen() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 		$FullScreenButton.text = "Make Windowed"
 		FULL_SCREEN = true
-	update()
+		print("WINDOW CHECK ", get_window().size)
+		print("")
+		print("processing full screen")
+	GameWindow._process(0.0)
+
+
+func quit() -> void:
+	get_tree().quit()

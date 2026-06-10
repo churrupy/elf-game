@@ -1,7 +1,10 @@
 class_name CRAFT_MENU extends Control
 
 var ENGINE
+var BONES:MENU_BONES
 var CURRENT_ENTRY:String = "Cooking"
+
+var COLOR:Color
 
 var PINNED_ENTRIES:Array[String]
 
@@ -19,23 +22,25 @@ var TOGGLEABLE:Array
 
 #region init
 
-func _init(engine) -> void:
+func _init(engine, bones:MENU_BONES) -> void:
 	ENGINE = engine
+	BONES = bones
+	COLOR = Constants.COLOR_LIST.pick_random()
 	set_craft_button()
-	set_background()
-	set_title()
-	set_navigation()
-	set_entry()
-	set_close_button()
+	# set_background()
+	# set_title()
+	# set_navigation()
+	# set_entry()
+	# set_close_button()
 
-	TOGGLEABLE = [
-		BG,
-		TITLE,
-		NAV_MENU,
-		SCROLL_CONTAINER,
-		ENTRY,
-		CLOSE_BUTTON
-	]
+	# TOGGLEABLE = [
+	# 	BG,
+	# 	TITLE,
+	# 	NAV_MENU,
+	# 	SCROLL_CONTAINER,
+	# 	ENTRY,
+	# 	CLOSE_BUTTON
+	# ]
 
 func set_craft_button() -> void:
 	CRAFT_BUTTON = Button.new()
@@ -108,6 +113,60 @@ func toggle_menu(topic:String="") -> void:
 	update()
 
 #region update
+func update() -> void:
+	BONES.clear_bones()
+	BONES.update_background_color(COLOR)
+
+	var options:Dictionary[String, Callable] = {
+		# "All": add_homepage,
+		"Cooking": show_filtered_recipes,
+		"Crafting": show_filtered_recipes
+	}
+
+	if CURRENT_ENTRY in options.keys():
+		options[CURRENT_ENTRY].call()
+
+
+func add_homepage() -> void:
+	BONES.update_title("All")
+
+	
+func show_filtered_recipes() -> void:
+	BONES.update_title(CURRENT_ENTRY)
+
+	var nav_list:Array[String] = [
+		"All"
+	]
+	BONES.update_navigation(nav_list, self)
+
+	var recipe_filter:RECIPE_FILTER = RECIPE_FILTER.new(ENGINE).set_crafting_type(CURRENT_ENTRY.to_lower())
+	var recipe_list:Array[Dictionary] = recipe_filter.run_filter()
+
+	for r:Dictionary in recipe_list:
+
+		var new_recipe:RECIPE = RECIPE.new(ENGINE, ENGINE.get_node("Player"), r["name"])
+		var display_recipe: RichTextLabel = new_recipe.create_display()
+		BONES.add_to_entry(display_recipe)
+		
+		if new_recipe.CRAFTABLE:
+			var craft_button:Button = Button.new()
+			craft_button.text = new_recipe.DATA["verb"].capitalize() + " " + r["name"].capitalize()
+			craft_button.connect("pressed", craft_recipe.bind(new_recipe))
+			BONES.add_to_entry(craft_button)
+
+
+
+
+
+
+
+func update_current_entry(_str:String) -> void:
+	print("updating current journal entry: ", _str)
+	CURRENT_ENTRY = _str
+	update()
+	BONES.open_menu()
+
+
 
 func update_title(title:String) -> void:
 	TITLE.text = title
@@ -128,27 +187,27 @@ func update_navigation(nav_list:Array[String]) -> void:
 			NAV_MENU.add_child(divider)
 
 
-func update() -> void:
+# func update_old() -> void:
 
-	for child in ENTRY.get_children():
-		child.queue_free()
+# 	for child in ENTRY.get_children():
+# 		child.queue_free()
 
-	for child in NAV_MENU.get_children():
-		child.queue_free()
+# 	for child in NAV_MENU.get_children():
+# 		child.queue_free()
 
 	
-	var options:Dictionary[String, Callable] = {
-		"All": show_homepage,
-		"Cooking": show_cooking_homepage,
-		"Crafting": show_crafting_homepage
-	}
+# 	var options:Dictionary[String, Callable] = {
+# 		"All": show_homepage,
+# 		"Cooking": show_cooking_homepage,
+# 		"Crafting": show_crafting_homepage
+# 	}
 
-	if CURRENT_ENTRY in options.keys():
-		options[CURRENT_ENTRY].call()
-		return
+# 	if CURRENT_ENTRY in options.keys():
+# 		options[CURRENT_ENTRY].call()
+# 		return
 
-	# else:
-	# 	show_entry()
+# 	# else:
+# 	# 	show_entry()
 
 func show_homepage() -> void:
 	update_title("All")

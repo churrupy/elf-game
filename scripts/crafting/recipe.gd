@@ -20,7 +20,7 @@ func validate_recipe() -> void:
 	pass
 
 func create_display() -> RichTextLabel:
-	# print('creating display')
+	print('creating display')
 	var craft_tracker:bool = true
 	var display:RichTextLabel = RichTextLabel.new()
 	# display.custom_minimum_size = Vector2(250,90)
@@ -115,6 +115,53 @@ func create_display() -> RichTextLabel:
 
 
 func to_wiki() -> Wiki:
+	print("making new wiki")
+	var new_wiki:Wiki = Wiki.new()
+	# new_wiki.add_text_bold("Recipe:")
+	new_wiki.add_text_bold(NAME.capitalize())
+	new_wiki.add_newline()
+
+	# new_wiki.add_key_value_label("Description", Constants.ITEM_TEMPLATES[NAME]["description"])
+	new_wiki.add_text_bold("Description:")
+	new_wiki.add_text(Constants.ITEM_TEMPLATES[NAME]["description"])
+	new_wiki.add_newline()
+	# new_wiki.add_text("Description: " + DATA["description"])
+
+	# required tools/furniture
+	new_wiki.add_text_bold("Required furniture:")
+	for f:String in DATA["furniture"]:
+		var tile_list:Array[TILE] = get_nearby_furniture(f)
+		if len(tile_list) > 0:
+			new_wiki.add_button(tile_list[0], Color.GREEN, f)
+		else:
+			new_wiki.add_text(f, Color.RED)
+	new_wiki.add_newline()
+
+	new_wiki.add_text_bold("Required tools: ")
+	for t:String in DATA["tools"]:
+		var item_list:Array[ITEM] = get_nearby_items(t)
+		if len(item_list) > 0:
+			new_wiki.add_button(item_list[0], Color.GREEN, t)
+		else:
+			new_wiki.add_text(t, Color.RED)
+	new_wiki.add_newline()
+
+	# required ingredients
+	new_wiki.add_text_bold("Required ingredients: ")
+	for i:String in DATA["ingredients"]:
+		var item_list:Array[ITEM] = get_nearby_items(i)
+		if len(item_list) > 0:
+			new_wiki.add_button(item_list[0], Color.GREEN, i)
+		else:
+			new_wiki.add_text(i, Color.RED)
+	new_wiki.add_newline()
+
+	# new_wiki.finalize()
+
+	return new_wiki
+
+func to_wiki_old() -> Wiki:
+	print("making old wiki")
 	var new_wiki:Wiki = Wiki.new()
 	new_wiki.add_to_wiki("Recipe: " + NAME)
 	new_wiki.add_to_wiki("Description: " + DATA["description"])
@@ -161,10 +208,7 @@ func get_item_amount_nearby(item:String) -> int:
 func is_furniture_nearby(furn:String) -> bool:
 	# print("checking if furniture is nearby: ", furn)
 	var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag(furn).in_range_of(OWNER.LOCATION)
-	# var tile_filter:TILE_FILTER = TILE_FILTER.new(ENGINE).set_list().has_tag(furn)
 	var filtered_tiles:Array[TILE] = tile_filter.run_filter()
-	# print("filtered tiles: ", filtered_tiles)
-	# print(OWNER.LOCATION)
 	if len(filtered_tiles) > 0:
 		return true
 	return false
@@ -178,11 +222,23 @@ func is_item_nearby(item:String) -> bool:
 	else:
 		return false
 
+func get_nearby_furniture(id:String) -> Array[TILE]:
+	var tile_list:Array[TILE] = TILE_FILTER.new(ENGINE).set_list().has_tag(id).in_range_of(OWNER.LOCATION).run_filter()
+	return tile_list
+
+func get_nearby_items(tag:String) -> Array[ITEM]:
+	var inventory_list:Array[INVENTORY] = INVENTORY_FILTER.new(ENGINE).set_list().has_tag(tag).in_range_of(OWNER.LOCATION).include_owner(OWNER).run_filter()
+	var item_list:Array[ITEM] = []
+	for i:INVENTORY in inventory_list:
+		item_list += i.get_all_items_tagged_with(tag)
+	
+	return item_list
 
 
 
 func craft() -> void:
 	# delete all ingredients
+	print("crafting")
 	for i:String in DATA["ingredients"]:
 		# get inventory
 		var inventory_filter:INVENTORY_FILTER = INVENTORY_FILTER.new(ENGINE).set_list().has_tag(i).in_range_of(OWNER.LOCATION).include_owner(OWNER)

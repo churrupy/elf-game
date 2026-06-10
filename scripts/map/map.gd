@@ -155,25 +155,30 @@ func clear_tiles():
 		if child is TILE:
 			remove_child(child)
 
+# func update_window() -> void:
+# 	update()
+
 func update() -> void:
-	print("map check")
+	# print("map check")
 	clear_tiles()
 	var player_room:ROOM = get_room(ENGINE.get_node("Player").LOCATION)
 	for tile: TILE in TILES:
 		#[var x: int, var y: int] = tile.LOCATION
 
 		var global_location:Vector2 = ENGINE.GameWindow.get_global_location(tile.LOCATION)
-		# print(tile.LOCATION, " ", global_location)
+		
 		if global_location[0] < 0 or global_location[1] < 0:
 			continue
 		
 		# adjust to make sure tile ends up in center panel
-		global_location = global_location + Vector2(ENGINE.GameWindow.CENTER_PANEL_LOCATION[0], 0)
+		# global_location = global_location + Vector2(ENGINE.GameWindow.CENTER_PANEL_LOCATION[0], 0)
+		# global_location = global_location + ENGINE.GameWindow.CENTER_PANEL_LOCATION
 		# global_location[0] = global_location[0] + ENGINE.GameWindow.CENTER_PANEL_LOCATION[0]
 		
 
 		add_child(tile)
-		tile.global_position = global_location
+		tile.position = global_location
+		# print(tile.LOCATION, " ", tile.position)
 
 		# var screen_index: Vector2 = ENGINE.GameWindow.get_screen_index(tile.LOCATION)
 		# if screen_index[0] < 0 or screen_index[1] < 0:
@@ -436,3 +441,18 @@ func print_map() -> void:
 
 
 #endregion utility
+
+
+#region display
+func generate_title(tile_id:String) -> String:
+	var tile:TILE = get_tile_from_id(tile_id)
+	return tile.NAME
+
+#func generate_navlist(tile_id = "Tiles") -> Array[String]:
+	#var return_list:Array[String]
+	#if tile_id == "Tiles":
+		#return return_list.assign(["All"])
+	#else:
+		#return return_list.assign(["All", "Tiles"])
+
+#endregion

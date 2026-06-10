@@ -342,6 +342,135 @@ func react_to_memory_list(mem_list:Array[MEMORY]) -> String:
 
 #endregion actions
 
+# func generate_general() -> RichTextLabel:
+# 	var display:RichTextLabel = RichTextLabel.new()
+# 	display.push_paragraph(ALIGNMENT)
+# 	display.push_bold()
+# 	display.add_text("ID: ")
+# 	display.pop()
+# 	display.add_text(ID)
+# 	display.pop()
+
+# 	display.push_paragraph(ALIGNMENT)
+# 	display.push_bold()
+# 	display.add_text("Location: ")
+# 	display.pop()
+# 	display.add_text(LOCATION)
+# 	display.pop()
+
+# 	display.push_paragraph(ALIGNMENT)
+# 	display.push_bold()
+# 	display.add_text("Action: ")
+# 	display.pop()
+# 	display.add_text(str(ACTION_STACK.back()))
+# 	display.pop()
+
+# 	return display
+
+
+#region journal
+func populate_journal(menu, engine, subentry:String="Needs") -> void:
+	print("populating entry for: ", NAME)
+	menu.update_title(NAME)
+
+	# replace the "index" pages with a filter
+	# so add "populate_journal" function to filter	
+	# var nav_list:Array[String] = [
+	# 	"All",
+	# 	"NPCs"
+	# ]
+	# menu.update_navigation(menu)
+
+	populate_snap(menu)
+
+	var subnav_list:Array[String] = [
+		"Needs",
+		"Interests",
+		"Relationships",
+		"Inventory"
+	]
+
+	menu.generate_subnav(subnav_list)
+
+	if subentry == "":
+		subentry = "Needs"
+
+	var title:Label = Label.new()
+	title.text = subentry.to_upper()
+	menu.add_to_entry(title)
+
+	
+	match subentry:
+		"Needs":
+			for need:String in NEEDS.keys():
+				var _str:String = need.capitalize() + ": " + str(int(NEEDS[need]))
+				var new_label:Label = Label.new()
+				new_label.text = _str
+				new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				menu.add_to_entry(new_label)
+		
+		"Interests":
+			for op:String in OPINIONS.keys():
+				var _str:String = op.capitalize() + ": " + str(int(OPINIONS[op]))
+				var new_label:Label = Label.new()
+				new_label.text = _str
+				new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				menu.add_to_entry(new_label)
+
+		"Relationships":
+			var npc_group:GROUP = engine.GroupManager.get_group(self)
+			if npc_group != null:
+				var label:Label = Label.new()
+				label.text = "Currently in a grou with: "
+				menu.add_to_entry(label)
+
+				var names:Array = npc_group.PARTICIPANTS.map(func(a): return a.NAME)
+				names = names.filter(func(a): return a != NAME)
+				names[-1] = "and " + names[-1]
+				var name_string:String = ", ".join(names)
+
+				label = Label.new()
+				label.text = name_string
+				menu.add_to_entry(label)
+
+			var impression_list:Array[Impression] = get_all_impressions()
+			for impression:Impression in impression_list:
+				var target:NPC = impression.TARGET
+				var npc_button:Button = Button.new()
+				npc_button.text = target.ID
+				menu.bind_button_to_entry(npc_button, target)
+				menu.add_to_entry(npc_button)
+
+				var new_wiki:Wiki = impression.to_wiki()
+				menu.add_to_entry(new_wiki)
+
+		"Inventory":
+			var inventory:INVENTORY = engine.InventoryManager.get_inventory_of(ID)
+			var inventory_summary:Array = inventory.get_summary()
+			for i:Dictionary in inventory_summary:
+				var new_display:RichTextLabel = i["item"].create_display(i["count"])
+				menu.add_to_entry(new_display)
+
+
+
+
+
+func populate_snap(menu) -> void:
+	var display_list:Array[String] = [
+		"ID: " + ID,
+		"Gender: " + GENDER,
+	]
+
+	for item:String in display_list:
+		var new_label:Label = Label.new()
+		new_label.text = item
+		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		menu.add_to_entry(new_label)
+
+
+
+#endregion journal
+
 
 
 func is_available() -> bool:

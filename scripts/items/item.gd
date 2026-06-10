@@ -13,6 +13,9 @@ func _init(type:String) -> void:
 	DATA = Constants.ITEM_TEMPLATES[TYPE]
 	TAGS.assign(DATA["tags"])
 
+func has_tag(tag:String) -> bool:
+	return tag in TAGS
+
 func create_display(amount:int = 1) -> RichTextLabel:
 	print("creating item display")
 

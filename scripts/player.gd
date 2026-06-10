@@ -1,6 +1,4 @@
-extends Node2D
-
-class_name Player
+class_name Player extends Node2D
 
 var ID:String = "player"
 
@@ -18,3 +16,16 @@ func _ready() -> void:
 
 func _process(delta:float) -> void:
 	return
+
+func populate_journal(menu, engine, _subentry) -> void:
+	menu.update_title(NAME)
+
+	var title:Label = Label.new()
+	title.text = "INVENTORY"
+	menu.add_to_entry(title)
+	
+	var inventory:INVENTORY = engine.InventoryManager.get_inventory_of("player")
+	var inventory_summary:Array = inventory.get_summary()
+	for i:Dictionary in inventory_summary:
+		var new_display:RichTextLabel = i["item"].create_display(i["count"])
+		menu.add_to_entry(new_display)

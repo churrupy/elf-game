@@ -55,6 +55,12 @@ func get_first_fulfills(_need:String) -> ITEM:
 				return i
 	return null
 
+func get_all_items_tagged_with(tag:String) -> Array[ITEM]:
+	var item_list:Array[ITEM]
+	for i:ITEM in ITEMS:
+		if i.has_tag(tag) and i not in item_list:
+			item_list.append(i)
+	return item_list
 
 func get_summary() -> Array:
 	var summary:Array
@@ -70,6 +76,16 @@ func get_summary() -> Array:
 		repeat_items.append(i.TYPE)
 
 	return summary
+
+#func generate_journal_entry() -> Array:
+	#var return_array:Array
+#
+	#var summary:Array = get_summary()
+	#for i:Dictionary in inventory_summary:
+		#var new_display:RichTextLabel = i["item"].create_display(i["count"])
+		#return_array.append(new_display)
+#
+	#return return_array
 
 
 

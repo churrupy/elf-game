@@ -34,6 +34,8 @@ func create_npc() -> void:
 	var idle_goal:ACTION = IdleGoal.new(ENGINE, npc, null)
 	npc.ACTION_STACK.append(idle_goal)
 
+#region tick
+
 func tick() -> void:
 	for npc:NPC in NPCS:
 		print("")
@@ -136,6 +138,8 @@ func clear_actions(_npc:NPC) -> void:
 	var idle_action:ACTION = _npc.ACTION_STACK[0]
 	_npc.ACTION_STACK = [idle_action]
 
+#endregion tick
+
 
 #region update
 
@@ -168,8 +172,9 @@ func update() -> void:
 		global_location += Vector2(ENGINE.GameWindow.CENTER_PANEL_LOCATION[0], 0)
 		global_location += ENGINE.GameWindow.TILE_CENTER
 		# global_location[0] = global_location[0] + ENGINE.GameWindow.CENTER_PANEL_LOCATION[0]
-		npc.global_position = global_location
 		add_child(npc)
+		npc.position = global_location
+		
 
 		# var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
 		# if x_index < 0:
@@ -231,6 +236,37 @@ func get_npc(npc_id:String) ->NPC:
 		if npc_id == npc.ID:
 			return npc
 	return null
+
+
+func generate_title(npc_id:String) -> String:
+	var npc:NPC = get_npc(npc_id)
+	return npc.NAME
+
+#func generate_navlist(npc_id:String = "NPCS") -> Array[String]:
+	#var return_string:Array[String]
+	#if npc_id == "NPCS":
+		#return return_string.assign(["All"])
+	#else:
+		#return return_string.assign(["All", "NPCS"])
+#
+#func generate_journal_entry(npc_id:String, subentry:String = "details") -> Array:
+	#var return_list:Array
+	#var npc:NPC = get_npc(npc_id)
+	#return_list.append(npc.generate_general())
+#
+	#var subnav_list:Dictionary[String, Callable] = {
+		#"needs": ENGINE.NpcManager.generate_needs_subentry,
+		#"relationships": ENGINE.NpcManager.generate_relationships_subentry,
+		#"inventory": ENGINE.InventoryManager.generate_inventory_subentry
+	#}
+#
+	#return_list.append(ENGINE.MenuBones.create_subnav(subnav_list.keys()))
+#
+	#return_list += subnav_list[subentry].call(npc_id)
+#
+	#return return_list
+
+
 
 #endregion utility
 

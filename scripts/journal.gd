@@ -1,413 +1,764 @@
 class_name JOURNAL extends Control
-
-var ENGINE
-var CURRENT_ENTRY:String = "All"
-var SUBENTRY:String = "Needs"
-
-var PINNED_ENTRIES: Array[String]
-
-var BG:TextureRect
-var TITLE:Label
-var NAV_MENU:HFlowContainer
-# var SUBNAV_MENU:HFlowContainer
-var SCROLL_CONTAINER:ScrollContainer
-var ENTRY:VBoxContainer
-
-var JOURNAL_BUTTON:Button
-var CLOSE_BUTTON:Button
-
-var TOGGLEABLE:Array 
-
+#
+#var ENGINE
+#var BONES:MENU_BONES
+#var CURRENT_ENTRY:String = "All"
+#var ENTRY_TYPE:String = "index"
+#var SUBENTRY:String = "Needs"
+#
+#var COLOR:Color
+#
+#var PINNED_ENTRIES: Array[String]
+#
+#var BG:TextureRect
+#var TITLE:Label
+#var NAV_MENU:HFlowContainer
+## var SUBNAV_MENU:HFlowContainer
+#var SCROLL_CONTAINER:ScrollContainer
+#var ENTRY:VBoxContainer
+#
+#var JOURNAL_BUTTON:Button
+#var CLOSE_BUTTON:Button
+#
+#var TOGGLEABLE:Array 
+#
+##var type_generators:Dictionary[String, Callable] = {
+	##"index": generate_index_page,
+	##"npc": generate_npc_page,
+	##"tile": generate_tile_page
+##}
+#
+##var type_details:Dictionary[String, Dictionary] = {
+	##"journal": {
+		##"generator": null,
+		##"parent": "panel_menu",
+		##"nav_list": [],
+		##"subnav_list": []
+	##},
+	##"index": {
+		##"generator": generate_index_page,
+		##"parent": "journal",
+		##"subnav_list": []
+	##},
+	##"npcs_index": {
+		### "generator": generate_npcs_index_page,
+		##"parent": "index",
+		##"nav_list": ["index"],
+		##"subnav_list": []
+	##},
+	##"npc": {
+		##"generator": generate_npc_page,
+		##"parent": "npcs_index",
+		##"nav_list": ["index", "npcs_index"],
+		##"subnav_list": ["needs", "details", "relationships", "inventory"]
+	##}
+##}
+##
+##var sub_details:Dictionary[String, Callable] = {
+	##"needs": generate_needs_subentry,
+	##"details": generate_details_subentry,
+	##"relationships": generate_relationships_subentry,
+	##"inventory": generate_inventory_subentry
+##}
+#
 #region init
 
-
-func _init(engine) -> void:
-	ENGINE = engine
-	# size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
-	# global_position = ENGINE.GameWindow.RIGHT_PANEL_LOCATION
-	set_journal_button()
-	set_background()
-	set_title()
-	set_navigation()
-	set_entry()
-	set_close_button()
-
-	TOGGLEABLE = [
-		BG,
-		TITLE,
-		NAV_MENU,
-		# SUBNAV_MENU,
-		SCROLL_CONTAINER,
-		ENTRY,
-		CLOSE_BUTTON
-	]
-
-func set_journal_button() -> void:
-	JOURNAL_BUTTON = Button.new()
-	JOURNAL_BUTTON.icon = ResourceLoader.load("res://models/journal.png")
-	JOURNAL_BUTTON.focus_mode = FocusMode.FOCUS_NONE
-	#JOURNAL_BUTTON.position = Vector2(global_position[0] + size[0] - 250, 100)
-	#print("JOURNAL BUTTON", JOURNAL_BUTTON.position)
-	JOURNAL_BUTTON.position = Vector2(250,100)
-	JOURNAL_BUTTON.connect("pressed", toggle_journal)
-	add_child(JOURNAL_BUTTON)
-
-func set_background() -> void:
-	BG = TextureRect.new()
-	BG.texture = load("res://models/left_menu.png")
-	BG.flip_h = true
-	# BG.size = Vector2(300,660)
-	BG.size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
-	BG.modulate = Constants.COLOR_LIST.pick_random()
-	add_child(BG)
-
-func set_title() -> void:
-	TITLE = Label.new()
-	TITLE.text = "Home"
-	TITLE.size = Vector2(111,45)
-	TITLE.position = Vector2(95,0)
-	TITLE.add_theme_font_size_override("font_size", 32)
-	add_child(TITLE)
-
-func set_navigation() -> void:
-	NAV_MENU = HFlowContainer.new()
-	NAV_MENU.custom_minimum_size = Vector2(290,40)
-	NAV_MENU.position = Vector2(7,47)
-	add_child(NAV_MENU)
-
-	# SUBNAV_MENU = HFlowContainer.new()
-	# SUBNAV_MENU.custom_minimum_size = Vector2(290, 40)
-	# SUBNAV_MENU.position = Vector2(7,75)
-	# add_child(SUBNAV_MENU)
-
-func set_entry() -> void:
-	SCROLL_CONTAINER = ScrollContainer.new()
-	SCROLL_CONTAINER.size = Vector2(290, 550)
-	SCROLL_CONTAINER.position = Vector2(4,90)
-	add_child(SCROLL_CONTAINER)
-
-	ENTRY = VBoxContainer.new()
-	ENTRY.custom_minimum_size = Vector2(290,0)
-	SCROLL_CONTAINER.add_child(ENTRY)
-
-func set_close_button() -> void:
-	CLOSE_BUTTON = Button.new()
-	CLOSE_BUTTON.text = "X"
-	CLOSE_BUTTON.size = Vector2(30,30)
-	CLOSE_BUTTON.position = Vector2(250,0)
-	CLOSE_BUTTON.add_theme_font_size_override("font_size", 32)
-	CLOSE_BUTTON.connect("pressed", toggle_journal)
-	add_child(CLOSE_BUTTON)
-
-#endregion init
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	# $Menu.get_node("BG").modulate = Constants.COLOR_LIST.pick_random()
-	# SignalBus.toggle_journal.connect(toggle_journal)
-	SignalBus.toggle_journal.connect(toggle_journal)
-	position = Vector2(900,0)
-	for t in TOGGLEABLE:
-		t.hide()
-	update()
-
-
-
-
-#region update
-
-func update() -> void:
-	# size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
-	# global_position = ENGINE.GameWindow.RIGHT_PANEL_LOCATION
-	# print("jounral size", size)
-	# print("journal position", global_position)
-
-	for child in ENTRY.get_children():
-		child.queue_free()
-
-	for child in NAV_MENU.get_children():
-		child.queue_free()
-
-	# for child in SUBNAV_MENU.get_children():
-	# 	child.queue_free()
-
-	var npc:NPC = ENGINE.NpcManager.get_npc(CURRENT_ENTRY)
-	if npc != null:
-		show_npc(npc)
-		return
-
-	var tile:TILE = ENGINE.Map.get_tile_from_id(CURRENT_ENTRY)
-	if tile != null:
-		show_tile(tile)
-		return
-
-
-
-	var options:Dictionary[String, Callable] = {
-		"All": show_homepage,
-		"NPCs": show_npc_homepage,
-		"Topics": show_topic_homepage,
-		"Traits": show_trait_homepage,
-	}
-
-	if CURRENT_ENTRY in options.keys():
-		options[CURRENT_ENTRY].call()
-		return
-	
-	else:
-		show_entry()
-
-
-func show_homepage() -> void:
-	update_title("Journal")
-
-	# entry
-	var options: Array[String] = [
-		"NPCs",
-		"Topics",
-		"Traits"
-	]
-
-	for o: String in options:
-		var new_button: Button = Button.new()
-		new_button.text = o
-		new_button.connect("pressed", toggle_journal.bind(o))
-		ENTRY.add_child(new_button)
-
-func show_npc_homepage() -> void:
-	update_title("NPCs")
-
-	var nav_list: Array[String] = [
-		"All",
-	]
-	update_navigation(nav_list)
-
-	for npc_id: String in Global.NPCS.keys():
-		var npc: NPC = Global.NPCS[npc_id]
-		var new_button: Button = Button.new()
-		new_button.text = npc.NAME
-		new_button.connect("pressed", toggle_journal.bind(npc.ID))
-		ENTRY.add_child(new_button)
-
-func show_topic_homepage() -> void:
-	update_title("Topics")
-
-	var nav_list: Array[String] = [
-		"All",
-	]
-	update_navigation(nav_list)
-
-
-func show_trait_homepage() -> void:
-	update_title("Traits")
-
-	var nav_list: Array[String] = [
-		"All",
-	]
-	update_navigation(nav_list)
-
-
-func show_entry() -> void:
-	# generic entry that i don't have any details for yet
-	update_title(CURRENT_ENTRY.capitalize())
-
-	var nav_list: Array[String] = [
-		"All",
-		"Topics"
-	]
-	update_navigation(nav_list)
-
-	var new_label: Label = Label.new()
-	new_label.text = "Instert information about this topic here"
-	ENTRY.add_child(new_label)
-
-
-#region npc
-
-func show_npc(npc:NPC) -> void:
-	# standard details
-	
-	update_title(npc.NAME)
-
-	var nav_list: Array[String] = [
-		"All",
-		"NPCs"
-	]
-	update_navigation(nav_list)
-
-	
-
-	var subnav_options:Dictionary[String, Callable] = {
-		"Needs": show_npc_needs,
-		"Details": show_npc_details,
-		"Relationships": show_npc_relationships,
-		"Inventory": show_npc_inventory,
-	}
-
-	show_npc_snap(npc, subnav_options.keys())
-
-	# update_npc_subnavmenu(subnav_options.keys())
-
-	subnav_options[SUBENTRY].call(npc)
-
-func show_npc_snap(npc:NPC, subnav_options:Array[String]) -> void:
-	var display_list: Array[String] = [
-		"ID: " + npc.ID,
-		"Gender: " + npc.GENDER,
-	]
-
-	for item:String in display_list:
-		var new_label:Label = Label.new()
-		new_label.text = item
-		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ENTRY.add_child(new_label)
-
-	var subnav_menu:HFlowContainer = HFlowContainer.new()
-	ENTRY.add_child(subnav_menu)
-
-	for option:String in subnav_options:
-		var nav_button:Button = Button.new()
-		nav_button.text = option
-		nav_button.connect("pressed", update_subnav.bind(option))
-		subnav_menu.add_child(nav_button)
-
-
-func show_npc_needs(npc:NPC) -> void:
-
-	var title:Label = Label.new()
-	title.text = "NEEDS"
-	ENTRY.add_child(title)
-
-	for need: String in npc.NEEDS.keys():
-		var _str: String = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
-		var new_label:Label = Label.new()
-		new_label.text = _str
-		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ENTRY.add_child(new_label)
-
-	var current_action:Label = Label.new()
-	current_action.text = str(npc.ACTION_STACK.back())
-	current_action.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	
-	ENTRY.add_child(current_action)
-
-
-func show_npc_details(npc:NPC) -> void:
-	
-	for op: String in npc.OPINIONS.keys():
-		var _str: String = op.capitalize() + ": " + str(int(npc.OPINIONS[op]))
-		var new_label:Label = Label.new()
-		new_label.text = _str
-		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ENTRY.add_child(new_label)
-
-
-func show_npc_relationships(npc:NPC) -> void:
-
-	var npc_group:GROUP = ENGINE.GroupManager.get_group(npc)
-	if npc_group != null:
-
-		var label:Label = Label.new()
-		label.text = "Currently in a group with: "
-		ENTRY.add_child(label)
-		var names:Array = npc_group.PARTICIPANTS.map(func(a): return a.NAME)
-
-		label = Label.new()
-		label.text = ", ".join(names)
-		ENTRY.add_child(label)
-
-	# relationship details
-	var impression_list: Array[Impression] = npc.get_all_impressions()
-	for impression: Impression in impression_list:
-		var target: NPC = impression.TARGET
-		var npc_button: Button = Button.new()
-		npc_button.text = target.ID
-		ENTRY.add_child(npc_button)
-		npc_button.connect("pressed", toggle_journal.bind(target.ID))
-
-		var new_wiki: Wiki = impression.to_wiki()
-		ENTRY.add_child(new_wiki)
-
-func show_npc_inventory(npc:NPC) -> void:
-
-	var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(npc.ID)
-	var inventory_summary:Array = inventory.get_summary()
-	for i:Dictionary in inventory_summary:
-		var new_display:RichTextLabel = i["item"].create_display(i["count"])
-		ENTRY.add_child(new_display)
-
-
-#endregion npc
-
-#region tile
-func show_tile(tile:TILE) -> void:
-	update_title(tile.TYPE)
-
-	var nav_list: Array[String] = [
-		"All"
-	]
-	update_navigation(nav_list)
-
-	var display_list:Array[String] = [
-		"ID: " + tile.ID,
-		"Location: " + ENGINE.prettify_vector(tile.LOCATION)
-	]
-
-	for item:String in display_list:
-		var new_label:Label = Label.new()
-		new_label.text = item
-		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ENTRY.add_child(new_label)
-
-	var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(tile.ID)
-	var inventory_summary:Array = inventory.get_summary()
-	for i:Dictionary in inventory_summary:
-		var new_display:RichTextLabel = i["item"].create_display(i["count"])
-		ENTRY.add_child(new_display)
-
-
-
-
-
-#endregion tile
-
-#region utility
-
-func update_title(title:String) -> void:
-	TITLE.text = title
-
-func update_navigation(nav_list:Array[String]) -> void:
-	for i in range(0,len(nav_list)):
-		var option:String = nav_list[i]
-		
-		var nav_button:Button = Button.new()
-		nav_button.text = option
-		nav_button.connect("pressed", toggle_journal.bind(option))
-		NAV_MENU.add_child(nav_button)
-
-		if i != len(nav_list) -1:
-			var divider:Label = Label.new()
-			divider.text = " > "
-			NAV_MENU.add_child(divider)
-
- 
-func update_subnav(option:String) -> void:
-	SUBENTRY = option
-	update()
-
-
-#endregion utility
-
-
-func toggle_journal(topic: String="") -> void:
-	if topic == "" or topic == CURRENT_ENTRY:
-		for t in TOGGLEABLE:
-			t.visible = !t.visible
-		# $Menu.visible = !$Menu.visible
-	else:
-		CURRENT_ENTRY = topic
-		for t in TOGGLEABLE:
-			t.show()
-		# $Menu.visible = true
-
-	update()
+func _init(engine, bones) -> void:
+	pass
+
+func upate() -> void:
+	pass
+#
+#
+#func _init(engine, bones:MENU_BONES) -> void:
+	#ENGINE = engine
+	#BONES = bones
+	#COLOR = Constants.COLOR_LIST.pick_random()
+	## size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
+	## global_position = ENGINE.GameWindow.RIGHT_PANEL_LOCATION
+	#set_journal_button()
+	## set_background()
+	## set_title()
+	## set_navigation()
+	## set_entry()
+	## set_close_button()
+#
+	## TOGGLEABLE = [
+	## 	BG,
+	## 	TITLE,
+	## 	NAV_MENU,
+	## 	# SUBNAV_MENU,
+	## 	SCROLL_CONTAINER,
+	## 	ENTRY,
+	## 	CLOSE_BUTTON
+	## ]
+#
+#func set_journal_button() -> void:
+	#JOURNAL_BUTTON = Button.new()
+	#JOURNAL_BUTTON.icon = ResourceLoader.load("res://models/journal.png")
+	#JOURNAL_BUTTON.focus_mode = FocusMode.FOCUS_NONE
+	##JOURNAL_BUTTON.position = Vector2(global_position[0] + size[0] - 250, 100)
+	##print("JOURNAL BUTTON", JOURNAL_BUTTON.position)
+	#JOURNAL_BUTTON.position = Vector2(250,100)
+	#JOURNAL_BUTTON.connect("pressed", toggle_journal)
+	#add_child(JOURNAL_BUTTON)
+#
+#func set_background() -> void:
+	#BG = TextureRect.new()
+	#BG.texture = load("res://models/left_menu.png")
+	#BG.flip_h = true
+	## BG.size = Vector2(300,660)
+	#BG.size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
+	#BG.modulate = Constants.COLOR_LIST.pick_random()
+	#BG.update = func(): 
+		#print("updating journal background")
+		#size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
+		#position = ENGINE.GameWindow.RIGHT_PANEL_LOCATION
+	#add_child(BG)
+#
+#func set_title() -> void:
+	#TITLE = Label.new()
+	#TITLE.text = "Home"
+	#TITLE.size = Vector2(111,45)
+	#TITLE.position = Vector2(95,0)
+	#TITLE.add_theme_font_size_override("font_size", 32)
+	#add_child(TITLE)
+#
+#func set_navigation() -> void:
+	#NAV_MENU = HFlowContainer.new()
+	#NAV_MENU.custom_minimum_size = Vector2(290,40)
+	#NAV_MENU.position = Vector2(7,47)
+	#add_child(NAV_MENU)
+#
+	## SUBNAV_MENU = HFlowContainer.new()
+	## SUBNAV_MENU.custom_minimum_size = Vector2(290, 40)
+	## SUBNAV_MENU.position = Vector2(7,75)
+	## add_child(SUBNAV_MENU)
+#
+#func set_entry() -> void:
+	#SCROLL_CONTAINER = ScrollContainer.new()
+	#SCROLL_CONTAINER.size = Vector2(290, 550)
+	#SCROLL_CONTAINER.position = Vector2(4,90)
+	#add_child(SCROLL_CONTAINER)
+#
+	#ENTRY = VBoxContainer.new()
+	#ENTRY.custom_minimum_size = Vector2(290,0)
+	#SCROLL_CONTAINER.add_child(ENTRY)
+#
+#func set_close_button() -> void:
+	#CLOSE_BUTTON = Button.new()
+	#CLOSE_BUTTON.text = "X"
+	#CLOSE_BUTTON.size = Vector2(30,30)
+	#CLOSE_BUTTON.position = Vector2(250,0)
+	#CLOSE_BUTTON.add_theme_font_size_override("font_size", 32)
+	#CLOSE_BUTTON.connect("pressed", toggle_journal)
+	#add_child(CLOSE_BUTTON)
+#
+##endregion init
+#
+## Called when the node enters the scene tree for the first time.
+#func _ready() -> void:
+	## $Menu.get_node("BG").modulate = Constants.COLOR_LIST.pick_random()
+	## SignalBus.toggle_journal.connect(toggle_journal)
+	#SignalBus.toggle_journal.connect(toggle_journal)
+	#position = Vector2(900,0)
+	#for t in TOGGLEABLE:
+		#t.hide()
+	#update()
+#
+#func generate_title() -> String:
+	#return CURRENT_ENTRY
+#
+#func generate_entry() -> Array:
+	#var entry_elements:Array = type_generators[ENTRY_TYPE].call()
+#
+	#return entry_elements
+#
+#func generate_index_page() -> Array:
+	#return []
+#
+#func generate_npc_page() -> Array:
+	#var npc:NPC = ENGINE.NpcManager.get_npc(CURRENT_ENTRY)
+	#var entry_elements:Array = []
+#
+	#entry_elements += generate_npc_peek(npc)
+	#entry_elements.append(generate_subnav())
+#
+	#var subentry_title:Label = Label.new()
+	#subentry_title.text = SUBENTRY
+	#entry_elements.append(subentry_title)
+#
+	#entry_elements += generate_subentry()
+#
+	#return entry_elements
+	#
+#
+#func generate_npc_peek(npc:NPC) -> Array:
+	#var return_list:Array
+#
+	#var display_list:Array[String] = [
+		#"ID: " + npc.ID,
+		#"Gender: " + npc.GENDER 
+	#]
+#
+	#for item:String in display_list:
+		#var new_label:Label = Label.new()
+		#new_label.text = item
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#return_list.append(new_label)
+#
+	#return return_list
+#
+#func generate_subnav() -> HFlowContainer:
+	#var subnav:HFlowContainer = HFlowContainer.new()
+	#
+	#var possible_entries:Array = type_details[ENTRY_TYPE]["subnav_list"]
+	#for option:String in possible_entries:
+		#var nav_button:Button = Button.new()
+		#nav_button.text = option
+		#nav_button.connect("pressed", update_subnav.bind(option))
+		#subnav.add_child(nav_button)
+#
+	#return subnav
+#
+#func generate_subentry(npc:NPC) -> Array:
+	#return sub_details[SUBENTRY].call(npc)
+#
+#func generate_needs_subentry(npc:NPC) -> Array:
+	#var result_list:Array
+#
+	#for need:String in npc.NEEDS.keys():
+		#var _str:String = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
+		#var new_label:Label = Label.new()
+		#new_label.text = _str
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#result_list.append(new_label)
+#
+#func generate_details_subentry(npc:NPC) -> Array:
+	#pass
+#
+#func generate_relationships_subentry(npc:NPC) -> Array:
+	#pass
+#
+#func generate_inventory_subentry(npc:NPC) -> Array:
+	#pass
+#
+#
+## func generate_nav_old(nav_list:Array[String]) -> Array:
+## 	var nav_array:Array
+## 	for i in range(0, len(nav_list)):
+## 		var option:String = nav_list[i]
+#
+## 		var nav_button:Button = Button.new()
+## 		nav_button.connect("pressed", update_current_entry.bind(option))
+## 		nav_array.append(nav_button)
+#
+## 		if i != len(nav_list) -1:
+## 			var divider:Label = Label.new()
+## 			divider.text = " > "
+## 			nav_array.append(divider)
+#
+## 	return nav_array
+#
+#func generate_nav() -> Array:
+	#var nav_list:Array = type_details[ENTRY_TYPE]["nav_list"]
+	#var nav_array:Array
+	#for i in range(0, len(nav_list)):
+		#var option:String = nav_list[i]
+#
+		#var nav_button:Button = Button.new()
+		#nav_button.connect("pressed", update_current_entry.bind(option))
+		#nav_array.append(nav_button)
+#
+		#if i != len(nav_list) -1:
+			#var divider:Label = Label.new()
+			#divider.text = " > "
+			#nav_array.append(divider)
+#
+	#return nav_array
+#
+#
+##region update
+#func update() -> void:
+	#BONES.clear_bones()
+	#BONES.update_background_color(COLOR)
+#
+	#var npc:NPC = ENGINE.NpcManager.get_npc(CURRENT_ENTRY)
+	#if npc != null:
+		#show_npc_bones(npc)
+		#return
+#
+	## var tile:TILE = ENGINE.Map.get_tile_from_id(CURRENT_ENTRY)
+	## if tile != null:
+	## 	show_tile_bones(tile)
+	## 	return
+#
+	#show_entry_bones()
+#
+#func show_npc_bones(npc:NPC) -> void:
+	#BONES.update_title(npc.NAME)
+#
+	#var nav_list:Array[String] = [
+		#"All",
+		#"NPCs"
+	#]
+	#BONES.update_navigation(nav_list, self)
+	## add_nav_list(nav_list)
+#
+	#add_npc_peek(npc)
+#
+	#var subnav_list:Dictionary[String, Callable] = {
+		#"Needs": add_npc_needs,
+		#"Details": add_npc_details,
+		#"Relationships": add_npc_relationships,
+		#"Inventory": add_npc_inventory
+	#}
+	#add_subnav_list(subnav_list.keys())
+#
+	#subnav_list[SUBENTRY].call(npc)
+#
+	#print("journal update complete")
+#
+#
+#
+#
+#
+#func add_npc_peek(npc:NPC) -> void:
+	#var display_list: Array[String] = [
+		#"ID: " + npc.ID,
+		#"Gender: " + npc.GENDER,
+	#]
+#
+	#for item:String in display_list:
+		#var new_label:Label = Label.new()
+		#new_label.text = item
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#BONES.add_to_entry(new_label)
+#
+#
+#
+#func add_npc_needs(npc:NPC) -> void:
+	#for need: String in npc.NEEDS.keys():
+		#var _str: String = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
+		#var new_label:Label = Label.new()
+		#new_label.text = _str
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#BONES.add_to_entry(new_label)
+#
+	#var current_action:Label = Label.new()
+	#current_action.text = str(npc.ACTION_STACK.back())
+	#current_action.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	#
+	#BONES.add_to_entry(current_action)
+#
+#func add_npc_details(npc:NPC) -> void:
+	#for op: String in npc.OPINIONS.keys():
+		#var _str: String = op.capitalize() + ": " + str(int(npc.OPINIONS[op]))
+		#var new_label:Label = Label.new()
+		#new_label.text = _str
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#BONES.add_to_entry(new_label)
+#
+#func add_npc_relationships(npc:NPC) -> void:
+	#var npc_group:GROUP = ENGINE.GroupManager.get_group(npc)
+	#if npc_group != null:
+#
+		#var label:Label = Label.new()
+		#label.text = "Currently in a group with: "
+		#BONES.add_to_entry(label)
+		#var names:Array = npc_group.PARTICIPANTS.map(func(a): return a.NAME)
+#
+		#label = Label.new()
+		#label.text = ", ".join(names)
+		#BONES.add_to_entry(label)
+#
+	## relationship details
+	#var impression_list: Array[Impression] = npc.get_all_impressions()
+	#for impression: Impression in impression_list:
+		#var target: NPC = impression.TARGET
+		#var npc_button: Button = Button.new()
+		#npc_button.text = target.ID
+		#BONES.add_to_entry(npc_button)
+		#npc_button.connect("pressed", update_current_entry.bind(target.ID))
+#
+		#var new_wiki: Wiki = impression.to_wiki()
+		#BONES.add_to_entry(new_wiki)
+#
+#func add_npc_inventory(npc:NPC) -> void:
+	#var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(npc.ID)
+	#var inventory_summary:Array = inventory.get_summary()
+	#for i:Dictionary in inventory_summary:
+		#var new_display:RichTextLabel = i["item"].create_display(i["count"])
+		#BONES.add_to_entry(new_display)
+#
+#
+## func add_nav_list(nav_list:Array[String]) -> void:
+## 	var nav_menu:HFlowContainer = HFlowContainer.new()
+## 	for i in range(0, len(nav_list)):
+## 		var option:String = nav_list[i]
+#
+## 		var nav_button:Button = Button.new()
+## 		nav_button.text = option
+## 		nav_button.connect("pressed", update_current_entry.bind(option))
+## 		nav_menu.add_child(nav_button)
+#
+## 		if i != len(nav_list) -1:
+## 			var divider:Label = Label.new()
+## 			divider.text = " > "
+## 			nav_menu.add_child(divider)
+	#
+## 	BONES.add_to_entry(nav_menu)
+#
+#func add_subnav_list(nav_list:Array[String]) -> void:
+	#var subnav_menu:HFlowContainer = HFlowContainer.new()
+#
+	#for option:String in nav_list:
+		#var nav_button:Button = Button.new()
+		#nav_button.text = option
+		#nav_button.connect("pressed", update_subnav.bind(option))
+		#subnav_menu.add_child(nav_button)
+#
+	#BONES.add_to_entry(subnav_menu)
+#
+	#var sub_title:Label = Label.new()
+	#sub_title.text = SUBENTRY
+	#BONES.add_to_entry(sub_title)
+#
+#
+#func show_entry_bones() -> void:
+	#BONES.update_title(CURRENT_ENTRY)
+#
+#
+#func update_current_entry(_str:String) -> void:
+	#print("updating current journal entry: ", _str)
+	#CURRENT_ENTRY = _str
+	#update()
+	#BONES.open_menu()
+#
+#func update_subnav(_str:String) -> void:
+	#SUBENTRY = _str
+	#update()
+#
+#
+#
+#func update_window() -> void:
+	#for child in get_children():
+		#if "update" in child:
+			#child.update.call()
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+	#
+#
+#func update_old() -> void:
+	## size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
+	## global_position = ENGINE.GameWindow.RIGHT_PANEL_LOCATION
+	## print("jounral size", size)
+	## print("journal position", global_position)
+#
+	#for child in ENTRY.get_children():
+		#child.queue_free()
+#
+	#for child in NAV_MENU.get_children():
+		#child.queue_free()
+#
+	## for child in SUBNAV_MENU.get_children():
+	## 	child.queue_free()
+#
+	#update_window()
+#
+	#var npc:NPC = ENGINE.NpcManager.get_npc(CURRENT_ENTRY)
+	#if npc != null:
+		#show_npc(npc)
+		#return
+#
+	#var tile:TILE = ENGINE.Map.get_tile_from_id(CURRENT_ENTRY)
+	#if tile != null:
+		#show_tile(tile)
+		#return
+#
+#
+#
+	#var options:Dictionary[String, Callable] = {
+		#"All": show_homepage,
+		#"NPCs": show_npc_homepage,
+		#"Topics": show_topic_homepage,
+		#"Traits": show_trait_homepage,
+	#}
+#
+	#if CURRENT_ENTRY in options.keys():
+		#options[CURRENT_ENTRY].call()
+		#return
+	#
+	#else:
+		#show_entry()
+#
+#
+#func show_homepage() -> void:
+	#update_title("Journal")
+#
+	## entry
+	#var options: Array[String] = [
+		#"NPCs",
+		#"Topics",
+		#"Traits"
+	#]
+#
+	#for o: String in options:
+		#var new_button: Button = Button.new()
+		#new_button.text = o
+		#new_button.connect("pressed", toggle_journal.bind(o))
+		#ENTRY.add_child(new_button)
+#
+#func show_npc_homepage() -> void:
+	#update_title("NPCs")
+#
+	#var nav_list: Array[String] = [
+		#"All",
+	#]
+	#update_navigation(nav_list)
+#
+	#for npc_id: String in Global.NPCS.keys():
+		#var npc: NPC = Global.NPCS[npc_id]
+		#var new_button: Button = Button.new()
+		#new_button.text = npc.NAME
+		#new_button.connect("pressed", toggle_journal.bind(npc.ID))
+		#ENTRY.add_child(new_button)
+#
+#func show_topic_homepage() -> void:
+	#update_title("Topics")
+#
+	#var nav_list: Array[String] = [
+		#"All",
+	#]
+	#update_navigation(nav_list)
+#
+#
+#func show_trait_homepage() -> void:
+	#update_title("Traits")
+#
+	#var nav_list: Array[String] = [
+		#"All",
+	#]
+	#update_navigation(nav_list)
+#
+#
+#func show_entry() -> void:
+	## generic entry that i don't have any details for yet
+	#update_title(CURRENT_ENTRY.capitalize())
+#
+	#var nav_list: Array[String] = [
+		#"All",
+		#"Topics"
+	#]
+	#update_navigation(nav_list)
+#
+	#var new_label: Label = Label.new()
+	#new_label.text = "Instert information about this topic here"
+	#ENTRY.add_child(new_label)
+#
+#
+##region npc
+#
+#func show_npc(npc:NPC) -> void:
+	## standard details
+	#
+	#update_title(npc.NAME)
+#
+	#var nav_list: Array[String] = [
+		#"All",
+		#"NPCs"
+	#]
+	#update_navigation(nav_list)
+#
+	#
+#
+	#var subnav_options:Dictionary[String, Callable] = {
+		#"Needs": show_npc_needs,
+		#"Details": show_npc_details,
+		#"Relationships": show_npc_relationships,
+		#"Inventory": show_npc_inventory,
+	#}
+#
+	#show_npc_snap(npc, subnav_options.keys())
+#
+	## update_npc_subnavmenu(subnav_options.keys())
+#
+	#subnav_options[SUBENTRY].call(npc)
+#
+#func show_npc_snap(npc:NPC, subnav_options:Array[String]) -> void:
+	#var display_list: Array[String] = [
+		#"ID: " + npc.ID,
+		#"Gender: " + npc.GENDER,
+	#]
+#
+	#for item:String in display_list:
+		#var new_label:Label = Label.new()
+		#new_label.text = item
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#ENTRY.add_child(new_label)
+#
+	#var subnav_menu:HFlowContainer = HFlowContainer.new()
+	#ENTRY.add_child(subnav_menu)
+#
+	#for option:String in subnav_options:
+		#var nav_button:Button = Button.new()
+		#nav_button.text = option
+		#nav_button.connect("pressed", update_subnav.bind(option))
+		#subnav_menu.add_child(nav_button)
+#
+#
+#func show_npc_needs(npc:NPC) -> void:
+#
+	#var title:Label = Label.new()
+	#title.text = "NEEDS"
+	#ENTRY.add_child(title)
+#
+	#for need: String in npc.NEEDS.keys():
+		#var _str: String = need.capitalize() + ": " + str(int(npc.NEEDS[need]))
+		#var new_label:Label = Label.new()
+		#new_label.text = _str
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#ENTRY.add_child(new_label)
+#
+	#var current_action:Label = Label.new()
+	#current_action.text = str(npc.ACTION_STACK.back())
+	#current_action.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	#
+	#ENTRY.add_child(current_action)
+#
+#
+#func show_npc_details(npc:NPC) -> void:
+	#
+	#for op: String in npc.OPINIONS.keys():
+		#var _str: String = op.capitalize() + ": " + str(int(npc.OPINIONS[op]))
+		#var new_label:Label = Label.new()
+		#new_label.text = _str
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#ENTRY.add_child(new_label)
+#
+#
+#func show_npc_relationships(npc:NPC) -> void:
+#
+	#var npc_group:GROUP = ENGINE.GroupManager.get_group(npc)
+	#if npc_group != null:
+#
+		#var label:Label = Label.new()
+		#label.text = "Currently in a group with: "
+		#ENTRY.add_child(label)
+		#var names:Array = npc_group.PARTICIPANTS.map(func(a): return a.NAME)
+#
+		#label = Label.new()
+		#label.text = ", ".join(names)
+		#ENTRY.add_child(label)
+#
+	## relationship details
+	#var impression_list: Array[Impression] = npc.get_all_impressions()
+	#for impression: Impression in impression_list:
+		#var target: NPC = impression.TARGET
+		#var npc_button: Button = Button.new()
+		#npc_button.text = target.ID
+		#ENTRY.add_child(npc_button)
+		#npc_button.connect("pressed", toggle_journal.bind(target.ID))
+#
+		#var new_wiki: Wiki = impression.to_wiki()
+		#ENTRY.add_child(new_wiki)
+#
+#func show_npc_inventory(npc:NPC) -> void:
+#
+	#var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(npc.ID)
+	#var inventory_summary:Array = inventory.get_summary()
+	#for i:Dictionary in inventory_summary:
+		#var new_display:RichTextLabel = i["item"].create_display(i["count"])
+		#ENTRY.add_child(new_display)
+#
+#
+##endregion npc
+#
+##region tile
+#func show_tile(tile:TILE) -> void:
+	#update_title(tile.TYPE)
+#
+	#var nav_list: Array[String] = [
+		#"All"
+	#]
+	#update_navigation(nav_list)
+#
+	#var display_list:Array[String] = [
+		#"ID: " + tile.ID,
+		#"Location: " + ENGINE.prettify_vector(tile.LOCATION)
+	#]
+#
+	#for item:String in display_list:
+		#var new_label:Label = Label.new()
+		#new_label.text = item
+		#new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		#ENTRY.add_child(new_label)
+#
+	#var inventory:INVENTORY = ENGINE.InventoryManager.get_inventory_of(tile.ID)
+	#var inventory_summary:Array = inventory.get_summary()
+	#for i:Dictionary in inventory_summary:
+		#var new_display:RichTextLabel = i["item"].create_display(i["count"])
+		#ENTRY.add_child(new_display)
+#
+#
+#
+#
+#
+##endregion tile
+#
+##region utility
+#
+#func update_title(title:String) -> void:
+	#TITLE.text = title
+#
+#func update_navigation(nav_list:Array[String]) -> void:
+	#for i in range(0,len(nav_list)):
+		#var option:String = nav_list[i]
+		#
+		#var nav_button:Button = Button.new()
+		#nav_button.text = option
+		#nav_button.connect("pressed", toggle_journal.bind(option))
+		#NAV_MENU.add_child(nav_button)
+#
+		#if i != len(nav_list) -1:
+			#var divider:Label = Label.new()
+			#divider.text = " > "
+			#NAV_MENU.add_child(divider)
+#
+#
+#
+ #
+## func update_subnav(option:String) -> void:
+## 	SUBENTRY = option
+## 	update()
+#
+#
+##endregion utility
+#
+#
+#func toggle_journal(topic: String="") -> void:
+	#if topic == "" or topic == CURRENT_ENTRY:
+		#for t in TOGGLEABLE:
+			#t.visible = !t.visible
+		## $Menu.visible = !$Menu.visible
+	#else:
+		#CURRENT_ENTRY = topic
+		#for t in TOGGLEABLE:
+			#t.show()
+		## $Menu.visible = true
+#
+	#update()

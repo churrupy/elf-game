@@ -22,6 +22,8 @@ signal toggle_talk_menu(npc)
 
 signal say_topic(speaker, topic, opinion, location)
 
+signal update_current_entry(new_entry, new_subentry)
+
 
 #endregion
 
