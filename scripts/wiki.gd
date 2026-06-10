@@ -87,6 +87,7 @@ func print() -> void:
 			print(child2)
 		index += 1
 
+
 func add_wiki_to_wiki(new_wiki:Wiki) -> void:
 	for child in new_wiki.get_children():
 		add_child(child)

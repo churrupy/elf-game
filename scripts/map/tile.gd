@@ -40,6 +40,7 @@ func update_type(new_type:String="empty") -> void:
 	TYPE = new_type
 	DATA = Constants.TILE_TEMPLATES[new_type]
 	NAME = TYPE + " " + str(LOCATION)
+	NAME = TYPE + " " + str(LOCATION)
 	texture = load("res://models/" + DATA["sprite"])
 
 

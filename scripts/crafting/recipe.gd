@@ -115,6 +115,53 @@ func create_display() -> RichTextLabel:
 
 
 func to_wiki() -> Wiki:
+	print("making new wiki")
+	var new_wiki:Wiki = Wiki.new()
+	# new_wiki.add_text_bold("Recipe:")
+	new_wiki.add_text_bold(NAME.capitalize())
+	new_wiki.add_newline()
+
+	# new_wiki.add_key_value_label("Description", Constants.ITEM_TEMPLATES[NAME]["description"])
+	new_wiki.add_text_bold("Description:")
+	new_wiki.add_text(Constants.ITEM_TEMPLATES[NAME]["description"])
+	new_wiki.add_newline()
+	# new_wiki.add_text("Description: " + DATA["description"])
+
+	# required tools/furniture
+	new_wiki.add_text_bold("Required furniture:")
+	for f:String in DATA["furniture"]:
+		var tile_list:Array[TILE] = get_nearby_furniture(f)
+		if len(tile_list) > 0:
+			new_wiki.add_button(tile_list[0], Color.GREEN, f)
+		else:
+			new_wiki.add_text(f, Color.RED)
+	new_wiki.add_newline()
+
+	new_wiki.add_text_bold("Required tools: ")
+	for t:String in DATA["tools"]:
+		var item_list:Array[ITEM] = get_nearby_items(t)
+		if len(item_list) > 0:
+			new_wiki.add_button(item_list[0], Color.GREEN, t)
+		else:
+			new_wiki.add_text(t, Color.RED)
+	new_wiki.add_newline()
+
+	# required ingredients
+	new_wiki.add_text_bold("Required ingredients: ")
+	for i:String in DATA["ingredients"]:
+		var item_list:Array[ITEM] = get_nearby_items(i)
+		if len(item_list) > 0:
+			new_wiki.add_button(item_list[0], Color.GREEN, i)
+		else:
+			new_wiki.add_text(i, Color.RED)
+	new_wiki.add_newline()
+
+	# new_wiki.finalize()
+
+	return new_wiki
+
+func to_wiki_old() -> Wiki:
+	print("making old wiki")
 	var new_wiki:Wiki = Wiki.new()
 	# new_wiki.add_text_bold("Recipe:")
 	new_wiki.add_text_bold(NAME.capitalize())
