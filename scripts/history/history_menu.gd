@@ -30,10 +30,10 @@ func update() -> void:
 		child.queue_free()
 
 	var event_list:Array[String] = ENGINE.History.event_strings()
-	for str:String in event_list:
+	for _str:String in event_list:
 		var new_label:Label = Label.new()
 		new_label.custom_minimum_size = Vector2(250,0)
-		new_label.text = str
+		new_label.text = _str
 		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		$ScrollContainer.get_node("VBoxContainer").add_child(new_label)
 

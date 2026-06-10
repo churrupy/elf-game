@@ -13,8 +13,11 @@ func _init(type:String) -> void:
 	DATA = Constants.ITEM_TEMPLATES[TYPE]
 	TAGS.assign(DATA["tags"])
 
+func has_tag(tag:String) -> bool:
+	return tag in TAGS
+
 func create_display(amount:int = 1) -> RichTextLabel:
-	print("creating item display")
+	# print("creating item display")
 
 	var display:RichTextLabel = RichTextLabel.new()
 	display.fit_content = true
@@ -32,6 +35,14 @@ func create_display(amount:int = 1) -> RichTextLabel:
 	display.pop()
 
 	return display
+
+func populate_journal(menu, engine, _subentry) -> void:
+	menu.update_title(TYPE.capitalize())
+
+	var description:Label = Label.new()
+	description.text = Constants.ITEM_TEMPLATES[NAME]["description"]
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	menu.add_to_entry(description)
 
 
 func _to_string() -> String:

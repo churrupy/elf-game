@@ -39,8 +39,30 @@ func add_loc_label() -> void:
 func update_type(new_type:String="empty") -> void:
 	TYPE = new_type
 	DATA = Constants.TILE_TEMPLATES[new_type]
-	NAME = TYPE
+	NAME = TYPE + " " + str(LOCATION)
 	texture = load("res://models/" + DATA["sprite"])
+
+
+func populate_journal(menu, engine, _subentry:String) -> void:
+	print("populating entry for: ", NAME)
+	menu.update_title(NAME)
+
+	var new_label:Label = Label.new()
+	new_label.text = "LOCATION: " + engine.prettify_vector(LOCATION)
+	menu.add_to_entry(new_label)
+
+
+	var inventory_label:Label = Label.new()
+	inventory_label.text = "INVENTORY"
+	menu.add_to_entry(inventory_label)
+
+	var inventory:INVENTORY = engine.InventoryManager.get_inventory_of(ID)
+	var inventory_wiki:Wiki = inventory.to_wiki()
+	menu.add_to_entry(inventory_wiki)
+	# var inventory_summary:Array = inventory.get_summary()
+	# for i:Dictionary in inventory_summary:
+	# 	var new_display:RichTextLabel = i["item"].create_display(i["count"])
+	# 	menu.add_to_entry(new_display)
 
 
 func _to_string():

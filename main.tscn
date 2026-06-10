@@ -30,13 +30,14 @@ offset_left = 647.0
 offset_top = 3.0
 offset_right = 739.0
 offset_bottom = 34.0
+focus_mode = 0
 text = "Make Full Screen"
 
 [node name="HistoryButton" type="Button" parent="."]
-offset_left = 751.0
-offset_top = 5.0
-offset_right = 815.0
-offset_bottom = 36.0
+offset_left = 800.0
+offset_top = 4.0
+offset_right = 864.0
+offset_bottom = 35.0
 focus_mode = 0
 text = "History
 "
@@ -73,6 +74,15 @@ offset_top = 116.0
 offset_right = 300.0
 offset_bottom = 172.0
 
+[node name="QuitButton" type="Button" parent="."]
+offset_left = 7.0
+offset_top = 52.0
+offset_right = 49.0
+offset_bottom = 83.0
+focus_mode = 0
+text = "Quit"
+
 [connection signal="pressed" from="FreeCamButton" to="." method="activate_free_cam"]
 [connection signal="pressed" from="FullScreenButton" to="." method="toggle_full_screen"]
 [connection signal="pressed" from="HistoryButton" to="." method="toggle_history_menu"]
+[connection signal="pressed" from="QuitButton" to="." method="quit"]

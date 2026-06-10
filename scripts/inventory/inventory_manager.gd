@@ -101,6 +101,9 @@ func count_tags_in_list(tag:String, inv_list:Array[INVENTORY]) -> int:
 	return count
 
 
+func generate_inventory_subentry(id:String) -> Array:
+	var inventory:INVENTORY = get_inventory_of(id)
+	return inventory.generate_journal_entry()
 
 func _to_string() -> String:
 	var display_list:Array[String]

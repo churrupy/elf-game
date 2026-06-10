@@ -131,3 +131,16 @@ func run_filter() -> Array[NPC]:
 		#var new_action:ACTION = SocializeWithGoal.new(ENGINE).set_target(npc)
 		#action_list.append(new_action)
 	#return action_list
+
+
+func populate_journal(menu, engine, _subentry) -> void:
+	menu.update_title("NPCs")
+
+	if len(filtered_list) == 0:
+		run_filter()
+
+	for npc:NPC in filtered_list:
+		var new_button:Button = Button.new()
+		new_button.text = npc.NAME
+		menu.bind_button_to_entry(new_button, npc)
+		menu.add_to_entry(new_button)
