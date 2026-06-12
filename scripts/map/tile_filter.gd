@@ -204,9 +204,9 @@ func convert_to_actions(_npc:NPC) -> Array[ACTION]:
 # 	return result_list
 
 
-func is_subset_of(subset:Array, set:Array) -> bool:
+func is_subset_of(subset:Array, parent_set:Array) -> bool:
 	for i in subset:
-		if i in set: continue
+		if i in parent_set: continue
 		else: return false
 
 	return true

@@ -44,7 +44,7 @@ func remove_from_inventory(owner:Node, item:ITEM) -> void:
 		inventory.ITEMS.remove_at(index)
 
 func pop_inventory_first_tagged(owner:Node, tag:String) -> ITEM:
-	var inventory: INVENTORY = get_inventory_of(owner.ID)
+	#var inventory: INVENTORY = get_inventory_of(owner.ID)
 	var chosen_item: ITEM = get_first_tagged_from_inventory(owner, tag)
 	if chosen_item == null:
 		print("tag:", tag)

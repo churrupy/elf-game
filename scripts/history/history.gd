@@ -57,11 +57,11 @@ func broadcast_action(_action:ACTION) -> void:
 			witness_list.append(npc)
 
 
-func populate_talk_menu(npc_id:String) -> Array[String]:
-	return []
-
-func populate_npc_menu(npc_id:String) -> Array[String]:
-	return []
+#func populate_talk_menu(npc_id:String) -> Array[String]:
+	#return []
+#
+#func populate_npc_menu(npc_id:String) -> Array[String]:
+	#return []
 
 
 func does_event_exist(actor_id:String, action_id:String, target_id:String) -> int:

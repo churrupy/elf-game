@@ -10,9 +10,6 @@ func _ready() -> void:
 	$BG.modulate = Constants.COLOR_LIST.pick_random()
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
 
 #func update_old() -> void:
 	#for child in $ScrollContainer.get_node("VBoxContainer").get_children():

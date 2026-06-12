@@ -29,7 +29,7 @@ func _ready() -> void:
 
 
 func update() -> void:
-	print("UPDATING SIDE MENU")
+	# print("UPDATING SIDE MENU")
 	for child in $Large.get_node("DetailContainer").get_children():
 		child.queue_free()
 
@@ -38,15 +38,15 @@ func update() -> void:
 	display_string.append(_str)
 	_str = "Gender: " + DISPLAY_NPC.GENDER
 	display_string.append(_str)
-	_str = "Current Location: " + ENGINE.prettify_vector(DISPLAY_NPC.LOCATION)
+	_str = "Current Location: " + Global.prettify_vector(DISPLAY_NPC.LOCATION)
 	# display_string.append(_str)
-	# _str = "Currently Reserved: " + ENGINE.prettify_vector(ENGINE.NpcManager.get_reserved_tile(DISPLAY_NPC))
+	# _str = "Currently Reserved: " + Global.prettify_vector(ENGINE.NpcManager.get_reserved_tile(DISPLAY_NPC))
 	display_string.append(_str)
 	_str = "Current Action: " + str(DISPLAY_NPC.STATE_STACK.back())
 	display_string.append(_str)
 	_str = "Inventory: " + str(ENGINE.InventoryManager.get_inventory_of(DISPLAY_NPC.ID))
 	display_string.append(_str)
-	_str = "Facing: " + ENGINE.prettify_vector(DISPLAY_NPC.DIRECTION)
+	_str = "Facing: " + Global.prettify_vector(DISPLAY_NPC.DIRECTION)
 	display_string.append(_str)
 
 	var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().in_range_of(DISPLAY_NPC.LOCATION, 1.5).in_arc_of(DISPLAY_NPC.DIRECTION)

@@ -35,13 +35,10 @@ func _init(engine, room) -> void:
 		var tile:TILE = TILE.new(location)
 		TILES.append(tile)
 		ENGINE.InventoryManager.create_inventory(tile)
-		# print(tile)
 
-	# print_map()
 
 	create_room(room)
 
-	# print_map()
 
 func get_walls(_size:Vector2) -> Array[Vector2]:
 	# walls are included in room size
@@ -67,24 +64,20 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 	# tiles are all created at this point
 	var room_data:Dictionary = Rooms.ROOM_TEMPLATES[type]
 	var new_room:ROOM = ROOM.new(type, top_left, room_data["size"])
+	var room_floor:String = new_room.DATA["floor"]
 
 	if "walls" in room_data:
 		print("creating walls for ", type)
 		var _size:Vector2 = room_data["size"]
 		var wall_list:Array[Vector2] = get_walls(_size)
-		#print(wall_list)
 
 		for relative_loc:Vector2 in wall_list:
 			var loc = relative_loc + top_left
 			if !is_inside_map(loc): continue # remove this to make map loop
-			# print(loc)
 			var tile:TILE = get_tile(loc)
-			#print(tile)
 			if relative_loc in room_data["doors"]:
-				# print(loc)
 				# make a door
 				# doors never on a corner
-				#tile.update_type("door")
 				var wall:String
 				if relative_loc[0] == 0:
 					wall = "left"
@@ -123,13 +116,16 @@ func create_room(type:String, top_left:Vector2 = Vector2.ZERO) -> ROOM:
 								var new_item:ITEM = ITEM.new(item_type)
 								ENGINE.InventoryManager.add_to_inventory(tile, new_item)
 					if "contains" in tile.DATA:
-						print("contains check")
 						for item_type:String in tile.DATA["contains"]:
 							var amount:int = [1,2,3].pick_random()
 							for k in range(0,amount+1):
 								var new_item:ITEM = ITEM.new(item_type)
 								ENGINE.InventoryManager.add_to_inventory(tile, new_item)
-						print(ENGINE.InventoryManager.get_inventory_of(tile.ID))
+
+	# adds floor texture under all tiles
+	for loc:Vector2 in new_room.get_locations():
+		var tile:TILE = get_tile(loc)
+		tile.update_floor(room_floor)
 
 	for room_type:String in room_data["rooms"].keys():
 		for relative_location:Vector2 in room_data["rooms"][room_type]:
@@ -155,50 +151,32 @@ func clear_tiles():
 		if child is TILE:
 			remove_child(child)
 
-# func update_window() -> void:
-# 	update()
+
 
 func update() -> void:
 	# print("map check")
 	clear_tiles()
 	var player_room:ROOM = get_room(ENGINE.get_node("Player").LOCATION)
 	for tile: TILE in TILES:
-		#[var x: int, var y: int] = tile.LOCATION
 
 		var global_location:Vector2 = ENGINE.GameWindow.get_global_location(tile.LOCATION)
-		
 		if global_location[0] < 0 or global_location[1] < 0:
+			# tile is off-screen
 			continue
 		
-		# adjust to make sure tile ends up in center panel
-		# global_location = global_location + Vector2(ENGINE.GameWindow.CENTER_PANEL_LOCATION[0], 0)
-		# global_location = global_location + ENGINE.GameWindow.CENTER_PANEL_LOCATION
-		# global_location[0] = global_location[0] + ENGINE.GameWindow.CENTER_PANEL_LOCATION[0]
-		
-
 		add_child(tile)
 		tile.position = global_location
-		# print(tile.LOCATION, " ", tile.position)
-
-		# var screen_index: Vector2 = ENGINE.GameWindow.get_screen_index(tile.LOCATION)
-		# if screen_index[0] < 0 or screen_index[1] < 0:
-		# 	continue
-		
-		# add_child(tile)
-		
-		# tile.global_position[0] = (screen_index[0] * Constants.TILE_SIZE) + ENGINE.GameWindow.CENTER_PANEL_LOCATION[0]
-		# tile.global_position[1] = screen_index[1] * Constants.TILE_SIZE
 		
 		# if is_in_line_of_sight(ENGINE.get_node("Player").LOCATION, tile.LOCATION):
-		# 	#print(ENGINE.prettify_vector(tile.LOCATION), " is in line of sight")
+		# 	#print(Global.prettify_vector(tile.LOCATION), " is in line of sight")
 		# 	tile.modulate = Color(1,1,0)
 		# else: 
 		# 	tile.modulate = Color(1,1,1)
 
-		if player_room.is_in_room(tile.LOCATION):
-			highlight_tile(tile.LOCATION, Color(1,1,0))
-		else:
-			highlight_tile(tile.LOCATION, Color(1,1,1))
+		# if player_room.is_in_room(tile.LOCATION):
+		# 	highlight_tile(tile.LOCATION, Color(1,1,0))
+		# else:
+		# 	highlight_tile(tile.LOCATION, Color(1,1,1))
 
 
 #endregion update
@@ -219,7 +197,6 @@ func get_ray_path(origin: Vector2, target: Vector2) -> Array[Vector2]:
 	var distToX: float = distBtCol
 	for i in range (0, 100):
 		if next_step == target: break
-		#print(ENGINE.prettify_vector(next_step))
 		if distToY <= distToX: 
 			# steeper line, moving either up/down
 			next_step[1] += 1 * y_sign
@@ -239,9 +216,6 @@ func is_in_line_of_sight(origin: Vector2, target:Vector2) -> bool:
 	for v: Vector2 in ray_path:
 		if !is_loc_visible(v):
 			return false
-		# var tile:TILE = get_tile(v)
-		# if tile.TYPE == "wall":
-		# 	return false
 	return true
 
 #endregion raypath
@@ -330,26 +304,6 @@ func get_neighbors(loc:Vector2) -> Array[Vector2]:
 
 
 
-# func get_closest_adjacent_location(start_location: Vector2, target_location: Vector2) -> Vector2:
-# 	# gets tile adjacent to target that's closest to start location
-# 	var neighbors: Array[Vector2] = get_neighbors(target_location)
-# 	if start_location in neighbors:
-# 		return start_location
-	
-# 	var free_neighbors: Array[Vector2] = ENGINE.NpcManager.filter_reserved_locations(neighbors)
-
-# 	if len(free_neighbors) == 0:
-# 		print("no free adjacent tiles found")
-# 		return Vector2.INF
-	
-# 	var smallest_distance: float = 100
-# 	var closest_tile: Vector2
-# 	for v: Vector2 in free_neighbors:
-# 		var distance: float = start_location.distance_to(v)
-# 		if distance < smallest_distance:
-# 			smallest_distance = distance
-# 			closest_tile = v
-# 	return closest_tile
 
 #region closest interactable
 	
@@ -441,18 +395,3 @@ func print_map() -> void:
 
 
 #endregion utility
-
-
-#region display
-func generate_title(tile_id:String) -> String:
-	var tile:TILE = get_tile_from_id(tile_id)
-	return tile.NAME
-
-#func generate_navlist(tile_id = "Tiles") -> Array[String]:
-	#var return_list:Array[String]
-	#if tile_id == "Tiles":
-		#return return_list.assign(["All"])
-	#else:
-		#return return_list.assign(["All", "Tiles"])
-
-#endregion

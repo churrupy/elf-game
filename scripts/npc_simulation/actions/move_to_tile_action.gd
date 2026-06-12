@@ -23,6 +23,6 @@ func _to_string() -> String:
 	var str_list:Array[String] = [
 		OWNER.NAME,
 		"is moving to",
-		ENGINE.prettify_vector(target_tile.LOCATION)
+		Global.prettify_vector(target_tile.LOCATION)
 	]
 	return " ".join(str_list)

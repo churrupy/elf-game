@@ -69,7 +69,7 @@ func run_filter() -> Array[Dictionary]:
 	return filtered_list
 
 
-func populate_journal(menu, engine, _subentry) -> void:
+func populate_journal(menu, _engine, _subentry) -> void:
 	menu.update_title("Recipes")
 
 	run_filter()
@@ -88,12 +88,10 @@ func populate_journal(menu, engine, _subentry) -> void:
 		# menu.add_to_entry(display_recipe)
 
 		if new_recipe.CRAFTABLE:
-			print("craftable")
 			var craft_button:Button = Button.new()
 			craft_button.text = new_recipe.DATA["verb"].capitalize() + " " + r["name"].capitalize()
 			craft_button.connect("pressed", craft_recipe.bind(new_recipe))
 			menu.bind_button_to_update(craft_button)
-			#print("connected functions: ", craft_button.get_signal_connection_list())
 			menu.add_to_entry(craft_button)
 
 

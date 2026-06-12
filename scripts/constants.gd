@@ -191,12 +191,12 @@ const POSE_CLASS = {
 const TILE_TEMPLATES:Dictionary = {
 	"empty": {
 		"tags": ["floor", "only_on"],
-		"sprite": "tile.png",
+		"sprite": "",
 		"interactable_range": [0,0]
 	},
 	"counter": {
 		"tags": ["h_surface", "only_adjacent"],
-		"sprite": "bar.png",
+		"sprite": "counter.png",
 		"may_contain": [
 			"snack",
 			"beer"
@@ -216,7 +216,7 @@ const TILE_TEMPLATES:Dictionary = {
 	},
 	"kitchen_counter": {
 		"tags": ["h_surface", "only_adjacent"],
-		"sprite": "bar.png",
+		"sprite": "counter.png",
 		"contains": [
 			"clean water",
 			"wheat flour",
@@ -231,7 +231,7 @@ const TILE_TEMPLATES:Dictionary = {
 	},
 	"table": {
 		"tags": ["h_surface", "only_adjacent"],
-		"sprite": "table.png",
+		"sprite": "table_new.png",
 		"interactable_range": [0.1,1.5]
 	},
 	"toilet":  {
@@ -243,11 +243,14 @@ const TILE_TEMPLATES:Dictionary = {
 	},	
 	"wall": {
 		"tags": ["v_surface", "only_adjacent"],
-		"sprite": "wall.png",
+		"sprite": "wall_new.png",
 		"interactable_range": [0.1,1.5]
 	}
 }
 
+var FLOOR_LIST:Dictionary = {
+	"wood": "floor.png"
+}
 
 #endregion
 

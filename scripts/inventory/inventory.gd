@@ -22,10 +22,8 @@ func count_tag(tag:String) -> int:
 	return count
 
 func get_all_tags() -> Array[String]:
-	#print(OWNER)
-	var tag_list: Array[String]
+	var tag_list: Array[String] = []
 	for item: ITEM in ITEMS:
-		#print(item)
 		tag_list += item.TAGS
 	return tag_list
 
@@ -79,8 +77,8 @@ func get_summary() -> Array:
 	return summary
 
 func to_wiki() -> Wiki:
-	print("inventory to wiki")
 	var new_wiki:Wiki = Wiki.new()
+	new_wiki.add_header("INVENTORY")
 	var inventory_summary: Array = get_summary()
 	for i:Dictionary in inventory_summary:
 		new_wiki.add_indented_newline()
@@ -88,15 +86,6 @@ func to_wiki() -> Wiki:
 		new_wiki.add_text("x" + str(i["count"]))
 	return new_wiki
 
-#func generate_journal_entry() -> Array:
-	#var return_array:Array
-#
-	#var summary:Array = get_summary()
-	#for i:Dictionary in inventory_summary:
-		#var new_display:RichTextLabel = i["item"].create_display(i["count"])
-		#return_array.append(new_display)
-#
-	#return return_array
 
 
 

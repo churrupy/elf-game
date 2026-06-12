@@ -38,12 +38,9 @@ func _init(engine) -> void:
 	update_window()
 
 func _process(_delta:float) -> void:
-	# print("processing")
-	# var screen_check:Vector2 = ENGINE.get_viewport().get_visible_rect().size
 	var screen_check:Vector2 = ENGINE.get_window().size
 	
 	if int(screen_check[0]) != int(SCREEN_SIZE[0]) or int(screen_check[1]) != int(SCREEN_SIZE[1]):
-		print("screen check", screen_check)
 		SCREEN_SIZE = screen_check
 		update_window()
 		update_map_center()
@@ -65,15 +62,9 @@ func update_map_center() -> void:
 		focus_npc = ENGINE.NpcManager.get_npc(FOCUS_TARGET)
 	FOCUS_LOCATION = focus_npc.LOCATION
 	focus_npc.global_position = MAP_CENTER + Vector2(-10,20) # being the focus puts the focus target in a strange spot in relation to map grid
-	print("map center ", MAP_CENTER)
-	print("FOCUS NPC POSITION ", focus_npc.global_position)
-
-	# var x_adjust:int = 1
-	# if NUM_X_TILES%2 == 0:
 
 	X_RANGE = Vector2(FOCUS_LOCATION[0]-int(NUM_X_TILES/2), FOCUS_LOCATION[0]+int(NUM_X_TILES/2)+NUM_X_TILES%2)
 	Y_RANGE = Vector2(FOCUS_LOCATION[1]-int(NUM_Y_TILES/2), FOCUS_LOCATION[1]+int(NUM_Y_TILES/2)+NUM_Y_TILES%2)
-	print("x and y-range", X_RANGE, " ", Y_RANGE)
 
 	
 func update_window() -> void:
@@ -90,15 +81,8 @@ func update_window() -> void:
 	MAP_CENTER = Vector2(CENTER_PANEL_SIZE[0]/2 + CENTER_PANEL_LOCATION[0], CENTER_PANEL_SIZE[1]/2)
 
 	NUM_X_TILES = int(CENTER_PANEL_SIZE[0] / TILE_SIZE) 
-	# if NUM_X_TILES%2 == 1:
-	# 	NUM_X_TILES -= 1
 	NUM_Y_TILES = int(CENTER_PANEL_SIZE[1] / TILE_SIZE) 
-	# if NUM_Y_TILES%2 == 1:
-	# 	NUM_Y_TILES -= 1
 
-	print(LEFT_PANEL_SIZE)
-	print(CENTER_PANEL_SIZE)
-	print(RIGHT_PANEL_SIZE)
 
 
 #endregion update

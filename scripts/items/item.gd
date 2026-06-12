@@ -16,27 +16,25 @@ func _init(type:String) -> void:
 func has_tag(tag:String) -> bool:
 	return tag in TAGS
 
-func create_display(amount:int = 1) -> RichTextLabel:
-	# print("creating item display")
+# func create_display(amount:int = 1) -> RichTextLabel:
+# 	var display:RichTextLabel = RichTextLabel.new()
+# 	display.fit_content = true
 
-	var display:RichTextLabel = RichTextLabel.new()
-	display.fit_content = true
+# 	display.push_paragraph(HorizontalAlignment.HORIZONTAL_ALIGNMENT_LEFT)
+# 	display.push_bold()
+# 	display.add_text(NAME.capitalize())
+# 	display.pop()
+# 	if amount > 1:
+# 		display.add_text(" (x" + str(amount) + ")")
+# 	display.pop()
 
-	display.push_paragraph(HorizontalAlignment.HORIZONTAL_ALIGNMENT_LEFT)
-	display.push_bold()
-	display.add_text(NAME.capitalize())
-	display.pop()
-	if amount > 1:
-		display.add_text(" (x" + str(amount) + ")")
-	display.pop()
+# 	display.push_paragraph(HorizontalAlignment.HORIZONTAL_ALIGNMENT_LEFT)
+# 	display.add_text(Constants.ITEM_TEMPLATES[NAME]["description"])
+# 	display.pop()
 
-	display.push_paragraph(HorizontalAlignment.HORIZONTAL_ALIGNMENT_LEFT)
-	display.add_text(Constants.ITEM_TEMPLATES[NAME]["description"])
-	display.pop()
+# 	return display
 
-	return display
-
-func populate_journal(menu, engine, _subentry) -> void:
+func populate_journal(menu, _engine, _subentry) -> void:
 	menu.update_title(TYPE.capitalize())
 
 	var description:Label = Label.new()

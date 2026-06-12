@@ -10,13 +10,6 @@ var NEEDS: Dictionary
 var COLOR: Color = Color(1,1,1)
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass
-
-func _process(delta:float) -> void:
-	return
-
 func populate_journal(menu, engine, _subentry) -> void:
 	menu.update_title(NAME)
 

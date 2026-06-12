@@ -12,7 +12,7 @@ var DIALOGUE_LIST = []
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	$BG.modulate = Constants.COLOR_LIST.pick_random()
-	SignalBus.toggle_talk_menu.connect(toggle_talk_menu)
+	#SignalBus.toggle_talk_menu.connect(toggle_talk_menu)
 	#$CloseButton.connect("pressed", toggle_talk_menu.bind(MENU_NPC))
 
 func update() -> void:
@@ -41,10 +41,6 @@ func do_dialogue_choice(topic):
 	SignalBus.tick_signal.emit()
 	#tick()
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
 
 
 func toggle_talk_menu(npc:NPC) -> void:

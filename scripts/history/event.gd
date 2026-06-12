@@ -15,6 +15,7 @@ func _init(_action:ACTION) -> void:
 
 
 func _to_string() -> String:
+	print(EVENT_ACTION.ID)
 	var str_list:Array[String]
 	if START_TICK == END_TICK:
 		str_list = [

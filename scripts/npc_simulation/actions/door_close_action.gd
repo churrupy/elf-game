@@ -18,6 +18,6 @@ func _to_string() -> String:
 	var str_list:Array[String] = [
 		OWNER.NAME,
 		"is closing the door at",
-		ENGINE.prettify_vector(target_door.LOCATION)
+		Global.prettify_vector(target_door.LOCATION)
 	]
 	return " ".join(str_list)

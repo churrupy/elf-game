@@ -139,7 +139,7 @@ func update_npc() -> void:
 	SNAP.push_bold()
 	SNAP.add_text("Location: ")
 	SNAP.pop()
-	SNAP.add_text(ENGINE.prettify_vector(FOCUS.LOCATION))
+	SNAP.add_text(Global.prettify_vector(FOCUS.LOCATION))
 	SNAP.pop()
 
 	SNAP.push_paragraph(ALIGNMENT)
@@ -215,11 +215,11 @@ func update_tile() -> void:
 # 	var display_string = []
 # 	var _str = "Id: " + FOCUS.ID
 # 	display_string.append(_str)
-# 	_str = "Location: " + ENGINE.prettify_vector(FOCUS.LOCATION)
+# 	_str = "Location: " + Global.prettify_vector(FOCUS.LOCATION)
 # 	display_string.append(_str)
 # 	_str = "Action: " + str(FOCUS.STATE_STACK.back())
 # 	display_string.append(_str)
-# 	# _str = "Facing: " + ENGINE.prettify_vector(FOCUS.DIRECTION)
+# 	# _str = "Facing: " + Global.prettify_vector(FOCUS.DIRECTION)
 # 	# display_string.append(_str)
 # 	var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().in_range_of(FOCUS.LOCATION, 1.5).in_arc_of(FOCUS.DIRECTION)
 # 	var _can_see_npc_list:Array[NPC] = filter.run_filter()
@@ -254,15 +254,15 @@ func update_tile() -> void:
 # 	display_string.append(_str)
 # 	_str = "Gender: " + FOCUS.GENDER
 # 	display_string.append(_str)
-# 	_str = "Current Location: " + ENGINE.prettify_vector(FOCUS.LOCATION)
+# 	_str = "Current Location: " + Global.prettify_vector(FOCUS.LOCATION)
 # 	display_string.append(_str)
-# 	_str = "Currently Reserved: " + ENGINE.prettify_vector(ENGINE.NpcManager.get_reserved_tile(FOCUS))
+# 	_str = "Currently Reserved: " + Global.prettify_vector(ENGINE.NpcManager.get_reserved_tile(FOCUS))
 # 	display_string.append(_str)
 # 	_str = "Current Action: " + str(FOCUS.STATE_STACK.back())
 # 	display_string.append(_str)
 # 	_str = "Inventory: " + str(ENGINE.InventoryManager.get_inventory_of(FOCUS.ID))
 # 	display_string.append(_str)
-# 	_str = "Facing: " + ENGINE.prettify_vector(FOCUS.DIRECTION)
+# 	_str = "Facing: " + Global.prettify_vector(FOCUS.DIRECTION)
 # 	display_string.append(_str)
 
 # 	var filter:NPC_FILTER = NPC_FILTER.new(ENGINE).set_list().in_range_of(FOCUS.LOCATION, 1.5).in_arc_of(FOCUS.DIRECTION)

@@ -35,16 +35,17 @@ func run() -> ActionResult:
 		print("available socializable npcs: ", npc_list)
 		if len(npc_list) == 0:
 			npc_list = NPC_FILTER.new(ENGINE).set_list().set_room(current_room).is_not([OWNER]).run_filter()
-			for n:NPC in npc_list:
-				print(n.NAME, " ", n.is_available(), " ", n.ACTION_STACK.back().ID)
+			# for n:NPC in npc_list:
+				# print(n.NAME, " ", n.is_available(), " ", n.ACTION_STACK.back().ID)
 			set_current_action(LeaveRoomAction)
 			return ActionResult.new("continue")
 
 		# eventually would like to also take into consideration the npc's group and what they're doing, when deciding what group to join
-		var impression_list:Array[Impression] = OWNER.get_all_impressions(npc_list)
-		impression_list.sort_custom(func(a,b): return a.SCORE > b.SCORE)
+		var rel_list:Array[RELATIONSHIP] = ENGINE.RelationshipManager.get_relationship_list(OWNER, npc_list)
+		# var impression_list:Array[Impression] = OWNER.get_all_impressions(npc_list)
+		rel_list.sort_custom(func(a,b): return a.SCORE > b.SCORE)
 
-		OWNER.BLACKBOARD["target_npc"] = impression_list[0].TARGET
+		OWNER.BLACKBOARD["target_npc"] = rel_list[0].TARGET
 
 	var target_npc:NPC = OWNER.BLACKBOARD["target_npc"]
 

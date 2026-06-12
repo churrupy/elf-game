@@ -56,6 +56,14 @@ func leave_group(leaver:NPC) -> void:
 	
 	
 
+func update() -> void:
+	# removes empty or groups with just one npc in it
+	var clean_list:Array[GROUP]
+	for g:GROUP in GROUP_LIST:
+		if len(g.PARTICIPANTS) >= 2:
+			clean_list.append(g)
+	GROUP_LIST = clean_list
+
 #region debug
 
 func print_groups() -> void:

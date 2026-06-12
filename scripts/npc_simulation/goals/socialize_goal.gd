@@ -39,9 +39,10 @@ func run() -> ActionResult:
 
 
 	OWNER.look_at(group_location)
-	ENGINE.History.add_event(self)
+	add_action(ConverseAction)
+	# ENGINE.History.add_event(self)
 
-	return ActionResult.new("running")
+	return ActionResult.new("end")
 
 
 func _to_string() -> String:

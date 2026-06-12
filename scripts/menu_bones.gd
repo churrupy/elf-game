@@ -52,7 +52,6 @@ func init_presets() -> void:
 	player_button.text = "Player"
 	player_button.focus_mode = FocusMode.FOCUS_NONE
 	var player = ENGINE.get_node("Player")
-	print("node check", player)
 	bind_button_to_entry(player_button, player)
 	add_child(player_button)
 	player_button.position = Vector2(-64, 40)
@@ -209,7 +208,6 @@ func update() -> void:
 		CURRENT_ENTRY.populate_journal(self, ENGINE, SUBENTRY)
 
 func update_window() -> void:
-	print("panel menu updating window")
 	size = ENGINE.GameWindow.RIGHT_PANEL_SIZE
 	position = ENGINE.GameWindow.RIGHT_PANEL_LOCATION
 

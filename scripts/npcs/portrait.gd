@@ -1,4 +1,4 @@
-class_name Portrait extends Control
+class_name Portrait extends Container
 
 var BG: ColorRect = ColorRect.new()
 var HAIR: TextureRect = TextureRect.new()
@@ -21,11 +21,12 @@ func _ready() -> void:
 	add_child(NOSE)
 	add_child(MOUTH)
 	add_child(BANGS)
+	
 
 
 func update(npc:NPC) -> void:
 	#$Splash.modulate = npc.HAIR_COLOR
-	BG.modulate = npc.HAIR_COLOR
+	
 	
 	HAIR.texture = load(npc.PORTRAIT["hair"])
 	HAIR.modulate = npc.HAIR_COLOR
@@ -44,3 +45,8 @@ func update(npc:NPC) -> void:
 
 	BANGS.texture = load(npc.PORTRAIT["bangs"])
 	BANGS.modulate = npc.HAIR_COLOR
+
+	BG.modulate = npc.HAIR_COLOR * 0.7
+	BG.size = HAIR.get_minimum_size()
+	size = HAIR.get_minimum_size()
+	custom_minimum_size = HAIR.get_minimum_size()

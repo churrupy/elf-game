@@ -133,7 +133,7 @@ func run_filter() -> Array[NPC]:
 	#return action_list
 
 
-func populate_journal(menu, engine, _subentry) -> void:
+func populate_journal(menu, _engine, _subentry) -> void:
 	menu.update_title("NPCs")
 
 	if len(filtered_list) == 0:

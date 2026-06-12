@@ -9,44 +9,36 @@ var History:HISTORY_CLASS = HISTORY_CLASS.new(self)
 var NpcManager:NPC_MANAGER
 var InventoryManager:INVENTORY_MANAGER = INVENTORY_MANAGER.new(self)
 var GroupManager:GROUP_MANAGER = GROUP_MANAGER.new(self)
+var RelationshipManager:RELATIONSHIP_MANAGER = RELATIONSHIP_MANAGER.new(self)
 
 
 # menus
 var MenuBones:MENU_BONES
-# var Journal:JOURNAL
-# var CraftMenu:CRAFT_MENU
-# var PlayerMenu:PLAYER_MENU
 
 
 
-var UPDATABLES:Array
-var FULL_SCREEN:bool = false
+var UPDATABLES:Array 
 
 #region gamestate data
 var MODE:String = "club"
 var AUTORUN_TICKS:int = 00
-var ROOM:String
 var NUM_NPCS:int
+var FULL_SCREEN:bool = false
 
 #endregion gamestatedata
 
 
 func _init() -> void:
-
+	# children here need other children initialized first before they can initialize properly
 	var mode_data:Dictionary = Modes.MODES[MODE]
 	GameWindow = GAME_WINDOW.new(self)
 	Map = MAP.new(self, mode_data["room"])
-
-	#init managers
 
 	#init managers
 	NpcManager = NPC_MANAGER.new(self, mode_data["num_npcs"])
 
 	#init menus
 	MenuBones = MENU_BONES.new(self)
-	# Journal = JOURNAL.new(self, MenuBones)
-	#CraftMenu = CRAFT_MENU.new(self, MenuBones)
-	#PlayerMenu = PLAYER_MENU.new(self)
 
 
 #region init
@@ -55,13 +47,11 @@ func _ready() -> void:
 	
 	# set engine in children
 	add_child(Map)
-	move_child(Map, 0)
+	move_child(Map, 0) # controls draw order
 	add_child(NpcManager)
-	NpcManager.show()
 	add_child(MenuBones)
-	# add_child(Journal)
-	#add_child(CraftMenu)
-	#add_child(PlayerMenu)
+
+	# this is just a check, they should already be initialized with the engine anyways
 	for child in get_children():
 		if "ENGINE" in child:
 			child.ENGINE = self
@@ -71,13 +61,8 @@ func _ready() -> void:
 		Map,
 		NpcManager,
 		$HistoryMenu,
-		$TalkMenu,
 		MenuBones,
-		# Journal,
-		# CraftMenu,
 		$DefaultMenu,
-		# PlayerMenu,
-		# PlayerMenu,
 		
 	]
 
@@ -89,28 +74,21 @@ func _ready() -> void:
 func initialize_player():
 	print("initializing player")
 	# creating inventory
-	# creating inventory
 	InventoryManager.create_inventory($Player)
 
-	# putting player on map
 	# putting player on map
 	var loc_filter:LOCATION_FILTER = LOCATION_FILTER.new(self).set_list().is_passable()
 	var passable_locations:Array[Vector2] = loc_filter.run_filter()
 	$Player.LOCATION = passable_locations.pick_random()
 
 	# giving initial entry to journal
-	# MenuBones.CURRENT_ENTRY = $Player
 	MenuBones.init_presets() # because the journal is stupid
-	# update_focus_target("player")
 
 #endregion
 #region process
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
-
-	if Input.is_action_just_pressed("esc"):
-		quit()
 
 	if Input.is_action_just_pressed("esc"):
 		quit()
@@ -126,13 +104,11 @@ func _process(_delta: float) -> void:
 	
 	# mouse control
 	var mouse_position: Vector2 = get_viewport().get_mouse_position()
-	$MousePositionLabel.text = prettify_vector(mouse_position)
+	$MousePositionLabel.text = Global.prettify_vector(mouse_position)
 
 	if GameWindow.in_center_panel(mouse_position):
-	# if int(mouse_position[0]) in range(int(GameWindow.CENTER_PANEL_LOCATION[0]), int(GameWindow.CENTER_PANEL_LOCATION[0] + Constants.CENTER_PANEL_SIZE[0])):
-	# if int(mouse_position[0]) in range(int(Constants.CENTER_PANEL_LOCATION[0]), int(Constants.CENTER_PANEL_LOCATION[0] + Constants.CENTER_PANEL_SIZE[0])):
 		var location:Vector2 = Map.get_location_from_mouse(mouse_position)
-		$MouseTileLabel.text = prettify_vector(location)
+		$MouseTileLabel.text = Global.prettify_vector(location)
 		if Map.is_in_line_of_sight($Player.LOCATION, location): 
 			$MouseTileLabel.text += " **"
 
@@ -142,18 +118,10 @@ func _process(_delta: float) -> void:
 		loc_names.assign(loc_items.map(func(a): return a.NAME))
 		var loc_tag:String = ", ".join(loc_names)
 		$PeekLabel.text = loc_tag
-		# var loc_ids:Array[String]
-		# loc_ids.assign(loc_items.map(func(a): return a.ID))
-
-		# $DefaultMenu.open_menus(loc_ids)
 
 		if Input.is_action_just_pressed("mouse_click") and len(loc_items) > 0:
 			var top_item:Node = loc_items[0]
-			# Journal.toggle_journal(top_item.ID)
 			MenuBones.update_current_entry(top_item)
-			# Journal.toggle_journal(top_item.ID)
-			MenuBones.update_current_entry(top_item)
-			# $DefaultMenu.hold_menus(loc_ids)
 
 	if Input.is_action_just_pressed("auto_tick"):
 		tick()
@@ -194,13 +162,13 @@ func _process(_delta: float) -> void:
 
 
 func tick() -> void:
-	
+	# processes game state changes
 	print("")
 	print("ticking...")
 	
 	Global.TICKS += 1
 	print("Ticks: ", Global.TICKS)
-	print("Focused on " + Global.FOCUS_TARGET + " at " + str(Global.FOCUS_LOCATION))
+	print("Focused on " + GameWindow.FOCUS_TARGET + " at " + str(GameWindow.FOCUS_LOCATION))
 	NpcManager.tick()
 	update()
 
@@ -211,34 +179,26 @@ func tick() -> void:
 #region updates
 
 func update() -> void:
-
+	# processes display changes based on changing game state
 	print("updating main")
-	
 	for u in UPDATABLES:
-		if "update" in u:
-			u.update()
 		if "update" in u:
 			u.update()
 
 	update_player()
 
 func update_window() -> void:
+	# updates window/gui
 	for child in get_children():
 		if "update_window" in child:
 			child.update_window()
 
 	update()
 
-#func update_window() -> void:
-	#for child in get_children():
-		#if "update_window" in child:
-			#child.update_window()
-#
-	#update()
 
 
 func update_player() -> void:
-	if Global.FOCUS_TARGET != "player":
+	if GameWindow.FOCUS_TARGET != "player":
 		var global_location:Vector2 = GameWindow.get_global_location($Player.LOCATION)
 		if global_location[0] < 0 or global_location[1] < 0:
 			$Player.global_position = Vector2(-100,-100) # put them off-screen
@@ -254,28 +214,6 @@ func update_player() -> void:
 
 	
 #endregion updates
-
-#region debug
-func prettify_vector(v:Vector2) -> String:
-	return "(" + str(int(v[0])) + "," + str(int(v[1])) + ")"
-
-
-#endregion
-
-# func get_screen_index(loc:Vector2) -> Vector2:
-# 	var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(loc[0]))
-# 	var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(loc[1]))
-# 	return Vector2(x_index, y_index)
-
-func is_on_screen(object: Node) -> bool:
-	var location: Vector2 = object.LOCATION
-	var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(location[0]))
-	if x_index < 0:
-		return false
-	var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(location[1]))
-	if y_index < 0:
-		return false
-	return true
 
 
 
@@ -318,13 +256,6 @@ func toggle_full_screen() -> void:
 		print("processing full screen")
 	GameWindow._process(0.0)
 
-
-#func quit() -> void:
-	#get_tree().quit()
-		#print("WINDOW CHECK ", get_window().size)
-		#print("")
-		#print("processing full screen")
-	#GameWindow._process(0.0)
 
 
 func quit() -> void:

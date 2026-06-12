@@ -148,9 +148,9 @@ func next_step() -> Vector2:
 func _to_string() -> String:
 	var str_list:Array[String] = [
 		"Start: ",
-		ENGINE.prettify_vector(START),
+		Global.prettify_vector(START),
 		", End: ",
-		ENGINE.prettify_vector(END),
+		Global.prettify_vector(END),
 		". PATH: ",
 		str(PATH)
 	]

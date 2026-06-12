@@ -13,24 +13,31 @@ var directions:Dictionary = {
 }
 
 func _init(loc:Vector2, tile:TILE, _wall:String) -> void:
+	ID = tile.ID
+	NAME = tile.NAME + " " + str(LOCATION)
+	TYPE = "door"
+	LOCATION = loc
+	DATA = Constants.TILE_TEMPLATES["door"]
+	FLOOR = TextureRect.new()
+	add_child(FLOOR)
+	FURNITURE = TextureRect.new()
+	add_child(FURNITURE)
+	add_loc_label()
+
 	wall = _wall
 	var dir:Array = directions[wall]
 	OPEN_TEXTURE = "res://models/doors/door_" + dir[0] + ".png"
 	CLOSED_TEXTURE = "res://models/doors/door_" + dir[1] + ".png"
 	open()
-	ID = tile.ID
-	NAME = tile.NAME
-	TYPE = "door"
-	LOCATION = loc
-	DATA = Constants.TILE_TEMPLATES["door"]
-	add_loc_label()
+	
+	
 
 
 func open() -> void:
-	texture = load(OPEN_TEXTURE)
+	FURNITURE.texture = load(OPEN_TEXTURE)
 	opened = true
 
 func close() -> void:
-	texture = load(CLOSED_TEXTURE)
+	FURNITURE.texture = load(CLOSED_TEXTURE)
 	opened = false
 

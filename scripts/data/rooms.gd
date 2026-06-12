@@ -8,6 +8,7 @@ var ROOM_TEMPLATES: Dictionary = {
 	"rooms": {
 		"public_bathroom": [Vector2(7,0)]
 	},
+	"floor": "wood",
 	"generic": false,
 	"doors": {},
 	"can_idle": true,
@@ -36,6 +37,7 @@ var ROOM_TEMPLATES: Dictionary = {
 			Vector2(2,6)
 		],
 	},
+	"floor": "wood",
 	"generic": true,
 	"doors": [Vector2(0,8)],
 	"furniture": {}
@@ -44,6 +46,7 @@ var ROOM_TEMPLATES: Dictionary = {
 	"size": Vector2(3,3),
 	"rooms":{},
 	"walls": true,
+	"floor": "wood",
 	"generic": true,
 	"doors": [Vector2(0,1)],
 	"furniture": {
@@ -57,6 +60,7 @@ var ROOM_TEMPLATES: Dictionary = {
 	"rooms": {},
 	"walls": true,
 	"doors": [],
+	"floor": "wood",
 	"generic": false,
 	"furniture": {
 		"kitchen_counter": [

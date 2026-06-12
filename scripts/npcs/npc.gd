@@ -84,10 +84,10 @@ func _draw()->void:
 	var direction_angle: float = DIRECTION.angle()
 	var start_angle: float = direction_angle + (PI/2)
 	var end_angle: float = direction_angle - (PI/2)
-	#draw_arc(LOCATION, ENGINE.GameWindow.TILE_SIZE, start_angle, end_angle, 20, HAIR_COLOR)
-	#for v: Vector2 in LOOKING_AT:
-		#var direction: Vector2 = LOCATION.direction_to(v) * Constants.TILE_SIZE
-		#draw_line(LOCATION, direction, HAIR_COLOR, 5.0)
+	# draw_arc(LOCATION, ENGINE.GameWindow.TILE_SIZE, start_angle, end_angle, 20, HAIR_COLOR)
+	# for v: Vector2 in LOOKING_AT:
+	# 	var direction: Vector2 = LOCATION.direction_to(v) * Constants.TILE_SIZE
+	# 	draw_line(LOCATION, direction, HAIR_COLOR, 5.0)
 
 #region initialize
 func initialize():
@@ -161,7 +161,7 @@ func set_needs() -> void:
 		"social": 90.0,
 		"fun": 90.0,
 		# "bladder": randf_range(40.0, 90.0),
-		"bladder": 40.0,
+		"bladder": 90.0,
 		"arousal": 0.0
 	}
 
@@ -201,47 +201,47 @@ func _to_string():
 
 #region MEMORIES
 
-func get_known_npcs() -> Array[NPC]:
-	# need a better filter on this lol
-	var known_npcs:Array[NPC]
-	for memory:MEMORY in MEMORIES:
-		var action:ACTION = memory.EVENT_ACTION
-		var involved_npcs:Array[NPC] = action.get_involved_npcs()
-		for npc:NPC in involved_npcs:
-			if npc not in known_npcs:
-				known_npcs.append(npc)
-	return known_npcs
+# func get_known_npcs() -> Array[NPC]:
+# 	# need a better filter on this lol
+# 	var known_npcs:Array[NPC]
+# 	for memory:MEMORY in MEMORIES:
+# 		var action:ACTION = memory.EVENT_ACTION
+# 		var involved_npcs:Array[NPC] = action.get_involved_npcs()
+# 		for npc:NPC in involved_npcs:
+# 			if npc not in known_npcs:
+# 				known_npcs.append(npc)
+# 	return known_npcs
 
-func knows_npc(target:NPC) -> bool:
-	var known_npcs:Array[NPC] = get_known_npcs()
-	return target in known_npcs
+# func knows_npc(target:NPC) -> bool:
+# 	var known_npcs:Array[NPC] = get_known_npcs()
+# 	return target in known_npcs
 
 
-func get_impression_of_npc(npc:NPC) -> Impression:
-	var impression: Impression = Impression.new(self, npc)
-	if npc.STYLE in LIKES:
-		impression.ATTRACTIVE = 1
-	elif npc.STYLE in DISLIKES:
-		impression.ATTRACTIVE = -1
+# func get_impression_of_npc(npc:NPC) -> Impression:
+# 	var impression: Impression = Impression.new(self, npc)
+# 	if npc.STYLE in LIKES:
+# 		impression.ATTRACTIVE = 1
+# 	elif npc.STYLE in DISLIKES:
+# 		impression.ATTRACTIVE = -1
 
-	var filter:MEMORY_FILTER = MEMORY_FILTER.new().set_owner(self).must_have_npc(npc)
-	var memories:Array[MEMORY] = filter.run_filter()
+# 	var filter:MEMORY_FILTER = MEMORY_FILTER.new().set_owner(self).must_have_npc(npc)
+# 	var memories:Array[MEMORY] = filter.run_filter()
 
-	for memory:MEMORY in memories:
-		# fucking something
-		pass
-	return impression
+# 	for memory:MEMORY in memories:
+# 		# fucking something
+# 		pass
+# 	return impression
 
-func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
-	if len(npc_list) == 0:
-		npc_list = get_known_npcs()
-	var impression_list:Array[Impression]
+# func get_all_impressions(npc_list:Array[NPC] = []) -> Array[Impression]:
+# 	if len(npc_list) == 0:
+# 		npc_list = get_known_npcs()
+# 	var impression_list:Array[Impression]
 	
-	for npc:NPC in npc_list:
-		if npc == self: continue
-		var impression:Impression = get_impression_of_npc(npc)
-		impression_list.append(impression)
-	return impression_list
+# 	for npc:NPC in npc_list:
+# 		if npc == self: continue
+# 		var impression:Impression = get_impression_of_npc(npc)
+# 		impression_list.append(impression)
+# 	return impression_list
 
 
 #endregion memories
@@ -264,9 +264,13 @@ func get_existing_memory(_action:ACTION) -> MEMORY:
 
 
 func get_opinion(tag: String) -> int:
-	if tag in LIKES: return 1
-	elif tag in DISLIKES: return -1
-	else: return 0
+	print("getting opinion")
+	if tag in LIKES: 
+		return 1
+	elif tag in DISLIKES: 
+		return -1
+	else: 
+		return 0
 
 
 
@@ -299,15 +303,15 @@ func does_share_opinion(topic: String, opinion: int) -> int:
 
 func print_goal_stack() -> void:
 	print(NAME, "'s goals: ", GOAL_STACK)
-	# for action:ACTION in STATE_STACK:
-	# 	print(action)
+
 
 
 #endregion relationships
 
+#region location
+
 func look_at(_loc:Vector2) -> void:
 	DIRECTION = _loc - LOCATION
-	print("updating direction to: ", DIRECTION)
 
 
 func update_direction(new_direction:Vector2) -> void:
@@ -328,6 +332,7 @@ func update_direction(new_direction:Vector2) -> void:
 		#direction_text = "X"
 	DIRECTION_LABEL.text = direction_text
 
+#endregion location
 
 
 #region actions
@@ -342,48 +347,17 @@ func react_to_memory_list(mem_list:Array[MEMORY]) -> String:
 
 #endregion actions
 
-# func generate_general() -> RichTextLabel:
-# 	var display:RichTextLabel = RichTextLabel.new()
-# 	display.push_paragraph(ALIGNMENT)
-# 	display.push_bold()
-# 	display.add_text("ID: ")
-# 	display.pop()
-# 	display.add_text(ID)
-# 	display.pop()
 
-# 	display.push_paragraph(ALIGNMENT)
-# 	display.push_bold()
-# 	display.add_text("Location: ")
-# 	display.pop()
-# 	display.add_text(LOCATION)
-# 	display.pop()
-
-# 	display.push_paragraph(ALIGNMENT)
-# 	display.push_bold()
-# 	display.add_text("Action: ")
-# 	display.pop()
-# 	display.add_text(str(ACTION_STACK.back()))
-# 	display.pop()
-
-# 	return display
 
 
 #region journal
-func populate_journal(menu, engine, subentry:String="Needs") -> void:
-	print("populating entry for: ", NAME)
+func populate_journal(menu, engine, subentry:String="Details") -> void:
 	menu.update_title(NAME)
-
-	# replace the "index" pages with a filter
-	# so add "populate_journal" function to filter	
-	# var nav_list:Array[String] = [
-	# 	"All",
-	# 	"NPCs"
-	# ]
-	# menu.update_navigation(menu)
 
 	populate_snap(menu)
 
 	var subnav_list:Array[String] = [
+		"Details",
 		"Needs",
 		"Interests",
 		"Relationships",
@@ -393,14 +367,14 @@ func populate_journal(menu, engine, subentry:String="Needs") -> void:
 	menu.generate_subnav(subnav_list)
 
 	if subentry == "":
-		subentry = "Needs"
-
-	var title:Label = Label.new()
-	title.text = subentry.to_upper()
-	menu.add_to_entry(title)
+		subentry = "Details"
 
 	
 	match subentry:
+		"Details":
+			var new_wiki:Wiki = details_to_wiki()
+			menu.add_to_entry(new_wiki)
+
 		"Needs":
 			for need:String in NEEDS.keys():
 				var _str:String = need.capitalize() + ": " + str(int(NEEDS[need]))
@@ -420,55 +394,75 @@ func populate_journal(menu, engine, subentry:String="Needs") -> void:
 		"Relationships":
 			var npc_group:GROUP = engine.GroupManager.get_group(self)
 			if npc_group != null:
-				var label:Label = Label.new()
-				label.text = "Currently in a grou with: "
-				menu.add_to_entry(label)
+				var group_wiki:Wiki = npc_group.to_wiki_with_focus(self)
+				menu.add_to_entry(group_wiki)
 
-				var names:Array = npc_group.PARTICIPANTS.map(func(a): return a.NAME)
-				names = names.filter(func(a): return a != NAME)
-				names[-1] = "and " + names[-1]
-				var name_string:String = ", ".join(names)
+			var web:SOCIAL_WEB = engine.RelationshipManager.get_web(self)
+			var web_wiki:Wiki = web.to_wiki()
+			menu.add_to_entry(web_wiki)
 
-				label = Label.new()
-				label.text = name_string
-				menu.add_to_entry(label)
-
-			var impression_list:Array[Impression] = get_all_impressions()
-			for impression:Impression in impression_list:
-				var target:NPC = impression.TARGET
-				var npc_button:Button = Button.new()
-				npc_button.text = target.ID
-				menu.bind_button_to_entry(npc_button, target)
-				menu.add_to_entry(npc_button)
-
-				var new_wiki:Wiki = impression.to_wiki()
-				menu.add_to_entry(new_wiki)
 
 		"Inventory":
-			print("generating inventory")
 			var inventory:INVENTORY = engine.InventoryManager.get_inventory_of(ID)
 			var inventory_wiki:Wiki = inventory.to_wiki()
 			menu.add_to_entry(inventory_wiki)
-			# var inventory_summary:Array = inventory.get_summary()
-			# for i:Dictionary in inventory_summary:
-			# 	var new_display:RichTextLabel = i["item"].create_display(i["count"])
-			# 	menu.add_to_entry(new_display)
-
 
 
 
 
 func populate_snap(menu) -> void:
-	var display_list:Array[String] = [
-		"ID: " + ID,
-		"Gender: " + GENDER,
-	]
+	var snapshot:HBoxContainer = HBoxContainer.new()
 
-	for item:String in display_list:
-		var new_label:Label = Label.new()
-		new_label.text = item
-		new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		menu.add_to_entry(new_label)
+	var portrait:Portrait = Portrait.new()
+	portrait.update(self)
+
+	snapshot.add_child(portrait)
+
+	var new_wiki:Wiki = Wiki.new()
+	var display_dict:Dictionary = {
+		"ID: ": ID,
+		"Gender: ": GENDER
+	}
+
+	for key in display_dict.keys():
+		new_wiki.add_text_bold(key)
+		new_wiki.add_text(display_dict[key])
+		new_wiki.add_newline()
+
+	# var snap_details:VBoxContainer = VBoxContainer.new()
+
+	# var display_list:Array[String] = [
+	# 	"ID: " + ID,
+	# 	"Gender: " + GENDER,
+	# ]
+
+	# for item:String in display_list:
+	# 	var new_label:Label = Label.new()
+	# 	new_label.text = item
+	# 	new_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# 	snap_details.add_child(new_label)
+
+	snapshot.add_child(new_wiki)
+	menu.add_to_entry(snapshot)
+
+func details_to_wiki() -> Wiki:
+	var new_wiki:Wiki = Wiki.new()
+
+	new_wiki.add_header("DETAILS")
+
+	new_wiki.add_text_bold("Style:")
+	new_wiki.add_text(STYLE)
+	new_wiki.add_newline()
+
+	new_wiki.add_text_bold("Current Location:")
+	new_wiki.add_text(Global.prettify_vector(LOCATION))
+	new_wiki.add_newline()
+
+	new_wiki.add_text_bold("Current Action:")
+	new_wiki.add_text(str(ACTION_STACK.back()))
+	new_wiki.add_newline()
+
+	return new_wiki
 
 
 
@@ -477,6 +471,9 @@ func populate_snap(menu) -> void:
 
 
 func is_available() -> bool:
+	if len(ACTION_STACK) <= 1:
+		# npc is idling
+		return true
 	return ACTION_STACK.back().CHATTABLE
 
 func has_action_id(_id:String) -> bool:

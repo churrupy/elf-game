@@ -4,6 +4,7 @@ var ENGINE
 var NPCS: Array[NPC]
 #var Determinator: ActionDeterminator
 
+#region init
 func _init(engine, num_npcs:int) -> void:
 	ENGINE = engine
 	#Determinator = ActionDeterminator.new(ENGINE)
@@ -27,12 +28,15 @@ func create_npc() -> void:
 	npc.LOCATION = filtered_locations.pick_random()
 	npc.initialize()
 	NPCS.append(npc)
-	Global.NPCS[npc.ID] = npc
+	#Global.NPCS[npc.ID] = npc
 	ENGINE.InventoryManager.create_inventory(npc)
+	ENGINE.RelationshipManager.create_web(npc)
 	
 	# initialize npc goal stack
 	var idle_goal:ACTION = IdleGoal.new(ENGINE, npc, null)
 	npc.ACTION_STACK.append(idle_goal)
+
+#endregion init
 
 #region tick
 
@@ -71,6 +75,11 @@ func tick() -> void:
 				if index > -1:
 					npc.ACTION_STACK.remove_at(index)
 				continuing = true
+			elif res.STATUS == "end turn":
+				current_action.end_action()
+				var index:int = npc.ACTION_STACK.find(current_action)
+				if index > -1:
+					npc.ACTION_STACK.remove_at(index)
 			# if res.STATUS == "success":
 			# 	npc.ACTION_STACK.pop_back()
 			# 	continuing = true
@@ -174,20 +183,6 @@ func update() -> void:
 		# global_location[0] = global_location[0] + ENGINE.GameWindow.CENTER_PANEL_LOCATION[0]
 		add_child(npc)
 		npc.position = global_location
-		
-
-		# var x_index: int = range(Global.X_RANGE[0], Global.X_RANGE[1]).find(int(npc.LOCATION[0]))
-		# if x_index < 0:
-		# 	continue
-		# var y_index: int = range(Global.Y_RANGE[0], Global.Y_RANGE[1]).find(int(npc.LOCATION[1]))
-		# if y_index < 0:
-		# 	continue
-
-		# add_child(npc)
-		# npc.global_position[0] = (x_index * Constants.TILE_SIZE) + Constants.CENTER_PANEL_LOCATION[0]
-		# npc.global_position[1] = y_index * Constants.TILE_SIZE
-		# npc.global_position = npc.global_position + Vector2(Constants.TILE_SIZE/2, Constants.TILE_SIZE/2)
-		# npc.show()
 
 		# draws line between npc and the other npcs it can see (that are close by)
 		# does not show ALL other npcs an npc can see, just the close ones
@@ -213,17 +208,17 @@ func is_reserved(location:Vector2) -> bool:
 	return false
 
 
-func print_reserved_locations() -> void:
-	for npc:NPC in NPCS:
-		var current_action:ACTION = npc.STATE_STACK.back()
-		print(ENGINE.prettify_vector(current_action.LOCATION))
+# func print_reserved_locations() -> void:
+# 	for npc:NPC in NPCS:
+# 		var current_action:ACTION = npc.STATE_STACK.back()
+# 		print(Global.prettify_vector(current_action.LOCATION))
 
-func get_reserved_locations() -> Array[Vector2]:
-	var result_list:Array[Vector2]
-	for npc:NPC in NPCS:
-		if npc.GOAL_ACTION != null:
-			result_list.append(npc.get_reserved_location())
-	return result_list
+# func get_reserved_locations() -> Array[Vector2]:
+# 	var result_list:Array[Vector2]
+# 	for npc:NPC in NPCS:
+# 		if npc.GOAL_ACTION != null:
+# 			result_list.append(npc.get_reserved_location())
+# 	return result_list
 
 
 #endregion filters
@@ -232,15 +227,18 @@ func get_reserved_locations() -> Array[Vector2]:
 
 #region utility
 func get_npc(npc_id:String) ->NPC:
-	for npc:NPC in NPCS:
-		if npc_id == npc.ID:
-			return npc
-	return null
+	var index:int = NPCS.find_custom(func(a): return a.ID == npc_id)
+	if index > -1:
+		return NPCS[index]
+	else:
+		return null
+	# return NPCS.find_custom(func(a): return a.ID == npc_id)
+	# for npc:NPC in NPCS:
+	# 	if npc_id == npc.ID:
+	# 		return npc
+	# return null
 
 
-func generate_title(npc_id:String) -> String:
-	var npc:NPC = get_npc(npc_id)
-	return npc.NAME
 
 #func generate_navlist(npc_id:String = "NPCS") -> Array[String]:
 	#var return_string:Array[String]
@@ -272,12 +270,12 @@ func generate_title(npc_id:String) -> String:
 
 
 #region convert
-func get_npc_names(npc_list:Array[NPC]=NPCS) -> Array[String]:
-	# HUH BLUH BLUH HOW DOES ECS WORK BLU BLUH
-	var result_list:Array[String]
-	for npc:NPC in npc_list:
-		result_list.append(npc.NAME)
-	return result_list
+# func get_npc_names(npc_list:Array[NPC]=NPCS) -> Array[String]:
+# 	# HUH BLUH BLUH HOW DOES ECS WORK BLU BLUH
+# 	var result_list:Array[String]
+# 	for npc:NPC in npc_list:
+# 		result_list.append(npc.NAME)
+# 	return result_list
 
 #endregion
 

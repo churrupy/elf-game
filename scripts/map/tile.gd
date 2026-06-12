@@ -3,24 +3,32 @@ class_name TILE extends TextureRect
 var ID: String
 var NAME: String
 var TYPE: String
+var FLOOR_TYPE:String
 var LOCATION: Vector2
 var DATA:Dictionary
+
+var FLOOR:TextureRect
+var FURNITURE:TextureRect
 
 
 func _init(loc:Vector2, type:String="empty") -> void:
 	ID = "tile" + str(Global.get_counter())
 	TYPE = type
-	NAME = type
+	NAME = TYPE + " " + str(LOCATION)
 	LOCATION = loc
+
+	FLOOR = TextureRect.new()
+	add_child(FLOOR)
+	FURNITURE = TextureRect.new()
+	add_child(FURNITURE)
+
 	update_type(type)
 	add_loc_label()
-	# DATA = Constants.TILE_TEMPLATES[TYPE]
-	# texture = load("res://models/" + DATA["sprite"])
 
 func in_range(_loc:Vector2) -> bool:
 	var distance:float = _loc.distance_to(LOCATION)
-	var range:Array = DATA["interactable_range"]
-	if distance >= range[0] and distance <= range[1]:
+	var interactable_range:Array = DATA["interactable_range"]
+	if distance >= interactable_range[0] and distance <= interactable_range[1]:
 		return true
 	return false
 
@@ -40,16 +48,22 @@ func update_type(new_type:String="empty") -> void:
 	TYPE = new_type
 	DATA = Constants.TILE_TEMPLATES[new_type]
 	NAME = TYPE + " " + str(LOCATION)
-	NAME = TYPE + " " + str(LOCATION)
-	texture = load("res://models/" + DATA["sprite"])
+	if TYPE != "empty":
+		FURNITURE.texture = load("res://models/" + DATA["sprite"])
+		FURNITURE.modulate = Color(0.796,0.722,0.663)
+
+func update_floor(new_type:String="floor") -> void:
+	FLOOR_TYPE = new_type
+	var png_name:String = Constants.FLOOR_LIST[FLOOR_TYPE]
+	FLOOR.texture = load("res://models/" + png_name)
+	FLOOR.modulate = Color(.204,.278,.337)
 
 
 func populate_journal(menu, engine, _subentry:String) -> void:
-	print("populating entry for: ", NAME)
 	menu.update_title(NAME)
 
 	var new_label:Label = Label.new()
-	new_label.text = "LOCATION: " + engine.prettify_vector(LOCATION)
+	new_label.text = "LOCATION: " + Global.prettify_vector(LOCATION)
 	menu.add_to_entry(new_label)
 
 
@@ -60,10 +74,7 @@ func populate_journal(menu, engine, _subentry:String) -> void:
 	var inventory:INVENTORY = engine.InventoryManager.get_inventory_of(ID)
 	var inventory_wiki:Wiki = inventory.to_wiki()
 	menu.add_to_entry(inventory_wiki)
-	# var inventory_summary:Array = inventory.get_summary()
-	# for i:Dictionary in inventory_summary:
-	# 	var new_display:RichTextLabel = i["item"].create_display(i["count"])
-	# 	menu.add_to_entry(new_display)
+
 
 
 func _to_string():
